@@ -51,7 +51,24 @@ outwards. This helps to find the closest meaning of the name (the one not
 shadowed by anything else). The transition to outer rib may also change the
 rules what names are usable ‒ if there are nested functions (not closures), the
 inner one can't access parameters and local bindings of the outer one, even
-though they should be visible by ordinary scoping rules.
+though they should be visible by ordinary scoping rules. An example:
+
+```rust
+fn do_something<T: Default>(val: T) { // <- New rib in both types and values (1)
+    // `val` is accessible, as is the helper function
+    // `T` is accessible
+    let helper = || { // New rib on `helper` (2) and another on the block (3)
+        // `val` is accessible here
+    }; // End of (3)
+    // `val` is accessible, `helper` variable shadows `helper` function
+    fn helper() { // <- New rib in both types and values (4)
+        // `val` is not accessible here, (4) is not transparent for locals)
+        // `T` is not accessible here
+    } // End of (4)
+    let val = T::default(); // New rib (5)
+    // `val` is the variable, not the parameter here
+} // End of (5), (2) and (1)
+```
 
 Because the rules for different namespaces are a bit different, each namespace
 has its own independent rib stack that is constructed in parallel to the others.
@@ -64,7 +81,7 @@ names, because at the point of use of a name it is already introduced in the Rib
 hierarchy.
 
 There are some exceptions to this. Items are bit tricky, because they can be
-used even before encountered ‒ therefore every bock needs to be first scanned
+used even before encountered ‒ therefore every block needs to be first scanned
 for items to fill in its Rib.
 
 Other, even more problematic ones, are imports which need recursive fixed-point
