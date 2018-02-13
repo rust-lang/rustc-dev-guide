@@ -21,3 +21,4 @@
     - [MIR optimizations](./mir-optimizations.md)
 - [Generating LLVM IR](./trans.md)
 - [Glossary](./glossary.md)
+- [Code Index](./code-index.md)
