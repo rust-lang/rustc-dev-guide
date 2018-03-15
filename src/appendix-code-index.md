@@ -21,3 +21,4 @@ Item            |  Kind    | Short description           | Chapter            | 
 [The parser]: the-parser.html
 [The Rustc Driver]: rustc-driver.html
 [The `ty` modules]: ty.html
+[Rustdoc]: rustdoc.html
