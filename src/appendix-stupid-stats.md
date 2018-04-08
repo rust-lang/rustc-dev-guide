@@ -3,7 +3,7 @@
 > **Note:** This is a copy of `@nrc`'s amazing [stupid-stats]. You should find
 > a copy of the code on the GitHub repository although due to the compiler's
 > constantly evolving nature, there is no guarantee it'll compile on the first
-> go. 
+> go.
 
 Many tools benefit from being a drop-in replacement for a compiler. By this, I
 mean that any user of the tool can use `mytool` in all the ways they would
@@ -87,14 +87,16 @@ in [librustc_back](https://github.com/rust-lang/rust/tree/master/src/librustc_ba
 (which also contains some things used primarily during translation).
 
 All these phases are coordinated by the driver. To see the exact sequence, look
-at the `compile_input` function in [librustc_driver/driver.rs](https://github.com/rust-lang/rust/tree/master/src/librustc_driver/driver.rs).
-The driver (which is found in [librust_driver](https://github.com/rust-lang/rust/tree/master/src/librustc_driver))
-handles all the highest level coordination of compilation - handling command
-line arguments, maintaining compilation state (primarily in the `Session`), and
-calling the appropriate code to run each phase of compilation. It also handles
-high level coordination of pretty printing and testing. To create a drop-in
-compiler replacement or a compiler replacement, we leave most of compilation
-alone and customise the driver using its APIs.
+at [the `compile_input` function in `librustc_driver`][compile-input].
+The driver handles all the highest level coordination of compilation - 
+    1. handling command-line arguments 
+    2. maintaining compilation state (primarily in the `Session`)
+    3. calling the appropriate code to run each phase of compilation
+    4. handles high level coordination of pretty printing and testing.
+To create a drop-in compiler replacement or a compiler replacement, 
+we leave most of compilation alone and customise the driver using its APIs.
+
+[compile-input]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_driver/driver/fn.compile_input.html
 
 
 ## The driver customisation APIs
@@ -111,7 +113,7 @@ between phases.
 `CompilerCalls` is a trait that you implement in your tool. It contains a fairly
 ad-hoc set of methods to hook in to the process of processing command line
 arguments and driving the compiler. For details, see the comments in
-[librustc_driver/lib.rs](https://github.com/rust-lang/rust/tree/master/src/librustc_driver/lib.rs).
+[librustc_driver/lib.rs](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_driver/index.html).
 I'll summarise the methods here.
 
 `early_callback` and `late_callback` let you call arbitrary code at different
@@ -175,7 +177,7 @@ foo.rs` (assuming you have a Rust program called `foo.rs`. You can also pass any
 command line arguments that you would normally pass to rustc). When you run it
 you'll see output similar to
 
-```
+```text
 In crate: foo,
 
 Found 12 uses of `println!`;
@@ -203,7 +205,7 @@ should dump stupid-stats' stdout to Cargo's stdout).
 
 Let's start with the `main` function for our tool, it is pretty simple:
 
-```
+```rust,ignore
 fn main() {
     let args: Vec<_> = std::env::args().collect();
     rustc_driver::run_compiler(&args, &mut StupidCalls::new());
@@ -221,7 +223,7 @@ this tool different from rustc.
 
 `StupidCalls` is a mostly empty struct:
 
-```
+```rust,ignore
 struct StupidCalls {
     default_calls: RustcDefaultCalls,
 }
@@ -236,7 +238,7 @@ to keep Cargo happy.
 
 Most of the rest of the impl of `CompilerCalls` is trivial:
 
-```
+```rust,ignore
 impl<'a> CompilerCalls<'a> for StupidCalls {
     fn early_callback(&mut self,
                         _: &getopts::Matches,
@@ -298,7 +300,7 @@ tool does it's actual work by walking the AST. We do that by creating an AST
 visitor and making it walk the AST from the top (the crate root). Once we've
 walked the crate, we print the stats we've collected:
 
-```
+```rust,ignore
 fn build_controller(&mut self, _: &Session) -> driver::CompileController<'a> {
     // We mostly want to do what rustc does, which is what basic() will return.
     let mut control = driver::CompileController::basic();
@@ -338,7 +340,7 @@ That is all it takes to create your own drop-in compiler replacement or custom
 compiler! For the sake of completeness I'll go over the rest of the stupid-stats
 tool.
 
-```
+```rust
 struct StupidVisitor {
     println_count: usize,
     arg_counts: Vec<usize>,
@@ -353,7 +355,7 @@ methods, these walk the AST taking no action. We override `visit_item` and
 functions, modules, traits, structs, and so forth, we're only interested in
 functions) and macros:
 
-```
+```rust,ignore
 impl<'v> visit::Visitor<'v> for StupidVisitor {
     fn visit_item(&mut self, i: &'v ast::Item) {
         match i.node {

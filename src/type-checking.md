@@ -17,9 +17,9 @@ similar conversions for where-clauses and other bits of the function signature.
 
 To try and get a sense for the difference, consider this function:
 
-```rust
+```rust,ignore
 struct Foo { }
-fn foo(x: Foo, y: self::Foo) { .. }
+fn foo(x: Foo, y: self::Foo) { ... }
 //        ^^^     ^^^^^^^^^
 ```
 
@@ -39,6 +39,6 @@ type *checking*).
 For more details, see the [`collect`][collect] module.
 
 [queries]: query.html
-[collect]: https://github.com/rust-lang/rust/blob/master/src/librustc_typeck/collect.rs
+[collect]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_typeck/collect/
 
 **TODO**: actually talk about type checking...

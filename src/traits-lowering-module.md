@@ -4,7 +4,7 @@ The program clauses described in the
 [lowering rules](./traits-lowering-rules.html) section are actually
 created in the [`rustc_traits::lowering`][lowering] module.
 
-[lowering]: https://github.com/rust-lang/rust/tree/master/src/librustc_traits/lowering.rs
+[lowering]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_traits/lowering/
 
 ## The `program_clauses_for` query
 
@@ -26,7 +26,7 @@ Unit tests are located in [`src/test/ui/chalkify`][chalkify]. A good
 example test is [the `lower_impl` test][lower_impl]. At the time of
 this writing, it looked like this:
 
-```rust
+```rust,ignore
 #![feature(rustc_attrs)]
 
 trait Foo { }
@@ -49,7 +49,7 @@ standard [ui test] mechanisms to check them. In this case, there is a
 need only be a prefix of the error), but [the stderr file] contains
 the full details:
 
-```
+```text
 error: Implemented(T: Foo) :- ProjectionEq(<T as std::iter::Iterator>::Item == i32), TypeOutlives(T \
 : 'static), Implemented(T: std::iter::Iterator), Implemented(T: std::marker::Sized).
   --> $DIR/lower_impl.rs:15:1

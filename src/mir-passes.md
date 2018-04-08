@@ -52,13 +52,13 @@ fn main() {
 The files have names like `rustc.main.000-000.CleanEndRegions.after.mir`. These
 names have a number of parts:
 
-```
+```text
 rustc.main.000-000.CleanEndRegions.after.mir
       ---- --- --- --------------- ----- either before or after
       |    |   |   name of the pass
       |    |   index of dump within the pass (usually 0, but some passes dump intermediate states)
       |    index of the pass
-      def-path to the function etc being dumped    
+      def-path to the function etc being dumped
 ```
 
 You can also make more selective filters. For example, `main & CleanEndRegions`
@@ -159,7 +159,7 @@ ensuring that the reads have already happened (remember that
 [queries are memoized](./query.html), so executing a query twice
 simply loads from a cache the second time):
 
-```
+```text
 mir_const(D) --read-by--> mir_const_qualif(D)
      |                       ^
   stolen-by                  |
@@ -172,6 +172,6 @@ This mechanism is a bit dodgy. There is a discussion of more elegant
 alternatives in [rust-lang/rust#41710].
 
 [rust-lang/rust#41710]: https://github.com/rust-lang/rust/issues/41710
-[mirtransform]: https://github.com/rust-lang/rust/tree/master/src/librustc_mir/transform/mod.rs
-[`NoLandingPads`]: https://github.com/rust-lang/rust/tree/master/src/librustc_mir/transform/no_landing_pads.rs
+[mirtransform]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/transform/
+[`NoLandingPads`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/transform/no_landing_pads/struct.NoLandingPads.html
 [MIR visitor]: mir-visitor.html

@@ -15,7 +15,7 @@ expansion works.
 It's helpful to have an example to refer to. For the remainder of this chapter,
 whenever we refer to the "example _definition_", we mean the following:
 
-```rust
+```rust,ignore
 macro_rules! printer {
     (print $mvar:ident) => {
         println!("{}", $mvar);
@@ -45,7 +45,7 @@ worrying about _where_. For more information about tokens, see the
 
 Whenever we refer to the "example _invocation_", we mean the following snippet:
 
-```rust
+```rust,ignore
 printer!(print foo); // Assume `foo` is a variable defined somewhere else...
 ```
 
@@ -65,7 +65,7 @@ defined in [`src/libsyntax/ext/tt/macro_parser.rs`][code_mp].
 
 The interface of the macro parser is as follows (this is slightly simplified):
 
-```rust
+```rust,ignore
 fn parse(
     sess: ParserSession,
     tts: TokenStream,
@@ -156,7 +156,7 @@ TODO
 
 
 [code_dir]: https://github.com/rust-lang/rust/tree/master/src/libsyntax/ext/tt
-[code_mp]: https://github.com/rust-lang/rust/tree/master/src/libsyntax/ext/tt/macro_parser.rs
-[code_mr]: https://github.com/rust-lang/rust/tree/master/src/libsyntax/ext/tt/macro_rules.rs
-[code_parse_int]: https://github.com/rust-lang/rust/blob/a97cd17f5d71fb4ec362f4fbd79373a6e7ed7b82/src/libsyntax/ext/tt/macro_parser.rs#L421
+[code_mp]: https://doc.rust-lang.org/nightly/nightly-rustc/syntax/ext/tt/macro_parser/
+[code_mr]: https://doc.rust-lang.org/nightly/nightly-rustc/syntax/ext/tt/macro_rules/
+[code_parse_int]: https://doc.rust-lang.org/nightly/nightly-rustc/syntax/ext/tt/macro_parser/fn.parse.html
 [parsing]: ./the-parser.html
