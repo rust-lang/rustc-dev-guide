@@ -157,7 +157,7 @@ struct Bar {
 DEFINE_FOO
 ```
 
-Most people avoid writing C like this -- and for good reason: it doesn't
+Most people avoid writing C like this – and for good reason: it doesn't
 compile. The `struct Bar` defined by the macro clashes names with the `struct
 Bar` defined in the code. Consider also the following example:
 
