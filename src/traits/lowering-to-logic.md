@@ -50,7 +50,7 @@ so by applying the rules recursively:
 
 - `Clone(Vec<Vec<usize>>)` is provable if:
   - `Clone(Vec<usize>)` is provable if:
-    - `Clone(usize)` is provable. (Which is is, so we're all good.)
+    - `Clone(usize)` is provable. (Which it is, so we're all good.)
 
 But now suppose we tried to prove that `Clone(Vec<Bar>)`. This would
 fail (after all, I didn't give an impl of `Clone` for `Bar`):
