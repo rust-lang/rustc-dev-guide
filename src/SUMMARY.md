@@ -77,6 +77,7 @@
 - [Code Generation](./codegen.md)
   - [Updating LLVM](./codegen/updating-llvm.md)
 - [Emitting Diagnostics](./diag.md)
+  - [JSON diagnostic format](./diag/json-format.md)
 
 ---
 
