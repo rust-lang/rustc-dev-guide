@@ -111,12 +111,6 @@ regarding dropping private/hidden items can be bypassed by passing
 `--document-private-items` to rustdoc. Note that unlike the previous set of AST
 transformations, the passes happen on the _cleaned_ crate.
 
-(Strictly speaking, you can fine-tune the passes run and even add your own, but
-[we're trying to deprecate that][44136]. If you need finer-grain control over
-these passes, please let us know!)
-
-[44136]: https://github.com/rust-lang/rust/issues/44136
-
 Here is current (as of this writing) list of passes:
 
 - `propagate-doc-cfg` - propagates `#[doc(cfg(...))]` to child items.
