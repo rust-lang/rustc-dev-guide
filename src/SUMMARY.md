@@ -93,4 +93,9 @@
 [Appendix C: Glossary](./appendix/glossary.md)
 [Appendix D: Code Index](./appendix/code-index.md)
 [Appendix E: Bibliography](./appendix/bibliography.md)
+
+[Appendix Z HumorRust](./appendix/humorust.md)
+
+---
+
 [](./important-links.md)
