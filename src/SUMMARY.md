@@ -31,6 +31,7 @@
         - [The Query Evaluation Model in Detail](./queries/query-evaluation-model-in-detail.md)
         - [Incremental compilation](./queries/incremental-compilation.md)
         - [Incremental compilation In Detail](./queries/incremental-compilation-in-detail.md)
+        - [How Salsa works](./compiler_lectures/how_salsa_works.md)
         - [Debugging and Testing](./incrcomp-debugging.md)
     - [The parser](./the-parser.md)
     - [`#[test]` Implementation](./test-implementation.md)
