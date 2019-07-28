@@ -46,13 +46,13 @@ A query is some value that Salsa can access in the course of computation.
 Each query can have a number of keys (from 0 to many), and all queries have a result, akin to functions.
 0-key queries are called "input" queries.
 ### Database
-The database is basically the context for the entire computation, it's gonna store all Salsa's internal state, all intermediate values for each query, and anything else that the computation might need.
+The database is basically the context for the entire computation, it's meant to store Salsa's internal state, all intermediate values for each query, and anything else that the computation might need.
 The database must know all the queries that the library is going to do before it can be built, but they don't need to be specified in the same place.
 
-After the database is formed, it can be accessed with queries that are basically going to work like functions.
-Since each query is going to be stored in the database, when a query is invoked N times, it's going to return N **cloned** results, without having to recompute the query (unless the input has changed in such a way that it warrants recomputation).
+After the database is formed, it can be accessed with queries that are very similar to functions.
+Since each query's result is stored in the database, when a query is invoked N times, it will return N **cloned** results, without having to recompute the query (unless the input has changed in such a way that it warrants recomputation).
 
-For each input query (0-key), there's going to be a "set" method, that allows to change the output of such query, and trigger previous memoized values to be potentially invalidated.
+For each input query (0-key), a "set" method is generated, allowing the user to change the output of such query, and trigger previous memoized values to be potentially invalidated.
 
 ### Query Groups
 A query group is a set of queries which have been defined together as a unit. The database is formed by combining query groups.
