@@ -8,10 +8,10 @@ Salsa is a library for incremental recomputation, this means reusing computation
 
 The objectives of Salsa are:
  * Provide that functionality in an automatic way, so reusing old computations is done automatically by the library
- * Doing so in a "sound", or "correct", way, therefore leading the same results as if it had been done from scratch
+ * Doing so in a "sound", or "correct", way, therefore leading to the same results as if it had been done from scratch
 
-Salsa actual model is much richer, allowing many kinds of inputs and many different outputs.
-For example, integrating Salsa with an IDE could mean that the inputs could be the manifest (`Cargo.toml`), entire source files (`foo.rs`), snippets and so on; the outputs of such integration could range from a binary executable, to lints, types (for example, if a user selects a certain variable and wishes to see it's type), completitions etcetera.
+Salsa's actual model is much richer, allowing many kinds of inputs and many different outputs.
+For example, integrating Salsa with an IDE could mean that the inputs could be the manifest (`Cargo.toml`), entire source files (`foo.rs`), snippets and so on; the outputs of such an integration could range from a binary executable, to lints, types (for example, if a user selects a certain variable and wishes to see its type), completions, etc.
 
 ## How does it work?
 
@@ -23,11 +23,11 @@ For example, there might be a function `ast(x: Path) -> AST`. The produced `AST`
 
 This means that when you try to compute with the library, Salsa is going to compute various derived values, and eventually read the input and produce the result for the asked computation.
 
-Salsa is going to track, in the course of computing, which inputs were accessed, which derived values, and this is going to be used later to determine what's going to happen when the inputs change: are the derived values still valid? 
+In the course of computing, Salsa tracks which inputs were accessed and which values are derived. This information is used to determine what's going to happen when the inputs change: are the derived values still valid? 
 
-This doesn't mean necessarily that each computation downstream from the input is going to be checked, since that is going to be costly. Salsa only needs to check each downstream computation until it finds one that isn't changed, therefore it won't need to check the other derived computations, since they wouldn't need to change.
+This doesn't necessarily mean that each computation downstream from the input is going to be checked, which could be costly. Salsa only needs to check each downstream computation until it finds one that isn't changed. At that point, it won't check other derived computations since they wouldn't need to change.
 
-It's is helpful to think about this as a graph with nodes. Each derived value has a dependency on some other values, that could be base or derived. Base values don't have a dependency.
+It's is helpful to think about this as a graph with nodes. Each derived value has a dependency on other values, which could themselves be either base or derived. Base values don't have a dependency.
 
 ```ignore
 I <- A <- C ...
@@ -35,7 +35,7 @@ I <- A <- C ...
 J <- B <--+
 ```
 
-When an input `I` changes, the derived value `A` could have changed, but another derived value `B` , which doesn't depend neither on `I`, nor does it depends on `A`, nor does it depends on any other derived value from `A` or `I`, is not subject to change.
+When an input `I` changes, the derived value `A` could change. The derived value `B` , which does not depend on `I`, `A`, or any value derived from `A` or `I`, is not subject to change.
 Therefore, Salsa can reuse the computation done for `B` in the past, without having to compute it again.
 
 The computation could also terminate early. Keeping the same graph as before, say that input `I` has changed in some way (and input `J` hasn't) but, when computing `A` again, it's found that `A` hasn't changed from the previous computation. This leads to an "early termination", because there's no need to check if `C` needs to change, since both `C` direct inputs, `A` and `B`, haven't changed.
@@ -46,8 +46,8 @@ A query is some value that Salsa can access in the course of computation.
 Each query can have a number of keys (from 0 to many), and all queries have a result, akin to functions.
 0-key queries are called "input" queries.
 ### Database
-The database is basically the context for the entire computation, it's gonna store all Salsa's internal state, all intermidiate values for each query, and anything else that the computation might need.
-The database to know all the queries that the library is going to do before it can be build, but they don't need to be specified in the same place.
+The database is basically the context for the entire computation, it's gonna store all Salsa's internal state, all intermediate values for each query, and anything else that the computation might need.
+The database must know all the queries that the library is going to do before it can be built, but they don't need to be specified in the same place.
 
 After the database is formed, it can be accessed with queries that are basically going to work like functions.
 Since each query is going to be stored in the database, when a query is invoked N times, it's going to return N **cloned** results, without having to recompute the query (unless the input has changed in such a way that it warrants recomputation).
@@ -55,7 +55,7 @@ Since each query is going to be stored in the database, when a query is invoked 
 For each input query (0-key), there's going to be a "set" method, that allows to change the output of such query, and trigger previous memoized values to be potentially invalidated.
 
 ### Query Groups
-A query group is a set of queries which have been defined together as a unit. The dabase is formed by combining query groups.
+A query group is a set of queries which have been defined together as a unit. The database is formed by combining query groups.
 Query groups are akin to "Salsa modules" [^EN2].
 
 A set of queries in a query group are just a set of methods in a trait.
@@ -77,7 +77,7 @@ pub trait Inputs {
     //! This query group is a bunch of **input** queries, that do not rely on any derived input
 
     ///This attribute (`#[salsa::input]`) indicates that this query is a base input, 
-    ///therfore `set_manifest` is going to be auto-generated
+    ///therefore `set_manifest` is going to be auto-generated
     #[salsa::input]
     fn manifest(&self) -> Manifest;
     
@@ -86,7 +86,7 @@ pub trait Inputs {
 }
 ```
 
-To create a **derived** query group, one must specify which other query group does this one depends on, by specifying it as a supertrait, as seen in the following example:
+To create a **derived** query group, one must specify which other query groups this one depends on by specifying them as supertraits, as seen in the following example:
 
 ```rust,ignore
 ///This query group is going to contain queries that depend on derived values
