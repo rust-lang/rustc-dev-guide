@@ -33,7 +33,7 @@ rough heuristics:
   - need to inspect the resulting binary in some way? Then use `run-make`
 - For most other things, [a `ui` (or `ui-fulldeps`) test](#ui) is to be
   preferred:
-  - `ui` tests subsume both run-pass, compile-fail, and parse-fail tests
+  - `ui` tests subsume both compile-fail and parse-fail tests
   - in the case of warnings or errors, `ui` tests capture the full output,
     which makes it easier to review but also helps prevent "hidden" regressions
     in the output
@@ -42,15 +42,13 @@ rough heuristics:
 
 We have not traditionally had a lot of structure in the names of
 tests.  Moreover, for a long time, the rustc test runner did not
-support subdirectories (it now does), so test suites like
-[`src/test/run-pass`] have a huge mess of files in them. This is not
+support subdirectories (it now does), so some test suites have a
+huge mess of files in them. This is not
 considered an ideal setup.
-
-[`src/test/run-pass`]: https://github.com/rust-lang/rust/tree/master/src/test/run-pass/
 
 For regression tests – basically, some random snippet of code that
 came in from the internet – we often just name the test after the
-issue. For example, `src/test/run-pass/issue-12345.rs`. If possible,
+issue. For example, `src/test/ui/issue-12345.rs`. If possible,
 though, it is better if you can put the test into a directory that
 helps identify what piece of code is being tested here (e.g.,
 `borrowck/issue-12345.rs` is much better), or perhaps give it a more
@@ -61,7 +59,7 @@ tests**. For example, if you are implementing RFC 1234 ("Widgets"),
 then it might make sense to put the tests in directories like:
 
 - `src/test/ui/rfc1234-widgets/`
-- `src/test/run-pass/rfc1234-widgets/`
+- `src/test/run-fail/rfc1234-widgets/`
 - etc
 
 In other cases, there may already be a suitable directory. (The proper
@@ -216,7 +214,7 @@ The error levels that you can have are:
 ## Revisions
 
 Certain classes of tests support "revisions" (as of the time of this
-writing, this includes run-pass, compile-fail, run-fail, and
+writing, this includes compile-fail, run-fail, and
 incremental, though incremental tests are somewhat
 different). Revisions allow a single test file to be used for multiple
 tests. This is done by adding a special header at the top of the file:
@@ -283,8 +281,7 @@ you can even run the resulting program. Just add one of the following
   (which is expensive and isn't supposed to fail in most cases)
 - `// build-pass` – compilation and linking should succeed but do
   not run the resulting binary
-- `// run-pass` – compilation should succeed and we should run the
-  resulting binary
+- `// run-pass` – compilation should succeed and we should run the resulting binary
 
 <a name="bless"></a>
 
