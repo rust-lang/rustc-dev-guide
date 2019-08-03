@@ -10,7 +10,7 @@ install:
 - source ~/.cargo/env || true
 - bash ci/install.sh
 script:
-- mdbook build
+- RUST_LOG=mdbook_linkcheck=debug mdbook build
 - mdbook test
 notifications:
   email:
