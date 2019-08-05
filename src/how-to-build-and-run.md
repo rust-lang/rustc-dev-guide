@@ -425,7 +425,7 @@ In fact, it is sometimes useful to put off tests even when you are not
 100% sure the code will work. You can then keep building up
 refactoring commits and only run the tests at some later time. You can
 then use `git bisect` to track down **precisely** which commit caused
-the problem. A nice side-effect of this style is that you are left
+some problem. A nice side-effect of this style is that you are left
 with a fairly fine-grained set of commits at the end, all of which
 build and pass tests. This often helps reviewing.
 
