@@ -127,11 +127,185 @@ choose to import a larger or smaller set of names explicitly.
 
 # New WIP Content
 
+https://paper.dropbox.com/doc/Ty-lecture-8hOUpAEhOvoBQC5EYXKJM
+
 ```
+
+The many kinds of types
+- HIR types (rustdoc https://doc.rust-lang.org/nightly/nightly-rustc/rustc/hir/struct.Ty.html): describe the syntax of a type
+    - `fn foo(x: u32) → u32 { }` — these two instances of `u32` are distinct HIR types; they have distinct spans, etc
+    - `fn foo(x: &u32) -> &u32)` — the `&` here
+- `rustc::ty::Ty` [https://doc.rust-lang.org/nightly/nightly-rustc/rustc/ty/type.Ty.html] (rustdoc https://doc.rust-lang.org/nightly/nightly-rustc/rustc/ty/type.Ty.html): describe the semantics of a type
+    - TyS (rustdoc https://doc.rust-lang.org/nightly/nightly-rustc/rustc/ty/struct.TyS.html)
+    - TyKind (rustdoc https://doc.rust-lang.org/nightly/nightly-rustc/rustc/ty/enum.TyKind.html)
+
+
+```
+    fn foo(x: Ty<'tcx>) {
+      match x.sty {
+      }
+    }
+```
+
+
+- There are a lot of related types, we’ll cover these in time
+    - regions (aka, lifetimes)
+    - “substitutions”
+    - etc
+
+
+Interning
+- We create a LOT of types during compilation
+- They are allocated from a long-lived arena
+    - and they are canonicalized
+- CtxtInterners (link https://doc.rust-lang.org/nightly/nightly-rustc/rustc/ty/struct.CtxtInterners.html#structfield.arena)
+    - PartialEq for TyS (link https://github.com/rust-lang/rust/blob/3ee936378662bd2e74be951d6a7011a95a6bd84d/src/librustc/ty/mod.rs#L528-L534) can just compare pointers
+
+```
+    - Global <-- types that are global (u32) get allocated here
+      - Type-checking a specific fn
+        - local arena <-- types specific to type-checking
+```
+
+
+Generics and substitutions
+- Consider this (generic) struct:
+```
+    struct MyStruct<T> { x: u32, y: T }
+    //     ^ def_id1
+    //              ^ def_id2
+    // def_id => "Def path" => crate::foo::MyStruct
+```
+
+
+- A reference to this struct (e.g., `MyStruct<u32>`) is as `TyKind::Adt` (link https://github.com/rust-lang/rust/blob/3ee936378662bd2e74be951d6a7011a95a6bd84d/src/librustc/ty/sty.rs#L112)
+    - `Adt(&'tcx AdtDef, SubstsRef<'tcx>),`
+    - The `AdtDef` defines the struct (`MyStruct`) (enums, unions)
+        - could also be a `DefId`, but the AdtDef struct has useful helper methods
+        - `tcx.adt_def(def_id)` (link https://doc.rust-lang.org/nightly/nightly-rustc/rustc/ty/struct.TyCtxt.html#method.adt_def) to get one
+    - The `SubstsRef` (link https://doc.rust-lang.org/nightly/nightly-rustc/rustc/ty/subst/type.SubstsRef.html) is an interned list of types (`[u32]`)
+        - `&``'``tcx List<Kind<``'``tcx>>`
+            - `[u32, f32]` — list a
+                - `[f32]` — subslice of a
+            - `[f32]` — list b
+        - `&``'``tcx [Ty<``'``tcx>]` “morally 1.0”
+        - `&``'``tcx [Kind<``'``tcx>]` “morally 2.0” — kinds are either types or regions
+        - well, actually a list of kinds — we’ll come to that
+- What is the `Generics` struct (link https://doc.rust-lang.org/nightly/nightly-rustc/rustc/ty/struct.Generics.html)?
+    - Defines the type parameters
+
+
+Unsubstituted Generics
+- When inside the scope of a generic definition, generic types are represented by `TyKind::Param`
+
+```
+    struct Foo<A, B> { // Adt(Foo, &[Param(0), Param(1)])
+      x: Vec<A>, // Adt(Vec, &[Param(0)])
+      ..
+    }
+    // A would have index 0
+    // B would have index 1
+
+    impl<X, Y> Foo<X, Y> {
+      fn method<Z>() {
+        // inside here, X, Y and Z are all in scope
+        // X has index 0
+        // Y has index 1
+        // Z has index 2
+      }
+    }
+
+    fn bar(foo: Foo<u32, f32>) { // Adt(Foo, &[u32, f32])
+      let y = foo.x; // Vec<Param(0)> => Vec<u32>
+    }
+```
+
+
+- You can get the “self-view” of e.g. a struct using `tcx.type_of(field_def_id)`
+    - in case of `MyStruct`, that would come with a `SubstsRef` that has `TyKind::Param`
+- You can then `subst` (link https://doc.rust-lang.org/nightly/nightly-rustc/rustc/ty/subst/trait.Subst.html) to replace those `Param` with specific types
+    - example of invoking subst (link https://github.com/rust-lang/rust/blob/597f432489f12a3f33419daa039ccef11a12c4fd/src/librustc_typeck/astconv.rs#L942-L953)
+    - “morally”
+
+```
+    match t.sty {
+      TyParam(idx, ..) => substs[idx],
+      _ => t.super_fold_with(..)
+    }
+```
+
+TypeFoldable
+
+Analogy
+```
+    vec.iter().map(|e1| foo(e2)).collect()
+    //             ^^^^^^^^^^^^ analogous to folder
+    //         ^^^ analogous to "Typefoldable"
+```
+- `TypeFolder` (link) is a trait that defines a “map” operation:
+    - e.g., `fold_ty` (link) takes a type as input and returns a new type as a result
+- `TypeFoldable` (link) is a trait that is implemented by things that embed types
+    - it defines a kind of ‘map’ operation, which invokes the `TypeFolder`'s `fold_foo` methods on types, regions, etc that are contained within
+
+Typical form:
+
+```
+struct MyStruct<'tcx> {
+  def_id: DefId,
+  ty: Ty<'tcx>,
+}
+
+my_struct: MyStruct<'tcx>
+my_struct.subst(..., subst)
+
+impl TypeFoldable for MyStruct {
+  fn super_fold_with(&self, folder: &mut impl TypeFolder<'tcx>) -> MyStruct {
+    MyStruct {
+      def_id: self.def_id.fold_with(folder),
+      ty: self.ty.fold_with(folder),
+    }
+  }
+
+  fn super_visit_with(..) { }
+}
+```
+
+
+- Type like `Vec<Vec<X>>`
+    - Adt(Vec, &[Adt(Vec, &[Param(X)])]) when substituting X => u32 gives you
+    - Adt(Vec, &[Adt(Vec, &[u32])])
+- When you implement this trait, you define how to walk your type and — for each type embedded within — to process them
+- Macros are sometimes an option:
+    - `BraceStructTypeFoldableImpl` (link https://github.com/rust-lang/rust/blob/597f432489f12a3f33419daa039ccef11a12c4fd/src/librustc/ty/structural_impls.rs#L898-L900)
+    - sometimes subst shuld not have any effect (link https://github.com/rust-lang/rust/blob/597f432489f12a3f33419daa039ccef11a12c4fd/src/librustc/ty/structural_impls.rs#L294-L334)
+
+
+Errors
+- `Vec<``'``a>` // this would be caught earlier
+
+
+Question: Why not substitute “inside” the adt-def?
+
+The adt-def logically represents just the name of the struct (e.g., `Vec`). Its contents are always assumed to be expressed in terms of the “internal” or “self-view” — i.e., expressed in terms of the generics on the struct. If nothing else, this has an efficiency win:
+
+```
+    struct MyStruct<T> {
+      ... 100s of field .. Vec<T>
+    }
+
+    MyStruct<A> ==> MyStruct<B>
+```
+
+in an example like this, we can subst from `MyStruct<A>` to `MyStruct<B>` (and so on) very cheaply, by just replacing the one reference to `A` with `B`. But if we eagerly substituted all the fields, that could be a lot more work.
+
+A bit more deeply, this corresponds to structs in Rust being nominal types — which means that they are defined by their name (and that their contents are then indexed from the definition of that name, and not carried along “within” the type itself).
+
+# Spoken content
+
 ## The many kinds of types
 
 When we talk about how rustc represents types,
-we mostly talk about the module ty
+we mostly talk about the module `ty`.
 
 rustc:ty:Ty
 
