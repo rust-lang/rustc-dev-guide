@@ -24,7 +24,7 @@ mod my_priv_mod {
   }
 }
 ```
-Private items can thus be easily tested without worrying about how to expose 
+Private items can thus be easily tested without worrying about how to expose
 them to any sort of external testing apparatus. This is key to the
 ergonomics of testing in Rust. Semantically, however, it's rather odd.
 How does any sort of `main` function invoke these tests if they're not visible?
