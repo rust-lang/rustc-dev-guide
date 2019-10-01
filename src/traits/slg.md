@@ -126,7 +126,7 @@ literals and region constraints, an X-clause just looks like this:
 ```text
 G :- L
 ```
-    
+
 where G is a goal and L is a set of subgoals that must be proven.
 (The L stands for *literal* -- when we address negative reasoning, a
 literal will be either a positive or negative subgoal.) The idea is
@@ -182,7 +182,7 @@ the state of the strand to:
 ```text
 (Rc<?T>: Debug) :- selected(?T: Debug, A0)
 ```
-    
+
 Here, we write `selected(L, An)` to indicate that (a) the literal `L`
 is the selected subgoal and (b) which answer `An` we are looking for. We
 start out looking for `A0`.
@@ -210,14 +210,14 @@ follows:
 Table T0 [Rc<?0>: Debug]
   Strands:
     (Rc<?T>: Debug) :- selected(?T: Debug, A0)
-  
+
 Table T1 [?0: Debug]
   Strands:
     (u32: Debug) :-
     (Vec<?U>: Debug) :- (?U: Debug)
     (Rc<?V>: Debug) :- (?V: Debug)
 ```
-    
+
 **Delegation between tables.** Now that the active strand from T0 has
 created the table T1, it can try to extract an answer. It does this
 via that same `ensure_answer` operation we saw before. In this case,
