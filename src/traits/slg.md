@@ -47,7 +47,7 @@ well as the various *strands*, which are basically suspended
 computations that may be used to find more answers. Tables are
 interdependent: solving one query may require solving others.
 
-[`Forest`]: https://rust-lang.github.io/chalk/doc/chalk_engine/forest/struct.Forest.html
+[`Forest`]: https://rust-lang.github.io/chalk/chalk_engine/forest/struct.Forest.html
 
 ### Walkthrough
 
@@ -150,7 +150,7 @@ is the subgoal after the turnstile (`:-`) that we are currently trying
 to prove in this strand. Initially, when a strand is first created,
 there is no selected subgoal.
 
-[`ExClause`]: https://rust-lang.github.io/chalk/doc/chalk_engine/struct.ExClause.html
+[`ExClause`]: https://rust-lang.github.io/chalk/chalk_engine/struct.ExClause.html
 
 **Activating a strand.** Now that we have created the table T0 and
 initialized it with strands, we have to actually try and produce an answer.
@@ -187,7 +187,7 @@ Here, we write `selected(L, An)` to indicate that (a) the literal `L`
 is the selected subgoal and (b) which answer `An` we are looking for. We
 start out looking for `A0`.
 
-[`ensure_root_answer`]:  https://rust-lang.github.io/chalk/doc/chalk_engine/forest/struct.Forest.html#method.ensure_root_answer
+[`ensure_root_answer`]:  https://rust-lang.github.io/chalk/chalk_engine/forest/struct.Forest.html#method.ensure_root_answer
 
 **Processing the selected subgoal.** Next, we have to try and find an
 answer to this selected goal. To do that, we will u-canonicalize it
