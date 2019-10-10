@@ -31,9 +31,14 @@ priority**:
 
 ## Joining an ICE-breaker group
 
-To join an ICE-breaker group, you just have to open a PR adding your Github username to the appropriate file in the Rust team  repository. See the "example PRs" below to get a precise idea and to identify the file to edit.
+To join an ICE-breaker group, you just have to open a PR adding your
+Github username to the appropriate file in the Rust team  repository.
+See the "example PRs" below to get a precise idea and to identify the
+file to edit.
 
-Also, if you are not already a member of a Rust team then -- in addition to adding your name to the file -- you have to checkout the repository and run the following command:
+Also, if you are not already a member of a Rust team then -- in addition
+to adding your name to the file -- you have to checkout the repository and
+run the following command:
 
 ```bash
 cargo run add-person $your_user_name
