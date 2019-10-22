@@ -54,7 +54,7 @@ To tag an issue as appropriate for an ICE-breaker group, you give
 [rustbot] a [`ping`] command with the name of the ICE-breakers
 team. For example:
 
-```
+```text
 @rustbot ping icebreakers-llvm
 ```
 
