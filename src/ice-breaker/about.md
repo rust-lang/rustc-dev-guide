@@ -61,3 +61,6 @@ team. For example:
 **Note though that this should only be done by compiler team members
 or contributors, and is typically done as part of compiler team
 triage.**
+
+[rustbot]: https://github.com/rust-lang/triagebot/
+[`ping`]: https://github.com/rust-lang/triagebot/wiki/Pinging
