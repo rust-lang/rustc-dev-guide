@@ -174,7 +174,7 @@ crate.
 Every lint is implemented via a `struct` that implements the `LintPass` `trait`
 (you also implement one of the more specific lint pass traits, either
 `EarlyLintPass` or `LateLintPass`).  The trait implementation allows you to
-check certain syntactic constructs the linter walks the source code. You can
+check certain syntactic constructs as the linter walks the source code. You can
 then choose to emit lints in a very similar way to compile errors.
 
 You also declare the metadata of a particular lint via the `declare_lint!`
