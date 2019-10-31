@@ -99,15 +99,15 @@ for YOUR FEATURE".
 For tracking issues for features (as opposed to future-compat
 warnings), I don't think the description has to contain
 anything specific. Generally we put the list of items required
-for stabilization using a github list, e.g.
+for stabilization in a checklist, e.g.,
 
 ```txt
-    **Steps:**
+**Steps:**
 
-    - [ ] Implement the RFC (cc @rust-lang/compiler -- can anyone write
-          up mentoring instructions?)
-    - [ ] Adjust documentation ([see instructions on forge][doc-guide])
-    - Note: no stabilization step here.
+- [ ] Implement the RFC (cc @rust-lang/compiler -- can anyone write
+      up mentoring instructions?)
+- [ ] Stabilize the feature.
+- [ ] Adjust documentation.
 ```
 
 <a name="stability-in-code"></a>
