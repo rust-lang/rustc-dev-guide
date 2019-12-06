@@ -170,5 +170,9 @@ manually. Otherwise, you get an error like the following:
 thread 'main' panicked at 'RUSTC_STAGE was not set: NotPresent', src/libcore/result.rs:1165:5
 ```
 
-To find out the values of the variables, you can add the following flag to your
-`x.py` command: `--on-fail=print-env`.
+If `./stageN/bin/rustc` gives an error about environment variables, that
+usually means something is quite wrong -- or you're trying to compile e.g.
+`librustc` or `libstd` or something that depends on environment variables. In
+the unlikely case that you actually need to invoke rustc in such a situation,
+you can find the environment variable values by adding the following flag to
+your `x.py` command: `--on-fail=print-env`.
