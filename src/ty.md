@@ -218,7 +218,7 @@ allocate, and which are found in this module. Here are a few examples:
   as a slice `&'tcx [tcx.types.i32, tcx.types.u32]`).
 - `TraitRef`, typically passed by value – a **trait reference** consists of a reference to a trait
   along with its various type parameters (including `Self`), like `i32: Display` (here, the def-id
-  would reference the `Display` trait, and the substs would contain `i32`).
+  would reference the `Display` trait, and the substs would contain `i32`). Note that `def-id` is defined and discussed in depth in the `AdtDef and DefId` section.
 - `Predicate` defines something the trait system has to prove (see `traits` module).
 
 [subst]: ./generic_arguments.html#subst
