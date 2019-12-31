@@ -83,6 +83,6 @@ Note that you need to have the LLVM `FileCheck` tool installed, which is used
 for codegen tests. This tool is normally built with LLVM, but if you use your
 own preinstalled LLVM, you will need to provide `FileCheck` in some other way.
 On Debian-based systems, you can install the `llvm-N-tools` package (where `N`
-is the LLMV version number, e.g. `llvm-8-tools`).  Alternately, you can specify
+is the LLVM version number, e.g. `llvm-8-tools`).  Alternately, you can specify
 the path to `FileCheck` with the `llvm-filecheck` config item in `config.toml`
 or you can disable codegen test with the `codegen-tests` item in `config.toml`.
