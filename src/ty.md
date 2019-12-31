@@ -77,7 +77,7 @@ a type alias to [`&TyS`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc/t
 (more about that later). `TyS` (Type Structure) is where the main functionality is located. You can
 ignore `TyS` struct in general - you will basically never access it explicitly. We always pass it by
 reference using the `Ty` alias - the only exception is to define inherent methods on types. In
-particular, `TyS` has a `kind` field of type
+particular, `TyS` has a [`kind`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc/ty/struct.TyS.html#structfield.kind) field of type
 [`TyKind`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc/ty/enum.TyKind.html), which
 represents the key type information. `TyKind` is a big enum which represents different kinds of
 types (e.g. primitives, references, abstract data types, generics, lifetimes, etc). `TyS` also has 2
@@ -112,33 +112,33 @@ There are a lot of related types, and we’ll cover them in time (e.g regions/li
 There are a bunch of variants on the `TyKind` enum, which you can see by looking at the rustdocs.
 Here is a sampling:
 
-**Algebraic Data Types (ADTs)** [*Algebraic Data
-Type*](https://en.wikipedia.org/wiki/Algebraic_data_type) means Rust’s `struct`, `enum` or `union`.
+[**Algebraic Data Types (ADTs)**]() An [*algebraic Data
+Type*](https://en.wikipedia.org/wiki/Algebraic_data_type) is a  `struct`, `enum` or `union`.
 Under the hood, `struct`, `enum` and `union` are actually implemented the same way: they are both
 [`ty::TyKind::Adt`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc/ty/enum.TyKind.html#variant.Adt).
 It’s basically a user defined type. We will talk more about these later.
 
-**Foreign** Corresponds to `extern type T`.
+[**Foreign**](https://doc.rust-lang.org/nightly/nightly-rustc/rustc/ty/enum.TyKind.html#variant.Foreign) Corresponds to `extern type T`.
 
-**Str** Is the type str. When the user writes `&str`, `Str` is the how we represent the `str` part
+[**Str**](https://doc.rust-lang.org/nightly/nightly-rustc/rustc/ty/enum.TyKind.html#variant.Str) Is the type str. When the user writes `&str`, `Str` is the how we represent the `str` part
 of that type.
 
-**Slide** Corresponds to `[T]`.
+[**Slice**](https://doc.rust-lang.org/nightly/nightly-rustc/rustc/ty/enum.TyKind.html#variant.Slice) Corresponds to `[T]`.
 
-**Array** Corresponds to `[T; n]`.
+[**Array**](https://doc.rust-lang.org/nightly/nightly-rustc/rustc/ty/enum.TyKind.html#variant.Array) Corresponds to `[T; n]`.
 
-**RawPtr** Corresponds to `*mut T` or `*const T`
+[**RawPtr**](https://doc.rust-lang.org/nightly/nightly-rustc/rustc/ty/enum.TyKind.html#variant.RawPtr) Corresponds to `*mut T` or `*const T`
 
-**Ref** `Ref` stands for safe references, `&'a mut T` or `&'a T`. `Ref` has some associated parts,
+[**Ref**](https://doc.rust-lang.org/nightly/nightly-rustc/rustc/ty/enum.TyKind.html#variant.Ref) `Ref` stands for safe references, `&'a mut T` or `&'a T`. `Ref` has some associated parts,
 like `Ty<'tcx>` which is the type that the reference references, `Region<'tcx>` is the lifetime or
 region of the reference and `Mutability` if the reference is mutable or not.
 
-**Param** Represents a type parameter (e.g. the `T` in `Vec<T>`).
+[**Param**](https://doc.rust-lang.org/nightly/nightly-rustc/rustc/ty/enum.TyKind.html#variant.Param) Represents a type parameter (e.g. the `T` in `Vec<T>`).
 
-**Error** Represents a type error somewhere so that we can print better diagnostics. We will discuss
+[**Error**](https://doc.rust-lang.org/nightly/nightly-rustc/rustc/ty/enum.TyKind.html#variant.Error) Represents a type error somewhere so that we can print better diagnostics. We will discuss
 this more later.
 
-**And Many More**...
+[**And Many More**...](https://doc.rust-lang.org/nightly/nightly-rustc/rustc/ty/enum.TyKind.html#variants)
 
 ## Interning
 
@@ -163,8 +163,6 @@ some of this memory buffer. If we run out of space we get another one. The lifet
 is `'tcx`. Our types are tied to that lifetime, so when compilation finishes all the memory related
 to that buffer is freed and our `'tcx` references would be invalid.
 
-Finally, interned types are stored in canonical form. You can read more about [canonicalization in
-this chapter](https://rust-lang.github.io/rustc-guide/traits/canonical-queries.html).
 
 ## The tcx and how it uses lifetimes
 
@@ -186,18 +184,14 @@ the arenas, anyhow).
 ## Allocating and working with types
 
 To allocate a new type, you can use the various `mk_` methods defined on the `tcx`. These have names
-that correspond mostly to the various kinds of type variants. For example:
+that correspond mostly to the various kinds of types. For example:
 
 ```rust,ignore
 let array_ty = tcx.mk_array(elem_ty, len * 2);
 ```
 
-These methods all return a `Ty<'tcx>` – note that the lifetime you get back is the lifetime of the
-innermost arena that this `tcx` has access to. In fact, types are always canonicalized and interned
-(so we never allocate exactly the same type twice) and are always allocated in the outermost arena
-where they can be (so, if they do not contain any inference variables or other "temporary" types,
-they will be allocated in the global arena). However, the lifetime `'tcx` is always a safe
-approximation, so that is what you get back.
+These methods all return a `Ty<'tcx>` – note that the lifetime you get back is the lifetime of the arena that this `tcx` has access to. Types are always canonicalized and interned
+(so we never allocate exactly the same type twice).
 
 > NB. Because types are interned, it is possible to compare them for equality efficiently using `==`
 > – however, this is almost never what you want to do unless you happen to be hashing and looking
@@ -216,10 +210,10 @@ allocate, and which are found in this module. Here are a few examples:
 - [`Substs`][subst], allocated with `mk_substs` – this will intern a slice of types, often used to
   specify the values to be substituted for generics (e.g. `HashMap<i32, u32>` would be represented
   as a slice `&'tcx [tcx.types.i32, tcx.types.u32]`).
-- `TraitRef`, typically passed by value – a **trait reference** consists of a reference to a trait
+- [`TraitRef`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc/ty/struct.TraitRef.html), typically passed by value – a **trait reference** consists of a reference to a trait
   along with its various type parameters (including `Self`), like `i32: Display` (here, the def-id
   would reference the `Display` trait, and the substs would contain `i32`). Note that `def-id` is defined and discussed in depth in the `AdtDef and DefId` section.
-- `Predicate` defines something the trait system has to prove (see `traits` module).
+- [`Predicate`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc/ty/enum.Predicate.html) defines something the trait system has to prove (see `traits` module).
 
 [subst]: ./generic_arguments.html#subst
 
@@ -237,35 +231,40 @@ modules choose to import a larger or smaller set of names explicitly.
 
 ## ADTs Representation
 
-Let’s consider the following example and look at how it is represented:
+Let's consider the example of a type like `MyStruct<u32>`, where `MyStruct` is defined like so:
 
 ```rust,ignore
 struct MyStruct<T> { x: u32, y: T }
 ```
 
-Here is the definition of `TyKind::Adt`:
+The type `MyStruct<u32>` would be an instance of `TyKind::Adt`:
 
 ```rust,ignore
 Adt(&'tcx AdtDef, SubstsRef<'tcx>)
+//  ------------  ---------------
+//  (1)            (2)
+//
+// (1) represents the `MyStruct` part
+// (2) represents the `<u32>`, or "substitutions" / generic arguments
 ```
 
 There are two parts:
 
 - The [`AdtDef`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc/ty/struct.AdtDef.html)
-  defines the struct/enum/union without the type parameters. In our example, this is the `MyStruct`
-  part *without* the generic argument `T`.
+  references the struct/enum/union but without the values for its type parameters. In our example, this is the `MyStruct`
+  part *without* the argument `u32`.
     - Note that in the HIR, structs, enums and unions are represented differently, but in `ty::Ty`,
       they are all represented using `TyKind::Adt`.
 - The
   [`SubstsRef`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc/ty/subst/type.SubstsRef.html)
-  is an interned list of types that are to be substituted for the generic type parameters. For
-  example, if we had a `MyStruct<u32>`, we would end up with a list like `[u32]`. We’ll dig more
+  is an interned list of values that are to be substituted for the generic parameters.
+  In our example of `MyStruct<u32>`, we would end up with a list like `[u32]`. We’ll dig more
   into generics and substitutions in a little bit.
 
 **`AdtDef` and `DefId`**
 
-For every type defined in the source code, there is a unique `DefId`. This includes ADTs and
-generics. In the example from above, there are two `DefId`s: one for `MyStruct` and one for `T`.
+For every type defined in the source code, there is a unique `DefId` (see [this chapter](https://rust-lang.github.io/rustc-guide/hir.html#identifiers-in-the-hir)). This includes ADTs and
+generics. In the `MyStruct<T>` definition we gave above, there are two `DefId`s: one for `MyStruct` and one for `T`.
 Notice that the code above does not generate a new `DefId` for `u32` because it is not defined in
 that code (it is only referenced).
 
@@ -275,11 +274,7 @@ essentially a one-to-one relationship between `AdtDef` and `DefId`. You can get 
 query](https://doc.rust-lang.org/nightly/nightly-rustc/rustc/ty/struct.TyCtxt.html#method.adt_def).
 The `AdtDef`s are all interned (as you can see `'tcx` lifetime on it).
 
-We also have an internal map to go from `def_id` to what’s called "Def path". "Def path" is like a
-module path but a bit more rich. For our example, it may be `crate::foo::MyStruct` that identifies
-this definition uniquely. It’s a bit different than a module path because it might include the type
-parameter `T`, which you can't write in normal rust, like `crate::foo::MyStruct::T`. These are used
-in incremental compilation.
+
 
 ### Generics and substitutions
 
@@ -315,7 +310,7 @@ with normal slices and would have to iterate over the contents to check for equa
 So pulling it all together, let’s go back to our example above:
 
 ```rust,ignore
-struct MyStruct<T> { x: u32, y: T }
+struct MyStruct<T>
 ```
 
 - There would be an `AdtDef` (and corresponding `DefId`) for `MyStruct`.
@@ -413,8 +408,8 @@ replace a `SubstRef` with another list of types.
 [Here is an example of actually using `subst` in the
 compiler](https://github.com/rust-lang/rust/blob/597f432489f12a3f33419daa039ccef11a12c4fd/src/librustc_typeck/astconv.rs#L942-L953).
 The exact details are not too important, but in this piece of code, we happen to be converting from
-the `hir::Ty` to a real `ty::Ty`. You can see that we first get some substitutions (`substs`) and
-then we call `type_of` to get a type and call `subst(substs)` to get a new type with the
+the `hir::Ty` to a real `ty::Ty`. You can see that we first get some substitutions (`substs`).
+Then we call `type_of` to get a type and call `ty.subst(substs)` to get a new version of `ty` with the
 substitutions made.
 
 ### `TypeFoldable` and `TypeFolder`
