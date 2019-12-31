@@ -48,15 +48,21 @@ Here is a summary:
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Describe the *syntax* of a type: what the user wrote (with some desugaring).  | Describe the *semantics* of a type: the meaning of what the user wrote. |
 | Each `hir::Ty` has its own spans corresponding to the appropriate place in the program. | Doesn’t correspond to a single place in the user’s program. |
-| `hir::Ty` only has generics and lifetimes the user wrote (since elided params don’t show up in the syntax) | `ty::Ty` has the full type, including generics and lifetimes, even if the user left them out |
+| `hir::Ty` has generics and lifetimes, even those that were elided; however, some of those lifetimes are special markers like "elided" | `ty::Ty` has the full type, including generics and lifetimes, even if the user left them out |
 | `fn foo(x: u32) → u32 { }` - Two `hir::Ty` representing each usage of `u32`. Each has its own `Span`s, etc.- `hir::Ty` doesn’t tell us that both are the same type | `fn foo(x: u32) → u32 { }` - One `ty::Ty` for all instances of `u32` throughout the program.- `ty::Ty` tells us that both usages of `u32` mean the same type. |
-| `fn foo(x: &u32) -> &u32)`- Two `hir::Ty` again.- No lifetimes in the `hir::Ty`s, because the user elided them | `fn foo(x: &u32) -> &u32)`- A single `ty::Ty` again.- The `ty::Ty` has the hidden lifetime param |
+| `fn foo(x: &u32) -> &u32)`- Two `hir::Ty` again.- Lifetimes for the references show up in the `hir::Ty`s using a special marker, [LifetimeName::Implicit](https://doc.rust-lang.org/nightly/nightly-rustc/rustc/hir/enum.LifetimeName.html#variant.Implicit) | `fn foo(x: &u32) -> &u32)`- A single `ty::Ty`.- The `ty::Ty` has the hidden lifetime param |
 
 **Order** HIR is built directly from the AST, so it happens before any `ty::Ty` is produced. After
 HIR is built, some basic type inference and type checking is done. During the type inference, we
 figure out what the `ty::Ty` of everything is and we also check if the type of something is
 ambiguous. The `ty::Ty` then, is used for type checking while making sure everything has the
-expected type.
+expected type. The [astconv
+module](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_typeck/astconv/index.html),
+is where the code responsible for converting a `hir::Ty` into a `ty::Ty`
+is located. This occurs during the type-checking phase, but also in
+other parts of the compiler that want to ask questions like "what
+argument types does this function expect"?.
+
 
 **How semantics drive the two instances of `Ty`** You can think of HIR as the “default” perspective
 of the type information. We assume two things are distinct until they are proven to be the same
@@ -297,15 +303,16 @@ which is an enum indicating what kind of generic the type parameter is (type, li
 Thus, `SubstsRef` is conceptually like a `&'tcx [GenericArgKind<'tcx>]` slice (but it is actually a
 `List`).
 
-So why do we use this `List` type instead of making it really a slice? The reason is that we may
-want to compare subslices of the list of generics for equality. For example, imagine we had a `List`
-`a = [u32, f32]` and  a `List` `b = [f32]`. Now suppose that we have a subslice of `a` : `a2 =
-[f32]`. Recall that lists are interned, so if we want to compare `a` with `b`, we can just compare
-their pointers and see whether they are equivalent or not. But we may *also* want to check the
-equality of `b` and `a2` (i.e. compare subslices of lists). Since the subslice `a2`  would also be
-interned, it would actually end up being the same as `b`, so we would be able to efficiently compare
-them by just comparing the pointers (just like with the full lists). You wouldn’t be able to do that
-with normal slices and would have to iterate over the contents to check for equality.
+So why do we use this `List` type instead of making it really a slice?
+The reason is that:
+- it has the len "inline", so ``&List` is only 32 bits
+- as a consequence, it cannot be "subsliced" (that only works if the len
+  is out of line)
+
+This also implies that yes you can check two Lists for equality via ==
+(which would be not be possible for ordinary slices). This is precisely
+because they never represent a "sub-list", only the complete list, which
+has thus been hashed and interned.
 
 So pulling it all together, let’s go back to our example above:
 
@@ -332,10 +339,15 @@ example) type checking functions that use `MyStruct`, we will need to be able to
 need to be able to work with unknown types. This is done via `TyKind::Param` (which we mentioned in
 the example above).
 
-Each `TyKind::Param` contains two things: the index of the type parameter and the name. The more
-important one is the index, since the name can change across scopes (e.g. we can define struct
-`MyStruct<A>` by then implement `impl<B> MyStruct<B>` ; the names are different, but they mean the
-same type parameter).
+Each `TyKind::Param` contains two things: the name and the index. In
+general, the index fully defines the parameter and is used by most of
+the code. The name is included for debug print-outs. There are two
+reasons for this. First, the index is convenient, it allows you to
+include into the list of generic arguments when substituting. Second,
+the index is more robust. For example, you could in principle have two
+distinct type parameters that use the same name, e.g. `impl<A> Foo<A> {
+fn bar<A>() { .. } }`, although the rules against shadowing make this
+difficult (but those language rules could change in the future).
 
 The index of the type parameter is an integer indicating its order in the list of the type
 parameters. Moreover, we consider the list to include all of the type parameters from outer scopes.
@@ -401,7 +413,7 @@ You may have a couple of followup questions…
  definition. For example, `tcx.type_of(def_id_of_my_struct)` would return the “self-view” of
  `MyStruct`: `Adt(Foo, &[Param(0), Param(1)])`.
 
-**`subst`** How do we actually do the substitutions? There is a query for that too! You use
+**`subst`** How do we actually do the substitutions? There is a function for that too! You use
 [`subst`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc/ty/subst/trait.Subst.html) to
 replace a `SubstRef` with another list of types.
 
