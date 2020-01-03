@@ -36,8 +36,10 @@ program, but the `ty::Ty` would record the fact that both usages refer to the sa
 **Example: `fn foo(x: u32) → u32 { }`** In this function we see that `u32` appears twice. We know
 that that is the same type, i.e. the function takes an argument and returns an argument of the same
 type, but from the point of view of the HIR there would be two distinct type instances because these
-are occurring in two different places in the program. That is, they have two different
-*[Spans](https://doc.rust-lang.org/nightly/nightly-rustc/syntax_pos/struct.Span.html)* (locations).
+are occurring in two different places in the program. That is, they have two
+different [`Span`s][span] (locations).
+
+[span]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_span/struct.Span.html
 
 **Example: `fn foo(x: &u32) -> &u32)`** In addition, HIR might have information left out. This type
 `&u32` is incomplete, since in the full rust type there is actually a lifetime, but we didn’t need
