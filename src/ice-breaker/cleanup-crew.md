@@ -59,7 +59,41 @@ copy any test case from the bug you are closing to the other bug that
 remains open, as sometimes duplicate-looking bugs will expose
 different facets of the same problem.
 
-## Bisection
+## Bisecting regressions
 
-For regressions (something that used to work, but no longer does), we
-have a great tool that
+For regressions (something that used to work, but no longer does), it
+is super useful if we can figure out precisely when the code stopped
+working.  The gold standard is to be able to identify the precise
+**PR** that broke the code, so we can ping the author, but even
+narrowing it down to a nightly build is helpful, especially as that
+then gives us a range of PRs. (One other challenge is that we
+sometimes land "rollup" PRs, which combine multiple PRs into one.)
+
+### cargo-bisect-rustc
+
+To help in figuring out the cause of a regression we have a tool
+called [cargo-bisect-rustc]. It will automatically download and ftest
+various builds of rustc. For recent regressions, it is even able to
+use the builds from our CI to track down the regression to a specific
+PR; for older regressions, it will simply identify a nightly.
+
+To learn to use [cargo-bisect-rustc], check out [this blog
+post][learn], which gives a quick introduction to how it works. You
+can also ask questions at the Zulip stream
+`#t-compiler/cargo-bisect-rustc`, or help in improving the tool.
+
+[cargo-bisect-rustc]: https://github.com/rust-lang/cargo-bisect-rustc/
+[learn]: https://blog.rust-lang.org/inside-rust/2019/12/18/bisecting-rust-compiler.html
+
+### identifying the range of PRs in a nightly
+
+If you've managed to narrow things down to a particular nightly build,
+it is then helpful if we can identify the set of PRs that this
+corresponds to. One helpful command in that regard is `rustc +nightly
+-vV`, which will cause it to output a number of useful bits of version
+info, including the `commit-hash`. Given the commit-hash of two
+nightly versions, you can find all of PRs that have landed in between.
+
+(XXX Is there a more streamlined way to do this? Can we make one?)
+
+
