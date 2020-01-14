@@ -2,7 +2,7 @@
 
 **Github Label:** [ICEBreaker-Cleanup-Crew]
 
-[ICEBreaker-LLVM]: https://github.com/rust-lang/rust/labels/ICEBreaker-Cleanup-Crew
+[ICEBreaker-Cleanup-Crew]: https://github.com/rust-lang/rust/labels/ICEBreaker-Cleanup-Crew
 
 The "Cleanup Crew" are focused on improving bug reports. Specifically,
 the goal is to try to ensure that every bug report has all the
@@ -63,4 +63,3 @@ different facets of the same problem.
 
 For regressions (something that used to work, but no longer does), we
 have a great tool that
-
