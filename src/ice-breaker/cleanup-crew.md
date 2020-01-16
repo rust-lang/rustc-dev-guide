@@ -92,8 +92,19 @@ it is then helpful if we can identify the set of PRs that this
 corresponds to. One helpful command in that regard is `rustc +nightly
 -vV`, which will cause it to output a number of useful bits of version
 info, including the `commit-hash`. Given the commit-hash of two
-nightly versions, you can find all of PRs that have landed in between.
+nightly versions, you can find all of PRs that have landed in between
+by taking the following steps:
 
-(XXX Is there a more streamlined way to do this? Can we make one?)
+1. Go to an update checkout of the [rust-lang/rust] repository
+2. Execute the command `git log --author=bors --format=oneline SHA1..SHA2`
+  * This will list out all of the commits by bors, which is our merge bot
+  * Each commit corresponds to one PR, and information about the PR should be in the description
+3. Copy and paste that information into the bug report
 
+Often, just eye-balling the PR descriptions (which are included in the
+commit messages) will give you a good idea which one likely caused the
+problem. But if you're unsure feel free to just ping the compiler team
+(`@rust-lang/compiler`) or else to ping the authors of the PR
+themselves.
 
+[rust-lang/rust]: https://github.com/rust-lang/rust/
