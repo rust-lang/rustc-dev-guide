@@ -72,7 +72,7 @@ sometimes land "rollup" PRs, which combine multiple PRs into one.)
 ### cargo-bisect-rustc
 
 To help in figuring out the cause of a regression we have a tool
-called [cargo-bisect-rustc]. It will automatically download and ftest
+called [cargo-bisect-rustc]. It will automatically download and test
 various builds of rustc. For recent regressions, it is even able to
 use the builds from our CI to track down the regression to a specific
 PR; for older regressions, it will simply identify a nightly.
