@@ -87,13 +87,16 @@ can also ask questions at the Zulip stream
 
 ### identifying the range of PRs in a nightly
 
-If you've managed to narrow things down to a particular nightly build,
-it is then helpful if we can identify the set of PRs that this
-corresponds to. One helpful command in that regard is `rustc +nightly
--vV`, which will cause it to output a number of useful bits of version
-info, including the `commit-hash`. Given the commit-hash of two
-nightly versions, you can find all of PRs that have landed in between
-by taking the following steps:
+If the regression occurred more than 90 days ago, then
+cargo-bisect-rustc will not able to identify the particular PR that
+caused the regression, just the nightly build. In that case, we can
+identify the set of PRs that this corresponds to by using the git
+history. 
+
+The command `rustc +nightly -vV` will cause rustc to output a number
+of useful bits of version info, including the `commit-hash`. Given the
+commit-hash of two nightly versions, you can find all of PRs that have
+landed in between by taking the following steps:
 
 1. Go to an update checkout of the [rust-lang/rust] repository
 2. Execute the command `git log --author=bors --format=oneline SHA1..SHA2`
