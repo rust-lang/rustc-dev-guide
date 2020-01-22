@@ -80,10 +80,11 @@ PR; for older regressions, it will simply identify a nightly.
 To learn to use [cargo-bisect-rustc], check out [this blog
 post][learn], which gives a quick introduction to how it works. You
 can also ask questions at the Zulip stream
-`#t-compiler/cargo-bisect-rustc`, or help in improving the tool.
+[`#t-compiler/cargo-bisect-rustc`][zcbr], or help in improving the tool.
 
 [cargo-bisect-rustc]: https://github.com/rust-lang/cargo-bisect-rustc/
 [learn]: https://blog.rust-lang.org/inside-rust/2019/12/18/bisecting-rust-compiler.html
+[zcbr]: https://rust-lang.zulipchat.com/#narrow/stream/217417-t-compiler.2Fcargo-bisect-rustc
 
 ### identifying the range of PRs in a nightly
 
