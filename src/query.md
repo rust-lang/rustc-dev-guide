@@ -9,7 +9,7 @@ simple. You have various queries that compute things about the input
 the def-id of some item, will compute the type of that item and return
 it to you.
 
-[hl]: high-level-overview.html
+[hl]: high-level-overview.md
 
 Query execution is **memoized** – so the first time you invoke a
 query, it will go do the computation, but the next time, the result is
