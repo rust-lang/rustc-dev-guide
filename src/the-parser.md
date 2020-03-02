@@ -46,7 +46,7 @@ Code for lexical analysis is split between two crates:
   constituting tokens. Although it is popular to implement lexers as generated
   finite state machines, the lexer in `rustc_lexer` is hand-written.
 
-- [`StringReader`] from [librustc_ast] integrates `rustc_lexer` with `rustc`
+- [`StringReader`] from [`librustc_ast`][librustc_ast] integrates `rustc_lexer` with `rustc`
   specific data structures. Specifically, it adds `Span` information to tokens
   returned by `rustc_lexer` and interns identifiers.
 
