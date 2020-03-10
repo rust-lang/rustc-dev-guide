@@ -63,7 +63,7 @@ Likewise, you can test a single file by passing its path:
 ### Run only the tidy script
 
 ```bash
-./x.py test src/tools/tidy
+./x.py test tidy
 ```
 
 ### Run tests on the standard library
