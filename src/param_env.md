@@ -22,7 +22,7 @@ its `Copy` bound via the parameter environment.
 
 You can get the parameter environment for a `def_id` using the
 [`param_env`][query] query. However, this `ParamEnv` can be too generic for
-your use case.  Using the `ParamEnv` from the surrounding context can allow you
+your use case. Using the `ParamEnv` from the surrounding context can allow you
 to evaluate more things. For example, suppose we had something the following:
 
 [query]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_ty/ty/fn.param_env.html
@@ -52,7 +52,7 @@ fn bar<T: Baz>() {
 ```
 
 We may know some things inside `bar` that we wouldn't know if we just fetched
-`bar`'s param env because of the `<T as Foo>::Assoc: Bar` bound in `foo`.  This
+`bar`'s param env because of the `<T as Foo>::Assoc: Bar` bound in `foo`. This
 is a contrived example that makes no sense in our existing analyses, but we may
 run into similar cases when doing analyses with associated constants on generic
 traits or traits with assoc types.
@@ -61,7 +61,7 @@ traits or traits with assoc types.
 
 Another great thing about `ParamEnv` is that you can use it to bundle the thing
 depending on generic parameters (e.g. a `Ty`) by calling the [`and`][and]
-method.  This will produce a [`ParamEnvAnd<Ty>`][pea], making clear that you
+method. This will produce a [`ParamEnvAnd<Ty>`][pea], making clear that you
 should probably not be using the inner value without taking care to also use
 the [`ParamEnv`][pe].
 
