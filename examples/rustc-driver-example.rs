@@ -86,12 +86,12 @@ fn main() {
             let parse = queries.parse().unwrap().take();
             println!("{:#?}", parse);
             // Analyze the program and inspect the types of definitions.
-            queries.global_ctxt().unwrap().take().enter(|ctx| {
-                for (_, item) in &ctx.hir().krate().items {
+            queries.global_ctxt().unwrap().take().enter(|tcx| {
+                for (_, item) in &tcx.hir().krate().items {
                     match item.kind {
                         rustc_hir::ItemKind::Static(_, _, _) | rustc_hir::ItemKind::Fn(_, _, _) => {
                             let name = item.ident;
-                            let ty = ctx.type_of(ctx.hir().local_def_id(item.hir_id));
+                            let ty = tcx.type_of(tcx.hir().local_def_id(item.hir_id));
                             println!("{:?}:\t{:?}", name, ty)
                         }
                         _ => (),
