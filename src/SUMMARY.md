@@ -34,6 +34,7 @@
         - [LLVM ICE-breakers](ice-breaker/llvm.md)
     - [Licenses](./licenses.md)
 - [Part 2: How rustc works](./part-2-intro.md)
+    - [Overview of `rustc`](./overview.md)
     - [High-level overview of the compiler source](./high-level-overview.md)
     - [The Rustc Driver and Interface](./rustc-driver.md)
         - [Rustdoc](./rustdoc.md)
