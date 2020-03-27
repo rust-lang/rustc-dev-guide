@@ -158,8 +158,8 @@ would still exist and already executed queries would not have to be re-done.
 
 ## Cycles
 
-Earlier we stated that query invocations form a DAG. However, it would be easy 
-to form a cyclic graph by, for example, having a query provider like the 
+Earlier we stated that query invocations form a DAG. However, it would be easy
+to form a cyclic graph by, for example, having a query provider like the
 following:
 
 ```rust,ignore
@@ -236,4 +236,3 @@ When a query `foo` is evaluated, the cache table for `foo` is locked.
   computed the result we are waiting for. This cannot deadlock because, as
   mentioned before, query invocations form a DAG. Some thread will always make
   progress.
-
