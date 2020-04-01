@@ -114,7 +114,6 @@
     - [Constant evaluation](./const-eval.md)
         - [miri const evaluator](./miri.md)
     - [Monomorphization](./backend/monomorph.md)
-    - [Compiler Backend](./backend/backend.md)
     - [Lowering MIR](./backend/lowering-mir.md)
     - [Code Generation](./backend/codegen.md)
         - [Updating LLVM](./backend/updating-llvm.md)
