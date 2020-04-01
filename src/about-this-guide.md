@@ -6,15 +6,25 @@ development.
 
 There are six parts to this guide:
 
-1. Contains information that should be useful no matter how you are
-   contributing, such as procedures for contribution, building the compiler,
-   etc.
-2. Discusses the high-level architecture of the compiler, especially the query
-   system.
-3. Discusses the compiler frontend and internal representations.
-4. Discusses the type system.
-5. Discusses the compiler backend, code generation, linking, and debug info.
-6. Appendices at the end with useful reference information.
+1. [Contributing][p1]: Contains information that should be useful no matter how
+   you are contributing, such as procedures for contribution, building the
+   compiler, etc.
+2. [High-level Compiler Architecture][p2]: Discusses the high-level
+   architecture of the compiler, especially the query system.
+3. [The Compiler Frontend][p3]: Discusses the compiler frontend and internal
+   representations.
+4. [The Type System][p4]: Discusses the type system.
+5. [The Compiler Backend][p5]: Discusses the compiler backend, code generation,
+   linking, and debug info.
+6. [Appendices][app] at the end with useful reference information. There are a
+   few of these with different information, inluding a glossary.
+
+[p1]: ./part-1-intro.md
+[p2]: ./part-2-intro.md
+[p3]: ./part-3-intro.md
+[p4]: ./part-4-intro.md
+[p5]: ./part-5-intro.md
+[app]: ./appendix/stupid-stats.md
 
 The guide itself is of course open-source as well, and the sources can
 be found at the [GitHub repository]. If you find any mistakes in the
