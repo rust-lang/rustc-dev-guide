@@ -48,3 +48,4 @@ crate contains code specific to LLVM codegen.
 At a very high level, the entry point is
 [`rustc_codegen_ssa::base::codegen_crate`][codegen1]. This function starts the
 process discussed in the rest of this chapter.
+
