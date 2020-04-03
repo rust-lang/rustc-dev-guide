@@ -1,4 +1,4 @@
-# The Compiler Backend
+# From MIR to binaries
 
 All of the preceding chapters of this guide have one thing in common: we never
 generated any executable machine code at all! With this chapter, all of that
@@ -7,13 +7,14 @@ changes.
 It's often useful to think of compilers as being composed of a _frontend_ and a
 _backend_  (though in rustc, there's not a sharp line between frontend and
 backend). The _frontend_ is responsible for taking raw source code, checking it
-for correctness, and getting it into a format usable by the backend. For rustc,
-this format is the MIR.  The _backend_ refers to the parts of the compiler that
-turn rustc's MIR into actual executable code (e.g. an ELF or EXE binary) that
-can run on a processor.  All of the previous chapters deal with rustc's
-frontend.
+for correctness, and getting it into a format from which we can generate code.
+For rustc, we typically consider MIR to be this format (though arguably, one
+could consider LLVM IR to be this format). The _backend_ refers to the parts
+of the compiler that produce actual executable code (e.g. an ELF or EXE binary)
+that can run on a processor. All of the previous chapters deal with rustc's
+"frontend".
 
-rustc's backend does the following:
+rustc's "backend" does the following:
 
 0. First, we need to collect the set of things to generate code for. In
    particular, we need to find out which concrete types to substitute for
