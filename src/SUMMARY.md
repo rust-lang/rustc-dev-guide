@@ -35,10 +35,11 @@
     - [Licenses](./licenses.md)
 
 - [Part 2: High-level Compiler Architecture](./part-2-intro.md)
-    - [High-level overview of the compiler source](./high-level-overview.md)
     - [The Rustc Driver and Interface](./rustc-driver.md)
         - [Rustdoc](./rustdoc.md)
         - [Ex: Type checking through `rustc_interface`](./rustc-driver-interacting-with-the-ast.md)
+    - [Overview of the Compiler](./overview.md)
+    - [The compiler source code](./compiler-src.md)
     - [Queries: demand-driven compilation](./query.md)
         - [The Query Evaluation Model in Detail](./queries/query-evaluation-model-in-detail.md)
         - [Incremental compilation](./queries/incremental-compilation.md)
