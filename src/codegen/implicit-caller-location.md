@@ -108,7 +108,7 @@ stack downward.
 What does this transformation look like in practice? Take this example which uses the new feature:
 
 ```rust
-#![feature(track_caller)]
+##![feature(track_caller)]
 use std::panic::Location;
 
 #[track_caller]
@@ -124,7 +124,7 @@ fn main() {
 Here `print_caller()` appears to take no arguments, but we compile it to something like this:
 
 ```rust
-#![feature(panic_internals)]
+##![feature(panic_internals)]
 use std::panic::Location;
 
 fn print_caller(caller: &Location) {
@@ -179,7 +179,7 @@ that implementation *and* any overrides.
 Examples:
 
 ```rust
-#![feature(track_caller)]
+##![feature(track_caller)]
 
 macro_rules! assert_tracked {
     () => {{
