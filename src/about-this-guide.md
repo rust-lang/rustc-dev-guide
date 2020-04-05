@@ -24,7 +24,7 @@ There are six parts to this guide:
 [p3]: ./part-3-intro.md
 [p4]: ./part-4-intro.md
 [p5]: ./part-5-intro.md
-[app]: ./appendix/stupid-stats.md
+[app]: ./appendix/background.md
 
 The guide itself is of course open-source as well, and the sources can
 be found at the [GitHub repository]. If you find any mistakes in the
