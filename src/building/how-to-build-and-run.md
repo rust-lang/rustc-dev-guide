@@ -10,7 +10,7 @@ not a developer.
 
 The very first step to work on `rustc` is to clone the repository:
 
-```text
+```bash
 git clone https://github.com/rust-lang/rust.git
 cd rust
 ```
