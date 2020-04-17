@@ -22,8 +22,7 @@ To start, copy [`config.toml.example`] to `config.toml`:
 [`config.toml.example`]: https://github.com/rust-lang/rust/blob/master/config.toml.example
 
 ```bash
-> cd $RUST_CHECKOUT
-> cp config.toml.example config.toml
+cp config.toml.example config.toml
 ```
 
 Then you will want to open up the file and change the following
