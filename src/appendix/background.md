@@ -79,7 +79,69 @@ cycle.
 [*Static Program Analysis*](https://cs.au.dk/~amoeller/spa/) by Anders Møller
 and Michael I. Schwartzbach is an incredible resource!
 
-*to be written*
+_Dataflow analysis_ is a type of static analysis that is common in many
+compilers. It describes a general technique, rather than a particular analysis.
+
+The basic idea is that we can walk over a [CFG](#cfg) and keep track of what
+some value could be. At the end of the walk, we might have shown that some
+claim is true or not necessarily true (e.g. "this variable must be
+initialized"). `rustc` tends to do dataflow analyses over the MIR, since that
+is already a CFG.
+
+For example, suppose we want to check that `x` is initialized before it is used
+in this snippet:
+
+```rust,ignore
+fn foo() {
+    let mut x;
+
+    if some_cond {
+        x = 1;
+    }
+
+    dbg!(x);
+}
+```
+
+A CFG for this code might look like this:
+
+```txt
+ +------+
+ | Init | (A)
+ +------+
+    |   \
+    |   if some_cond
+  else    \ +-------+
+    |      \| x = 1 | (B)
+    |       +-------+
+    |      /
+ +---------+
+ | dbg!(x) | (C)
+ +---------+
+```
+
+We can do the dataflow analysis as follows: we will start of with a flag `init`
+which indicates if we know `x` is initialized. As we walk the CFG, we will
+update the flag. At the end, we can check its value.
+
+So first, in block (A), the variable `x` is declared but not initialized, so
+`init = false`. In block (B), we initialize the value, so we know that `x` is
+initialized. So at the end of (B), `init = true`.
+
+Block (C) is where things get interesting. Notice that there are two incoming
+edges from (A) and (B), corresponding to whether `some_cond` is true or not.
+But we cannot know that! It could be the case the `some_cond` is always true,
+so that `x` is actually always initialized. It could also be the case that
+`some_cond` depends on something random (e.g. the time), so `x` may not be
+initialized. In general, we cannot know statically (due to [Rice's
+Theorem][rice]).  So what should the value of `init` be in block (C)?
+
+In this case, we want to be able to prove definitively that `x` must be
+initialized before use. This forces us to be conservative and assume that
+`some_cond` might be false sometimes. Thus, we can only make `init = true` in
+(C) if it is true in both (A) and (B), i.e., both parents of (C). Since, `init
+= false` in (A), `init = false` in (C), and we can report to the user that "`x`
+may not be initialized before use".
 
 <a name="quantified"></a>
 
