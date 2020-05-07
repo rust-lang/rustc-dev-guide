@@ -136,6 +136,8 @@ so that `x` is actually always initialized. It could also be the case that
 initialized. In general, we cannot know statically (due to [Rice's
 Theorem][rice]).  So what should the value of `init` be in block (C)?
 
+[rice]: https://en.wikipedia.org/wiki/Rice%27s_theorem
+
 In this case, we want to be able to prove definitively that `x` must be
 initialized before use. This forces us to be conservative and assume that
 `some_cond` might be false sometimes. Thus, we can only make `init = true` in
