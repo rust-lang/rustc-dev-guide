@@ -147,7 +147,40 @@ may not be initialized before use".
 
 ## What is "universally quantified"? What about "existentially quantified"?
 
-*to be written*
+In math, a predicate may be _universally quantified_ or _existentially
+quantified_:
+
+- _Universal_ quantification:
+  - the predicate holds if it is true for all possible inputs.
+  - Traditional notation: ∀x: P(x). Read as "for all x, P(x) holds".
+- _Existential_ quantification:
+  - the predicate holds if there is any input where it is true, i.e., there
+    only has to be a single input.
+  - Traditional notation: ∃x: P(x). Read as "there exists x such that P(x) holds".
+
+In Rust, they come up in type checking and trait solving. For example,
+
+```rust
+fn foo<T>()
+```
+This function claims that the function is well-typed for all types `T`: `∀ T: well_typed(foo)`.
+
+Another example:
+
+```rust
+fn foo<'a>(_: &'a usize)
+```
+This function claims that there is some lifetime `'a` (determined by the
+caller) such that it is well-typed: `∃ 'a: well_typed(foo)`.
+
+One more example:
+
+```rust
+fn foo<F>()
+where for<'a> F: Fn(&'a u8),
+```
+This function claims that for all lifetimes `'a` and types `F` satisfying the
+bound, it is well-typed: `∀ F, 'a: (F: Fn(&'a u8)) => well_typed(foo)`.
 
 <a name="variance"></a>
 
