@@ -160,14 +160,14 @@ quantified_:
 
 In Rust, they come up in type checking and trait solving. For example,
 
-```rust
+```rust,ignore
 fn foo<T>()
 ```
 This function claims that the function is well-typed for all types `T`: `∀ T: well_typed(foo)`.
 
 Another example:
 
-```rust
+```rust,ignore
 fn foo<'a>(_: &'a usize)
 ```
 This function claims that there is some lifetime `'a` (determined by the
@@ -175,7 +175,7 @@ caller) such that it is well-typed: `∃ 'a: well_typed(foo)`.
 
 One more example:
 
-```rust
+```rust,ignore
 fn foo<F>()
 where for<'a> F: Fn(&'a u8),
 ```
@@ -183,6 +183,30 @@ This function claims that for all lifetimes `'a` and types `F` satisfying the
 bound, it is well-typed: `∀ F, 'a: (F: Fn(&'a u8)) => well_typed(foo)`.
 
 <a name="variance"></a>
+
+## What is a DeBruijn Index?
+
+DeBruijn indices are a way of representing the which variables are bound in
+which binders using only integers. They were [originally invented][wikideb] for
+use in lambda calculus evaluation. In `rustc`, we use a similar idea for the
+[representation of generic types][sub].
+
+[wikideb]: https://en.wikipedia.org/wiki/De_Bruijn_index
+[sub]: ../generics.md
+
+Here is a basic example of how DeBruijn indices might be used for closures (we
+don't actually do this in `rustc` though):
+
+```rust,ignore
+|x| {
+    f(x) // de Bruijn index of `x` is 1 because `x` is bound 1 level up
+
+    |y| {
+        g(x, y) // index of `x` is 2 because it is bound 2 levels up
+                // index of `y` is 1 because it is bound 1 level up
+    }
+}
+```
 
 ## What is co- and contra-variance?
 
