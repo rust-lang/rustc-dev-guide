@@ -65,7 +65,7 @@ x(...);      // 'a substituted here with a different value
 
 Early-bound parameters in Rustc are identified by an index, stored in the
 [`ParamTy`] struct for types or the [`EarlyBoundRegion`] struct for lifetimes.
-The index counts from the outermost declaration in scope. This meansthat as you
+The index counts from the outermost declaration in scope. This means that as you
 add more binders inside, the index doesn't change.
 
 For example,

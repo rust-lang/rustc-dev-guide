@@ -120,7 +120,7 @@ A CFG for this code might look like this:
  +---------+
 ```
 
-We can do the dataflow analysis as follows: we will start of with a flag `init`
+We can do the dataflow analysis as follows: we will start off with a flag `init`
 which indicates if we know `x` is initialized. As we walk the CFG, we will
 update the flag. At the end, we can check its value.
 
@@ -129,7 +129,7 @@ So first, in block (A), the variable `x` is declared but not initialized, so
 initialized. So at the end of (B), `init = true`.
 
 Block (C) is where things get interesting. Notice that there are two incoming
-edges from (A) and (B), corresponding to whether `some_cond` is true or not.
+edges, one from (A) and one from (B), corresponding to whether `some_cond` is true or not.
 But we cannot know that! It could be the case the `some_cond` is always true,
 so that `x` is actually always initialized. It could also be the case that
 `some_cond` depends on something random (e.g. the time), so `x` may not be
@@ -188,7 +188,7 @@ bound, it is well-typed: `∀ F, 'a: (F: Fn(&'a u8)) => well_typed(foo)`.
 
 ## What is a DeBruijn Index?
 
-DeBruijn indices are a way of representing the which variables are bound in
+DeBruijn indices are a way of representing which variables are bound in
 which binders using only integers. They were [originally invented][wikideb] for
 use in lambda calculus evaluation. In `rustc`, we use a similar idea for the
 [representation of generic types][sub].
