@@ -151,10 +151,10 @@ initialized in (C)). But this is not the case; in particular, `init = false` in
 (A), and `x` is not initialized in (C).  Thus, `init = false` in (C); we can
 report an error that "`x` may not be initialized before use".
 
-There is definitely a lot more that can be said about dataflow analyses, and
+There is definitely a lot more that can be said about dataflow analyses. There is an
 extensive body of research literature on the topic, including a lot of theory.
 We only discussed a forwards analysis, but backwards dataflow analysis is also
-useful. For example, rather than starting from block (A) and moving backwards,
+useful. For example, rather than starting from block (A) and moving forwards,
 we might have started with the usage of `x` and moved backwards to try to find
 its initialization.
 
