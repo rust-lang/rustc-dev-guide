@@ -101,14 +101,14 @@ of the things bound within.
 
 Moreover, a reference to a late-bound lifetime is written `^0.a`:
 
-    - The `0` is the index; it identifies that this lifetime is bound in the
-      innermost binder (the `for`).
-    - The `a` is the "name"; late-bound lifetimes in rustc are identified by a
-      "name" -- the [`BoundRegion`] struct. This struct can contain a
-      [`DefId`][defid] or it might have various "anonymous" numbered names. The
-      latter arise from types like `fn(&u32, &u32)`, which are equivalent to
-      something like `for<'a, 'b> fn(&'a u32, &'b u32)`, but the names of those
-      lifetimes must be generated.
+- The `0` is the index; it identifies that this lifetime is bound in the
+  innermost binder (the `for`).
+- The `a` is the "name"; late-bound lifetimes in rustc are identified by a
+  "name" -- the [`BoundRegion`] struct. This struct can contain a
+  [`DefId`][defid] or it might have various "anonymous" numbered names. The
+  latter arise from types like `fn(&u32, &u32)`, which are equivalent to
+  something like `for<'a, 'b> fn(&'a u32, &'b u32)`, but the names of those
+  lifetimes must be generated.
 
 This setup of not knowing the full set of variables at a binding level has some
 advantages and some disadvantages. The disadvantage is that you must walk the
