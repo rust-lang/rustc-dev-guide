@@ -138,12 +138,25 @@ Theorem][rice]).  So what should the value of `init` be in block (C)?
 
 [rice]: https://en.wikipedia.org/wiki/Rice%27s_theorem
 
+Generally, in dataflow analyses, if a block has multiple parents (like (C) in
+our example), its dataflow value will be some function of all it's parents (and
+of course, what happens in (C)).  Which function we use depends on the analysis
+we are doing.
+
 In this case, we want to be able to prove definitively that `x` must be
 initialized before use. This forces us to be conservative and assume that
-`some_cond` might be false sometimes. Thus, we can only make `init = true` in
-(C) if it is true in both (A) and (B), i.e., both parents of (C). Since, `init
-= false` in (A), `init = false` in (C), and we can report to the user that "`x`
-may not be initialized before use".
+`some_cond` might be false sometimes. So our "merging function" is "and". That
+is, `init = true` in (C) if `init = true` in (A) _and_ in (B) (or if `x` is
+initialized in (C)). But this is not the case; in particular, `init = false` in
+(A), and `x` is not initialized in (C).  Thus, `init = false` in (C); we can
+report an error that "`x` may not be initialized before use".
+
+There is definitely a lot more that can be said about dataflow analyses, and
+extensive body of research literature on the topic, including a lot of theory.
+We only discussed a forwards analysis, but backwards dataflow analysis is also
+useful. For example, rather than starting from block (A) and moving backwards,
+we might have started with the usage of `x` and moved backwards to try to find
+its initialization.
 
 <a name="quantified"></a>
 
