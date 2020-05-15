@@ -63,7 +63,7 @@ x(...);      // 'a substituted here with a different value
 
 ## Early-bound parameters
 
-Early-bound parameters in Rustc are identified by an index, stored in the
+Early-bound parameters in rustc are identified by an index, stored in the
 [`ParamTy`] struct for types or the [`EarlyBoundRegion`] struct for lifetimes.
 The index counts from the outermost declaration in scope. This means that as you
 add more binders inside, the index doesn't change.
@@ -91,7 +91,7 @@ in [this chapter](./generics.md).
 ## Late-bound parameters
 
 Late-bound parameters in `rustc` are handled quite differently (they are also
-specialized to lifetimes, since right now only late-bound lifetimes are
+specialized to lifetimes since, right now, only late-bound lifetimes are
 supported, though with GATs that has to change). We indicate their potential
 presence by a [`Binder`] type. The [`Binder`] doesn't know how many variables
 there are at that binding level. This can only be determined by walking the

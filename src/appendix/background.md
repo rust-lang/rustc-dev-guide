@@ -139,7 +139,7 @@ Theorem][rice]).  So what should the value of `init` be in block (C)?
 [rice]: https://en.wikipedia.org/wiki/Rice%27s_theorem
 
 Generally, in dataflow analyses, if a block has multiple parents (like (C) in
-our example), its dataflow value will be some function of all it's parents (and
+our example), its dataflow value will be some function of all its parents (and
 of course, what happens in (C)).  Which function we use depends on the analysis
 we are doing.
 
