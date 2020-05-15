@@ -1,45 +1,12 @@
 # Early and Late Bound Variables
 
-A generic type may be [_universally_ or _existentially_ quantified][quant]. For
-example,
-
-[quant]: ./appendix/background.md#quantified
-
-```rust,ignore
-fn foo<T>()
-```
-This function claims that the function is well-typed for all types `T`. To use
-the chalk notation: `forall<T> foo<T>`.
-
-Another example:
-
-```rust,ignore
-fn foo<'a>(_: &'a usize)
-```
-This function claims that there is some lifetime `'a` (determined by the
-caller) such that it is well-typed.
-
-One more example:
-
-```rust,ignore
-fn foo<F>()
-where for<'a> F: Fn(&'a u8),
-```
-This function claims that for all lifetimes `'a` and types `F` satisfying the
-bound, it is well-typed:
-
-```txt
-forall<'a, F> {
-    if F: Fn(&'a u8) {
-        foo<'a, f>
-    }
-}
-```
-
+In Rust, generic types are generally [_universally_ quantified][quant].
 Notice, however, that in Rust, we don't have (at the language level)
 universally quantified types; there is no `forall<F> foo<F>` in Rust. As a
 result, we have a sort of weird split in how we represent some generic types:
 _early-_ and _late-_ bound parameters.
+
+[quant]: ./appendix/background.md#quantified
 
 Basically, if we cannot represent a type (e.g. a universally quantified type),
 we have to bind it _early_ so that the unrepresentable type is never around.
