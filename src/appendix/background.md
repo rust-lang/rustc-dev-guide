@@ -185,17 +185,25 @@ Another example:
 ```rust,ignore
 fn foo<'a>(_: &'a usize)
 ```
-This function claims that there is some lifetime `'a` (determined by the
-caller) such that it is well-typed: `∃ 'a: well_typed(foo)`.
+This function claims that for any lifetime `'a` (determined by the
+caller), it is well-typed: `∀ 'a: well_typed(foo)`.
+
+Another example:
+
+```rust,ignore
+fn foo<F>()
+where for<'a> F: Fn(&'a u8)
+```
+This function claims that it is well-typed for all types `F` such that for all
+lifetimes `'a`, `F: Fn(&'a u8)`: `∀ F: ∀ 'a: (F: Fn(&'a u8)) => well_typed(foo)`.
 
 One more example:
 
 ```rust,ignore
-fn foo<F>()
-where for<'a> F: Fn(&'a u8),
+fn foo(_: dyn Debug)
 ```
-This function claims that for all lifetimes `'a` and types `F` satisfying the
-bound, it is well-typed: `∀ F, 'a: (F: Fn(&'a u8)) => well_typed(foo)`.
+This function claims that there exists some type `T` that implements `Debug`
+such that the function is well-typed: `∃ T:  (T: Debug) and well_typed(foo)`.
 
 <a name="variance"></a>
 
