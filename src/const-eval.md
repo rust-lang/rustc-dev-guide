@@ -28,11 +28,11 @@ in which the constant is evaluated (e.g. the function within which the constant 
 and a [`GlobalId`]. The `GlobalId` is made up of an `Instance` referring to a constant
 or static or of an `Instance` of a function and an index into the function's `Promoted` table.
 
-Constant evaluation returns a [`ConstEvalResult`] with either the error, or the simplest
-representation of the constant. "simplest" meaning if the `const` item is representable as an
-integer or fat pointer, it will directly yield the value (via [`ConstValue::Scalar`]
-or [`ConstValue::Slice`]), instead of referring to the [`miri`](./miri.html) virtual
-memory allocation (via [`ConstValue::ByRef`]). This means that the `const_eval_*`
+Constant evaluation returns a [`ConstEvalResult`] with either the error, or the a
+representation of the constant. `static` initializers are always represented as
+[`miri`](./miri.html) virtual memory allocations (via [`ConstValue::ByRef`]).
+Other constants get represented as [`ConstValue::Scalar`]
+or [`ConstValue::Slice`] if possible. This means that the `const_eval_*`
 functions cannot be used to create miri-pointers to the evaluated constant.
 If you need the value of a constant inside Miri, you need to directly work with
 [`eval_const_to_op`].
