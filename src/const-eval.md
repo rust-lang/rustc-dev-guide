@@ -34,12 +34,12 @@ integer or fat pointer, it will directly yield the value (via [`ConstValue::Scal
 or [`ConstValue::Slice`]), instead of referring to the [`miri`](./miri.html) virtual
 memory allocation (via [`ConstValue::ByRef`]). This means that the `const_eval_*`
 functions cannot be used to create miri-pointers to the evaluated constant or
-static. If you need that, you need to directly work with the functions in
-[`src/librustc_mir/const_eval.rs`].
+static. If you need the value of a constant inside Miri, you need to directly work with
+[`eval_const_to_op`].
 
 [`GlobalId`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/interpret/struct.GlobalId.html
 [`ConstValue::Scalar`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/interpret/value/enum.ConstValue.html#variant.Scalar
 [`ConstValue::Slice`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/interpret/value/enum.ConstValue.html#variant.Slice
 [`ConstValue::ByRef`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/interpret/value/enum.ConstValue.html#variant.ByRef
 [`ConstEvalResult`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/interpret/error/type.ConstEvalResult.html
-[`src/librustc_mir/const_eval.rs`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/const_eval/index.html
+[`eval_const_to_op`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/interpret/struct.InterpCx.html#method.eval_const_to_op
