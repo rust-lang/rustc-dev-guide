@@ -1,7 +1,7 @@
 # Miri
 
 Miri (**MIR** **I**nterpreter) is a virtual machine for executing MIR without
-compiling to machine code. It is usually invoked via `tcx.const_eval_*` queries.
+compiling to machine code. It is usually invoked via `tcx.const_eval_*` functions.
 
 If you start out with a constant:
 
@@ -201,7 +201,7 @@ division on pointer values.
 ## Interpretation
 
 Although the main entry point to constant evaluation is the `tcx.const_eval_*`
-queries, there are additional functions in
+functions, there are additional functions in
 [librustc_mir/const_eval.rs](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/const_eval/index.html)
 that allow accessing the fields of a `ConstValue` (`ByRef` or otherwise). You should
 never have to access an `Allocation` directly except for translating it to the
