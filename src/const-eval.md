@@ -20,15 +20,16 @@ Additionally constant evaluation can be used to reduce the workload or binary
 size at runtime by precomputing complex operations at compiletime and only
 storing the result.
 
-Constant evaluation can be done by calling the `const_eval_*` queries of `TyCtxt`.
+Constant evaluation can be done by calling the `const_eval_*` functions of `TyCtxt`.
+They're the wrappers of the `const_eval` query.
 
-The `const_eval_*` queries use a [`ParamEnv`](./param_env.html) of environment
+The `const_eval_*` functions use a [`ParamEnv`](./param_env.html) of environment
 in which the constant is evaluated (e.g. the function within which the constant is used)
 and a [`GlobalId`]. The `GlobalId` is made up of an `Instance` referring to a constant
 or static or of an `Instance` of a function and an index into the function's `Promoted` table.
 
 Constant evaluation returns a [`ConstEvalResult`] with either the error, or the simplest
-representation of the constant. "simplest" meaning if it is representable as an
+representation of the constant. "simplest" meaning if the `const` item is representable as an
 integer or fat pointer, it will directly yield the value (via [`ConstValue::Scalar`]
 or [`ConstValue::Slice`]), instead of referring to the [`miri`](./miri.html) virtual
 memory allocation (via [`ConstValue::ByRef`]). This means that the `const_eval_*`
