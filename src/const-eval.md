@@ -33,8 +33,8 @@ representation of the constant. "simplest" meaning if the `const` item is repres
 integer or fat pointer, it will directly yield the value (via [`ConstValue::Scalar`]
 or [`ConstValue::Slice`]), instead of referring to the [`miri`](./miri.html) virtual
 memory allocation (via [`ConstValue::ByRef`]). This means that the `const_eval_*`
-functions cannot be used to create miri-pointers to the evaluated constant or
-static. If you need the value of a constant inside Miri, you need to directly work with
+functions cannot be used to create miri-pointers to the evaluated constant.
+If you need the value of a constant inside Miri, you need to directly work with
 [`eval_const_to_op`].
 
 [`GlobalId`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/interpret/struct.GlobalId.html
