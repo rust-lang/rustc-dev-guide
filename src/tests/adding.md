@@ -193,7 +193,7 @@ source.
 
 Error annotations specify the errors that the compiler is expected to
 emit. They are "attached" to the line in source where the error is
-located.  Error annotations are considered during tidy lints of line
+located. Error annotations are considered during tidy lints of line
 length and should be formatted according to tidy requirements. 
 
 The error annotation definition and source line definition association
@@ -217,7 +217,7 @@ source.
 
 Use the `//~ ERROR` idiom:
 
-```rust, ignore
+```rust,ignore
 fn main() {
     let x = (1, 2, 3);
     match x {
@@ -234,7 +234,7 @@ number of lines above.  In the example below, the error line is four
 lines above the error annotation line so four carets are included in 
 the annotation.
 
-```rust, ignore
+```rust,ignore
 fn main() {
     let x = (1, 2, 3);
     match x {
@@ -250,7 +250,7 @@ fn main() {
 Use the `//~|` idiom to define the same error line as 
 the error annotation line above:
 
-```rust, ignore
+```rust,ignore
 struct Binder(i32, i32, i32);
 
 fn main() {
