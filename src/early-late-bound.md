@@ -1,10 +1,11 @@
 # Early and Late Bound Variables
 
 In Rust, generic types are generally [_universally_ quantified][quant].
-Notice, however, that in Rust, we don't have (at the language level)
-universally quantified types; there is no `forall<F> foo<F>` in Rust. As a
-result, we have a sort of weird split in how we represent some generic types:
-_early-_ and _late-_ bound parameters.
+Notice, however, that in some cases, Rust has no way to represent such
+quantification. For example, there is no `forall<F> foo<F>` in Rust, where `F`
+is a generic type variable (though we can do it in some cases, like `for<'a>
+fn(&'a u32)`). As a result, we have a sort of weird split in how we represent
+some generic types: _early-_ and _late-_ bound parameters.
 
 [quant]: ./appendix/background.md#quantified
 
