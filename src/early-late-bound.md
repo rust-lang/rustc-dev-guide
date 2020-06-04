@@ -1,14 +1,31 @@
 # Early and Late Bound Variables
 
-In Rust, generic types are generally [_universally_ quantified][quant].
-Notice, however, that in some cases, Rust has no way to represent such
-quantification. For example, there is no `forall<F> foo<F>` in Rust, where `F`
-is a generic type variable (though we can do it in some cases, like `for<'a>
-fn(&'a u32)`). As a result, we have a sort of weird split in how we represent
-some generic types: _early-_ and _late-_ bound parameters.
+In Rust, item definitions (like `fn`) can often have generic parameters, which
+are always [_universally_ quantified][quant]. That is, if you have a function
+like
+
+```rust
+fn foo<T>(x: T) { }
+```
+
+this function is defined "for all T" (not "for some specific T", which would be
+[_existentially_ quantified][quant]).
 
 [quant]: ./appendix/background.md#quantified
 
+While Rust *items* can be quantified over types, lifetimes, and constants, the
+types of values in Rust are only ever quantified over lifetimes. So you can
+have a type like `for<'a> fn(&'a u32)`, which represents a function pointer
+that takes a reference with any lifetime, or `for<'a> dyn Trait<'a>`, which is
+a `dyn` trait for a trait implemented for any lifetime; but we have no type
+like `for<T> fn(T)`, which would be a function that takes a value of *any type*
+as a parameter. This is a consequence of monomorphization -- to support a value
+of type `for<T> fn(T)`, we would need a single function pointer that can be
+used for a parameter of any type, but in Rust we generate customized code for
+each parameter type.
+
+One consequence of this asymmetry is a weird split in how we represesent some
+generic types: _early-_ and _late-_ bound parameters.
 Basically, if we cannot represent a type (e.g. a universally quantified type),
 we have to bind it _early_ so that the unrepresentable type is never around.
 
@@ -41,7 +58,7 @@ For example,
 ```rust,ignore
 trait Foo<T> {
   type Bar<U> = (Self, T, U);
-} 
+}
 ```
 
 Here, the type `(Self, T, U)` would be `($0, $1, $2)`, where `$N` means a
