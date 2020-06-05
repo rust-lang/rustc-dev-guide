@@ -160,4 +160,4 @@ does not.
 
 ## Misc Papers and Blog Posts
 - [Programming in Martin-Löf's Type Theory](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.118.6683&rep=rep1&type=pdf)
-- [Polymorphism, Subtyping, and Type Inference in MLsub](https://www.cl.cam.ac.uk/~sd601/papers/mlsub-preprint.pdf)
+- [Polymorphism, Subtyping, and Type Inference in MLsub](https://dl.acm.org/doi/10.1145/3093333.3009882)
