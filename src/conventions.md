@@ -8,7 +8,7 @@ chapter covers [formatting](#formatting), [coding for correctness](#cc),
 # Formatting and the tidy script
 
 rustc is moving towards the [Rust standard coding style][fmt].
-This is enforced by the "tidy" scipt and can be mostly
+This is enforced by the "tidy" script and can be mostly
 automated using `./x.py fmt`.
 
 As the output of [rustfmt] is not completely stable,
