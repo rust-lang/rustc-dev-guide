@@ -26,6 +26,6 @@ repository. Just [follow this example][eg], but change the username to
 your own!
 
 [rust-lang/team]: https://github.com/rust-lang/team
-[eg]: XXX
+[eg]: https://github.com/rust-lang/team/pull/348/
 [#72569]: https://github.com/rust-lang/rust/pull/72569
 [#29520]: https://github.com/rust-lang/rust/pull/29520
