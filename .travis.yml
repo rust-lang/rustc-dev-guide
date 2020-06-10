@@ -14,8 +14,6 @@ install:
 - cargo install mdbook --version 0.3.7
 - cargo install mdbook-linkcheck --version 0.5.0
 script:
-- git remote -vvv
-- git fetch origin
 - git rebase origin master # this will exit with an error on conflict
 - mdbook build
 notifications:
