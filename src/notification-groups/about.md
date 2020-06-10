@@ -62,6 +62,8 @@ group. For example:
 ```text
 @rustbot ping llvm
 @rustbot ping cleanup-crew
+@rustbot ping windows
+@rustbot ping arm
 ```
 
 To make some commands shorter and easier to remember, there are aliases,
