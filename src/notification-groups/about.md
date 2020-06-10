@@ -64,12 +64,14 @@ group. For example:
 @rustbot ping cleanup-crew
 ```
 
-To make these commands shorter and easier to remember, there are aliases,
-defined in the [`triagebot.toml`] file. For example:
+To make some commands shorter and easier to remember, there are aliases,
+defined in the [`triagebot.toml`] file. For example, all of these commands
+are equivalent and will ping the Cleanup Crew:
 
 ```text
-@rustbot ping llvm
 @rustbot ping cleanup
+@rustbot ping bisect
+@rustbot ping reduce
 ```
 
 Keep in mind that these aliases are meant to make humans' life easier.
