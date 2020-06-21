@@ -88,7 +88,7 @@ sorts of identifiers in active use:
     expected, because it prevents [`DefId`] from upstream crates from
     being passed instead and causing bugs at compile time.
   - They can still be transformed back into `DefId`s as needed by using
-    the [`LocalDefId::to_def_id`] method.
+    the [`LocalDefId::to_def_id`][to_def_id] method.
 - [`HirId`], which combines the index of a particular item with an
   offset within that item.
   - the key point of a [`HirId`] is that it is *relative* to some item
@@ -101,6 +101,8 @@ sorts of identifiers in active use:
 [`LocalDefId`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/def_id/struct.LocalDefId.html
 [`HirId`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/hir_id/struct.HirId.html
 [`BodyId`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/struct.BodyId.html
+
+[to_def_id]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/def_id/struct.LocalDefId.html#method.to_def_id
 
 We also have an internal map to go from `DefId` to what’s called "Def path". "Def path" is like a
 module path but a bit more rich. For example, it may be `crate::foo::MyStruct` that identifies
