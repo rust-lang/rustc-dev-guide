@@ -85,8 +85,8 @@ sorts of identifiers in active use:
     of items that is maintained per crate).
 - [`LocalDefId`], which is basically a `DefId` but for the local crate.
   - They are the prefered way to encode that only a local `DefId` is
-    expected, because it prevents [`DefId`] from upstream crates from
-    being passed instead and causing bugs at compile time.
+    expected, because it enforces at compile time that not any [`DefId`],
+    that potentially comes from an upstream crate, can be passed.
   - They can still be transformed back into `DefId`s as needed by using
     the [`LocalDefId::to_def_id`][to_def_id] method.
 - [`HirId`], which combines the index of a particular item with an
