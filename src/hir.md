@@ -83,24 +83,24 @@ sorts of identifiers in active use:
   - A [`DefId`] really consists of two parts, a `CrateNum` (which
     identifies the crate) and a `DefIndex` (which indexes into a list
     of items that is maintained per crate).
+- [`LocalDefId`], which is basically a `DefId` but for the local crate.
+  - They are the prefered way to encode that only a local `DefId` is
+    expected, because it prevents [`DefId`] from upstream crates from
+    being passed instead and causing bugs at compile time.
+  - They can still be transformed back into `DefId`s as needed by using
+    the [`LocalDefId::to_def_id`] method.
 - [`HirId`], which combines the index of a particular item with an
   offset within that item.
   - the key point of a [`HirId`] is that it is *relative* to some item
-    (which is named via a [`DefId`]).
+    (which is named via a [`LocalDefId`]).
 - [`BodyId`], this is an identifier that refers to a specific
   body (definition of a function or constant) in the crate. It is currently
   effectively a "newtype'd" [`HirId`].
-- [`NodeId`], which is an absolute id that identifies a single node in the HIR
-  tree.
-  - While these are still in common use, **they are being slowly phased out**.
-  - Since they are absolute within the crate, adding a new node anywhere in the
-    tree causes the [`NodeId`]s of all subsequent code in the crate to change.
-    This is terrible for incremental compilation, as you can perhaps imagine.
 
 [`DefId`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/def_id/struct.DefId.html
+[`LocalDefId`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/def_id/struct.LocalDefId.html
 [`HirId`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/hir_id/struct.HirId.html
 [`BodyId`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/struct.BodyId.html
-[`NodeId`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_ast/node_id/struct.NodeId.html
 
 We also have an internal map to go from `DefId` to what’s called "Def path". "Def path" is like a
 module path but a bit more rich. For example, it may be `crate::foo::MyStruct` that identifies
@@ -121,24 +121,22 @@ with an HIR node.
 [HIR map]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/hir/map/struct.Map.html
 [number of methods]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/hir/map/struct.Map.html#methods
 
-For example, if you have a [`DefId`], and you would like to convert it
-to a [`NodeId`], you can use
-[`tcx.hir.as_local_node_id(def_id)`][as_local_node_id]. This returns
-an `Option<NodeId>` – this will be `None` if the def-id refers to
-something outside of the current crate (since then it has no HIR
-node), but otherwise returns `Some(n)` where `n` is the node-id of the
-definition.
+For example, if you have a [`LocalDefId`], and you would like to convert it
+to a [`HirId`], you can use [`tcx.hir.as_local_hir_id(def_id)`][as_local_hir_id].
+The inverse is just as simple, if you want to convert a [`HirId`] to a [`LocalDefId`],
+you can use [`tcx.hir.local_def_id(hir_id)`][local_def_id].
 
-[as_local_node_id]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/hir/map/struct.Map.html#method.as_local_node_id
+[as_local_hir_id]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/hir/map/struct.Map.html#method.as_local_hir_id
+[local_def_id]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/hir/map/struct.Map.html#method.local_def_id
 
 Similarly, you can use [`tcx.hir.find(n)`][find] to lookup the node for a
-[`NodeId`]. This returns a `Option<Node<'tcx>>`, where [`Node`] is an enum
+[`HirId`]. This returns a `Option<Node<'tcx>>`, where [`Node`] is an enum
 defined in the map; by matching on this you can find out what sort of
-node the node-id referred to and also get a pointer to the data
+node the [`HirId`] referred to and also get a pointer to the data
 itself. Often, you know what sort of node `n` is – e.g. if you know
 that `n` must be some HIR expression, you can do
-[`tcx.hir.expect_expr(n)`][expect_expr], which will extract and return the
-[`&hir::Expr`][Expr], panicking if `n` is not in fact an expression.
+[`tcx.hir.expect_expr(hir_id)`][expect_expr], which will extract and return the
+[`&hir::Expr`][Expr], panicking if `hir_id` is not in fact an expression.
 
 [find]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/hir/map/struct.Map.html#method.find
 [`Node`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/enum.Node.html
