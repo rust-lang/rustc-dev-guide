@@ -26,13 +26,10 @@ cp config.toml.example config.toml
 ```
 
 Then you will want to open up the file and change the following
-settings (and possibly others, such as `llvm.ccache`):
+settings (and possibly others, such as `llvm.ccache`). Also, see the notes
+below about LLVM-related settings.
 
 ```toml
-[llvm]
-# Indicates whether the LLVM assertions are enabled or not
-assertions = true
-
 [rust]
 # Indicates that the build should be configured for debugging Rust. A
 # `debug`-enabled compiler and standard library will be somewhat
@@ -81,6 +78,33 @@ incremental = true
 # Emits extra output from tests so test failures are debuggable just from logfiles.
 verbose-tests = true
 ```
+
+Moreover, there are a couple of other configs to consider, depending on whether
+you are planning to work on something LLVM-related.
+
+If you are planning to work on LLVM-related things, you may want to enable
+assertions for improved debugging. This comes at a cost in compile time:
+
+```toml
+[llvm]
+# Indicates whether the LLVM assertions are enabled or not.
+assertions = true
+```
+
+If you are _not_ planning to work on LLVM-related things, you can avoid
+building LLVM altogether by using a system LLVM:
+
+```
+[rust]
+# Path to the `llvm-config` binary of the installation of a custom LLVM to link
+# against. Note that if this is specified we don't compile LLVM at all for this
+# target.
+llvm-config = "../path/to/llvm/root/bin/llvm-config"
+```
+
+You can find more details about [system LLVM here][sysllvm].
+
+[sysllvm]: ./suggested.md#building-with-system-llvm
 
 If you have already built `rustc`, then you may have to execute `rm -rf build` for subsequent
 configuration changes to take effect. Note that `./x.py clean` will not cause a
