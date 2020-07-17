@@ -14,7 +14,7 @@
     - [Bootstrapping](./building/bootstrapping.md)
     - [Distribution artifacts](./building/build-install-distribution-artifacts.md)
     - [Documenting Compiler](./building/compiler-documenting.md)
-    - [Rustdoc](./bulding/rustdoc.md)
+    - [Rustdoc](./building/rustdoc.md)
     - [ctags](./building/ctags.md)
 - [The compiler testing framework](./tests/intro.md)
     - [Running tests](./tests/running.md)
