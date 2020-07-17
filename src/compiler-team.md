@@ -12,8 +12,9 @@ contributions to rustc and its design.
 Currently the compiler team chats in Zulip:
 
 - Team chat occurs in the `t-compiler` stream on [the Zulip instance][zulip]
-- There are also a number of other associated Zulip streams, such as [`t-compiler/help`][zulip-help],
-  where people can ask for help with rustc development, or [`t-compiler/meetings`][zulip-meetings],
+- There are also a number of other associated Zulip streams,
+  such as [`t-compiler/help`][zulip-help], where people can ask for help
+  with rustc development, or [`t-compiler/meetings`][zulip-meetings],
   where the team holds their weekly triage and steering meetings.
 
 ## Expert map
