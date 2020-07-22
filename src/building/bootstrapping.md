@@ -57,13 +57,13 @@ When you use the bootstrap system, you'll call it through `x.py`.
 However, most of the code lives in `src/bootstrap`.
 `bootstrap` has a difficult problem: it is written in Rust, but yet it is run
 before the rust compiler is built! To work around this, there are two
-components of bootstrap: the main one written in rust, and `bootstrap.py`.
+components of bootstrap: the main one written in Rust, called `rustbuild`,
+and `bootstrap.py`.
 `bootstrap.py` is what gets run by x.py. It takes care of downloading the
-`stage0` compiler, which will then build the bootstrap binary written in
-Rust.
+bootstrap compiler, which will then compile `rustbuild`.
 
 Because there are two separate codebases behind `x.py`, they need to
-be kept in sync. In particular, both `bootstrap.py` and the bootstrap binary
+be kept in sync. In particular, both `bootstrap.py` and `rustbuild`
 parse `config.toml` and read the same command line arguments. `bootstrap.py`
 keeps these in sync by setting various environment variables, and the
 programs sometimes to have add arguments that are explicitly ignored, to be
