@@ -78,6 +78,47 @@ contribution [here][bootstrap-build].
 
 ## Stages of bootstrap
 
+Like most other bootstrapping compilers, `rustc` is compiled in stages.
+_Unlike_ most other compilers, where `stage0` refers to the bootstrap compiler,
+`stage0` refers to the first compiler built by bootstrap. So the following command:
+
+```sh
+x.py build --stage 0 src/rustc
+```
+
+will actually perform a full build of rustc. Confusingly, the `build/$target/stageN` directories are named after the compiler they are *used to build*, not the commands you need to build them.
+
+- **Stage 0:** The stage0 compiler is built by the bootstrap compiler.
+  The  bootstrap compiler is usually (you can configure `x.py` to use
+  something else) the current beta `rustc` compiler and its associated dynamic
+  libraries (which `x.py` will download for you). This bootstrap compiler is then
+  used to compile `rustbuild`, `std`, and `rustc` (plus a few other tools, like `tidy`). When compiling
+  `rustc`, this bootstrap compiler uses the freshly compiled `std`.
+  There are two concepts at play here: a compiler (with its set of dependencies)
+  and its 'target' or 'object' libraries (`std` and `rustc`).
+  Both are staged, but in a staggered manner.
+  The `stage0` standard library is the one _linked_ to `stage0` rustc
+  (allowing you to `use std::vec::Vec` from within the compiler itself),
+  while `stage1 libstd` is the library _built_ by stage1. `libstd` also include `libcore`,
+  so without it there are very few programs that rustc can compile.
+
+- **Stage 1:** In theory, the stage0 compiler is functionally identical to the
+    stage1 compiler, but in practice there are subtle differences. In
+    particular, the stage0 compiler was built by bootstrap and
+    hence not by the source in your working directory: this means that
+    the symbol names used in the compiler source may not match the
+    symbol names that would have been made by the stage1 compiler. This is
+    important when using dynamic linking because Rust does not have ABI compatibility
+    between versions. This primarily manifests when tests try to link with any
+    of the `rustc_*` crates or use the (now deprecated) plugin infrastructure.
+    These tests are marked with `ignore-stage1`. The `stage1` is because
+    these plugins *link* to the stage1 compiler, even though they are being
+    *built* by stage0. Rebuilding again also gives us the benefit of the latest optimizations (i.e. those added since the beta fork).
+
+- _(Optional)_ **Stage 2**: to sanity check our new compiler, we
+  can build the libraries with the stage1 compiler. The result ought
+  to be identical to before, unless something has broken.
+
 This is a detailed look into the separate bootstrap stages. When running
 `x.py` you will see output such as:
 
