@@ -204,11 +204,11 @@ The following tables indicate the outputs of various stage actions:
 `--stage=2` stops here.
 
 Note that the convention `x.py` uses is that:
-- A "stage N artifact" is an artifact that is _produced_ by the stage N compiler.
-- The "stage (N+1) compiler" is assembled from "stage N artifacts".
-- A `--stage N` flag means build _with_ stage N.
+- A "stage N artifact" is an artifact that is part of stage N.
+- The compiler in `build/$target/stage(N+1)` is assembled from "stage N artifacts".
+- A `--stage N` flag means build a stage N artifact.
 
-In short, _stage 0 uses the stage0 compiler to create stage0 artifacts which
+In short, _stage 0 uses the bootstrap compiler to create stage0 artifacts which
 will later be uplifted to stage1_.
 
 Every time any of the main artifacts (`std` and `rustc`) are compiled, two
