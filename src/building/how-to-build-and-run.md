@@ -62,19 +62,6 @@ debug = true
 # compiler.
 codegen-units = 0
 
-# Debuginfo level for most of Rust code, corresponds to the `-C debuginfo=N` option of `rustc`.
-# `0` - no debug info
-# `1` - line tables only - sufficient to generate backtraces that include line
-#       information and inlined functions, set breakpoints at source code
-#       locations, and step through execution in a debugger.
-# `2` - full debug info with variable and type information
-# Can be overridden for specific subsets of Rust code (rustc, std or tools).
-# Debuginfo for tests run with compiletest is not controlled by this option
-# and needs to be enabled separately with `debuginfo-level-tests`.
-#
-# Defaults to 2 if debug is true
-debuginfo-level = 1
-
 # Whether to always use incremental compilation when building rustc
 incremental = true
 
