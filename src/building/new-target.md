@@ -78,7 +78,7 @@ index be15e50e2bc..4fb1248ba99 100644
  # See comments in `src/tools/rustc-workspace-hack/README.md` for what's going on
  # here
  rustc-workspace-hack = { path = 'src/tools/rustc-workspace-hack' }
- ```
+```
 
 After this, run `cargo update -p libc` to update the lockfiles.
 
