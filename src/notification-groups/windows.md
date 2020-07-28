@@ -21,7 +21,7 @@ the group for advice in determining the best course of action:
 * What names should we use for static libraries on Windows? [#29520]
 
 So, if you are interested in participating, please sign up for the
-Windows group! To do so, you open a PR against the [rust-lang/team]
+Windows group! To do so, open a PR against the [rust-lang/team]
 repository. Just [follow this example][eg], but change the username to
 your own!
 

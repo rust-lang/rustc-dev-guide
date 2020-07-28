@@ -13,7 +13,7 @@ where people can go to pose questions and discuss RISC-V-specific
 topics.
 
 So, if you are interested in participating, please sign up for the
-RISC-V group! To do so, you open a PR against the [rust-lang/team]
+RISC-V group! To do so, open a PR against the [rust-lang/team]
 repository. Just [follow this example][eg], but change the username to
 your own!
 
