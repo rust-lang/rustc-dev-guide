@@ -48,10 +48,11 @@ cargo run add-person $your_user_name
 
 Example PRs:
 
+* [Example of adding yourself to the ARM group.](https://github.com/rust-lang/team/pull/358)
 * [Example of adding yourself to the Cleanup Crew.](https://github.com/rust-lang/team/pull/221)
 * [Example of adding yourself to the LLVM group.](https://github.com/rust-lang/team/pull/140)
+* [Example of adding yourself to the RISC-V group.](https://github.com/rust-lang/team/pull/394)
 * [Example of adding yourself to the Windows group.](https://github.com/rust-lang/team/pull/348)
-* [Example of adding yourself to the ARM group.](https://github.com/rust-lang/team/pull/358)
 
 ## Tagging an issue for a notification group
 
