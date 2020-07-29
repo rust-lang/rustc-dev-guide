@@ -128,7 +128,7 @@ The following tables indicate the outputs of various stage actions:
 |-----------------------------------------------------------|----------------------------------------------|
 | `beta` extracted                                          | `build/HOST/stage0`                          |
 | `stage0` builds `bootstrap`                               | `build/bootstrap`                            |
-| `stage0` builds `libtest`/`std`                        | `build/HOST/stage0-std/TARGET`               |
+| `stage0` builds `test`/`std`                        | `build/HOST/stage0-std/TARGET`               |
 | copy `stage0-std` (HOST only)                             | `build/HOST/stage0-sysroot/lib/rustlib/HOST` |
 | `stage0` builds `rustc` with `stage0-sysroot`             | `build/HOST/stage0-rustc/HOST`               |
 | copy `stage0-rustc (except executable)`                   | `build/HOST/stage0-sysroot/lib/rustlib/HOST` |
@@ -143,7 +143,7 @@ The following tables indicate the outputs of various stage actions:
 | copy (uplift) `stage0-rustc` executable to `stage1` | `build/HOST/stage1/bin`               |
 | copy (uplift) `stage0-codegen` to `stage1`          | `build/HOST/stage1/lib`               |
 | copy (uplift) `stage0-sysroot` to `stage1`          | `build/HOST/stage1/lib`               |
-| `stage1` builds `libtest`/`std`                  | `build/HOST/stage1-std/TARGET`        |
+| `stage1` builds `test`/`std`                  | `build/HOST/stage1-std/TARGET`        |
 | copy `stage1-std` (HOST only)                       | `build/HOST/stage1/lib/rustlib/HOST`  |
 | `stage1` builds `rustc`                             | `build/HOST/stage1-rustc/HOST`        |
 | copy `stage1-rustc` (except executable)             | `build/HOST/stage1/lib/rustlib/HOST`  |
@@ -155,7 +155,7 @@ The following tables indicate the outputs of various stage actions:
 |--------------------------------------------------------|-----------------------------------------------------------------|
 | copy (uplift) `stage1-rustc` executable                | `build/HOST/stage2/bin`                                         |
 | copy (uplift) `stage1-sysroot`                         | `build/HOST/stage2/lib and build/HOST/stage2/lib/rustlib/HOST`  |
-| `stage2` builds `libtest`/`std` (not HOST targets)  | `build/HOST/stage2-std/TARGET`                                  |
+| `stage2` builds `test`/`std` (not HOST targets)  | `build/HOST/stage2-std/TARGET`                                  |
 | copy `stage2-std` (not HOST targets)                   | `build/HOST/stage2/lib/rustlib/TARGET`                          |
 | `stage2` builds `rustdoc`                              | `build/HOST/stage2-tools/HOST`                                  |
 | copy `rustdoc`                                         | `build/HOST/stage2/bin`                                         |
