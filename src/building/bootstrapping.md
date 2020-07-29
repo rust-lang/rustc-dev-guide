@@ -254,7 +254,7 @@ variables that are used. If you are trying to run an intermediate version of
 manually. Otherwise, you get an error like the following:
 
 ```text
-thread 'main' panicked at 'RUSTC_STAGE was not set: NotPresent', library/core/result.rs:1165:5
+thread 'main' panicked at 'RUSTC_STAGE was not set: NotPresent', library/core/src/result.rs:1165:5
 ```
 
 If `./stageN/bin/rustc` gives an error about environment variables, that
