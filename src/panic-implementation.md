@@ -105,4 +105,5 @@ with each frame (currently, running destructors), and transferring control
 to the `catch_unwind` frame.
 
 Note that all panics either abort the process or get caught by some call to `catch_unwind`:
-in `library/std/src/rt.rs`, the call to the user-provided `main` function is wrapped in `catch_unwind`.
+in `library/std/src/rt.rs`, the call to the user-provided
+`main` function is wrapped in `catch_unwind`.
