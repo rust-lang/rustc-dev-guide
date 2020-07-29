@@ -221,13 +221,13 @@ build. The **full** `rustc` build (what you get if you say `./x.py build
 Build only the libcore library
 
 ```bash
-./x.py build src/libcore
+./x.py build library/core
 ```
 
 Build the libcore and libproc_macro library only
 
 ```bash
-./x.py build src/libcore src/libproc_macro
+./x.py build library/core src/libproc_macro
 ```
 
 Sometimes you might just want to test if the part you’re working on can

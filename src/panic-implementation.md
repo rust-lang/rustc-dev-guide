@@ -9,7 +9,7 @@ or `std`.
 
 ##### libcore definition of panic!
 
-The `libcore` `panic!` macro eventually makes the following call (in `src/libcore/panicking.rs`):
+The `libcore` `panic!` macro eventually makes the following call (in `library/core/panicking.rs`):
 
 ```rust
 // NOTE This function never crosses the FFI boundary; it's a Rust-to-Rust call

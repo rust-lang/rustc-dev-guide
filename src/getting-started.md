@@ -297,7 +297,7 @@ stage 0, which uses the current beta compiler.
 ./x.py test --stage 0 library/std
 ```
 
-(The same works for `src/liballoc`, `src/libcore`, etc.)
+(The same works for `src/liballoc`, `library/core`, etc.)
 
 ### Building and Testing `rustdoc`
 
