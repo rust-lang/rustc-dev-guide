@@ -32,7 +32,7 @@ does is call the `main()` that's in this crate's `lib.rs`, though.)
 
 * Use `./x.py build` to make a usable
   rustdoc you can run on other projects.
-  * Add `src/libtest` to be able to use `rustdoc --test`.
+  * Add `library/test` to be able to use `rustdoc --test`.
   * If you've used `rustup toolchain link local /path/to/build/$TARGET/stage1`
     previously, then after the previous build command, `cargo +local doc` will
     Just Work.
