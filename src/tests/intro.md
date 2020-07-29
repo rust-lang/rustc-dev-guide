@@ -51,7 +51,7 @@ details.
 - `rustdoc` – tests for rustdoc, making sure that the generated files
   contain the expected documentation.
 - `*-fulldeps` – same as above, but indicates that the test depends
-  on things other than `libstd` (and hence those things must be built)
+  on things other than `std` (and hence those things must be built)
 
 ## Other Tests
 

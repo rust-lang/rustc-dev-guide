@@ -2,10 +2,10 @@
 
 #### Step 1: Invocation of the `panic!` macro.
 
-There are actually two panic macros - one defined in `libcore`, and one defined in `libstd`.
-This is due to the fact that code in `libcore` can panic. `libcore` is built before `libstd`,
+There are actually two panic macros - one defined in `libcore`, and one defined in `std`.
+This is due to the fact that code in `libcore` can panic. `libcore` is built before `std`,
 but we want panics to use the same machinery at runtime, whether they originate in `libcore`
-or `libstd`.
+or `std`.
 
 ##### libcore definition of panic!
 
@@ -47,16 +47,16 @@ pub fn begin_panic_handler(info: &PanicInfo<'_>) -> ! {
 The special `panic_handler` attribute is resolved via `src/librustc_middle/middle/lang_items`.
 The `extract` function converts the `panic_handler` attribute to a `panic_impl` lang item.
 
-Now, we have a matching `panic_handler` lang item in the `libstd`. This function goes
+Now, we have a matching `panic_handler` lang item in the `std`. This function goes
 through the same process as the `extern { fn panic_impl }` definition in `libcore`, ending
 up with a symbol name of `rust_begin_unwind`. At link time, the symbol reference in `libcore`
-will be resolved to the definition of `libstd` (the function called `begin_panic_handler` in the
+will be resolved to the definition of `std` (the function called `begin_panic_handler` in the
 Rust source).
 
 Thus, control flow will pass from libcore to std at runtime. This allows panics from `libcore`
 to go through the same infrastructure that other panics use (panic hooks, unwinding, etc)
 
-##### libstd implementation of panic!
+##### std implementation of panic!
 
 This is where the actual panic-related logic begins. In `library/std/panicking.rs`,
 control passes to `rust_panic_with_hook`. This method is responsible
