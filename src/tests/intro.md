@@ -82,7 +82,7 @@ including:
   include typical Rust `#[test]` unittests.  Under the hood, `x.py` will run
   `cargo test` on each package to run all the tests.
 
-  Example: `./x.py test src/libstd`
+  Example: `./x.py test library/std`
 
 - **Doc tests** – Example code embedded within Rust documentation is executed
   via `rustdoc --test`.  Examples:
@@ -90,7 +90,7 @@ including:
   `./x.py test src/doc` – Runs `rustdoc --test` for all documentation in
   `src/doc`.
 
-  `./x.py test --doc src/libstd` – Runs `rustdoc --test` on the standard
+  `./x.py test --doc library/std` – Runs `rustdoc --test` on the standard
   library.
 
 - **Link checker** – A small tool for verifying `href` links within

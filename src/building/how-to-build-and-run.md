@@ -176,7 +176,7 @@ Once you've created a config.toml, you are now ready to run
 probably the best "go to" command for building a local rust:
 
 ```bash
-./x.py build -i src/libstd
+./x.py build -i library/std
 ```
 
 This may *look* like it only builds `libstd`, but that is not the case.
@@ -281,7 +281,7 @@ in other sections:
   - `./x.py build --stage 2` – builds the stage2 compiler
 - Running tests (see the [section on running tests](../tests/running.html) for
   more details):
-  - `./x.py test src/libstd` – runs the `#[test]` tests from `libstd`
+  - `./x.py test library/std` – runs the `#[test]` tests from `libstd`
   - `./x.py test src/test/ui` – runs the `ui` test suite
   - `./x.py test src/test/ui/const-generics` - runs all the tests in
   the `const-generics/` subdirectory of the `ui` test suite

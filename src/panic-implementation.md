@@ -32,7 +32,7 @@ Actually resolving this goes through several layers of indirection:
    which means that libcore will attempt to call a foreign symbol called `rust_begin_unwind`
    (to be resolved at link time)
 
-2. In `src/libstd/panicking.rs`, we have this definition:
+2. In `library/std/panicking.rs`, we have this definition:
 
 ```rust
 /// Entry point of panic from the libcore crate.
@@ -58,7 +58,7 @@ to go through the same infrastructure that other panics use (panic hooks, unwind
 
 ##### libstd implementation of panic!
 
-This is where the actual panic-related logic begins. In `src/libstd/panicking.rs`,
+This is where the actual panic-related logic begins. In `library/std/panicking.rs`,
 control passes to `rust_panic_with_hook`. This method is responsible
 for invoking the global panic hook, and checking for double panics. Finally,
 we call `__rust_start_panic`, which is provided by the panic runtime.
@@ -105,4 +105,4 @@ with each frame (currently, running destructors), and transferring control
 to the `catch_unwind` frame.
 
 Note that all panics either abort the process or get caught by some call to `catch_unwind`:
-in `src/libstd/rt.rs`, the call to the user-provided `main` function is wrapped in `catch_unwind`.
+in `library/std/rt.rs`, the call to the user-provided `main` function is wrapped in `catch_unwind`.
