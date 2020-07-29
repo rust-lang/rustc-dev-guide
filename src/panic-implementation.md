@@ -2,14 +2,14 @@
 
 #### Step 1: Invocation of the `panic!` macro.
 
-There are actually two panic macros - one defined in `libcore`, and one defined in `std`.
-This is due to the fact that code in `libcore` can panic. `libcore` is built before `std`,
-but we want panics to use the same machinery at runtime, whether they originate in `libcore`
+There are actually two panic macros - one defined in `core`, and one defined in `std`.
+This is due to the fact that code in `core` can panic. `core` is built before `std`,
+but we want panics to use the same machinery at runtime, whether they originate in `core`
 or `std`.
 
-##### libcore definition of panic!
+##### core definition of panic!
 
-The `libcore` `panic!` macro eventually makes the following call (in `library/core/panicking.rs`):
+The `core` `panic!` macro eventually makes the following call (in `library/core/panicking.rs`):
 
 ```rust
 // NOTE This function never crosses the FFI boundary; it's a Rust-to-Rust call
@@ -29,13 +29,13 @@ Actually resolving this goes through several layers of indirection:
    to set the actual symbol name to `rust_begin_unwind`.
 
    Note that `panic_impl` is declared in an `extern "Rust"` block,
-   which means that libcore will attempt to call a foreign symbol called `rust_begin_unwind`
+   which means that core will attempt to call a foreign symbol called `rust_begin_unwind`
    (to be resolved at link time)
 
 2. In `library/std/panicking.rs`, we have this definition:
 
 ```rust
-/// Entry point of panic from the libcore crate.
+/// Entry point of panic from the core crate.
 #[cfg(not(test))]
 #[panic_handler]
 #[unwind(allowed)]
@@ -48,12 +48,12 @@ The special `panic_handler` attribute is resolved via `src/librustc_middle/middl
 The `extract` function converts the `panic_handler` attribute to a `panic_impl` lang item.
 
 Now, we have a matching `panic_handler` lang item in the `std`. This function goes
-through the same process as the `extern { fn panic_impl }` definition in `libcore`, ending
-up with a symbol name of `rust_begin_unwind`. At link time, the symbol reference in `libcore`
+through the same process as the `extern { fn panic_impl }` definition in `core`, ending
+up with a symbol name of `rust_begin_unwind`. At link time, the symbol reference in `core`
 will be resolved to the definition of `std` (the function called `begin_panic_handler` in the
 Rust source).
 
-Thus, control flow will pass from libcore to std at runtime. This allows panics from `libcore`
+Thus, control flow will pass from core to std at runtime. This allows panics from `core`
 to go through the same infrastructure that other panics use (panic hooks, unwinding, etc)
 
 ##### std implementation of panic!
