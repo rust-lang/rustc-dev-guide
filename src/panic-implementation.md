@@ -99,7 +99,7 @@ itself (a `*mut (dyn Send + Any)`): that is, a raw pointer to the actual value
 provided by the user who called `panic!`.
 
 At this point, the platform-independent code ends. We now call into
-platform-specific unwinding logic (e.g `libunwind`). This code is
+platform-specific unwinding logic (e.g `unwind`). This code is
 responsible for unwinding the stack, running any 'landing pads' associated
 with each frame (currently, running destructors), and transferring control
 to the `catch_unwind` frame.
