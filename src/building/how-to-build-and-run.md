@@ -94,7 +94,7 @@ assertions = true
 If you are _not_ planning to work on LLVM-related things, you can avoid
 building LLVM altogether by using a system LLVM:
 
-```
+```toml
 [rust]
 # Path to the `llvm-config` binary of the installation of a custom LLVM to link
 # against. Note that if this is specified we don't compile LLVM at all for this
