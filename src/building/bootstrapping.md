@@ -224,7 +224,7 @@ The following tables indicate the outputs of various stage actions:
 
 `--stage=2` stops here.
 
-Note that the convention `x.py` uses is that:
+Note that the convention `x.py` uses for `build-stage` is that:
 - A "stage N artifact" is an artifact that is _produced_ by the stage N compiler.
 - The "stage (N+1) compiler" is assembled from "stage N artifacts".
 - A `--stage N` flag means build _with_ stage N.
@@ -307,6 +307,8 @@ artifacts respectively.
 
 Additionally, the `RUSTFLAGS_STAGE_NOT_0` variable, as its name suggests, pass
 the given arguments if the stage is not 0.
+
+In this context, `STAGE` refers to `build-stage`.
 
 ## Environment Variables
 
