@@ -87,7 +87,17 @@ but `stageN-component` never has enough components to be usable (since it only h
 Copying these artifacts from `stage(N-1)-component` to `stageN`
 is called _uplifting_ the artifacts to `stageN`.
 
-<!-- TODO: say _why_ build-stage exists and is separate. -->
+### Why have `link-stage` at all?
+
+`stage0/bin/rustc` can't open an rlib from stage1-* or vice-versa.
+They are completely separate worlds, and `link-stage` reflects those worlds quite directly.
+Say you want to build a custom driver and you've run
+`rustup toolchain link build/*/stage1`: you have to run
+`x.py build --stage 1 src/librustc_driver` to have it available.
+The stage number corresponds to the "world" you have to be in to use it.
+If this used `run-stage` instead, you'd need `x.py build --stage 1` to build
+a regular program, but `x.py build --stage 2 src/librustc_driver` to build a
+custom driver.
 
 ## Complications of bootstrapping
 
