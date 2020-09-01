@@ -57,6 +57,38 @@ first build the new compiler with an older compiler and then use that to
 build the new compiler with itself. For development, you usually only want
 the `stage1` compiler: `x.py build library/std`.
 
+## Where do stages start and end?
+
+A common question is what exactly happens when you run `x.py build` or `x.py test`.
+Does `--stage 1` mean to _build_ the stage 1 artifacts or to _run_ them?
+In fact, it means both!
+
+<!-- TODO: label each of the cells with the name of the directory in `build` it corresponds to -->
+
+![stages](./stages.png)
+
+So, for example, when you run `x.py test [--stage 1]`,
+that means to build the compiler in row 1 and column 0, then run it on the testsuite.
+This corresponds to the `run-stage` diagram.
+However, when you run `x.py build [--stage 1]`, that means to build the compiler in
+row 2 and column 1. This corresponds to the `link-stage` diagram.
+Building any of the items in the diagram also requires first building all items with arrows pointing to it.
+
+### What are `run-stage` and `link-stage`?
+
+`run-stage` means that this deals with _running_ the compiler,
+so `--stage N` refers to the artifacts in `build/stageN`.
+
+`link-stage` means that this deals with _building_ the compiler,
+and it refers to `build/stageN-component`.
+
+`build/stageN` is suitable for use with `rustup toolchain link`,
+but `stageN-component` never has enough components to be usable (since it only has one).
+Copying these artifacts from `stage(N-1)-component` to `stageN`
+is called _uplifting_ the artifacts to `stageN`.
+
+<!-- TODO: say _why_ build-stage exists and is separate. -->
+
 ## Complications of bootstrapping
 
 Since the build system uses the current beta compiler to build the stage-1
