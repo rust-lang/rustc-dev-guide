@@ -71,15 +71,15 @@ So, for example, when you run `x.py test [--stage 1]`,
 that means to build the compiler in row 1 and column 0, then run it on the testsuite.
 This corresponds to the `run-stage` diagram.
 However, when you run `x.py build [--stage 1]`, that means to build the compiler in
-row 2 and column 1. This corresponds to the `link-stage` diagram.
+row 2 and column 1. This corresponds to the `build-stage` diagram.
 Building any of the items in the diagram also requires first building all items with arrows pointing to it.
 
-### What are `run-stage` and `link-stage`?
+### What are `run-stage` and `build-stage`?
 
 `run-stage` means that this deals with _running_ the compiler,
 so `--stage N` refers to the artifacts in `build/stageN`.
 
-`link-stage` means that this deals with _building_ the compiler,
+`build-stage` means that this deals with _building_ the compiler,
 and it refers to `build/stageN-component`.
 
 `build/stageN` is suitable for use with `rustup toolchain link`,
@@ -87,10 +87,10 @@ but `stageN-component` never has enough components to be usable (since it only h
 Copying these artifacts from `stage(N-1)-component` to `stageN`
 is called _uplifting_ the artifacts to `stageN`.
 
-### Why have `link-stage` at all?
+### Why have `build-stage` at all?
 
 `stage0/bin/rustc` can't open an rlib from stage1-* or vice-versa.
-They are completely separate worlds, and `link-stage` reflects those worlds quite directly.
+They are completely separate worlds, and `build-stage` reflects those worlds quite directly.
 Say you want to build a custom driver and you've run
 `rustup toolchain link build/*/stage1`: you have to run
 `x.py build --stage 1 src/librustc_driver` to have it available.
