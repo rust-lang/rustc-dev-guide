@@ -72,7 +72,8 @@ that means to build the compiler in row 1 and column 0, then run it on the tests
 This corresponds to the `run-stage` diagram.
 However, when you run `x.py build [--stage 1]`, that means to build the compiler in
 row 2 and column 1. This corresponds to the `build-stage` diagram.
-Building any of the items in the diagram also requires first building all items with arrows pointing to it.
+Building any of the items in the diagram also requires first building all
+items with arrows pointing to it.
 
 ### What are `run-stage` and `build-stage`?
 
