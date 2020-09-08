@@ -117,6 +117,15 @@ If this used `run-stage` instead, you'd need `x.py build --stage 1` to build
 a regular program, but `x.py build --stage 2 src/librustc_driver` to build a
 custom driver.
 
+### Are there other ways to think about stages?
+
+Yes! The above explanation focuses on what `rustc` is being _referred_ to -
+it describes `build --stage 1 src/rustc` as `build-stage` 1 and `run-stage 2`.
+However, another way to think about it is that `--stage 1` refers to
+the compiler _being run_, so `build --stage 1 src/rustc` means to _run_
+`stage1/rustc` on the `src/rustc` crate. This can be slightly more confusing
+at first, but leads to a more consistent view of 'stage'.
+
 ## Complications of bootstrapping
 
 Since the build system uses the current beta compiler to build the stage-1
