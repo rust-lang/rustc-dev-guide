@@ -75,6 +75,23 @@ row 2 and column 1. This corresponds to the `build-stage` diagram.
 Building any of the items in the diagram also requires first building all
 items with arrows pointing to it.
 
+The diagram just says `rustc` for simplicity, but this also includes all
+programs linked to rustc:
+
+- `rustdoc`
+- `rustfmt`
+- `clippy`
+- `miri`
+- compiler plugins
+
+Similarly, `std` refers to the whole standard library:
+
+- `core`
+- `alloc`
+- `std`
+- `test`
+- `proc_macro`
+
 ### What are `run-stage` and `build-stage`?
 
 `run-stage` means that this deals with _running_ the compiler,
@@ -195,7 +212,8 @@ Keep in mind this diagram is a simplification, i.e. `rustdoc` can be built at
 different stages, the process is a bit different when passing flags such as
 `--keep-stage`, or if there are non-host targets.
 
-The following tables indicate the outputs of various stage actions:
+The following tables indicate the outputs of various stage actions
+(in this context, 'stage' refers to `build-stage`):
 
 | Stage 0 Action                                            | Output                                       |
 |-----------------------------------------------------------|----------------------------------------------|

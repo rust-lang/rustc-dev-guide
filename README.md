@@ -76,6 +76,24 @@ and execute the following command in the root of the repository:
 
 The build files are found in the `book` directory.
 
+### Regenerating `stages.png`
+
+This requires a LaTeX toolchain installed.
+On Debian-based distros you can install it with
+```
+$ sudo apt install texlive-latex-base
+```
+
+Then run
+```
+$ pdflatex -output-directory=target src/building/stages.tex
+```
+
+and take a screenshot of the resulting PDF in your browser:
+```
+$ x-www-browser target/stages.pdf
+```
+
 ### Link Validations
 
 We use `mdbook-linkcheck` to validate URLs included in our documentation. To perform link checks, uncomment the `[output.linkcheck]` field in the `book.toml` configuration file and install `mdbook-linkcheck` with:
