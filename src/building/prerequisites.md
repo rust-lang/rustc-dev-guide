@@ -4,7 +4,7 @@
 
 Before building the compiler, you need the following things installed:
 
-* `python` 3 or 2.7 (under the name `python`, `python2` or `python3` will not work)
+* `python` 3 or 2.7 (under the name `python`; `python2` or `python3` will not work)
 * `curl`
 * `git`
 * `ssl` which comes in `libssl-dev` or `openssl-devel`
@@ -12,7 +12,7 @@ Before building the compiler, you need the following things installed:
 
 If building LLVM from source (the default), you'll need additional tools:
 
-* `g++` 5.1 or later, `clang++` 3.5 or later, or MSVC
+* `g++` 5.1 or later, `clang++` 3.5 or later, or MSVC 2017 or later.
 * `ninja`, or GNU `make` 3.81 or later (ninja is recommended, especially on Windows)
 * `cmake` 3.4.3 or later
 
@@ -20,6 +20,11 @@ Otherwise, you'll need LLVM installed and `llvm-config` in your path.
 See [this section for more info][sysllvm].
 
 [sysllvm]: ./suggested.md#building-with-system-llvm
+
+### Windows
+
+For more information about building on Windows,
+see [the Rust README](https://github.com/rust-lang/rust#msvc).
 
 ## Hardware
 
