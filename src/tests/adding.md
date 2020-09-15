@@ -29,11 +29,12 @@ rough heuristics:
   - need to run gdb or lldb? use the `debuginfo` test suite
   - need to inspect LLVM IR or MIR IR? use the `codegen` or `mir-opt` test
     suites
-  - need to run rustdoc? Prefer a `rustdoc` test
+  - need to run rustdoc? Prefer a `rustdoc` or `rustdoc-ui` test. Occasionally you'll need `rustdoc-js` as well.
   - need to inspect the resulting binary in some way? Then use `run-make`
+- Library tests should go in `library/$crate/tests` (where `$crate` is usually `core`, `alloc`, or `std`).
 - For most other things, [a `ui` (or `ui-fulldeps`) test](#ui) is to be
   preferred:
-  - `ui` tests subsume both run-pass, compile-fail, and parse-fail tests
+  - `ui` tests subsume both `run-pass`, `compile-fail`, and `parse-fail` tests
   - in the case of warnings or errors, `ui` tests capture the full output,
     which makes it easier to review but also helps prevent "hidden" regressions
     in the output
