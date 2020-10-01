@@ -136,7 +136,7 @@ The convention `x.py` uses is that:
 
 #### Build artifacts
 
-Anything you can build with `x.py` is a build artifact.
+Anything you can build with `x.py` is a _build artifact_.
 Build artifacts include, but are not limited to:
 
 - binaries, like `stage0-rustc/rustc-main`
@@ -168,7 +168,7 @@ Build artifacts include, but are not limited to:
   tests. You shouldn't need to use this, use `test` instead (without arguments).
 - `x.py build --stage 0 compiler/rustc` builds the compiler, but does not make
   it usable: the build artifacts are not uplifted ([#73519]). Use `x.py build
-  library/std` instead which puts the compiler in `stage1/rustc`.
+  library/std` instead, which puts the compiler in `stage1/rustc`.
 
 [#73519]: https://github.com/rust-lang/rust/issues/73519
 
@@ -202,7 +202,7 @@ different stages, the process is a bit different when passing flags such as
 
 The stage 2 compiler is what is shipped to end-users.
 
-### Stages and libstd
+### Stages and `std`
 
 Note that there are two `std` libraries in play here:
 1. The library _linked_ to `stageN/rustc`, which was built by stage N-1 (stage N-1 `std`)
