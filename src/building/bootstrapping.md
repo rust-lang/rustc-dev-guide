@@ -167,8 +167,9 @@ Build artifacts include, but are not limited to:
   it's running `cargo test -p rustc`, but cargo doesn't understand Rust's
   tests. You shouldn't need to use this, use `test` instead (without arguments).
 - `x.py build --stage 0 compiler/rustc` builds the compiler, but does not make
-  it usable: the build artifacts are not uplifted ([#73519]). Use `x.py build
-  library/std` instead, which puts the compiler in `stage1/rustc`.
+  it usable: the build artifacts are not assembled into the final compiler
+  ([#73519]). Use `x.py build library/std` instead, which puts the compiler in
+  `stage1/rustc`.
 
 [#73519]: https://github.com/rust-lang/rust/issues/73519
 
