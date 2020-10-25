@@ -21,7 +21,7 @@ plenty of issues on the [issue
 tracker](https://github.com/rust-lang/rustc-dev-guide/issues). Just post a
 comment on the issue you would like to work on to make sure that we don't
 accidentally duplicate work. If you think something is missing, please open an
-issue about it!
+issue about it!&nbsp;&nbsp;Additionally, there is a [friendly guide](https://github.com/firstcontributions/first-contributions) to help beginners to contribute to open source projects.
 
 **In general, if you don't know how the compiler works, that is not a
 problem!** In that case, what we will do is to schedule a bit of time
