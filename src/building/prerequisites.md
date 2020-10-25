@@ -25,7 +25,7 @@ See [this section for more info][sysllvm].
 
 * Install [winget](https://github.com/microsoft/winget-cli)
 
-`winget` is one of Windows package managers. It will make package installation easy
+`winget` is a Windows package manager. It will make package installation easy
 on Windows.
 
 Run the following in a terminal:
@@ -39,7 +39,7 @@ If any of those is installed already, winget will detect it.
 Then edit your systems `PATH` variable and add: `C:\Program Files\CMake\bin`.
 
 For more information about building on Windows,
-see [the rust-lang/rust's README](https://github.com/rust-lang/rust#building-on-windows).
+see [the `rust-lang/rust` README](https://github.com/rust-lang/rust#building-on-windows).
 
 ## Hardware
 
