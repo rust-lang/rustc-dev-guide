@@ -8,30 +8,30 @@ thousands), efficient test execution (parallel execution is supported), and
 allows the test author to configure behavior and expected results of both
 individual and groups of tests.
 
-`compiletest` tests may check test code for success, for failure or in some
-cases, even failure to compile.  Tests are typically organized as a Rust source
-file with annotations in comments before and/or within the test code, which
-serve to direct `compiletest` on if or how to run the test, what behavior to
-expect, and more.  If you are unfamiliar with the compiler testing framework,
+`compiletest` tests may check test code for success, for runtime failure, or for
+compile-time failure.  Tests are typically organized as a Rust source file with
+annotations in comments before and/or within the test code, which serve to
+direct `compiletest` on if or how to run the test, what behavior to expect,
+and more.  If you are unfamiliar with the compiler testing framework,
 see [this chapter](./tests/intro.html) for additional background.
 
 The tests themselves are typically (but not always) organized into
-"suites" – for example, `run-fail`,
-a folder holding tests that should compile successfully,
-but return a failure (non-zero status), `compile-fail`, a folder holding tests
-that should fail to compile, and many more.  The various suites are defined in
-[src/tools/compiletest/src/common.rs][common] in the `pub enum Mode`
-declaration.  And a very good introduction to the different suites of compiler
-tests along with details about them can be found in [Adding new
-tests](./tests/adding.html).
+"suites" – for example, `run-fail`, a folder holding tests that should compile
+successfully, but return a failure (non-zero status) at runtime, `compile-fail`,
+a folder holding tests that should fail to compile, and many more.  The various
+suites are defined in [`src/tools/compiletest/src/common.rs`][common] in the
+`pub enum Mode` declaration.  And a good introduction to the different
+suites of compiler tests along with details about them can be found in
+[Adding new tests](./tests/adding.html).
 
 ## Adding a new test file
 
 Briefly, simply create your new test in the appropriate location under
-[src/test][test]. No registration of test files is necessary as `compiletest`
-will scan the [src/test][test] subfolder recursively, and will execute any Rust
-source files it finds as tests.  See [`Adding new tests`](./tests/adding.html)
-for a complete guide on how to adding new tests.
+[`src/test`]. No registration of test files is necessary as `compiletest`
+will scan the [`src/test`] subfolder recursively, and will execute any
+Rust source files it finds as tests.
+See [Adding new tests](./tests/adding.html) for a complete guide on how to add
+new tests.
 
 ## Header Commands
 
@@ -46,7 +46,7 @@ described more fully
 ### Adding a new header command
 
 Header commands are defined in the `TestProps` struct in
-[src/tools/compiletest/src/header.rs][header].  At a high level, there are
+[`src/tools/compiletest/src/header.rs`][header].  At a high level, there are
 dozens of test properties defined here, all set to default values in the
 `TestProp` struct's `impl` block. Any test can override this default value by
 specifying the property in question as header command as a comment (`//`) in
@@ -93,9 +93,9 @@ To add a new header command property:
 
 When `compiletest` encounters a test file, it parses the file a line at a time
 by calling every parser defined in the `Config` struct's implementation block,
-also in [src/tools/compiletest/src/header.rs][header] (note the `Config`
+also in [`src/tools/compiletest/src/header.rs`][header] (note the `Config`
 struct's declaration block is found in
-[src/tools/compiletest/src/common.rs][common].  `TestProps`'s `load_from()`
+[`src/tools/compiletest/src/common.rs`][common].  `TestProps`'s `load_from()`
 method will try passing the current line of text to each parser, which, in turn
 typically checks to see if the line begins with a particular commented (`//`)
 header command such as `// must-compile-successfully` or `// failure-status`.
@@ -118,7 +118,7 @@ avoid writing additional parsing code unnecessarily.
 
 As a concrete example, here is the implementation for the
 `parse_failure_status()` parser, in
-[src/tools/compiletest/src/header.rs][header]:
+[`src/tools/compiletest/src/header.rs`][header]:
 
 ```diff
 @@ -232,6 +232,7 @@ pub struct TestProps {
@@ -173,7 +173,7 @@ different implementation in order to invoke behavior change) perhaps it is
 helpful to see the behavior change implementation of one case, simply as an
 example.  To implement `failure-status`, the `check_correct_failure_status()`
 function found in the `TestCx` implementation block, located in
-[src/tools/compiletest/src/runtest.rs](https://github.com/rust-lang/rust/tree/master/src/tools/compiletest/src/runtest.rs),
+[`src/tools/compiletest/src/runtest.rs`](https://github.com/rust-lang/rust/tree/master/src/tools/compiletest/src/runtest.rs),
 was modified as per below:
 
 ```diff
@@ -220,6 +220,6 @@ example, `// failure-status: 1`, `self.props.failure_status` will evaluate to
 1, as `parse_failure_status()` will have overridden the `TestProps` default
 value, for that test specifically.
 
-[test]: https://github.com/rust-lang/rust/tree/master/src/test
+[`src/test`]: https://github.com/rust-lang/rust/tree/master/src/test
 [header]: https://github.com/rust-lang/rust/tree/master/src/tools/compiletest/src/header.rs
 [common]: https://github.com/rust-lang/rust/tree/master/src/tools/compiletest/src/common.rs
