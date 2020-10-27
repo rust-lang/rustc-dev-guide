@@ -87,7 +87,7 @@ Most of the time when you are working with the HIR, you will do so via
 the **HIR Map**, accessible in the tcx via [`tcx.hir()`] (and defined in
 the [`hir::map`] module). The [HIR map] contains a [number of methods] to
 convert between IDs of various kinds and to lookup data associated
-with an HIR node.
+with a HIR node.
 
 [`tcx.hir()`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.TyCtxt.html#method.hir
 [`hir::map`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/hir/map/index.html
