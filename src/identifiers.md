@@ -68,8 +68,8 @@ See the [HIR chapter][hir-map] for more detailed information.
   as a "projection" in [`Place`].
 - [`SourceScope`] identifies a name scope in the original source code.
 - [`Promoted`] identifies a promoted constant (related to const evaluation).
-- [`GlobalId`] identifies a global variable: a `const`, a `static`, a certain
-  kind of `const fn`, or a promoted constant.
+- [`GlobalId`] identifies a global variable: a `const`, a `static`, a `const fn`
+  where all arguments are [zero-sized types], or a promoted constant.
 - [`Location`] represents the location in the MIR of a statement or terminator.
   It identifies the block (using [`BasicBlock`]) and the index of the statement
   or terminator in the block.
@@ -84,3 +84,4 @@ See the [HIR chapter][hir-map] for more detailed information.
 [`Promoted`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Promoted.html
 [`GlobalId`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.GlobalId.html
 [`Location`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Location.html
+[zero-sized types]: https://doc.rust-lang.org/nomicon/exotic-sizes.html#zero-sized-types-zsts
