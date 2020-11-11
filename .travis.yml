@@ -18,7 +18,7 @@ script:
 - git rebase origin/master
 - git log --oneline | head -n 10
 - mdbook build
-- ([ -e /tmp/cache.json ] && mv /tmp/cache.json book/linkcheck/cache.json) || echo "No cache to restore."
+- { [ -e /tmp/cache.json ] && mv /tmp/cache.json book/linkcheck/cache.json; } || echo "No cache to restore."
 notifications:
   email: false
 env:
