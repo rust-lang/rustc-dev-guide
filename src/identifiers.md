@@ -60,4 +60,27 @@ See the [HIR chapter][hir-map] for more detailed information.
 
 ## In the MIR
 
-**TODO**
+- [`BasicBlock`] identifies a *basic block*. It points to an instance of
+  [`BasicBlockData`].
+- [`Local`] identifies a local variable in a function. Its associated data is in
+  [`LocalDecl`].
+- [`Field`] identifies a struct's, union's, or enum variant's field. It is used
+  as a "projection" in [`Place`].
+- [`SourceScope`] identifies a name scope in the original source code.
+- [`Promoted`] identifies a promoted constant (related to const evaluation).
+- [`GlobalId`] identifies a global variable: a `const`, a `static`, a certain
+  kind of `const fn`, or a promoted constant.
+- [`Location`] represents the location in the MIR of a statement or terminator.
+  It identifies the block (using [`BasicBlock`]) and the index of the statement
+  or terminator in the block.
+
+[`BasicBlock`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.BasicBlock.html
+[`BasicBlockData`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.BasicBlockData.html
+[`Local`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Local.html
+[`LocalDecl`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.LocalDecl.html
+[`Field`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Field.html
+[`Place`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Place.html
+[`SourceScope`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.SourceScope.html
+[`Promoted`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Promoted.html
+[`GlobalId`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.GlobalId.html
+[`Location`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Location.html
