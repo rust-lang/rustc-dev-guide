@@ -20,7 +20,7 @@ elif [ "$CI" = "true" ] ; then # running in PR CI build
   echo "Checking files changed in $TRAVIS_COMMIT_RANGE: $CHANGED_FILES"
 
   echo "Temporarily removing cache (see .travis.yml)"
-  mv book/linkcheck/cache.json /tmp/cache.json
+  mv $TRAVIS_BUILD_DIR/book/linkcheck/cache.json /tmp/cache.json
 else # running locally
   COMMIT_RANGE=master...
   CHANGED_FILES=$(git diff --name-only $COMMIT_RANGE | tr '\n' ' ')
