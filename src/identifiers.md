@@ -72,9 +72,12 @@ See the [HIR chapter][hir-map] for more detailed information.
 - [`Field`] identifies a struct's, union's, or enum variant's field. It is used
   as a "projection" in [`Place`].
 
-- [`SourceScope`] identifies a name scope in the original source code.
+- [`SourceScope`] identifies a name scope in the original source code. Used for
+  diagnostics and for debuginfo in debuggers.
 
-- [`Promoted`] identifies a promoted constant (related to const evaluation).
+- [`Promoted`] identifies a promoted constant within another item (related to
+  const evaluation). Note: it is unique only locally within the item;
+  [`GlobalId`] must be used if you need to *globally* identify the promoted.
 
 - [`GlobalId`] identifies a global variable: a `const`, a `static`, a `const fn`
   where all arguments are [zero-sized types], or a promoted constant.
