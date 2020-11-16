@@ -339,7 +339,9 @@ err.emit();
 ```
 
 Alternatively, for less-complex diagnostics, the `SessionDiagnostic` derive
-macro can be used -- see [Creating Errors With SessionDiagnostic](./diagnostics/sessiondiagnostic.md).
+macro can be used -- see [Creating Errors With SessionDiagnostic][sessiondiagnostic].
+
+[sessiondiagnostic]: ./diagnostics/sessiondiagnostic.md
 
 
 ## Suggestions
