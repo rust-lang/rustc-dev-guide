@@ -70,10 +70,14 @@ example of how to trigger it and advice on how to fix it.
 Please read [RFC 1567] for details on how to format and write long error
 codes.
 
-The descriptions are written in markdown, and all of them are linked in the
+The descriptions are written in Markdown, and all of them are linked in the
 [`rustc_error_codes`] crate.
 
-TODO: When should an error use an error code, and when shouldn't it?
+As a general rule, errors should have an associated error code if the problem is
+complicated enough or frequent enough that it would be helpful to have a
+long-form explanation. For example, borrow-check and type-check errors tend to
+have error codes, but many parse errors do not. If you are not sure, just ask
+your reviewer!
 
 [`rustc_error_codes`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_error_codes/error_codes/index.html
 [error index]: https://doc.rust-lang.org/error-index.html
