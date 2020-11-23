@@ -64,16 +64,20 @@ See the [HIR chapter][hir-map] for more detailed information.
 ## In the MIR
 
 - [`BasicBlock`] identifies a *basic block*. It points to an instance of
-  [`BasicBlockData`].
+  [`BasicBlockData`], which can be retrieved by indexing into
+  [`Body::basic_blocks()`] (note that you must call a function; the field is
+  private).
 
 - [`Local`] identifies a local variable in a function. Its associated data is in
-  [`LocalDecl`].
+  [`LocalDecl`], which can be retrieved by indexing into [`Body.local_decls`].
 
 - [`Field`] identifies a struct's, union's, or enum variant's field. It is used
   as a "projection" in [`Place`].
 
 - [`SourceScope`] identifies a name scope in the original source code. Used for
-  diagnostics and for debuginfo in debuggers.
+  diagnostics and for debuginfo in debuggers. It points to an instance of
+  [`SourceScopeData`], which can be retrieved by indexing into
+  [`Body.source_scopes`].
 
 - [`Promoted`] identifies a promoted constant within another item (related to
   const evaluation). Note: it is unique only locally within the item;
@@ -88,11 +92,15 @@ See the [HIR chapter][hir-map] for more detailed information.
 
 [`BasicBlock`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.BasicBlock.html
 [`BasicBlockData`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.BasicBlockData.html
+[`Body::basic_blocks()`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Body.html#method.basic_blocks
 [`Local`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Local.html
 [`LocalDecl`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.LocalDecl.html
+[`Body.local_decls`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Body.html#structfield.local_decls
 [`Field`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Field.html
 [`Place`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Place.html
 [`SourceScope`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.SourceScope.html
+[`SourceScopeData`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.SourceScopeData.html
+[`Body.source_scopes`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Body.html#structfield.source_scopes
 [`Promoted`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Promoted.html
 [`GlobalId`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/interpret/struct.GlobalId.html
 [`Location`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Location.html
