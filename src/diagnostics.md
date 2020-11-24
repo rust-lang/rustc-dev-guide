@@ -73,15 +73,20 @@ codes.
 The descriptions are written in Markdown, and all of them are linked in the
 [`rustc_error_codes`] crate.
 
-As a general rule, errors should have an associated error code if the problem is
-complicated enough or frequent enough that it would be helpful to have a
-long-form explanation. For example, borrow-check and type-check errors tend to
-have error codes, but many parse errors do not. If you are not sure, just ask
-your reviewer!
+As a general rule, give an error a code (with an associated explanation) if the
+explanation would give more information than the error itself. A lot of the time
+it's better to put all the information in the emitted error itself. However,
+sometimes that would make the error verbose or there are too many possible
+triggers to include useful information for all cases in the error, in which case
+it's a good idea to add an explanation.[^estebank]
+As always, if you are not sure, just ask your reviewer!
+
+[^estebank]: This rule of thumb was suggested by **@estebank** [here][estebank-comment].
 
 [`rustc_error_codes`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_error_codes/error_codes/index.html
 [error index]: https://doc.rust-lang.org/error-index.html
 [RFC 1567]: https://github.com/rust-lang/rfcs/blob/master/text/1567-long-error-codes-explanation-normalization.md
+[estebank-comment]: https://github.com/rust-lang/rustc-dev-guide/pull/967#issuecomment-733218283
 
 ### Lints versus fixed diagnostics
 
