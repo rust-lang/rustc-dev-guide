@@ -80,6 +80,7 @@
     - [Panic Implementation](./panic-implementation.md)
     - [AST Validation](./ast-validation.md)
     - [Feature Gate Checking](./feature-gate-ck.md)
+    - [Lang Items](./lang-items.md)
 - [The HIR (High-level IR)](./hir.md)
     - [Lowering AST to HIR](./lowering.md)
     - [Debugging](./hir-debugging.md)
