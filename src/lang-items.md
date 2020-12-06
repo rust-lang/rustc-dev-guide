@@ -8,55 +8,17 @@ it exists. The marker is the attribute `#[lang = "..."]` and there are
 various different values of `...`, i.e. various different 'lang
 items'.
 
-For example, `Box` pointers require two lang items, one for allocation
-and one for deallocation. A freestanding program that uses the `Box`
-sugar for dynamic allocations via `malloc` and `free`:
+Many such lang items can be implemented only in one sensible way, such as
+`add` (`trait core::ops::Add`) or `future_trait`
+(`trait core::future::Future`). 
 
-```rust,ignore
-#![feature(lang_items, box_syntax, start, libc, core_intrinsics)]
-#![no_std]
-use core::intrinsics;
-use core::panic::PanicInfo;
+Others can be overriden to achieve some
+specific goals.
 
-extern crate libc;
+For example, later sections describe how to control
+your binary startup or override panic implementation.
 
-#[lang = "owned_box"]
-pub struct Box<T>(*mut T);
-
-#[lang = "exchange_malloc"]
-unsafe fn allocate(size: usize, _align: usize) -> *mut u8 {
-    let p = libc::malloc(size as libc::size_t) as *mut u8;
-
-    // Check if `malloc` failed:
-    if p as usize == 0 {
-        intrinsics::abort();
-    }
-
-    p
-}
-
-#[lang = "box_free"]
-unsafe fn box_free<T: ?Sized>(ptr: *mut T) {
-    libc::free(ptr as *mut libc::c_void)
-}
-
-#[start]
-fn main(_argc: isize, _argv: *const *const u8) -> isize {
-    let _x = box 1;
-
-    0
-}
-
-#[lang = "eh_personality"] extern fn rust_eh_personality() {}
-#[lang = "panic_impl"] extern fn rust_begin_panic(info: &PanicInfo) -> ! { unsafe { intrinsics::abort() } }
-#[no_mangle] pub extern fn rust_eh_register_frames () {}
-#[no_mangle] pub extern fn rust_eh_unregister_frames () {}
-```
-
-Note the use of `abort`: the `exchange_malloc` lang item is assumed to
-return a valid pointer, and so needs to do the check internally.
-
-Other features provided by lang items include:
+Features provided by lang items include:
 
 - overloadable operators via traits: the traits corresponding to the
   `==`, `<`, dereferencing (`*`) and `+` (etc.) operators are all
@@ -196,6 +158,14 @@ the screen. While the language item's name is `panic_impl`, the symbol name is
 
 Finally, a `eh_catch_typeinfo` static is needed for certain targets which
 implement Rust panics on top of C++ exceptions.
+
+## Well-known paths
+
+In several cases compiler finds specific item not by `lang` attribute. Instead
+item path is hardcored. For example compiler assumes `Iterator` trait to be
+available as `core::iter::Iterator`. This only happens when item is required
+on early compilation stages (for example `Iterator` is used in for loops
+desugaring).
 
 ## List of all language items
 
