@@ -258,7 +258,7 @@ but [you can read about those below](#promoted)).
 [mir]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/index.html
 [mirmanip]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/index.html
 [newtype'd]: ../appendix/glossary.html#newtype
-[basicblocks](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Body.html#structfield.basic_blocks)
+[basicblocks]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Body.html#structfield.basic_blocks
 [`BasicBlock`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.BasicBlock.html
 [`BasicBlockData`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.BasicBlockData.html
 [`Statement`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Statement.html
