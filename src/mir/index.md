@@ -238,7 +238,7 @@ but [you can read about those below](#promoted)).
   - **Projections**, which are fields or other things that "project
     out" from a base place. These are represented by the type
     [`ProjectionElem`].  So e.g. the place `_1.f` is a projection,
-    with `f` being the "projection element and `_1` being the base
+    with `f` being the "projection element" and `_1` being the base
     path. `*_1` is also a projection, with the `*` being represented
     by the [`ProjectionElem::Deref`] element.
 - **Rvalues** are represented by the enum [`Rvalue`].
