@@ -173,87 +173,87 @@ This is a list of all language items in Rust along with where they are located i
 the source code.
 
 - Primitives
-  - `i8`: `libcore/num/mod.rs`
-  - `i16`: `libcore/num/mod.rs`
-  - `i32`: `libcore/num/mod.rs`
-  - `i64`: `libcore/num/mod.rs`
-  - `i128`: `libcore/num/mod.rs`
-  - `isize`: `libcore/num/mod.rs`
-  - `u8`: `libcore/num/mod.rs`
-  - `u16`: `libcore/num/mod.rs`
-  - `u32`: `libcore/num/mod.rs`
-  - `u64`: `libcore/num/mod.rs`
-  - `u128`: `libcore/num/mod.rs`
-  - `usize`: `libcore/num/mod.rs`
-  - `f32`: `libstd/f32.rs`
-  - `f64`: `libstd/f64.rs`
-  - `char`: `libcore/char.rs`
-  - `slice`: `liballoc/slice.rs`
-  - `str`: `liballoc/str.rs`
-  - `const_ptr`: `libcore/ptr.rs`
-  - `mut_ptr`: `libcore/ptr.rs`
+  - `i8`: `library/core/src/num/mod.rs`
+  - `i16`: `library/core/src/num/mod.rs`
+  - `i32`: `library/core/src/num/mod.rs`
+  - `i64`: `library/core/src/num/mod.rs`
+  - `i128`: `library/core/src/num/mod.rs`
+  - `isize`: `library/core/src/num/mod.rs`
+  - `u8`: `library/core/src/num/mod.rs`
+  - `u16`: `library/core/src/num/mod.rs`
+  - `u32`: `library/core/src/num/mod.rs`
+  - `u64`: `library/core/src/num/mod.rs`
+  - `u128`: `library/core/src/num/mod.rs`
+  - `usize`: `library/core/src/num/mod.rs`
+  - `f32`: `library/std/src/f32.rs`
+  - `f64`: `library/std/src/f64.rs`
+  - `char`: `library/core/src/char.rs`
+  - `slice`: `library/alloc/src/slice.rs`
+  - `str`: `library/alloc/src/str.rs`
+  - `const_ptr`: `library/core/src/ptr.rs`
+  - `mut_ptr`: `library/core/src/ptr.rs`
 - Runtime
-  - `start`: `libstd/rt.rs`
-  - `eh_personality`: `libpanic_unwind/emcc.rs` (EMCC)
-  - `eh_personality`: `libpanic_unwind/gcc.rs` (GNU)
-  - `eh_personality`: `libpanic_unwind/seh.rs` (SEH)
-  - `eh_catch_typeinfo`: `libpanic_unwind/emcc.rs` (EMCC)
-  - `panic`: `libcore/panicking.rs`
-  - `panic_bounds_check`: `libcore/panicking.rs`
-  - `panic_impl`: `libcore/panicking.rs`
-  - `panic_impl`: `libstd/panicking.rs`
+  - `start`: `library/std/src/rt.rs`
+  - `eh_personality`: `library/panic_unwind/src/emcc.rs` (EMCC)
+  - `eh_personality`: `library/panic_unwind/src/gcc.rs` (GNU)
+  - `eh_personality`: `library/panic_unwind/src/seh.rs` (SEH)
+  - `eh_catch_typeinfo`: `library/panic_unwind/src/emcc.rs` (EMCC)
+  - `panic`: `library/core/src/panicking.rs`
+  - `panic_bounds_check`: `library/core/src/panicking.rs`
+  - `panic_impl`: `library/core/src/panicking.rs`
+  - `panic_impl`: `library/std/src/panicking.rs`
 - Allocations
-  - `owned_box`: `liballoc/boxed.rs`
-  - `exchange_malloc`: `liballoc/heap.rs`
-  - `box_free`: `liballoc/heap.rs`
+  - `owned_box`: `library/alloc/src/boxed.rs`
+  - `exchange_malloc`: `library/alloc/src/heap.rs`
+  - `box_free`: `library/alloc/src/heap.rs`
 - Operands
-  - `not`: `libcore/ops/bit.rs`
-  - `bitand`: `libcore/ops/bit.rs`
-  - `bitor`: `libcore/ops/bit.rs`
-  - `bitxor`: `libcore/ops/bit.rs`
-  - `shl`: `libcore/ops/bit.rs`
-  - `shr`: `libcore/ops/bit.rs`
-  - `bitand_assign`: `libcore/ops/bit.rs`
-  - `bitor_assign`: `libcore/ops/bit.rs`
-  - `bitxor_assign`: `libcore/ops/bit.rs`
-  - `shl_assign`: `libcore/ops/bit.rs`
-  - `shr_assign`: `libcore/ops/bit.rs`
-  - `deref`: `libcore/ops/deref.rs`
-  - `deref_mut`: `libcore/ops/deref.rs`
-  - `index`: `libcore/ops/index.rs`
-  - `index_mut`: `libcore/ops/index.rs`
-  - `add`: `libcore/ops/arith.rs`
-  - `sub`: `libcore/ops/arith.rs`
-  - `mul`: `libcore/ops/arith.rs`
-  - `div`: `libcore/ops/arith.rs`
-  - `rem`: `libcore/ops/arith.rs`
-  - `neg`: `libcore/ops/arith.rs`
-  - `add_assign`: `libcore/ops/arith.rs`
-  - `sub_assign`: `libcore/ops/arith.rs`
-  - `mul_assign`: `libcore/ops/arith.rs`
-  - `div_assign`: `libcore/ops/arith.rs`
-  - `rem_assign`: `libcore/ops/arith.rs`
-  - `eq`: `libcore/cmp.rs`
-  - `ord`: `libcore/cmp.rs`
+  - `not`: `library/core/src/ops/bit.rs`
+  - `bitand`: `library/core/src/ops/bit.rs`
+  - `bitor`: `library/core/src/ops/bit.rs`
+  - `bitxor`: `library/core/src/ops/bit.rs`
+  - `shl`: `library/core/src/ops/bit.rs`
+  - `shr`: `library/core/src/ops/bit.rs`
+  - `bitand_assign`: `library/core/src/ops/bit.rs`
+  - `bitor_assign`: `library/core/src/ops/bit.rs`
+  - `bitxor_assign`: `library/core/src/ops/bit.rs`
+  - `shl_assign`: `library/core/src/ops/bit.rs`
+  - `shr_assign`: `library/core/src/ops/bit.rs`
+  - `deref`: `library/core/src/ops/deref.rs`
+  - `deref_mut`: `library/core/src/ops/deref.rs`
+  - `index`: `library/core/src/ops/index.rs`
+  - `index_mut`: `library/core/src/ops/index.rs`
+  - `add`: `library/core/src/ops/arith.rs`
+  - `sub`: `library/core/src/ops/arith.rs`
+  - `mul`: `library/core/src/ops/arith.rs`
+  - `div`: `library/core/src/ops/arith.rs`
+  - `rem`: `library/core/src/ops/arith.rs`
+  - `neg`: `library/core/src/ops/arith.rs`
+  - `add_assign`: `library/core/src/ops/arith.rs`
+  - `sub_assign`: `library/core/src/ops/arith.rs`
+  - `mul_assign`: `library/core/src/ops/arith.rs`
+  - `div_assign`: `library/core/src/ops/arith.rs`
+  - `rem_assign`: `library/core/src/ops/arith.rs`
+  - `eq`: `library/core/src/cmp.rs`
+  - `ord`: `library/core/src/cmp.rs`
 - Functions
-  - `fn`: `libcore/ops/function.rs`
-  - `fn_mut`: `libcore/ops/function.rs`
-  - `fn_once`: `libcore/ops/function.rs`
-  - `generator_state`: `libcore/ops/generator.rs`
-  - `generator`: `libcore/ops/generator.rs`
+  - `fn`: `library/core/src/ops/function.rs`
+  - `fn_mut`: `library/core/src/ops/function.rs`
+  - `fn_once`: `library/core/src/ops/function.rs`
+  - `generator_state`: `library/core/src/ops/generator.rs`
+  - `generator`: `library/core/src/ops/generator.rs`
 - Opting out
-  - `unsafe_cell` (relaxes pointer provenance rules, allowing const-to-mut casts): `libcore/cell.rs`
-  - `manually_drop` (opts out of implicit destructor call): `libcore/mem/manually_drop.rs`
+  - `unsafe_cell` (relaxes pointer provenance rules, allowing const-to-mut casts): `library/core/src/cell.rs`
+  - `manually_drop` (opts out of implicit destructor call): `library/core/src/mem/manually_drop.rs`
 - Other
-  - `coerce_unsized`: `libcore/ops/unsize.rs`
-  - `drop`: `libcore/ops/drop.rs`
-  - `drop_in_place`: `libcore/ptr.rs`
-  - `clone`: `libcore/clone.rs`
-  - `copy`: `libcore/marker.rs`
-  - `send`: `libcore/marker.rs`
-  - `sized`: `libcore/marker.rs`
-  - `unsize`: `libcore/marker.rs`
-  - `sync`: `libcore/marker.rs`
+  - `coerce_unsized`: `library/core/src/ops/unsize.rs`
+  - `drop`: `library/core/src/ops/drop.rs`
+  - `drop_in_place`: `library/core/src/ptr.rs`
+  - `clone`: `library/core/src/clone.rs`
+  - `copy`: `library/core/src/marker.rs`
+  - `send`: `library/core/src/marker.rs`
+  - `sized`: `libcrary/ore/msrc/arker.rs`
+  - `unsize`: `library/core/src/marker.rs`
+  - `sync`: `library/core/src/marker.rs`
   - `phantom_data`: `libcore/marker.rs`
-  - `discriminant_kind`: `libcore/marker.rs`
-  - `freeze`: `libcore/marker.rs`
+  - `discriminant_kind`: `library/core/src/marker.rs`
+  - `freeze`: `library/core/src/marker.rs`
