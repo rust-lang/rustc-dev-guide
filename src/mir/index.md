@@ -237,7 +237,7 @@ but [you can read about those below](#promoted)).
   - Static variables `FOO`
   - **Projections**, which are fields or other things that "project
     out" from a base place. These are represented by the type 
-    [`Projection`][Projection].  So e.g. the place `_1.f` is a projection,
+    [`Projection`].  So e.g. the place `_1.f` is a projection,
     with `f` being the "projection element and `_1` being the base
     path. `*_1` is also a projection, with the `*` being represented
     by the `ProjectionElem::Deref` element.
