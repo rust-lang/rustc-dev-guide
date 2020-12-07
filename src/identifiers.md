@@ -80,8 +80,9 @@ See the [HIR chapter][hir-map] for more detailed information.
   [`Body.source_scopes`].
 
 - [`Promoted`] identifies a promoted constant within another item (related to
-  const evaluation). Note: it is unique only locally within the item, so it should be associated with a `DefId`;
-  [`GlobalId`] must be used if you need to *globally* identify the promoted.
+  const evaluation). Note: it is unique only locally within the item, so it
+  should be associated with a `DefId`.
+  [`GlobalId`] will give you a more specific identifier (TODO).
 
 - [`GlobalId`] identifies a global variable: a `const`, a `static`, a `const fn`
   where all arguments are [zero-sized types], or a promoted constant.
