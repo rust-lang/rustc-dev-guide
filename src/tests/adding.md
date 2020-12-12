@@ -296,7 +296,7 @@ fn main() {
 
 #### When error line cannot be specified
 
-Let's this about this test:
+Let's think about this test:
 
 ```rust,ignore
 fn main() {
@@ -311,7 +311,6 @@ We want to ensure this shows "index out of bounds" but we cannot use the `ERROR`
 since the error doesn't have any span. Then it's time to use the `error-pattern`:
 
 ```rust,ignore
-// run-fail
 // error-pattern: index out of bounds
 fn main() {
     let a: *const [_] = &[1, 2, 3];
