@@ -272,7 +272,7 @@ In addition to [graphviz output](#formatting-graphviz-output-dot-files), MIR deb
 flags include an option to generate a MIR representation called `Spanview` that
 uses HTML to highlight code regions in the original source code and display
 compiler metadata associated with each region.
-[`-Zdump-mir-spanview`](./mir/debugging.md), for example, highlights spans
+[`-Z dump-mir-spanview`](./mir/debugging.md), for example, highlights spans
 associated with each MIR `Statement`, `Terminator`, and/or `BasicBlock`.
 
 These `.html` files use CSS features to dynamically expand spans obscured by
