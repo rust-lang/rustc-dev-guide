@@ -88,7 +88,7 @@ fn main() {
 ```
 
 ```bash
-$ ./build/x86_64-unknown-linux-gnu/stage1/bin/rustc error.rs
+$ rustc +stage1 error.rs
 error[E0277]: the trait bound `{integer}: std::ops::Add<()>` is not satisfied
  --> error.rs:2:7
   |
@@ -98,12 +98,12 @@ error[E0277]: the trait bound `{integer}: std::ops::Add<()>` is not satisfied
   = help: the trait `std::ops::Add<()>` is not implemented for `{integer}`
 
 error: aborting due to previous error
+```
 
-$ # Now, where does the error above come from?
-$ RUST_BACKTRACE=1 \
-    ./build/x86_64-unknown-linux-gnu/stage1/bin/rustc \
-    error.rs \
-    -Z treat-err-as-bug
+Now, where does the error above come from?
+
+```bash
+$ RUST_BACKTRACE=1 rustc +stage1 error.rs -Z treat-err-as-bug
 error[E0277]: the trait bound `{integer}: std::ops::Add<()>` is not satisfied
  --> error.rs:2:7
   |
@@ -140,8 +140,9 @@ stack backtrace:
   (~~~ IRRELEVANT PART OF BACKTRACE REMOVED BY ME ~~~)
   36: rustc_driver::run_compiler
              at /home/user/rust/compiler/rustc_driver/src/lib.rs:253
-$ # Cool, now I have a backtrace for the error
 ```
+
+Now I have a backtrace for the error.
 
 ## Getting logging output
 [getting-logging-output]: #getting-logging-output
@@ -180,16 +181,16 @@ So to put it together.
 ```bash
 # This puts the output of all debug calls in `rustc_middle/src/traits` into
 # standard error, which might fill your console backscroll.
-$ RUSTC_LOG=rustc_middle::traits rustc +local my-file.rs
+$ RUSTC_LOG=rustc_middle::traits rustc +stage1 my-file.rs
 
 # This puts the output of all debug calls in `rustc_middle/src/traits` in
 # `traits-log`, so you can then see it with a text editor.
-$ RUSTC_LOG=rustc_middle::traits rustc +local my-file.rs 2>traits-log
+$ RUSTC_LOG=rustc_middle::traits rustc +stage1 my-file.rs 2>traits-log
 
 # Not recommended. This will show the output of all `debug!` calls
 # in the Rust compiler, and there are a *lot* of them, so it will be
 # hard to find anything.
-$ RUSTC_LOG=debug rustc +local my-file.rs 2>all-log
+$ RUSTC_LOG=debug rustc +stage1 my-file.rs 2>all-log
 
 # This will show the output of all `info!` calls in `rustc_trans`.
 #
@@ -198,13 +199,13 @@ $ RUSTC_LOG=debug rustc +local my-file.rs 2>all-log
 # which function triggers an LLVM assertion, and this is an `info!`
 # log rather than a `debug!` log so it will work on the official
 # compilers.
-$ RUSTC_LOG=rustc_trans=info rustc +local my-file.rs
+$ RUSTC_LOG=rustc_trans=info rustc +stage1 my-file.rs
 
 # This will show the output of all `info!` calls made by rustdoc or any rustc library it calls.
-$ RUSTDOC_LOG=info rustdoc +local my-file.rs
+$ RUSTDOC_LOG=info rustdoc +stage1 my-file.rs
 
 # This will only show `debug!` calls made by rustdoc directly, not any `rustc*` crate.
-$ RUSTDOC_LOG=rustdoc rustdoc +local my-file.rs
+$ RUSTDOC_LOG=rustdoc rustdoc +stage1 my-file.rs
 ```
 
 ### How to keep or remove `debug!` and `trace!` calls from the resulting binary
