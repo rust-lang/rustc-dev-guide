@@ -496,7 +496,7 @@ An visual, interactive representation of the final `CoverageSpan`s can be
 generated with the following `rustc` flags:
 
 ```shell
-$ rustc -Z winstrument-coverage -Zdump-mir=InstrumentCoverage \
+$ rustc -Z instrument-coverage -Zdump-mir=InstrumentCoverage \
     -Zdump-mir-spanview some_rust_source.rs
 ```
 

@@ -142,7 +142,7 @@ stack backtrace:
              at /home/user/rust/compiler/rustc_driver/src/lib.rs:253
 ```
 
-Now I have a backtrace for the error.
+Cool, now I have a backtrace for the error!
 
 ## Getting logging output
 [getting-logging-output]: #getting-logging-output
