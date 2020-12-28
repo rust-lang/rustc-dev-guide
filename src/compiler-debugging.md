@@ -82,6 +82,9 @@ For example:
 
 ```bash
 $ cat error.rs
+```
+
+```rust
 fn main() {
     1 + ();
 }
@@ -89,13 +92,13 @@ fn main() {
 
 ```bash
 $ rustc +stage1 error.rs
-error[E0277]: the trait bound `{integer}: std::ops::Add<()>` is not satisfied
+error[E0277]: cannot add `()` to `{integer}`
  --> error.rs:2:7
   |
-2 |     1 + ();
-  |       ^ no implementation for `{integer} + ()`
+2 |       1 + ();
+  |         ^ no implementation for `{integer} + ()`
   |
-  = help: the trait `std::ops::Add<()>` is not implemented for `{integer}`
+  = help: the trait `Add<()>` is not implemented for `{integer}`
 
 error: aborting due to previous error
 ```
