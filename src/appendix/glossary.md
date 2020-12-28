@@ -80,7 +80,7 @@ Term                                           | Meaning
 <span id="tls">[TLS]</span>                    |  Thread-Local Storage. Variables may be defined so that each thread has its own copy (rather than all threads sharing the variable). This has some interactions with LLVM. Not all platforms support TLS.
 <span id="trait-ref">trait reference</span>    |  The name of a trait along with a suitable set of input type/lifetimes. ([see more](../traits/goals-and-clauses.md#trait-ref))
 <span id="trans">trans</span>                  |  Short for "translation", the code to translate MIR into LLVM IR. Renamed to codegen.
-<span id="ty">Ty</span>                        |  The internal representation of a type. ([see more](../ty.md))
+<span id="ty">`Ty`</span>                        |  The internal representation of a type. ([see more](../ty.md))
 <span id="tyctxt">TyCtxt</span>                |  The data structure often referred to as [tcx](#tcx) in code which provides access to session data and the query system.
 <span id="ufcs">UFCS</span>                    |  Short for Universal Function Call Syntax, this is an unambiguous syntax for calling a method. ([see more](../type-checking.md))
 <span id="ut">uninhabited type</span>          |  A type which has _no_ values. This is not the same as a ZST, which has exactly 1 value. An example of an uninhabited type is `enum Foo {}`, which has no variants, and so, can never be created. The compiler can treat code that deals with uninhabited types as dead code, since there is no such value to be manipulated. `!` (the never type) is an uninhabited type. Uninhabited types are also called "empty types".
