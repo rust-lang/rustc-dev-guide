@@ -29,7 +29,7 @@ Term                                           | Meaning
 <span id="generics">generics</span>            |  The set of generic type parameters defined on a type or item.
 <span id="hir">HIR</span>                      |  The High-level IR, created by lowering and desugaring the AST. ([see more](../hir.md))
 <span id="hir-id">HirId</span>                 |  Identifies a particular node in the HIR by combining a def-id with an "intra-definition offset". See [the HIR chapter for more](../hir.md#identifiers-in-the-hir).
-<span id="hir-map">HIR map</span>              |  The HIR map, accessible via tcx.hir, allows you to quickly navigate the HIR and convert between various forms of identifiers.
+<span id="hir-map">HIR map</span>              |  The HIR map, accessible via `tcx.hir()`, allows you to quickly navigate the HIR and convert between various forms of identifiers.
 <span id="ice">ICE</span>                      |  Short for internal compiler error, this is when the compiler crashes.
 <span id="ich">ICH</span>                      |  Short for incremental compilation hash, these are used as fingerprints for things such as HIR and crate metadata, to check if changes have been made. This is useful in incremental compilation to see if part of a crate has changed and should be recompiled.
 <span id="infcx">infcx</span>                  |  The type inference context (see `rustc_middle::infer`).
