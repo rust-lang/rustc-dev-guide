@@ -247,6 +247,10 @@ similar to this command:
 $ RUSTC_LOG=debug RUSTC_LOG_COLOR=always rustc +stage1 ... | less -R
 ```
 
+Note that `MIRI_LOG_COLOR` will only color logs that come from Miri, not logs
+from rustc functions that Miri calls. Use `RUSTC_LOG_COLOR` to color logs from
+rustc.
+
 ### How to keep or remove `debug!` and `trace!` calls from the resulting binary
 
 While calls to `error!`, `warn!` and `info!` are included in every build of the compiler,
