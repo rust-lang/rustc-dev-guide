@@ -162,14 +162,15 @@ compiler is doing a particular thing.
 [`debug!`]: https://docs.rs/tracing/0.1/tracing/macro.debug.html
 
 To see the logs, you need to set the `RUSTC_LOG` environment variable to your
-log filter. Your log filter can be just `debug` to get all `debug!` output, or
-`path::to::module` to get *all* output (not just `debug!`) from a particular
-module, or `path::to::module=debug` to get only `debug!` output from a
-particular module.
+log filter. Your log filter can be just `debug` to get all `debug!` output and
+higher (e.g., it will also include `info!`), or `path::to::module` to get *all*
+output (which will include `trace!`) from a particular module, or
+`path::to::module=debug` to get `debug!` output and higher from a particular
+module.
 
-For example, to get the `debug!` output for a specific module, you can run the
-compiler with `RUSTC_LOG=path::to::module=debug rustc my-file.rs`. All `debug!`
-output will then appear in standard error.
+For example, to get the `debug!` output and higher for a specific module, you
+can run the compiler with `RUSTC_LOG=path::to::module=debug rustc my-file.rs`.
+All `debug!` output will then appear in standard error.
 
 Note that you can use a partial path and the filter will still work. For
 example, if you want to see `info!` output from only
