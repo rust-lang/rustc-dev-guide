@@ -171,6 +171,12 @@ For example, to get the `debug!` output for a specific module, you can run the
 compiler with `RUSTC_LOG=path::to::module=debug rustc my-file.rs`. All `debug!`
 output will then appear in standard error.
 
+Note that you can use a partial path and the filter will still work. For
+example, if you want to see `info!` output from only
+`rustdoc::passes::collect_intra_doc_links`, you could use
+`RUSTDOC_LOG=rustdoc::passes::collect_intra_doc_links=info` *or* you could use
+`RUSTDOC_LOG=rustdoc::passes::collect_intra=info`.
+
 If you are developing rustdoc, use `RUSTDOC_LOG` instead. If you are developing
 Miri, use `MIRI_LOG` instead. You get the idea :)
 
