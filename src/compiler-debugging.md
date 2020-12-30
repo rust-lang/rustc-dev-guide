@@ -164,7 +164,7 @@ compiler is doing a particular thing.
 To see the logs, you need to set the `RUSTC_LOG` environment variable to your
 log filter. Your log filter can be just `debug` to get all `debug!` output, or
 `path::to::module` to get *all* output (not just `debug!`) from a particular
-module, or `path::to::module=debug` to get only `debug!` output form a
+module, or `path::to::module=debug` to get only `debug!` output from a
 particular module.
 
 For example, to get the `debug!` output for a specific module, you can run the
@@ -204,7 +204,7 @@ $ RUSTC_LOG=debug rustc +stage1 my-file.rs 2>all-log
 # This will show the output of all `info!` calls in `rustc_codegen_ssa`.
 #
 # There's an `info!` statement in `codegen_instance` that outputs
-# every function that is translated. This is useful to find out
+# every function that is codegen'd. This is useful to find out
 # which function triggers an LLVM assertion, and this is an `info!`
 # log rather than a `debug!` log so it will work on the official
 # compilers.
