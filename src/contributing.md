@@ -407,6 +407,11 @@ repo][rdgrepo]. The issue tracker in that repo is also a great way to find
 things that need doing. There are issues for beginners and advanced compiler
 devs alike!
 
+When contributing text to the guide, please contextualize the information in some time period.
+E.g. instead of writing _"Currently, ..."_, or _"In the future, ..."_, consider writing
+_"As of January 2021, ..."_.
+
+
 [rdg]: https://rustc-dev-guide.rust-lang.org/
 [rdgrepo]: https://github.com/rust-lang/rustc-dev-guide
 
