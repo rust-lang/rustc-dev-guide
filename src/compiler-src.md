@@ -30,9 +30,8 @@ The repository consists of three main directories:
 - `library/` contains the standard libraries (`core`, `alloc`, `std`,
 `proc_macro`, etc.).
 
-- `src/` contains the source code for the build system, tools like clippy and
-  cargo, language docs, etc. This directory is currently being broken up to be
-  less monolithic.
+- `src/` contains the source code for rustdoc, clippy, cargo, the build system,
+  language docs, etc.
 
 ## Standard library
 
