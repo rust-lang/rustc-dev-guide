@@ -401,16 +401,28 @@ You can also use `rustdoc` directly to check small fixes. For example,
 `rustdoc src/doc/reference.md` will render reference to `doc/reference.html`.
 The CSS might be messed up, but you can verify that the HTML is right.
 
+### Contributing to rustc-dev-guide
+
 Additionally, contributions to the [rustc-dev-guide][rdg] are always welcome.
 Contributions can be made directly at [the rust-lang/rustc-dev-guide
 repo][rdgrepo]. The issue tracker in that repo is also a great way to find
 things that need doing. There are issues for beginners and advanced compiler
 devs alike!
 
-When contributing text to the guide, please contextualize the information in some time period.
-E.g. instead of writing _"Currently, ..."_, or _"In the future, ..."_, consider writing
-_"As of January 2021, ..."_.
+Just a few things to keep in mind:
 
+- Please limit line length to 100 characters.
+- When contributing text to the guide, please contextualize the information with some time period
+  and/or a reason so that the reader knows how much to trust or mistrust the information.
+  Aim to provide a reasonable amount of context, possibly including but not limited to:
+  - A reason for why the data may be out of date other than "change", as change is a constant across
+    the project.
+  - A date the comment was added, e.g. instead of writing _"Currently, ..."_, or
+    _"In the future, ..."_, consider writing _"As of January 2021, ..."_.
+    Try to format the date as `<MONTH> <YEAR>` to ease search.
+  - A link to a relevant WG, tracking issue, `rustc` rustdoc page, or similar, that may provide
+    further explanation for the change process or a way to verify that the information is not
+    outdated.
 
 [rdg]: https://rustc-dev-guide.rust-lang.org/
 [rdgrepo]: https://github.com/rust-lang/rustc-dev-guide
