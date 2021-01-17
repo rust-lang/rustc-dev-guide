@@ -1,5 +1,7 @@
 # High-level overview of the compiler source
 
+<!-- toc -->
+
 > **NOTE**: The structure of the repository is going through a lot of
 > transitions. In particular, we want to get to a point eventually where the
 > top-level directory has separate directories for the compiler, build-system,

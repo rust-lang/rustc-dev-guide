@@ -1,5 +1,7 @@
 # Implicit Caller Location
 
+<!-- toc -->
+
 Approved in [RFC 2091], this feature enables the accurate reporting of caller location during panics
 initiated from functions like `Option::unwrap`, `Result::expect`, and `Index::index`. This feature 
 adds the [`#[track_caller]`][attr-reference] attribute for functions, the 

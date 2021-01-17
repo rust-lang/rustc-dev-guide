@@ -1,5 +1,7 @@
 # Monomorphization
 
+<!-- toc -->
+
 As you probably know, rust has a very expressive type system that has extensive
 support for generic types. But of course, assembly is not generic, so we need
 to figure out the concrete types of all the generics before the code can
