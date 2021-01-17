@@ -2,7 +2,7 @@
 
 Once an unstable feature has been well-tested with no outstanding
 concern, anyone may push for its stabilization. It involves the
-following steps.
+following steps:
 
 <!-- toc -->
 

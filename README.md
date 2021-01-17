@@ -100,7 +100,7 @@ but we leave these instructions for when we do it again in the future.
 
 7. Click on the log and Ctrl-f to get a search box in the log
 
-8. Search for rustc-dev-guide. This gets you to the place where the links are checked. It is usually ~11K lines into the log
+8. Search for rustc-dev-guide. This gets you to the place where the links are checked. It is usually ~11K lines into the log.
 
 9. Look at the links in the log near that point in the log
 
