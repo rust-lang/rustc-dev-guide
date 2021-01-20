@@ -1,9 +1,9 @@
 # Contributing to Rust
 
-<!-- toc -->
-
 Thank you for your interest in contributing to Rust! There are many ways to
 contribute, and we appreciate all of them.
+
+<!-- toc -->
 
 If you have questions, please make a post on [internals.rust-lang.org][internals] or
 hop on the [Rust Discord server][rust-discord] or [Rust Zulip server][rust-zulip].
