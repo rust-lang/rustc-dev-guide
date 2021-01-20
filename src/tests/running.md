@@ -120,6 +120,10 @@ to automatically adjust the `.stderr`, `.stdout` or `.fixed` files of
 all tests. Of course you can also target just specific tests with the
 `--test-args your_test_name` flag, just like when running the tests.
 
+Please note that it is **VERY IMPORTANT** that you check the output of        
+failed tests before using `--bless` on them as this may cause                        
+regressions and make other peoples' jobs **a lot harder**!
+
 ## Passing `--pass $mode`
 
 Pass UI tests now have three modes, `check-pass`, `build-pass` and
