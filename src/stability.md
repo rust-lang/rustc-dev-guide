@@ -44,12 +44,8 @@ prevents breaking dependencies by leveraging Cargo's lint capping.
 [rustc bug]: https://github.com/rust-lang/rust/issues/15702
 
 ## stable
-
 The `#[stable(feature = "foo", "since = "1.420.69")]` attribute explicitly
-marks an item as stabilized. To do this, follow the instructions in
-[Stabilizing Features](./stabilization_guide.md).
-
-Note that stable functions may use unstable things in their body.
+marks an item as stabilized. Note that stable functions may use unstable things in their body.
 
 ## rustc_const_unstable
 
@@ -72,6 +68,24 @@ even on an `unstable` function, if that function is called from another
 Furthermore this attribute is needed to mark an intrinsic as callable from
 `rustc_const_stable` functions.
 
+## Stabilizing a library feature
+
+To stabilize a feature, follow these steps:
+
+0. Ask a **@T-libs** member to start an FCP on the tracking issue and wait for
+   the FCP to complete (with `disposition-merge`).
+1. Change `#[unstable(...)]` to `#[stable(since = "version")]`.
+   `version` should be the *current nightly*, i.e. stable+2. You can see which version is
+   the current nightly [on Forge](https://forge.rust-lang.org/#current-release-versions).
+2. Remove `#![feature(...)]` from any test or doc-test for this API. If the feature is used in the
+   compiler or tools, remove it from there as well.
+3. If applicable, change `#[rustc_const_unstable(...)]` to
+   `#[rustc_const_stable(since = "version")]`.
+4. Open a PR against `rust-lang/rust`.
+   - Add the appropriate labels: `@rustbot modify labels: +T-libs`.
+   - Link to the tracking issue and say "Closes #XXXXX".
+
+You can see an example of stabilizing a feature at [#75132](https://github.com/rust-lang/rust/pull/75132).
 
 ## allow_internal_unstable
 
