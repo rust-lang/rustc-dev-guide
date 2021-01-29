@@ -1,6 +1,6 @@
 # Libraries and Metadata
 
-When the compiler sees a reference to an extern crate, it needs to load some
+When the compiler sees a reference to an external crate, it needs to load some
 information about that crate. This chapter gives an overview of that process,
 and the supported file formats for crate libraries.
 
@@ -9,8 +9,8 @@ and the supported file formats for crate libraries.
 A crate dependency can be loaded from an `rlib`, `dylib`, or `rmeta` file. A
 key point of these file formats is that they contain `rustc`-specific
 [*metadata*](#metadata). This metadata allows the compiler to discover enough
-information about the extern crate to understand the items it contains, which
-macros it exports, and *much* more.
+information about the external crate to understand the items it contains,
+which macros it exports, and *much* more.
 
 ### rlib
 
@@ -134,13 +134,13 @@ can have the same crate name, so they need to be disambiguated).
 ## Crate loading
 
 Crate loading can have quite a few subtle complexities. During [name
-resolution], when an extern crate is referenced (via an `extern crate` or
+resolution], when an external crate is referenced (via an `extern crate` or
 path), the resolver uses the [`CrateLoader`] which is responsible for finding
 the crate libraries and loading the [metadata] for them. After the dependency
 is loaded, the `CrateLoader` will provide the information the resolver needs
 to perform its job (such as expanding macros, resolving paths, etc.).
 
-To load each extern crate, the `CrateLoader` uses a [`CrateLocator`] to
+To load each external crate, the `CrateLoader` uses a [`CrateLocator`] to
 actually find the correct files for one specific crate. There is some great
 documentation in the [`locator`] module that goes into detail on how loading
 works, and I strongly suggest reading it to get the full picture.
