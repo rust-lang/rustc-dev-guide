@@ -51,14 +51,14 @@ which describe the publicly-documentable items in the target crate.
 ### Hot potato
 
 Before moving on to the next major step, a few important "passes" occur over
-the documentation.  These do things like combine the separate "attributes" into
+the documentation. These do things like combine the separate "attributes" into
 a single string and strip leading whitespace to make the document easier on the
 markdown parser, or drop items that are not public or deliberately hidden with
 `#[doc(hidden)]`. These are all implemented in the `passes/` directory, one
 file per pass. By default, all of these passes are run on a crate, but the ones
 regarding dropping private/hidden items can be bypassed by passing
 `--document-private-items` to rustdoc. Note that unlike the previous set of AST
-transformations, the passes happen on the _cleaned_ crate.
+transformations, the passes are run on the _cleaned_ crate.
 
 (Strictly speaking, you can fine-tune the passes run and even add your own, but
 [we're trying to deprecate that][44136]. If you need finer-grain control over
@@ -66,28 +66,55 @@ these passes, please let us know!)
 
 [44136]: https://github.com/rust-lang/rust/issues/44136
 
-Here is the list of passes as of March 2018 <!-- date: 2018-03 -->:
+Here is the list of passes as of February 2021 <!-- date: 2021-02 -->:
 
-- `propagate-doc-cfg` - propagates `#[doc(cfg(...))]` to child items.
+- `calculate-doc-coverage` calculates information used for the `--show-coverage`
+  flag.
+
+- `check-code-block-syntax` validates syntax inside Rust code blocks
+  (`` ```rust ``)
+
+- `check-invalid-html-tags` detects invalid HTML (like an unclosed `\<span\>`)
+  in doc comments.
+
+- `check-non-autolinks` detects links that could or should be written using
+  angle brackets (the code behind the nightly-only <!-- date: 2021-02 -->
+  `non_autolinks` lint).
+
 - `collapse-docs` concatenates all document attributes into one document
   attribute. This is necessary because each line of a doc comment is given as a
   separate doc attribute, and this will combine them into a single string with
   line breaks between each attribute.
-- `unindent-comments` removes excess indentation on comments in order for
-  markdown to like it. This is necessary because the convention for writing
-  documentation is to provide a space between the `///` or `//!` marker and the
-  text, and stripping that leading space will make the text easier to parse by
-  the Markdown parser. (In the past, the markdown parser used was not
-  Commonmark- compliant, which caused annoyances with extra whitespace but this
-  seems to be less of an issue today.)
+
+- `collect-intra-doc-links` resolves intra-doc links.
+
+- `collect-trait-impls` collects trait impls for each item in the crate. For
+  example, if we define a struct that implements a trait, this pass will note
+  that the struct implements that trait.
+
+- `doc-test-lints` runs various lints on the doctests.
+
+- `propagate-doc-cfg` propagates `#[doc(cfg(...))]` to child items.
+
 - `strip-priv-imports` strips all private import statements (`use`, `extern
   crate`) from a crate. This is necessary because rustdoc will handle *public*
   imports by either inlining the item's documentation to the module or creating
   a "Reexports" section with the import in it. The pass ensures that all of
   these imports are actually relevant to documentation.
+
 - `strip-hidden` and `strip-private` strip all `doc(hidden)` and private items
   from the output. `strip-private` implies `strip-priv-imports`. Basically, the
   goal is to remove items that are not relevant for public documentation.
+
+- `stripper` provides utilities for the `strip-*` passes.
+
+- `unindent-comments` removes excess indentation on comments in order for
+  markdown to like it. This is necessary because the convention for writing
+  documentation is to provide a space between the `///` or `//!` marker and the
+  text, and stripping that leading space will make the text easier to parse by
+  the Markdown parser. (In the past, the Markdown parser used was not
+  CommonMark-compliant, which caused annoyances with extra whitespace but this
+  seems to be less of an issue today.)
 
 ## From clean to crate
 
