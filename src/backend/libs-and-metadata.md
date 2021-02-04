@@ -21,7 +21,7 @@ format is specific to `rustc`, and may change over time. This file contains:
   regular linking. There is a separate `.o` file for each [codegen unit]. The
   codegen step can be skipped with the [`-C
   linker-plugin-lto`][linker-plugin-lto] CLI option, which means each `.o`
-  file will only contain LLVM bitcode, which can be used when using LTO.
+  file will only contain LLVM bitcode.
 * [LLVM bitcode], which is a binary representation of LLVM's intermediate
   representation, which is embedded as a section in the `.o` files. This can
   be used for [Link Time Optimization] (LTO). This can be removed with the
@@ -42,7 +42,7 @@ format is specific to `rustc`, and may change over time. This file contains:
 ### dylib
 
 A `dylib` is a platform-specific shared library. It includes the `rustc`
-[metadata] in a special section called `.rustc` in a compressed format.
+[metadata] in a special link section called `.rustc` in a compressed format.
 
 ### rmeta
 
@@ -72,8 +72,8 @@ Here are a few highlights of things it contains:
   from any other version.
 * The [Strict Version Hash](#strict-version-hash) (SVH). This helps ensure the
   correct dependency is loaded.
-* The [Crate Disambiguator](#crate-disambiguator). This is a hash used for
-  various things to disambiguate between different crates of the same name.
+* The [Crate Disambiguator](#crate-disambiguator). This is a hash used
+  to disambiguate between different crates of the same name.
 * Information about all the source files in the library. This can be used for
   a variety of things, such as diagnostics pointing to sources in a
   dependency.
