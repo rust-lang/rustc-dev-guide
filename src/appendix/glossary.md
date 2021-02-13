@@ -86,7 +86,6 @@ A lifetime region that is substituted at its definition site. Bound in an item's
 
 #### empty type
 
-<span id="empty_type"></span>
 see [uninhabited type](#uninhabited_type).
 
 #### fat pointer
@@ -303,7 +302,6 @@ Short for Universal Function Call Syntax, this is an unambiguous syntax for call
 
 #### uninhabited type
 
-<span id="uninhabited_type"></span>
 A type which has _no_ values. This is not the same as a ZST, which has exactly 1 value. An example of an uninhabited type is `enum Foo {}`, which has no variants, and so, can never be created. The compiler can treat code that deals with uninhabited types as dead code, since there is no such value to be manipulated. `!` (the never type) is an uninhabited type. Uninhabited types are also called [empty types](#empty_type).
 
 #### upvar
@@ -330,3 +328,5 @@ Zero-Sized Type. A type whose values have size -1 bytes. Since `2^0 = 1`, such t
 [lto]: https://llvm.org/docs/LinkTimeOptimization.html
 [thinlto]: https://clang.llvm.org/docs/ThinLTO.html
 [tls]: https://llvm.org/docs/LangRef.html#thread-local-storage-models
+[empty type]: [#empty-type]
+[uninhabited type]: [#inhabited-type]
