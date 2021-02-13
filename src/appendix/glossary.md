@@ -18,7 +18,7 @@ A "binder" is a place where a variable or type is declared; for example, the
 \|`a`\|`...` is a binder for the parameter `a`. See [the background chapter for
 more](./background.md#free-vs-bound).
 
-#### BodyId
+#### `BodyId`
 
 An identifier that refers to a specific body (definition of a function or
 constant) in the crate. See [the HIR chapter for
@@ -32,7 +32,7 @@ See [the background chapter for more](./background.md#free-vs-bound)
 
 #### codegen
 
-The code to translate MIR into LLVM IR.
+The code to translate MIR into LLVM IR. Short for "code generation".
 
 #### codegen unit
 
@@ -45,7 +45,7 @@ incremental re-use. ([see more](../backend/codegen.md))
 
 A technical term in type theory, it means that every type-safe program also
 type-checks. Having both soundness and completeness is very hard, and usually
-soundness is more important. (see "soundness").
+soundness is more important. (see [soundness](#soundness)).
 
 #### control-flow graph
 
@@ -60,8 +60,7 @@ evaluation system. ([see more](../const-eval.md))
 
 #### cx
 
-We tend to use "cx" as an abbreviation for context. See also `tcx`, `infcx`,
-etc.
+We tend to use "cx" as an abbreviation for context. See also `tcx`, `infcx`, etc.
 
 #### ctxt
 
@@ -71,20 +70,17 @@ also [cx](#cx) or [tcx](#tcx).
 #### DAG
 
 A directed acyclic graph is used during compilation to keep track of
-dependencies between queries. ([see
-more](../queries/incremental-compilation.md))
+dependencies between queries. ([see more](../queries/incremental-compilation.md))
 
 #### data-flow analysis
 
 A static analysis that figures out what properties are true at each point in the
-control-flow of a program; see [the background chapter for
-more](./background.md#dataflow).
+control-flow of a program; see [the background chapter for more](./background.md#dataflow).
 
-#### DefId
+#### `DefId`
 
-An index identifying a definition (see `rustc_middle/src/hir/def_id.rs`).
-Uniquely identifies a `DefPath`. See [the HIR chapter for
-more](../hir.md#identifiers-in-the-hir).
+An index identifying a definition (see `rustc_middle/src/hir/def_id.rs`). Uniquely
+identifies a `DefPath`. See [the HIR chapter for more](../hir.md#identifiers-in-the-hir).
 
 #### DeBruijn Index
 
@@ -148,18 +144,18 @@ The set of generic type parameters defined on a type or item.
 
 #### HIR
 
-The High-level IR, created by lowering and desugaring the AST.
+The High-level [IR](#IR), created by lowering and desugaring the AST.
 ([see more](../hir.md))
 
-#### HirId
+#### `HirId`
 
 Identifies a particular node in the HIR by combining a def-id with an
 "intra-definition offset". See [the HIR chapter for
 more](../hir.md#identifiers-in-the-hir).
 
-#### HIR
+#### HIR map
 
-map The HIR map, accessible via `tcx.hir()`, allows you to quickly navigate the
+The HIR map, accessible via `tcx.hir()`, allows you to quickly navigate the
 HIR and convert between various forms of identifiers.
 
 #### ICE
@@ -215,19 +211,20 @@ checker, and LLVM IR is well-suited for codegen because LLVM accepts it.
 A kind of "definition" in the language, such as a static, const, use statement,
 module, struct, etc. Concretely, this corresponds to the `Item` type.
 
-#### lang
+#### lang item
 
-item Items that represent concepts intrinsic to the language itself, such as
-special built-in traits like `Sync` and `Send`; or traits representing
-operations such as `Add`; or functions that are called by the compiler. ([see
-more](https://doc.rust-lang.org/1.9.0/book/lang-items.html))
+Items that represent concepts intrinsic to the language itself, such as special
+built-in traits like `Sync` and `Send`; or traits representing operations such
+as `Add`; or functions that are called by the compiler. 
+([see more](https://doc.rust-lang.org/1.9.0/book/lang-items.html))
 
-#### late-bound
+#### late-bound lifetime
 
-lifetime A lifetime region that is substituted at its call site. Bound in a HRTB
+A lifetime region that is substituted at its call site. Bound in a HRTB
 and substituted by specific functions in the compiler, such as
-`liberate_late_bound_regions`. Contrast with **early-bound lifetime**. ([see
-more](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/enum.RegionKind.html#bound-regions))
+`liberate_late_bound_regions`. Contrast with **early-bound lifetime**. ([see more]
+(https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/enum.
+RegionKind.html#bound-regions))
 
 #### local crate
 
@@ -246,13 +243,16 @@ non-Thin LTO. LLVM documentation: [here][lto] and [here][thinlto].
 
 #### [LLVM]
 
-(actually not an acronym :P)An open-source compiler backend. It accepts LLVM IR
+(actually not an acronym :P) An open-source compiler backend. It accepts LLVM IR
 and outputs native binaries. Various languages (e.g. Rust) can then implement a
 compiler front-end that outputs LLVM IR and use LLVM to compile to all the
-platforms LLVM supports. memoization">memoization The process of storing the
-results of (pure) computations (such as pure function calls) to avoid having to
-repeat them in the future. This is typically a trade-off between execution speed
-and memory usage.
+platforms LLVM supports.
+
+#### memoization
+
+The process of storing the results of (pure) computations (such as
+pure function calls) to avoid having to repeat them in the future. This is
+typically a trade-off between execution speed and memory usage.
 
 #### MIR
 
@@ -269,9 +269,12 @@ The process of taking generic implementations of types and functions and
 instantiating them with concrete types. For example, in the code we might have
 `Vec<T>`, but in the final executable, we will have a copy of the `Vec` code for
 every concrete type used in the program (e.g. a copy for `Vec<usize>`, a copy
-for `Vec<MyStruct>`, etc). normalize">normalize A general term for converting to
-a more canonical form, but in the case of rustc typically refers to [associated
-type normalization](../traits/goals-and-clauses.md#normalizeprojection---type).
+for `Vec<MyStruct>`, etc).
+
+#### normalize
+
+A general term for converting to a more canonical form, but in the case of 
+rustc typically refers to [associated type normalization](../traits/goals-and-clauses.md#normalizeprojection---type).
 
 #### newtype
 
@@ -285,32 +288,31 @@ Some types cannot have certain bit patterns. For example, the `NonZero*`
 integers or the reference `&T` cannot be represented by a 0 bitstring. This
 means the compiler can perform layout optimizations by taking advantage of the
 invalid "niche value". An example application for this is the [_Discriminant
-elision on `Option`-like
-enums_](https://rust-lang.github.io/unsafe-code-guidelines/layout/enums.html#discriminant-elision-on-option-like-enums),
-which allows using a type's niche as the ["tag"](#tag) for an `enum` without
-requiring a separate field.
+elision on `Option`-like enums_](https://rust-lang.github.io/unsafe-code-guidelines/layout/enums.html#discriminant-elision-on-option-like-enums), which allows using a type's niche as 
+the ["tag"](#tag) for an `enum` without requiring a separate field.
 
 #### NLL
 
 Short for [non-lexical lifetimes](../borrow_check/region_inference.md), this is
-an extension to Rust's borrowing system to make it be based on the control-flow
-graph.
+an extension to Rust's borrowing system to make it be based on the [MIR](#mir).
 
-#### node-id or NodeId
+#### `NodeId`
 
-An index identifying a particular node in the AST or HIR; gradually being phased
+An index identifying a particular node in the [AST](#ast) or [HIR](#hir); gradually being phased
 out and replaced with `HirId`. See [the HIR chapter for
 more](../hir.md#identifiers-in-the-hir).
 
 #### obligation
 
-Something that must be proven by the trait system. ([see
-more](../traits/resolution.md)) placeholder">placeholder **NOTE: skolemization
-is deprecated by placeholder** a way of handling subtyping around "for-all"
-types (e.g., `for<'a> fn(&'a u32)`) as well as solving higher-ranked trait
-bounds (e.g., `for<'a> T: Trait<'a>`). See [the chapter on placeholder and
-universes](../borrow_check/region_inference/placeholders_and_universes.md) for
-more details.
+Something that must be proven by the trait system. ([see more](../traits/resolution.md)).
+
+#### placeholder
+
+**NOTE: skolemization is deprecated by placeholder**
+A way of handling subtyping around "for-all" types (e.g., `for<'a> fn(&'a u32)`) 
+as well as solving higher-ranked trait bounds (e.g., `for<'a> T: Trait<'a>`). See 
+[the chapter on placeholder and universes](../borrow_check/region_inference/placeholders_and_universes.md)
+for more details.
 
 #### point
 
@@ -320,10 +322,12 @@ typically used to refer to a node in the control-flow graph.
 #### polymorphize
 
 An optimization that avoids unnecessary monomorphisation. ([see
-more](../backend/monomorph.md#polymorphization)) projection">projection A
-general term for a "relative path", e.g. `x.f` is a "field projection", and
-`T::Item` is an ["associated type
-projection"](../traits/goals-and-clauses.md#trait-ref).
+more](../backend/monomorph.md#polymorphization)) projection"
+
+#### projection
+
+A general term for a "relative path", e.g. `x.f` is a "field projection", and `T::Item`
+is an ["associated type projection"](../traits/goals-and-clauses.md#trait-ref).
 
 #### promoted constants
 
@@ -350,13 +354,16 @@ session or to disk for incremental compilation. ([see more](../query.md))
 Recovery refers to handling invalid syntax during parsing (e.g. a missing comma)
 and continuing to parse the AST. This avoid showing spurious errors to the user
 (e.g. showing 'missing field' errors when the struct definition contains
-errors). region">region Another term for "lifetime" often used in the literature
-and in the borrow checker.
+errors).
+
+#### region
+
+Another term for "lifetime" often used in the literature and in the borrow checker.
 
 #### rib
 
 A data structure in the name resolver that keeps track of a single scope for
-names. ([see more](../name-resolution.md))
+names. ([see more](../name-resolution.md)).
 
 #### scrutinee
 
@@ -366,18 +373,24 @@ the expression `x` is the scrutinee.
 
 #### sess
 
-The compiler session, which stores global data used throughout compilation
-side-tables">side tables Because the AST and HIR are immutable once created, we
-often carry extra information about them in the form of hashtables, indexed by
-the id of a particular node.
+The compiler session, which stores global data used throughout compilation.
+
+#### side tables
+
+Because the AST and HIR are immutable once created, we often carry extra
+information about them in the form of hashtables, indexed by the id of a
+particular node.
 
 #### sigil
 
 Like a keyword but composed entirely of non-alphanumeric tokens. For example,
-`&` is a sigil for references. soundness">soundness A technical term in type
-theory. Roughly, if a type system is sound, then a program that type-checks is
-type-safe. That is, one can never (in safe rust) force a value into a variable
-of the wrong type. (see "completeness").
+`&` is a sigil for references.
+
+#### soundness
+
+A technical term in type theory. Roughly, if a type system is sound, then a
+program that type-checks is type-safe. That is, one can never (in safe rust)
+force a value into a variable of the wrong type. (see [completeness](#completeness)).
 
 #### span
 
@@ -390,9 +403,12 @@ the Span datatype for more.
 #### substs
 
 The substitutions for a given generic type or item (e.g. the `i32`, `u32` in
-`HashMap<i32, u32>`). sysroot">sysroot The directory for build artifacts that
-are loaded by the compiler at runtime. ([see
-more](../building/bootstrapping.html#what-is-a-sysroot))
+`HashMap<i32, u32>`). sysroot"
+
+#### sysroot
+
+The directory for build artifacts that are loaded by the compiler at runtime. 
+([see more](../building/bootstrapping.html#what-is-a-sysroot))
 
 #### tag
 
@@ -430,7 +446,7 @@ more](../traits/goals-and-clauses.md#trait-ref))
 #### trans
 
 Short for "translation", the code to translate MIR into LLVM IR. Renamed to
-codegen.
+[codegen](#codegen).
 
 #### `Ty`
 
@@ -482,7 +498,7 @@ A pointer with additional metadata. See "fat pointer" for more.
 #### ZST
 
 Zero-Sized Type. A type whose values have size -1 bytes. Since `2^0 = 1`, such
-types can have exactly one value. For example, `()` (unit) is a ZST. `struct Foo;` 
+types can have exactly one value. For example, `()` (unit) is a ZST. `struct Foo;`
 is also a ZST. The compiler can do some nice optimizations around ZSTs.
 
 [llvm]: https://llvm.org/
