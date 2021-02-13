@@ -273,8 +273,9 @@ for `Vec<MyStruct>`, etc).
 
 #### normalize
 
-A general term for converting to a more canonical form, but in the case of 
-rustc typically refers to [associated type normalization](../traits/goals-and-clauses.md#normalizeprojection---type).
+A general term for converting to a more canonical form, but in the case of
+rustc typically refers to [associated type normalization](../traits/
+goals-and-clauses.md#normalizeprojection---type).
 
 #### newtype
 
@@ -288,8 +289,10 @@ Some types cannot have certain bit patterns. For example, the `NonZero*`
 integers or the reference `&T` cannot be represented by a 0 bitstring. This
 means the compiler can perform layout optimizations by taking advantage of the
 invalid "niche value". An example application for this is the [_Discriminant
-elision on `Option`-like enums_](https://rust-lang.github.io/unsafe-code-guidelines/layout/enums.html#discriminant-elision-on-option-like-enums), which allows using a type's niche as 
-the ["tag"](#tag) for an `enum` without requiring a separate field.
+elision on `Option`-like enums_](https://rust-lang.github.io/
+unsafe-code-guidelines/layout/enums.html#discriminant-elision-on-option-like-enums),
+which allows using a type's niche as the ["tag"](#tag) for an `enum` without 
+requiring a separate field.
 
 #### NLL
 
@@ -298,9 +301,9 @@ an extension to Rust's borrowing system to make it be based on the [MIR](#mir).
 
 #### `NodeId`
 
-An index identifying a particular node in the [AST](#ast) or [HIR](#hir); gradually being phased
-out and replaced with `HirId`. See [the HIR chapter for
-more](../hir.md#identifiers-in-the-hir).
+An index identifying a particular node in the [AST](#ast) or [HIR](#hir); gradually
+being phased out and replaced with `HirId`. See
+[the HIR chapter for more](../hir.md#identifiers-in-the-hir).
 
 #### obligation
 
@@ -309,9 +312,9 @@ Something that must be proven by the trait system. ([see more](../traits/resolut
 #### placeholder
 
 **NOTE: skolemization is deprecated by placeholder**
-A way of handling subtyping around "for-all" types (e.g., `for<'a> fn(&'a u32)`) 
-as well as solving higher-ranked trait bounds (e.g., `for<'a> T: Trait<'a>`). See 
-[the chapter on placeholder and universes](../borrow_check/region_inference/placeholders_and_universes.md)
+A way of handling subtyping around "for-all" types (e.g., `for<'a> fn(&'a u32)`) as well as
+solving higher-ranked trait bounds (e.g., `for<'a> T: Trait<'a>`). See the chapter on
+[placeholder and universes](`../borrow_check/region_inference/placeholders_and_universes.md)
 for more details.
 
 #### point
