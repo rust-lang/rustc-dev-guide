@@ -401,7 +401,8 @@ A location in the user's source code, used for error reporting primarily. These
 are like a file-name/line-number/column tuple on steroids: they carry a
 start/end point, and also track macro expansions and compiler desugaring. All
 while being packed into a few bytes (really, it's an index into a table). See
-the Span datatype for more.
+the [Span](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_span/struct.Span.html)
+datatype for more.
 
 #### substs
 
