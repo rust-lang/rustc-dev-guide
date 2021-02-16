@@ -74,7 +74,7 @@ Here is the list of passes as of February 2021 <!-- date: 2021-02 -->:
 - `check-code-block-syntax` validates syntax inside Rust code blocks
   (`` ```rust ``)
 
-- `check-invalid-html-tags` detects invalid HTML (like an unclosed `\<span\>`)
+- `check-invalid-html-tags` detects invalid HTML (like an unclosed `<span>`)
   in doc comments.
 
 - `check-non-autolinks` detects links that could or should be written using
@@ -106,15 +106,25 @@ Here is the list of passes as of February 2021 <!-- date: 2021-02 -->:
   from the output. `strip-private` implies `strip-priv-imports`. Basically, the
   goal is to remove items that are not relevant for public documentation.
 
-- `stripper` provides utilities for the `strip-*` passes.
+- `unindent-comments` removes excess indentation on comments in order for the
+  Markdown to be parsed correctly. This is necessary because the convention for
+  writing documentation is to provide a space between the `///` or `//!` marker
+  and the doc text, but Markdown is whitespace-sensitive. For example, a block
+  of text with four-space indentation is parsed as a code block, so if we didn't
+  unindent comments, these list items
 
-- `unindent-comments` removes excess indentation on comments in order for
-  markdown to like it. This is necessary because the convention for writing
-  documentation is to provide a space between the `///` or `//!` marker and the
-  text, and stripping that leading space will make the text easier to parse by
-  the Markdown parser. (In the past, the Markdown parser used was not
-  CommonMark-compliant, which caused annoyances with extra whitespace but this
-  seems to be less of an issue today.)
+  ```rust,ignore
+  /// A list:
+  ///
+  ///    - Foo
+  ///    - Bar
+  ```
+
+  would be parsed as if they were in a code block, which is likely not what the
+  user intended.
+
+There is also a `stripper` module in `passes/`, but it is a collection of
+utility functions for the `strip-*` passes and is not a pass itself.
 
 ## From clean to crate
 
