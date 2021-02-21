@@ -86,7 +86,7 @@ Here is the list of passes as of February 2021 <!-- date: 2021-02 -->:
   separate doc attribute, and this will combine them into a single string with
   line breaks between each attribute.
 
-- `collect-intra-doc-links` resolves intra-doc links.
+- `collect-intra-doc-links` resolves [intra-doc links](https://doc.rust-lang.org/rustdoc/linking-to-items-by-name.html).
 
 - `collect-trait-impls` collects trait impls for each item in the crate. For
   example, if we define a struct that implements a trait, this pass will note
@@ -261,4 +261,3 @@ on the internet. For example, the url for `std` will be `/std/".
 
 [`rustdoc` api docs]: https://doc.rust-lang.org/nightly/nightly-rustc/rustdoc/
 [The rustdoc user guide]: https://doc.rust-lang.org/nightly/rustdoc/
-
