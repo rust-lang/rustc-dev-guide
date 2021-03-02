@@ -10,11 +10,15 @@ if [ "$GITHUB_EVENT_NAME" = "schedule" ] ; then # running in scheduled job
   echo "Doing full link check."
   set -x
 elif [ "$CI" = "true" ] ; then # running in PR CI build
+  if [ -z "$BASE_SHA" ]; then
+    echo "error: unexpected state: BASE_SHA must be non-empty in CI"
+    exit 1
+  fi
 
-  CHANGED_FILES=$(git diff --name-only origin/master... | tr '\n' ' ')
+  CHANGED_FILES=$(git diff --name-only $BASE_SHA... | tr '\n' ' ')
   FLAGS="--no-cache -f $CHANGED_FILES"
 
-  echo "Checking files changed in origin/master...: $CHANGED_FILES"
+  echo "Checking files changed from $BASE_SHA: $CHANGED_FILES"
   set -x
 else # running locally
   COMMIT_RANGE=master...

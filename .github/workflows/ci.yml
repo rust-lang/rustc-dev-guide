@@ -12,19 +12,17 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    env:
+      MDBOOK_VERSION: 0.4.7
+      MDBOOK_LINKCHECK_VERSION: 0.7.2
+      MDBOOK_TOC_VERSION: 0.6.1
+      DEPLOY_DIR: book/html
+      BASE_SHA: ${{ github.event.pull_request.base.sha }}
     steps:
       - uses: actions/checkout@v2
         with:
           # Set 0 to rebase later.
           fetch-depth: 0
-
-      - name: Read .env
-        run: |
-          . ./.env
-          echo "MDBOOK_VERSION=${MDBOOK_VERSION}" >> $GITHUB_ENV
-          echo "MDBOOK_LINKCHECK_VERSION=${MDBOOK_LINKCHECK_VERSION}" >> $GITHUB_ENV
-          echo "MDBOOK_TOC_VERSION=${MDBOOK_TOC_VERSION}" >> $GITHUB_ENV
-          echo "DEPLOY_DIR=${DEPLOY_DIR}" >> $GITHUB_ENV
 
       - name: Cache binaries
         id: mdbook-cache
@@ -42,7 +40,7 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('./book/linkcheck') }}
 
       - name: Check line lengths
-        if: github.event_name != 'schedule'
+        if: github.event_name != 'push'
         run: |
           shopt -s globstar
           MAX_LINE_LENGTH=100 bash ci/check_line_lengths.sh src/**/*.md
@@ -62,7 +60,7 @@ jobs:
           cargo install mdbook-toc --version ${{ env.MDBOOK_TOC_VERSION }}
 
       - name: Check build
-        if: github.event_name != 'schedule'
+        if: github.event_name != 'push'
         run: |
           git switch -c ci
           git fetch origin master
@@ -71,7 +69,7 @@ jobs:
           mdbook build
 
       - name: Deploy to gh-pages
-        if: github.event_name == 'schedule' && github.repository == 'rust-lang/rustc-dev-guide'
+        if: github.event_name == 'push' && github.repository == 'rust-lang/rustc-dev-guide'
         run: |
           mdbook build
           touch "${{ env.DEPLOY_DIR }}/.nojekyll"
