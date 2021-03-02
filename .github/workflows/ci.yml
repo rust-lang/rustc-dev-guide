@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          # Set 0 to rebase later.
+          # linkcheck needs the base commit.
           fetch-depth: 0
 
       - name: Cache binaries
@@ -60,18 +60,11 @@ jobs:
           cargo install mdbook-toc --version ${{ env.MDBOOK_TOC_VERSION }}
 
       - name: Check build
-        if: github.event_name != 'push'
-        run: |
-          git switch -c ci
-          git fetch origin master
-          git rebase origin/master
-          git log --oneline | head -n 10
-          mdbook build
+        run: mdbook build
 
       - name: Deploy to gh-pages
         if: github.event_name == 'push' && github.repository == 'rust-lang/rustc-dev-guide'
         run: |
-          mdbook build
           touch "${{ env.DEPLOY_DIR }}/.nojekyll"
           cp CNAME "${{ env.DEPLOY_DIR }}"
           cd "${{ env.DEPLOY_DIR }}"

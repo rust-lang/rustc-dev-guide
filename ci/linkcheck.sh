@@ -18,7 +18,7 @@ elif [ "$CI" = "true" ] ; then # running in PR CI build
   CHANGED_FILES=$(git diff --name-only $BASE_SHA... | tr '\n' ' ')
   FLAGS="--no-cache -f $CHANGED_FILES"
 
-  echo "Checking files changed from $BASE_SHA: $CHANGED_FILES"
+  echo "Checking files changed since $BASE_SHA: $CHANGED_FILES"
   set -x
 else # running locally
   COMMIT_RANGE=master...
