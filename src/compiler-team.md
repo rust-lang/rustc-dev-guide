@@ -53,7 +53,6 @@ complicated).
 
 The meeting is held over a "chat medium", currently on [zulip].
 
-[etherpad]: https://public.etherpad-mozilla.org/p/rust-compiler-meeting
 [procedure]: ./bug-fix-procedure.md
 [zulip]: https://rust-lang.zulipchat.com/#narrow/stream/131828-t-compiler
 [zulip-help]: https://rust-lang.zulipchat.com/#narrow/stream/182449-t-compiler.2Fhelp
