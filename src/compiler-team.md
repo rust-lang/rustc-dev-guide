@@ -30,7 +30,8 @@ who are experts on each one.
 ## Rust compiler meeting
 
 The compiler team has a weekly meeting where we do triage and try to
-generally stay on top of new bugs, regressions, and other things.
+generally stay on top of new bugs, regressions, and discuss important
+things in general.
 They are held on [Zulip][zulip]. It works roughly as follows:
 
 - **Review P-high bugs:** P-high bugs are those that are sufficiently
