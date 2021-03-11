@@ -34,19 +34,28 @@ generally stay on top of new bugs, regressions, and discuss important
 things in general.
 They are held on [Zulip][zulip-meetings]. It works roughly as follows:
 
-- **Review P-high bugs:** P-high bugs are those that are sufficiently
-  important for us to actively track progress. P-high bugs should
-  ideally always have an assignee.
-- **Look over new regressions:** we then look for new cases where the
-  compiler broke previously working code in the wild. Regressions are
-  almost always marked as P-high; the major exception would be bug
-  fixes (though even there we often [aim to give warnings first][procedure]).
-- **Check I-nominated issues:** These are issues where feedback from
+- **Announcements, MCPs/FCPs and WG-check-ins:** we share some
+  announcements with the rest of the team about important things we want
+  everyone to be aware. We also share the status of MCPs and FCPs and we
+  use the opportunity to have a couple of WGs giving us an update about
+  their work.
+- **Check for beta and stable nominations:** These are nominations of things to
+  backport to beta and stable respectively.
+  We then look for new cases where the compiler broke previously working
+  code in the wild. Regressions are important issues to fix, so it's
+  likely that they are tagged as P-critical or P-high; the major
+  exception would be bug fixes (though even there we often [aim to give
+  warnings first][procedure]).
+- **Review P-critical/P-high bugs:** P-critical and P-high bugs are
+  those that are sufficiently important for us to actively track
+  progress. P-critical and P-high bugs should ideally always have an
+  assignee.
+- **Check S-waiting-on-team and I-nominated issues:** These are issues where feedback from
   the team is desired.
-- **Check for beta nominations:** These are nominations of things to
-  backport to beta.
-- **Possibly WG checking:** A WG may give an update at this point, if there is
-  time.
+- **Look over the performance logs:** we check for PRs that made the
+    performance better in some sense and the ones that made it worser
+    and try to decide if it's worth reverting some regression or if it's
+    more work to be done to make things better.
 
 The meeting currently takes place on Thursdays at 10am Boston time
 (UTC-4 typically, but daylight savings time sometimes makes things
