@@ -32,7 +32,7 @@ who are experts on each one.
 The compiler team has a weekly meeting where we do triage and try to
 generally stay on top of new bugs, regressions, and discuss important
 things in general.
-They are held on [Zulip][zulip]. It works roughly as follows:
+They are held on [Zulip][zulip-meetings]. It works roughly as follows:
 
 - **Review P-high bugs:** P-high bugs are those that are sufficiently
   important for us to actively track progress. P-high bugs should
@@ -55,7 +55,6 @@ complicated).
 The meeting is held over a "chat medium", currently on [zulip].
 
 [procedure]: ./bug-fix-procedure.md
-[zulip]: https://rust-lang.zulipchat.com/#narrow/stream/131828-t-compiler
 [zulip-help]: https://rust-lang.zulipchat.com/#narrow/stream/182449-t-compiler.2Fhelp
 [zulip-meetings]: https://rust-lang.zulipchat.com/#narrow/stream/238009-t-compiler.2Fmeetings
 
