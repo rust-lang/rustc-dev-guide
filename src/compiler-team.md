@@ -52,7 +52,7 @@ They are held on [Zulip][zulip-meetings]. It works roughly as follows:
   assignee.
 - **Check S-waiting-on-team and I-nominated issues:** These are issues where feedback from
   the team is desired.
-- **Look over the performance logs:** we check for PRs that made the
+- **Look over the performance logs:** We check for PRs that made the
     performance better in some sense and the ones that made it worser
     and try to decide if it's worth reverting some regression or if it's
     more work to be done to make things better.
