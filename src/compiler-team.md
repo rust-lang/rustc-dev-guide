@@ -46,7 +46,7 @@ They are held on [Zulip][zulip-meetings]. It works roughly as follows:
   likely that they are tagged as P-critical or P-high; the major
   exception would be bug fixes (though even there we often [aim to give
   warnings first][procedure]).
-- **Review P-critical/P-high bugs:** P-critical and P-high bugs are
+- **Review P-critical and P-high bugs:** P-critical and P-high bugs are
   those that are sufficiently important for us to actively track
   progress. P-critical and P-high bugs should ideally always have an
   assignee.
