@@ -60,7 +60,6 @@ The meeting currently takes place on Thursdays at 10am Boston time
 (UTC-4 typically, but daylight savings time sometimes makes things
 complicated).
 
-The meeting is held over a "chat medium", currently on [zulip].
 
 [procedure]: ./bug-fix-procedure.md
 [zulip-help]: https://rust-lang.zulipchat.com/#narrow/stream/182449-t-compiler.2Fhelp
