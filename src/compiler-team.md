@@ -53,7 +53,7 @@ They are held on [Zulip][zulip-meetings]. It works roughly as follows:
 - **Check S-waiting-on-team and I-nominated issues:** These are issues where feedback from
   the team is desired.
 - **Look over the performance triage report:** We check for PRs that made the
-    performance worse and try to decide if it's worth reverting the performance regression or if 
+    performance worse and try to decide if it's worth reverting the performance regression or if
     the regression can be addressed in a future PR. 
 
 The meeting currently takes place on Thursdays at 10am Boston time
