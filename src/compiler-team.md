@@ -54,7 +54,7 @@ They are held on [Zulip][zulip-meetings]. It works roughly as follows:
   the team is desired.
 - **Look over the performance triage report:** We check for PRs that made the
     performance worse and try to decide if it's worth reverting the performance regression or if
-    the regression can be addressed in a future PR. 
+    the regression can be addressed in a future PR.
 
 The meeting currently takes place on Thursdays at 10am Boston time
 (UTC-4 typically, but daylight savings time sometimes makes things
