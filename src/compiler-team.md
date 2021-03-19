@@ -36,7 +36,7 @@ They are held on [Zulip][zulip-meetings]. It works roughly as follows:
 
 - **Announcements, MCPs/FCPs, and WG-check-ins:** We share some
   announcements with the rest of the team about important things we want
-  everyone to be aware. We also share the status of MCPs and FCPs and we
+  everyone to be aware of. We also share the status of MCPs and FCPs and we
   use the opportunity to have a couple of WGs giving us an update about
   their work.
 - **Check for beta and stable nominations:** These are nominations of things to
