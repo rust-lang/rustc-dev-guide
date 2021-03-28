@@ -15,8 +15,8 @@ extern crate rustc_span;
 use rustc_ast_pretty::pprust::item_to_string;
 use rustc_errors::registry;
 use rustc_session::config;
-use rustc_session::config::PpMode::PpmSource;
-use rustc_session::config::PpSourceMode::PpmExpanded;
+//use rustc_session::config::PpMode::PpmSource;
+//use rustc_session::config::PpSourceMode::PpmExpanded;
 use rustc_span::source_map;
 use std::path;
 use std::process;
@@ -46,7 +46,7 @@ fn main() {
         output_file: None,
         file_loader: None,
         stderr: None,
-        crate_name: None,
+        //crate_name: None,
         lint_caps: rustc_hash::FxHashMap::default(),
         register_lints: None,
         override_queries: None,
@@ -57,8 +57,8 @@ fn main() {
         compiler.enter(|queries| {
             // TODO: add this to -Z unpretty
             let ast_krate = queries.parse().unwrap().take();
-            let ast_krate_mod = ast_krate.module;
-            for item in ast_krate_mod.items {
+            //let ast_krate_mod = ast_krate.module;
+            for item in ast_krate.items {
                 println!("{}", item_to_string(&item));
             }
 
