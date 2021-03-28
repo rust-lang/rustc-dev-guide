@@ -3,7 +3,7 @@
 // NOTE: For the example to compile, you will need to first run the following:
 //   rustup component add rustc-dev
 
-// version: rustc 1.52.0-nightly 2021-03-05
+// version: 1.53.0-nightly (9b0edb7fd 2021-03-27)
 
 extern crate rustc_error_codes;
 extern crate rustc_errors;
@@ -49,6 +49,8 @@ fn main() {
         // Set to capture stderr output during compiler execution
         stderr: None,                    // Option<Arc<Mutex<Vec<u8>>>>
         lint_caps: FxHashMap::default(), // FxHashMap<lint::LintId, lint::Level>
+        // This is a callback from the driver that is called when [`ParseSess`] is created.
+        parse_sess_created: None, //Option<Box<dyn FnOnce(&mut ParseSess) + Send>>
         // This is a callback from the driver that is called when we're registering lints;
         // it is called during plugin registration when we have the LintStore in a non-shared state.
         //

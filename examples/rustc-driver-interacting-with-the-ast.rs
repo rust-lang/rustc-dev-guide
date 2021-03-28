@@ -3,7 +3,7 @@
 // NOTE: For the example to compile, you will need to first run the following:
 //     rustup component add rustc-dev llvm-tools-preview
 
-// version: rustc 1.52.0-nightly 2021-03-05
+// version: 1.53.0-nightly (9b0edb7fd 2021-03-27)
 
 extern crate rustc_ast_pretty;
 extern crate rustc_error_codes;
@@ -47,6 +47,7 @@ fn main() {
         file_loader: None,
         stderr: None,
         lint_caps: rustc_hash::FxHashMap::default(),
+        parse_sess_created: None,
         register_lints: None,
         override_queries: None,
         make_codegen_backend: None,
