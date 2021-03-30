@@ -62,6 +62,9 @@ optimizes it, and returns the improved MIR.
    (just prefix your PR title with `[WIP]` or otherwise note that it is a
    work in progress) in that case.
 
+   Make sure to commit the blessed test output as well! It's necessary for CI to
+   pass and it's very helpful to reviewers.
+
 If you have any questions along the way, feel free to ask in
 `#t-compiler/wg-mir-opt` on Zulip.
 
