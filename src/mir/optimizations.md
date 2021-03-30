@@ -62,8 +62,8 @@ optimizes it, and returns the improved MIR.
    (just prefix your PR title with `[WIP]` or otherwise note that it is a
    work in progress) in that case.
 
-If you have any questions along the way, feel free to ask in `#t-compiler/help`
-or `#t-compiler/wg-mir-opt` on Zulip.
+If you have any questions along the way, feel free to ask in
+`#t-compiler/wg-mir-opt` on Zulip.
 
 [mir-opt-test-readme]: https://github.com/rust-lang/rust/blob/master/src/test/mir-opt/README.md
 [`compiler/rustc_mir/src/transform`]: https://github.com/rust-lang/rust/tree/master/compiler/rustc_mir/src/transform
