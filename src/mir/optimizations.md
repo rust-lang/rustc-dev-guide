@@ -38,7 +38,9 @@ optimizes it, and returns the improved MIR.
    dump. Read [this README][mir-opt-test-readme] for instructions on how to dump
    things.
 
-3. Commit the current working directory state.
+3. Commit the current working directory state. The reason you should commit the
+   test output before you implement the optimization is so that you (and your
+   reviewers) can see a before/after diff of what the optimization changed.
 
 4. Implement a new optimization in [`compiler/rustc_mir/src/transform`].
    The fastest and easiest way to do this is to
