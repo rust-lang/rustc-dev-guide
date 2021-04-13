@@ -115,7 +115,8 @@ the source code.
   - `generator_state`: `library/core/src/ops/generator.rs`
   - `generator`: `library/core/src/ops/generator.rs`
 - Opting out
-  - `unsafe_cell` (relaxes pointer provenance rules, allowing const-to-mut casts): `library/core/src/cell.rs`
+  - `unsafe_cell` (relaxes pointer provenance rules, allowing const-to-mut
+    casts): `library/core/src/cell.rs`
   - `manually_drop` (opts out of implicit destructor call): `library/core/src/mem/manually_drop.rs`
 - Other
   - `coerce_unsized`: `library/core/src/ops/unsize.rs`
