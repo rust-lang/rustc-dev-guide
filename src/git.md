@@ -238,8 +238,7 @@ rebase! Use `git push --force-with-lease` instead.
 
 ## Advanced Rebasing
 
-If your branch contains multiple consecutive rewrites of the same code, or if
-the rebase conflicts are extremely severe, you can use
+If your branch conflicts are extremely severe, you can use
 `git rebase --interactive master` to gain more control over the process. This
 allows you to choose to skip commits, edit the commits that you do not skip,
 change the order in which they are applied, or "squash" them into each other.
@@ -259,8 +258,7 @@ commit. Both the upside and downside of this is that it simplifies the history.
 On the one hand, you lose track of the steps in which changes were made, but
 the history becomes easier to work with.
 
-You also may want to squash just the last few commits together, possibly
-because they only represent "fixups" and not real changes. For example,
+You also may want to squash just the last few commits together. For example,
 `git rebase --interactive HEAD~2` will allow you to edit the two commits only.
 
 ## No-Merge Policy
