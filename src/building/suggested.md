@@ -36,7 +36,7 @@ you can write:
     ],
     "editor.formatOnSave": true,
     "rust-analyzer.cargo.runBuildScripts": false,
-    "rust-analyzer.procMacro.enable": false,
+    "rust-analyzer.procMacro.enable": false
 }
 ```
 
