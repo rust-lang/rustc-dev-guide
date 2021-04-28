@@ -34,7 +34,7 @@ does is call the `main()` that's in this crate's `lib.rs`, though.)
 
 [bin]: https://github.com/rust-lang/rust/tree/master/src/tools/rustdoc
 
-## Fast builds
+## Fast builds (for tier 1 targets)
 
 Preconfigure your `/config.toml`:
 
@@ -43,12 +43,7 @@ Preconfigure your `/config.toml`:
 # Global Settings
 # =============================================================================
 
-# Use different pre-set defaults than the global defaults.
-#
-# See `src/bootstrap/defaults` for more information.
-# Note that this has no default value (x.py uses the defaults in `config.toml.example`).
 #profile = <none>
-#
 # make sure that you do not have a profile set
 
 # =============================================================================
@@ -56,19 +51,6 @@ Preconfigure your `/config.toml`:
 # =============================================================================
 [llvm]
 
-# Whether to use Rust CI built LLVM instead of locally building it.
-#
-# Unless you're developing for a target where Rust CI doesn't build a compiler
-# toolchain or changing LLVM locally, you probably want to set this to true.
-#
-# This is false by default so that distributions don't unexpectedly download
-# LLVM from the internet.
-#
-# All tier 1 targets are currently supported; set this to `"if-supported"` if
-# you are not sure whether you're on a tier 1 target.
-#
-# We also currently only support this when building LLVM for the build triple.
-#
 # Note that many of the LLVM options are not currently supported for
 # downloading. Currently only the "assertions" option can be toggled.
 download-ci-llvm = true
@@ -79,8 +61,6 @@ Now build `rustdoc` from stage 2 and build the documentation of the standard lib
 ```bash
 x.py doc std --stage 2 --open
 ```
-
-**Note:** `--open` fixes build errors with `libtest`.
 
 ## Cheat sheet
 
