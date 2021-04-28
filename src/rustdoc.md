@@ -34,6 +34,54 @@ does is call the `main()` that's in this crate's `lib.rs`, though.)
 
 [bin]: https://github.com/rust-lang/rust/tree/master/src/tools/rustdoc
 
+## Fast builds
+
+Preconfigure your `/config.toml`:
+
+```toml
+# =============================================================================
+# Global Settings
+# =============================================================================
+
+# Use different pre-set defaults than the global defaults.
+#
+# See `src/bootstrap/defaults` for more information.
+# Note that this has no default value (x.py uses the defaults in `config.toml.example`).
+#profile = <none>
+#
+# make sure that you do not have a profile set
+
+# =============================================================================
+# Tweaking how LLVM is compiled
+# =============================================================================
+[llvm]
+
+# Whether to use Rust CI built LLVM instead of locally building it.
+#
+# Unless you're developing for a target where Rust CI doesn't build a compiler
+# toolchain or changing LLVM locally, you probably want to set this to true.
+#
+# This is false by default so that distributions don't unexpectedly download
+# LLVM from the internet.
+#
+# All tier 1 targets are currently supported; set this to `"if-supported"` if
+# you are not sure whether you're on a tier 1 target.
+#
+# We also currently only support this when building LLVM for the build triple.
+#
+# Note that many of the LLVM options are not currently supported for
+# downloading. Currently only the "assertions" option can be toggled.
+download-ci-llvm = true
+```
+
+Now build ´rustdoc´ from stage 2 and build the documentation of the standard library:
+
+```bash
+x.py doc std --stage 2 --open
+```
+
+**Note:** `--open` fixes build errors with `libtest`.
+
 ## Cheat sheet
 
 * Use `./x.py build` to make a usable
@@ -42,7 +90,7 @@ does is call the `main()` that's in this crate's `lib.rs`, though.)
   * If you've used `rustup toolchain link local /path/to/build/$TARGET/stage1`
     previously, then after the previous build command, `cargo +local doc` will
     Just Work.
-* Use `./x.py doc --stage 1 library/std` to use this rustdoc to generate the
+* Use `./x.py doc --stage 1 std` to use this rustdoc to generate the
   standard library docs.
   * The completed docs will be available in `build/$TARGET/doc/std`, though the
     bundle is meant to be used as though you would copy out the `doc` folder to
