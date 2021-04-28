@@ -74,7 +74,7 @@ Preconfigure your `/config.toml`:
 download-ci-llvm = true
 ```
 
-Now build ´rustdoc´ from stage 2 and build the documentation of the standard library:
+Now build `rustdoc` from stage 2 and build the documentation of the standard library:
 
 ```bash
 x.py doc std --stage 2 --open
