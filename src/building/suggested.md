@@ -268,7 +268,7 @@ in
 pkgs.mkShell {
   name = "rustc";
   nativeBuildInputs = with pkgs; [
-    gcc9 binutils cmake ninja openssl pkgconfig python39 git curl cacert patchelf nix psutils
+    gcc9 gccMultiStdenv binutils cmake ninja openssl pkgconfig python39 git curl cacert patchelf nix psutils
   ];
   RIPGREP_CONFIG_PATH = ripgrepConfig;
   RUST_BOOTSTRAP_CONFIG = config;
