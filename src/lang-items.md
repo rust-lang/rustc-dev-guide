@@ -31,6 +31,30 @@ Most lang items are defined by the `core` library, but if you're trying to build
 executable with `#![no_std]`, you'll still need to define a few lang items that are
 usually provided by `std`.
 
+## Retrieving a language item
+
+You can retrieve lang items by calling [`tcx.lang_items()`].
+
+Here's a small example of retrieving the `trait Sized {}` language item:
+
+```rust
+// Note that in case of `#![no_core]`, the trait is not available.
+if let Some(sized_trait_def_id) = tcx.lang_items().sized_trait() {
+    // do something with `sized_trait_def_id`
+}
+```
+
+Note that `sized_trait()` returns an `Option`, not the `DefId` itself.
+That's because language items are defined in the standard libray, so if someone compiles with
+`#![no_core]` (or for items, `#![no_std]`), the lang item may not be present. You can either:
+
+- Give a hard error if the lang item is necessary to continue (don't panic, since this can happen in
+  user code).
+- Proceed with limited functionality, by just omitting whatever you were going to do with the
+  `DefId`.
+
+[`tcx.lang_items()`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.TyCtxt.html#method.lang_items
+
 ## List of all language items
 
 You can find language items in the following places:
