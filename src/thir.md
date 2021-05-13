@@ -9,6 +9,10 @@ The THIR ("Typed High-Level Intermediate Representation"), previously called HAI
 [it may also soon be used for unsafety checking][thir-unsafeck] as a replacement
 for the current MIR unsafety checker.
 
+
+You can get a human-readable repersentation of the THIR by passing the `-Zunpretty=thir-tree` flag
+to `rustc`.
+
 [type checking]: ./type-checking.md
 [MIR construction]: ./mir/construction.md
 [exhaustiveness checking]: ./pat-exhaustive-checking.md
