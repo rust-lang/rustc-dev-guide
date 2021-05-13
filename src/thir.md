@@ -9,10 +9,6 @@ The THIR ("Typed High-Level Intermediate Representation"), previously called HAI
 [it may also soon be used for unsafety checking][thir-unsafeck] as a replacement
 for the current MIR unsafety checker.
 
-
-You can get a human-readable repersentation of the THIR by passing the `-Zunpretty=thir-tree` flag
-to `rustc`.
-
 [type checking]: ./type-checking.md
 [MIR construction]: ./mir/construction.md
 [exhaustiveness checking]: ./pat-exhaustive-checking.md
@@ -42,6 +38,9 @@ you can use the [`build_thir`] function, passing in the memory arena where the T
 will be allocated. Dropping this arena will result in the THIR being destroyed,
 which is useful to keep peak memory in check. Having a THIR representation of
 all bodies of a crate in memory at the same time would be very heavy.
+
+You can get a debug representation of the THIR by passing the `-Zunpretty=thir-tree` flag
+to `rustc`.
 
 [thir-docs]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_build/thir/index.html
 [`thir::Expr`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_build/thir/struct.Expr.html
