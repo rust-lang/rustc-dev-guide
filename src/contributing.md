@@ -269,7 +269,7 @@ the compiler. At the same time, you can't get your changes merged into the compi
 because the rust-lang/rust build won't pass until those tools build and pass their
 tests.
 
-That means that, in the default state, you can't update the compiler without first
+That would mean that, in the default state, you couldn't update the compiler without first
 fixing miri, rls and the other tools that the compiler builds.
 
 Luckily, a feature was [added to Rust's build](https://github.com/rust-lang/rust/issues/45861)
