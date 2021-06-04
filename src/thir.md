@@ -43,5 +43,5 @@ You can get a debug representation of the THIR by passing the `-Zunpretty=thir-t
 to `rustc`.
 
 [thir-docs]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_build/thir/index.html
-[`thir::Expr`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_build/thir/struct.Expr.html
-[`build_thir`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_build/thir/fn.build_thir.html
+[`thir::Expr`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/thir/struct.Expr.html
+[`build_thir`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_build/build/scope/struct.DropTree.html#method.build_mir
