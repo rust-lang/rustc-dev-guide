@@ -109,7 +109,7 @@ may not create a `const fn` that e.g. transmutes a memory address to an integer,
 because the addresses of things are nondeterministic and often unknown at
 compile-time.
 
-Always ping @rust-lamg/wg-const-eval if you are adding more
+Always ping @rust-lang/wg-const-eval if you are adding more
 `rustc_allow_const_fn_unstable` attributes to any `const fn`
 
 ## staged_api
