@@ -89,7 +89,7 @@ You can see an example of stabilizing a feature at [#75132](https://github.com/r
 
 ## allow_internal_unstable
 
-Macros amd compiler desugarings expose their bodies to the call
+Macros and compiler desugarings expose their bodies to the call
 site. To work around not being able to use unstable things in the standard
 library's macros, there's the `#[allow_internal_unstable(feature1, feature2)]`
 attribute that allows the given features to be used in stable macros.
