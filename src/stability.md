@@ -85,7 +85,7 @@ To stabilize a feature, follow these steps:
    - Add the appropriate labels: `@rustbot modify labels: +T-libs`.
    - Link to the tracking issue and say "Closes #XXXXX".
 
-You can see an example of stabilizing a feature at [#75132](https://github.com/rust-lang/rust/pull/75132).
+You can see an example of stabilizing a feature at [#81656](https://github.com/rust-lang/rust/issues/81656).
 
 ## allow_internal_unstable
 
