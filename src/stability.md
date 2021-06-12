@@ -102,7 +102,7 @@ that could lock us into certain features indefinitely by accident. Thus no unsta
 features are allowed inside stable `const fn`.
 
 However, sometimes we do know that a feature will get
-stabilized, just not when or there is a stable (but e.g. runtime-slow) workaraound, so we
+stabilized, just not when or there is a stable (but e.g. runtime-slow) workaround, so we
 could always fall back to some stable version if we scrapped the unstable feature.
 In those cases, the rustc_allow_const_fn_unstable attribute can be used to allow some
 unstable features in the body of a stable `const fn`.
