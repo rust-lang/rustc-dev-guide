@@ -114,7 +114,7 @@ because the addresses of things are nondeterministic and often unknown at
 compile-time.
 
 Always ping @rust-lang/wg-const-eval if you are adding more
-`rustc_allow_const_fn_unstable` attributes to any `const fn`
+`rustc_allow_const_fn_unstable` attributes to any `const fn`.
 
 ## staged_api
 
