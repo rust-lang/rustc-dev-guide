@@ -99,9 +99,13 @@ attribute that allows the given features to be used in stable macros.
 `const fn`, while not directly exposing their body to the world, are going to get
 evaluated at compile time in stable crates. If their body does something const-unstable,
 that could lock us into certain features indefinitely by accident. Thus no unstable const
-features are allowed inside stable `const fn`. Sometimes we do know that a feature will get
+features are allowed inside stable `const fn`.
+
+However, sometimes we do know that a feature will get
 stabilized, just not when or there is a stable (but e.g. runtime-slow) workaraound, so we
 could always fall back to some stable version if we scrapped the unstable feature.
+In those cases, the rustc_allow_const_fn_unstable attribute can be used to allow some
+unstable features in the body of a stable `const fn`.
 
 You also need to take care to uphold the `const fn` invariant that calling it at runtime and
 compile-time needs to behave the same (see also [this blog post][blog]). This means that you
