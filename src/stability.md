@@ -103,7 +103,7 @@ features are allowed inside stable `const fn`. Sometimes we do know that a featu
 stabilized, just not when or there is a stable (but e.g. runtime-slow) workaraound, so we
 could always fall back to some stable version if we scrapped the unstable feature.
 
-You also need to take care to upload the `const fn` invariant that calling it at runtime and
+You also need to take care to uphold the `const fn` invariant that calling it at runtime and
 compile-time needs to behave the same (see also [this blog post][blog]). This means that you
 may not create a `const fn` that e.g. transmutes a memory address to an integer,
 because the addresses of things are nondeterministic and often unknown at
