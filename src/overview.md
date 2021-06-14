@@ -72,7 +72,7 @@ we'll talk about that later.
   detection of the type of an expression), [trait solving] (the process
   of pairing up an impl with each reference to a trait) and [type
   checking] (the process of converting the types found in the HIR
-  (hir::Ty), which represent the syntactic things that the user wrote,
+  (`hir::Ty`), which represent the syntactic things that the user wrote,
   into the internal representation used by the compiler (Ty<'tcx>)).
 - The HIR is then [lowered to Mid-Level Intermediate Representation (MIR)][mir].
   - Along the way, we construct the THIR, which is an even more desugared HIR.
