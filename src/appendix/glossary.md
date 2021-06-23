@@ -1,6 +1,6 @@
 # Glossary
 
-<!-- &nbsp;s are a workaround for https://github.com/rust-lang/mdBook/issues/1583 -->
+<!-- &nbsp;s are a workaround for https://github.com/badboy/mdbook-toc/issues/19 -->
 Term                                                  | Meaning
 ------------------------------------------------------|--------
 <span id="arena">arena/arena allocation</span> &nbsp; |  An _arena_ is a large memory buffer from which other memory allocations are made. This style of allocation is called _arena allocation_. See [this chapter](../memory.md) for more info.
