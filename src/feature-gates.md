@@ -27,7 +27,8 @@ For example:
 (active, non_ascii_idents, "1.0.0", Some(55467), None),
 ```
 
-Features can be marked as incomplete, and trigger the warn-by-default [`incomplete_features` lint](https://doc.rust-lang.org/rustc/lints/listing/warn-by-default.html#incomplete-features) by setting their type to `incomplete`:
+Features can be marked as incomplete, and trigger the warn-by-default [`incomplete_features` lint]
+by setting their type to `incomplete`:
 
 ```rust,ignore
 /// Allows unsized rvalues at arguments and parameters.
@@ -106,4 +107,5 @@ updating the declaration!
 
 
 ["Stability in code"]: ./implementing_new_features.md#stability-in-code
+[`incomplete_features` lint]: https://doc.rust-lang.org/rustc/lints/listing/warn-by-default.html#incomplete-features
 ["Updating the feature-gate listing"]: ./stabilization_guide.md#updating-the-feature-gate-listing
