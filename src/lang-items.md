@@ -46,7 +46,8 @@ if let Some(sized_trait_def_id) = tcx.lang_items().sized_trait() {
 
 Note that `sized_trait()` returns an `Option`, not the `DefId` itself.
 That's because language items are defined in the standard libray, so if someone compiles with
-`#![no_core]` (or for some lang items, `#![no_std]`), the lang item may not be present. You can either:
+`#![no_core]` (or for some lang items, `#![no_std]`), the lang item may not be present.
+You can either:
 
 - Give a hard error if the lang item is necessary to continue (don't panic, since this can happen in
   user code).
