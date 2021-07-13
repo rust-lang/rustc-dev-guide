@@ -1,0 +1,562 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Bug Fix Procedure - Guide to Rustc Development</title>
+        
+        
+
+
+        <!-- Custom HTML head -->
+        
+
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="A guide to developing rustc">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        
+        <link rel="icon" href="favicon.svg">
+        
+        
+        <link rel="shortcut icon" href="favicon.png">
+        
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        
+        <link rel="stylesheet" href="css/print.css" media="print">
+        
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        
+        <link rel="stylesheet" href="fonts/fonts.css">
+        
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item affix "><a href="about-this-guide.html">About this guide</a></li><li class="chapter-item affix "><a href="getting-started.html">Getting Started</a></li><li class="spacer"></li><li class="chapter-item affix "><li class="part-title">Building and debugging rustc</li><li class="chapter-item "><a href="building/how-to-build-and-run.html"><strong aria-hidden="true">1.</strong> How to Build and Run the Compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="building/prerequisites.html"><strong aria-hidden="true">1.1.</strong> Prerequisites</a></li><li class="chapter-item "><a href="building/suggested.html"><strong aria-hidden="true">1.2.</strong> Suggested Workflows</a></li><li class="chapter-item "><a href="building/build-install-distribution-artifacts.html"><strong aria-hidden="true">1.3.</strong> Distribution artifacts</a></li><li class="chapter-item "><a href="building/compiler-documenting.html"><strong aria-hidden="true">1.4.</strong> Documenting Compiler</a></li><li class="chapter-item "><a href="rustdoc.html"><strong aria-hidden="true">1.5.</strong> Rustdoc overview</a></li><li class="chapter-item "><a href="building/ctags.html"><strong aria-hidden="true">1.6.</strong> ctags</a></li><li class="chapter-item "><a href="building/new-target.html"><strong aria-hidden="true">1.7.</strong> Adding a new target</a></li></ol></li><li class="chapter-item "><a href="tests/intro.html"><strong aria-hidden="true">2.</strong> The compiler testing framework</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="tests/running.html"><strong aria-hidden="true">2.1.</strong> Running tests</a></li><li class="chapter-item "><a href="tests/adding.html"><strong aria-hidden="true">2.2.</strong> Adding new tests</a></li><li class="chapter-item "><a href="compiletest.html"><strong aria-hidden="true">2.3.</strong> Using compiletest commands to control test execution</a></li></ol></li><li class="chapter-item "><a href="compiler-debugging.html"><strong aria-hidden="true">3.</strong> Debugging the Compiler</a></li><li class="chapter-item "><a href="profiling.html"><strong aria-hidden="true">4.</strong> Profiling the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="profiling/with_perf.html"><strong aria-hidden="true">4.1.</strong> with the linux perf tool</a></li><li class="chapter-item "><a href="profiling/wpa_profiling.html"><strong aria-hidden="true">4.2.</strong> with Windows Performance Analyzer</a></li></ol></li><li class="chapter-item "><a href="crates-io.html"><strong aria-hidden="true">5.</strong> crates.io Dependencies</a></li><li class="chapter-item affix "><li class="part-title">Contributing to Rust</li><li class="chapter-item "><a href="contributing.html"><strong aria-hidden="true">6.</strong> Introduction</a></li><li class="chapter-item "><a href="compiler-team.html"><strong aria-hidden="true">7.</strong> About the compiler team</a></li><li class="chapter-item "><a href="git.html"><strong aria-hidden="true">8.</strong> Using Git</a></li><li class="chapter-item "><a href="rustbot.html"><strong aria-hidden="true">9.</strong> Mastering @rustbot</a></li><li class="chapter-item "><a href="walkthrough.html"><strong aria-hidden="true">10.</strong> Walkthrough: a typical contribution</a></li><li class="chapter-item expanded "><a href="bug-fix-procedure.html" class="active"><strong aria-hidden="true">11.</strong> Bug Fix Procedure</a></li><li class="chapter-item "><a href="implementing_new_features.html"><strong aria-hidden="true">12.</strong> Implementing new features</a></li><li class="chapter-item "><a href="stability.html"><strong aria-hidden="true">13.</strong> Stability attributes</a></li><li class="chapter-item "><a href="stabilization_guide.html"><strong aria-hidden="true">14.</strong> Stabilizing Features</a></li><li class="chapter-item "><a href="feature-gates.html"><strong aria-hidden="true">15.</strong> Feature Gates</a></li><li class="chapter-item "><a href="conventions.html"><strong aria-hidden="true">16.</strong> Coding conventions</a></li><li class="chapter-item "><a href="notification-groups/about.html"><strong aria-hidden="true">17.</strong> Notification groups</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="notification-groups/arm.html"><strong aria-hidden="true">17.1.</strong> ARM</a></li><li class="chapter-item "><a href="notification-groups/cleanup-crew.html"><strong aria-hidden="true">17.2.</strong> Cleanup Crew</a></li><li class="chapter-item "><a href="notification-groups/llvm.html"><strong aria-hidden="true">17.3.</strong> LLVM</a></li><li class="chapter-item "><a href="notification-groups/risc-v.html"><strong aria-hidden="true">17.4.</strong> RISC-V</a></li><li class="chapter-item "><a href="notification-groups/windows.html"><strong aria-hidden="true">17.5.</strong> Windows</a></li></ol></li><li class="chapter-item "><a href="licenses.html"><strong aria-hidden="true">18.</strong> Licenses</a></li><li class="chapter-item affix "><li class="part-title">High-level Compiler Architecture</li><li class="chapter-item "><a href="part-2-intro.html"><strong aria-hidden="true">19.</strong> Prologue</a></li><li class="chapter-item "><a href="overview.html"><strong aria-hidden="true">20.</strong> Overview of the Compiler</a></li><li class="chapter-item "><a href="compiler-src.html"><strong aria-hidden="true">21.</strong> The compiler source code</a></li><li class="chapter-item "><a href="building/bootstrapping.html"><strong aria-hidden="true">22.</strong> Bootstrapping</a></li><li class="chapter-item "><a href="query.html"><strong aria-hidden="true">23.</strong> Queries: demand-driven compilation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="queries/query-evaluation-model-in-detail.html"><strong aria-hidden="true">23.1.</strong> The Query Evaluation Model in Detail</a></li><li class="chapter-item "><a href="queries/incremental-compilation.html"><strong aria-hidden="true">23.2.</strong> Incremental compilation</a></li><li class="chapter-item "><a href="queries/incremental-compilation-in-detail.html"><strong aria-hidden="true">23.3.</strong> Incremental compilation In Detail</a></li><li class="chapter-item "><a href="incrcomp-debugging.html"><strong aria-hidden="true">23.4.</strong> Debugging and Testing</a></li><li class="chapter-item "><a href="queries/profiling.html"><strong aria-hidden="true">23.5.</strong> Profiling Queries</a></li><li class="chapter-item "><a href="salsa.html"><strong aria-hidden="true">23.6.</strong> Salsa</a></li></ol></li><li class="chapter-item "><a href="memory.html"><strong aria-hidden="true">24.</strong> Memory Management in Rustc</a></li><li class="chapter-item "><a href="serialization.html"><strong aria-hidden="true">25.</strong> Serialization in Rustc</a></li><li class="chapter-item "><a href="parallel-rustc.html"><strong aria-hidden="true">26.</strong> Parallel Compilation</a></li><li class="chapter-item "><a href="rustdoc-internals.html"><strong aria-hidden="true">27.</strong> Rustdoc internals</a></li><li class="chapter-item affix "><li class="part-title">Source Code Representation</li><li class="chapter-item "><a href="part-3-intro.html"><strong aria-hidden="true">28.</strong> Prologue</a></li><li class="chapter-item "><a href="cli.html"><strong aria-hidden="true">29.</strong> Command-line arguments</a></li><li class="chapter-item "><a href="rustc-driver.html"><strong aria-hidden="true">30.</strong> The Rustc Driver and Interface</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="rustc-driver-interacting-with-the-ast.html"><strong aria-hidden="true">30.1.</strong> Ex: Type checking through rustc_interface</a></li><li class="chapter-item "><a href="rustc-driver-getting-diagnostics.html"><strong aria-hidden="true">30.2.</strong> Ex: Getting diagnostics through rustc_interface</a></li></ol></li><li class="chapter-item "><a href="syntax-intro.html"><strong aria-hidden="true">31.</strong> Syntax and the AST</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="the-parser.html"><strong aria-hidden="true">31.1.</strong> Lexing and Parsing</a></li><li class="chapter-item "><a href="macro-expansion.html"><strong aria-hidden="true">31.2.</strong> Macro expansion</a></li><li class="chapter-item "><a href="name-resolution.html"><strong aria-hidden="true">31.3.</strong> Name resolution</a></li><li class="chapter-item "><a href="test-implementation.html"><strong aria-hidden="true">31.4.</strong> #[test] Implementation</a></li><li class="chapter-item "><a href="panic-implementation.html"><strong aria-hidden="true">31.5.</strong> Panic Implementation</a></li><li class="chapter-item "><a href="ast-validation.html"><strong aria-hidden="true">31.6.</strong> AST Validation</a></li><li class="chapter-item "><a href="feature-gate-ck.html"><strong aria-hidden="true">31.7.</strong> Feature Gate Checking</a></li><li class="chapter-item "><a href="lang-items.html"><strong aria-hidden="true">31.8.</strong> Lang Items</a></li></ol></li><li class="chapter-item "><a href="hir.html"><strong aria-hidden="true">32.</strong> The HIR (High-level IR)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="lowering.html"><strong aria-hidden="true">32.1.</strong> Lowering AST to HIR</a></li><li class="chapter-item "><a href="hir-debugging.html"><strong aria-hidden="true">32.2.</strong> Debugging</a></li></ol></li><li class="chapter-item "><a href="thir.html"><strong aria-hidden="true">33.</strong> The THIR (Typed High-level IR)</a></li><li class="chapter-item "><a href="mir/index.html"><strong aria-hidden="true">34.</strong> The MIR (Mid-level IR)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="mir/construction.html"><strong aria-hidden="true">34.1.</strong> MIR construction</a></li><li class="chapter-item "><a href="mir/visitor.html"><strong aria-hidden="true">34.2.</strong> MIR visitor and traversal</a></li><li class="chapter-item "><a href="mir/passes.html"><strong aria-hidden="true">34.3.</strong> MIR passes: getting the MIR for a function</a></li></ol></li><li class="chapter-item "><a href="identifiers.html"><strong aria-hidden="true">35.</strong> Identifiers in the Compiler</a></li><li class="chapter-item "><a href="closure.html"><strong aria-hidden="true">36.</strong> Closure expansion</a></li><li class="chapter-item affix "><li class="part-title">Analysis</li><li class="chapter-item "><a href="part-4-intro.html"><strong aria-hidden="true">37.</strong> Prologue</a></li><li class="chapter-item "><a href="ty.html"><strong aria-hidden="true">38.</strong> The ty module: representing types</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="generics.html"><strong aria-hidden="true">38.1.</strong> Generics and substitutions</a></li><li class="chapter-item "><a href="ty-fold.html"><strong aria-hidden="true">38.2.</strong> TypeFolder and TypeFoldable</a></li><li class="chapter-item "><a href="generic_arguments.html"><strong aria-hidden="true">38.3.</strong> Generic arguments</a></li></ol></li><li class="chapter-item "><a href="type-inference.html"><strong aria-hidden="true">39.</strong> Type inference</a></li><li class="chapter-item "><a href="traits/resolution.html"><strong aria-hidden="true">40.</strong> Trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="early-late-bound.html"><strong aria-hidden="true">40.1.</strong> Early and Late Bound Parameters</a></li><li class="chapter-item "><a href="traits/hrtb.html"><strong aria-hidden="true">40.2.</strong> Higher-ranked trait bounds</a></li><li class="chapter-item "><a href="traits/caching.html"><strong aria-hidden="true">40.3.</strong> Caching subtleties</a></li><li class="chapter-item "><a href="traits/specialization.html"><strong aria-hidden="true">40.4.</strong> Specialization</a></li><li class="chapter-item "><a href="traits/chalk.html"><strong aria-hidden="true">40.5.</strong> Chalk-based trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="traits/lowering-to-logic.html"><strong aria-hidden="true">40.5.1.</strong> Lowering to logic</a></li><li class="chapter-item "><a href="traits/goals-and-clauses.html"><strong aria-hidden="true">40.5.2.</strong> Goals and clauses</a></li><li class="chapter-item "><a href="traits/canonical-queries.html"><strong aria-hidden="true">40.5.3.</strong> Canonical queries</a></li></ol></li></ol></li><li class="chapter-item "><a href="type-checking.html"><strong aria-hidden="true">41.</strong> Type checking</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="method-lookup.html"><strong aria-hidden="true">41.1.</strong> Method Lookup</a></li><li class="chapter-item "><a href="variance.html"><strong aria-hidden="true">41.2.</strong> Variance</a></li><li class="chapter-item "><a href="opaque-types-type-alias-impl-trait.html"><strong aria-hidden="true">41.3.</strong> Opaque Types</a></li></ol></li><li class="chapter-item "><a href="pat-exhaustive-checking.html"><strong aria-hidden="true">42.</strong> Pattern and Exhaustiveness Checking</a></li><li class="chapter-item "><a href="mir/dataflow.html"><strong aria-hidden="true">43.</strong> MIR dataflow</a></li><li class="chapter-item "><a href="borrow_check.html"><strong aria-hidden="true">44.</strong> The borrow checker</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="borrow_check/moves_and_initialization.html"><strong aria-hidden="true">44.1.</strong> Tracking moves and initialization</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="borrow_check/moves_and_initialization/move_paths.html"><strong aria-hidden="true">44.1.1.</strong> Move paths</a></li></ol></li><li class="chapter-item "><a href="borrow_check/type_check.html"><strong aria-hidden="true">44.2.</strong> MIR type checker</a></li><li class="chapter-item "><a href="borrow_check/region_inference.html"><strong aria-hidden="true">44.3.</strong> Region inference</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="borrow_check/region_inference/constraint_propagation.html"><strong aria-hidden="true">44.3.1.</strong> Constraint propagation</a></li><li class="chapter-item "><a href="borrow_check/region_inference/lifetime_parameters.html"><strong aria-hidden="true">44.3.2.</strong> Lifetime parameters</a></li><li class="chapter-item "><a href="borrow_check/region_inference/member_constraints.html"><strong aria-hidden="true">44.3.3.</strong> Member constraints</a></li><li class="chapter-item "><a href="borrow_check/region_inference/placeholders_and_universes.html"><strong aria-hidden="true">44.3.4.</strong> Placeholders and universes</a></li><li class="chapter-item "><a href="borrow_check/region_inference/closure_constraints.html"><strong aria-hidden="true">44.3.5.</strong> Closure constraints</a></li><li class="chapter-item "><a href="borrow_check/region_inference/error_reporting.html"><strong aria-hidden="true">44.3.6.</strong> Error reporting</a></li></ol></li><li class="chapter-item "><a href="borrow_check/two_phase_borrows.html"><strong aria-hidden="true">44.4.</strong> Two-phase-borrows</a></li></ol></li><li class="chapter-item "><a href="param_env.html"><strong aria-hidden="true">45.</strong> Parameter Environments</a></li><li class="chapter-item "><a href="diagnostics.html"><strong aria-hidden="true">46.</strong> Errors and Lints</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="diagnostics/sessiondiagnostic.html"><strong aria-hidden="true">46.1.</strong> Creating Errors With SessionDiagnostic</a></li><li class="chapter-item "><a href="diagnostics/lintstore.html"><strong aria-hidden="true">46.2.</strong> LintStore</a></li><li class="chapter-item "><a href="diagnostics/diagnostic-codes.html"><strong aria-hidden="true">46.3.</strong> Diagnostic Codes</a></li></ol></li><li class="chapter-item "><li class="part-title">MIR to Binaries</li><li class="chapter-item "><a href="part-5-intro.html"><strong aria-hidden="true">47.</strong> Prologue</a></li><li class="chapter-item "><a href="mir/optimizations.html"><strong aria-hidden="true">48.</strong> MIR optimizations</a></li><li class="chapter-item "><a href="mir/debugging.html"><strong aria-hidden="true">49.</strong> Debugging</a></li><li class="chapter-item "><a href="const-eval.html"><strong aria-hidden="true">50.</strong> Constant evaluation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="miri.html"><strong aria-hidden="true">50.1.</strong> miri const evaluator</a></li></ol></li><li class="chapter-item "><a href="backend/monomorph.html"><strong aria-hidden="true">51.</strong> Monomorphization</a></li><li class="chapter-item "><a href="backend/lowering-mir.html"><strong aria-hidden="true">52.</strong> Lowering MIR</a></li><li class="chapter-item "><a href="backend/codegen.html"><strong aria-hidden="true">53.</strong> Code Generation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="backend/updating-llvm.html"><strong aria-hidden="true">53.1.</strong> Updating LLVM</a></li><li class="chapter-item "><a href="backend/debugging.html"><strong aria-hidden="true">53.2.</strong> Debugging LLVM</a></li><li class="chapter-item "><a href="backend/backend-agnostic.html"><strong aria-hidden="true">53.3.</strong> Backend Agnostic Codegen</a></li><li class="chapter-item "><a href="backend/implicit-caller-location.html"><strong aria-hidden="true">53.4.</strong> Implicit Caller Location</a></li></ol></li><li class="chapter-item "><a href="backend/libs-and-metadata.html"><strong aria-hidden="true">54.</strong> Libraries and Metadata</a></li><li class="chapter-item "><a href="profile-guided-optimization.html"><strong aria-hidden="true">55.</strong> Profile-guided Optimization</a></li><li class="chapter-item "><a href="llvm-coverage-instrumentation.html"><strong aria-hidden="true">56.</strong> LLVM Source-Based Code Coverage</a></li><li class="chapter-item "><a href="sanitizers.html"><strong aria-hidden="true">57.</strong> Sanitizers Support</a></li><li class="chapter-item "><a href="debugging-support-in-rustc.html"><strong aria-hidden="true">58.</strong> Debugging Support in the Rust Compiler</a></li><li class="spacer"></li><li class="chapter-item affix "><a href="appendix/background.html">Appendix A: Background topics</a></li><li class="chapter-item affix "><a href="appendix/glossary.html">Appendix B: Glossary</a></li><li class="chapter-item affix "><a href="appendix/code-index.html">Appendix C: Code Index</a></li><li class="chapter-item affix "><a href="appendix/compiler-lecture.html">Appendix D: Compiler Lecture Series</a></li><li class="chapter-item affix "><a href="appendix/bibliography.html">Appendix E: Bibliography</a></li><li class="chapter-item affix "><a href="appendix/humorust.html">Appendix Z: HumorRust</a></li><li class="spacer"></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">Guide to Rustc Development</h1>
+
+                    <div class="right-buttons">
+                        
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                        
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="rustc-bug-fix-procedure"><a class="header" href="#rustc-bug-fix-procedure">Rustc Bug Fix Procedure</a></h1>
+<ul>
+<li><a href="#motivation">Motivation</a>
+<ul>
+<li><a href="#what-qualifies-as-a-bug-fix">What qualifies as a bug fix?</a></li>
+</ul>
+</li>
+<li><a href="#detailed-design">Detailed design</a>
+<ul>
+<li><a href="#tracking-issue">Tracking issue</a></li>
+<li><a href="#tracking-issue-template">Tracking issue template</a></li>
+<li><a href="#issuing-future-compatibility-warnings">Issuing future compatibility warnings</a></li>
+<li><a href="#helpful-techniques">Helpful techniques</a></li>
+<li><a href="#crater-and-cratesio">Crater and crates.io</a></li>
+<li><a href="#is-it-ever-acceptable-to-go-directly-to-issuing-errors">Is it ever acceptable to go directly to issuing errors?</a></li>
+<li><a href="#stabilization">Stabilization</a></li>
+<li><a href="#removing-a-lint">Removing a lint</a></li>
+<li><a href="#remove-the-lint">Remove the lint.</a></li>
+<li><a href="#add-the-lint-to-the-list-of-removed-lists">Add the lint to the list of removed lists.</a></li>
+<li><a href="#update-the-places-that-issue-the-lint">Update the places that issue the lint</a></li>
+<li><a href="#update-tests">Update tests</a></li>
+<li><a href="#all-done">All done!</a></li>
+</ul>
+</li>
+</ul>
+<p>This page defines the best practices procedure for making bug fixes or soundness
+corrections in the compiler that can cause existing code to stop compiling. This
+text is based on
+<a href="https://github.com/rust-lang/rfcs/blob/master/text/1589-rustc-bug-fix-procedure.md">RFC 1589</a>.</p>
+<h1 id="motivation"><a class="header" href="#motivation">Motivation</a></h1>
+<p>From time to time, we encounter the need to make a bug fix, soundness
+correction, or other change in the compiler which will cause existing code to
+stop compiling. When this happens, it is important that we handle the change in
+a way that gives users of Rust a smooth transition. What we want to avoid is
+that existing programs suddenly stop compiling with opaque error messages: we
+would prefer to have a gradual period of warnings, with clear guidance as to
+what the problem is, how to fix it, and why the change was made. This RFC
+describes the procedure that we have been developing for handling breaking
+changes that aims to achieve that kind of smooth transition.</p>
+<p>One of the key points of this policy is that (a) warnings should be issued
+initially rather than hard errors if at all possible and (b) every change that
+causes existing code to stop compiling will have an associated tracking issue.
+This issue provides a point to collect feedback on the results of that change.
+Sometimes changes have unexpectedly large consequences or there may be a way to
+avoid the change that was not considered. In those cases, we may decide to
+change course and roll back the change, or find another solution (if warnings
+are being used, this is particularly easy to do).</p>
+<h3 id="what-qualifies-as-a-bug-fix"><a class="header" href="#what-qualifies-as-a-bug-fix">What qualifies as a bug fix?</a></h3>
+<p>Note that this RFC does not try to define when a breaking change is permitted.
+That is already covered under <a href="https://github.com/rust-lang/rfcs/blob/master/text/1122-language-semver.md">RFC 1122</a>. This document assumes that the
+change being made is in accordance with those policies. Here is a summary of the
+conditions from RFC 1122:</p>
+<ul>
+<li><strong>Soundness changes:</strong> Fixes to holes uncovered in the type system.</li>
+<li><strong>Compiler bugs:</strong> Places where the compiler is not implementing the specified
+semantics found in an RFC or lang-team decision.</li>
+<li><strong>Underspecified language semantics:</strong> Clarifications to grey areas where the
+compiler behaves inconsistently and no formal behavior had been previously
+decided.</li>
+</ul>
+<p>Please see <a href="https://github.com/rust-lang/rfcs/blob/master/text/1122-language-semver.md">the RFC</a> for full details!</p>
+<h1 id="detailed-design"><a class="header" href="#detailed-design">Detailed design</a></h1>
+<p>The procedure for making a breaking change is as follows (each of these steps is
+described in more detail below):</p>
+<ol start="0">
+<li>Do a <strong>crater run</strong> to assess the impact of the change.</li>
+<li>Make a <strong>special tracking issue</strong> dedicated to the change.</li>
+<li>Do not report an error right away. Instead, <strong>issue forwards-compatibility
+lint warnings</strong>.
+<ul>
+<li>Sometimes this is not straightforward. See the text below for suggestions
+on different techniques we have employed in the past.</li>
+<li>For cases where warnings are infeasible:
+<ul>
+<li>Report errors, but make every effort to give a targeted error message
+that directs users to the tracking issue</li>
+<li>Submit PRs to all known affected crates that fix the issue
+<ul>
+<li>or, at minimum, alert the owners of those crates to the problem and
+direct them to the tracking issue</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Once the change has been in the wild for at least one cycle, we can
+<strong>stabilize the change</strong>, converting those warnings into errors.</li>
+</ol>
+<p>Finally, for changes to <code>rustc_ast</code> that will affect plugins, the general policy
+is to batch these changes. That is discussed below in more detail.</p>
+<h3 id="tracking-issue"><a class="header" href="#tracking-issue">Tracking issue</a></h3>
+<p>Every breaking change should be accompanied by a <strong>dedicated tracking issue</strong>
+for that change. The main text of this issue should describe the change being
+made, with a focus on what users must do to fix their code. The issue should be
+approachable and practical; it may make sense to direct users to an RFC or some
+other issue for the full details. The issue also serves as a place where users
+can comment with questions or other concerns.</p>
+<p>A template for these breaking-change tracking issues can be found below. An
+example of how such an issue should look can be <a href="https://gist.github.com/nikomatsakis/631ec8b4af9a18b5d062d9d9b7d3d967">found
+here</a>.</p>
+<p>The issue should be tagged with (at least) <code>B-unstable</code> and <code>T-compiler</code>.</p>
+<h3 id="tracking-issue-template"><a class="header" href="#tracking-issue-template">Tracking issue template</a></h3>
+<p>This is a template to use for tracking issues:</p>
+<pre><code>This is the **summary issue** for the `YOUR_LINT_NAME_HERE`
+future-compatibility warning and other related errors. The goal of
+this page is describe why this change was made and how you can fix
+code that is affected by it. It also provides a place to ask questions
+or register a complaint if you feel the change should not be made. For
+more information on the policy around future-compatibility warnings,
+see our [breaking change policy guidelines][guidelines].
+
+[guidelines]: LINK_TO_THIS_RFC
+
+#### What is the warning for?
+
+*Describe the conditions that trigger the warning and how they can be
+fixed. Also explain why the change was made.**
+
+#### When will this warning become a hard error?
+
+At the beginning of each 6-week release cycle, the Rust compiler team
+will review the set of outstanding future compatibility warnings and
+nominate some of them for **Final Comment Period**. Toward the end of
+the cycle, we will review any comments and make a final determination
+whether to convert the warning into a hard error or remove it
+entirely.
+</code></pre>
+<h3 id="issuing-future-compatibility-warnings"><a class="header" href="#issuing-future-compatibility-warnings">Issuing future compatibility warnings</a></h3>
+<p>The best way to handle a breaking change is to begin by issuing
+future-compatibility warnings. These are a special category of lint warning.
+Adding a new future-compatibility warning can be done as follows.</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// 1. Define the lint in `compiler/rustc_middle/src/lint/builtin.rs`:
+declare_lint! {
+    pub YOUR_ERROR_HERE,
+    Warn,
+    &quot;illegal use of foo bar baz&quot;
+}
+
+// 2. Add to the list of HardwiredLints in the same file:
+impl LintPass for HardwiredLints {
+    fn get_lints(&amp;self) -&gt; LintArray {
+        lint_array!(
+            ..,
+            YOUR_ERROR_HERE
+        )
+    }
+}
+
+// 3. Register the lint in `compiler/rustc_lint/src/lib.rs`:
+store.register_future_incompatible(sess, vec![
+    ...,
+    FutureIncompatibleInfo {
+        id: LintId::of(YOUR_ERROR_HERE),
+        reference: &quot;issue #1234&quot;, // your tracking issue here!
+    },
+]);
+
+// 4. Report the lint:
+tcx.lint_node(
+    lint::builtin::YOUR_ERROR_HERE,
+    path_id,
+    binding.span,
+    format!(&quot;some helper message here&quot;));
+<span class="boring">}
+</span></code></pre></pre>
+<h4 id="helpful-techniques"><a class="header" href="#helpful-techniques">Helpful techniques</a></h4>
+<p>It can often be challenging to filter out new warnings from older, pre-existing
+errors. One technique that has been used in the past is to run the older code
+unchanged and collect the errors it would have reported. You can then issue
+warnings for any errors you would give which do not appear in that original set.
+Another option is to abort compilation after the original code completes if
+errors are reported: then you know that your new code will only execute when
+there were no errors before.</p>
+<h4 id="crater-and-cratesio"><a class="header" href="#crater-and-cratesio">Crater and crates.io</a></h4>
+<p>We should always do a crater run to assess impact. It is polite and considerate
+to at least notify the authors of affected crates the breaking change. If we can
+submit PRs to fix the problem, so much the better.</p>
+<h4 id="is-it-ever-acceptable-to-go-directly-to-issuing-errors"><a class="header" href="#is-it-ever-acceptable-to-go-directly-to-issuing-errors">Is it ever acceptable to go directly to issuing errors?</a></h4>
+<p>Changes that are believed to have negligible impact can go directly to issuing
+an error. One rule of thumb would be to check against <code>crates.io</code>: if fewer than
+10 <strong>total</strong> affected projects are found (<strong>not</strong> root errors), we can move
+straight to an error. In such cases, we should still make the &quot;breaking change&quot;
+page as before, and we should ensure that the error directs users to this page.
+In other words, everything should be the same except that users are getting an
+error, and not a warning. Moreover, we should submit PRs to the affected
+projects (ideally before the PR implementing the change lands in rustc).</p>
+<p>If the impact is not believed to be negligible (e.g., more than 10 crates are
+affected), then warnings are required (unless the compiler team agrees to grant
+a special exemption in some particular case). If implementing warnings is not
+feasible, then we should make an aggressive strategy of migrating crates before
+we land the change so as to lower the number of affected crates. Here are some
+techniques for approaching this scenario:</p>
+<ol>
+<li>Issue warnings for subparts of the problem, and reserve the new errors for
+the smallest set of cases you can.</li>
+<li>Try to give a very precise error message that suggests how to fix the problem
+and directs users to the tracking issue.</li>
+<li>It may also make sense to layer the fix:
+<ul>
+<li>First, add warnings where possible and let those land before proceeding to
+issue errors.</li>
+<li>Work with authors of affected crates to ensure that corrected versions are
+available <em>before</em> the fix lands, so that downstream users can use them.</li>
+</ul>
+</li>
+</ol>
+<h3 id="stabilization"><a class="header" href="#stabilization">Stabilization</a></h3>
+<p>After a change is made, we will <strong>stabilize</strong> the change using the same process
+that we use for unstable features:</p>
+<ul>
+<li>
+<p>After a new release is made, we will go through the outstanding tracking
+issues corresponding to breaking changes and nominate some of them for <strong>final
+comment period</strong> (FCP).</p>
+</li>
+<li>
+<p>The FCP for such issues lasts for one cycle. In the final week or two of the
+cycle, we will review comments and make a final determination:</p>
+<ul>
+<li>Convert to error: the change should be made into a hard error.</li>
+<li>Revert: we should remove the warning and continue to allow the older code to
+compile.</li>
+<li>Defer: can't decide yet, wait longer, or try other strategies.</li>
+</ul>
+</li>
+</ul>
+<p>Ideally, breaking changes should have landed on the <strong>stable branch</strong> of the
+compiler before they are finalized.</p>
+<a name="guide">
+<h3 id="removing-a-lint"><a class="header" href="#removing-a-lint">Removing a lint</a></h3>
+<p>Once we have decided to make a &quot;future warning&quot; into a hard error, we need a PR
+that removes the custom lint. As an example, here are the steps required to
+remove the <code>overlapping_inherent_impls</code> compatibility lint. First, convert the
+name of the lint to uppercase (<code>OVERLAPPING_INHERENT_IMPLS</code>) ripgrep through the
+source for that string. We will basically by converting each place where this
+lint name is mentioned (in the compiler, we use the upper-case name, and a macro
+automatically generates the lower-case string; so searching for
+<code>overlapping_inherent_impls</code> would not find much).</p>
+<blockquote>
+<p>NOTE: these exact files don't exist anymore, but the procedure is still the same.</p>
+</blockquote>
+<h4 id="remove-the-lint"><a class="header" href="#remove-the-lint">Remove the lint.</a></h4>
+<p>The first reference you will likely find is the lint definition <a href="https://github.com/rust-lang/rust/blob/085d71c3efe453863739c1fb68fd9bd1beff214f/src/librustc/lint/builtin.rs#L171-L175">in
+<code>rustc_session/src/lint/builtin.rs</code> that resembles this</a>:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>declare_lint! {
+    pub OVERLAPPING_INHERENT_IMPLS,
+    Deny, // this may also say Warning
+    &quot;two overlapping inherent impls define an item with the same name were erroneously allowed&quot;
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>This <code>declare_lint!</code> macro creates the relevant data structures. Remove it. You
+will also find that there is a mention of <code>OVERLAPPING_INHERENT_IMPLS</code> later in
+the file as <a href="https://github.com/rust-lang/rust/blob/085d71c3efe453863739c1fb68fd9bd1beff214f/src/librustc/lint/builtin.rs#L252-L290">part of a <code>lint_array!</code></a>; remove it too.</p>
+<p>Next, you see <a href="https://github.com/rust-lang/rust/blob/085d71c3efe453863739c1fb68fd9bd1beff214f/src/librustc_lint/lib.rs#L202-L205">a reference to <code>OVERLAPPING_INHERENT_IMPLS</code> in
+<code>rustc_lint/src/lib.rs</code></a>. This is defining the lint as a &quot;future
+compatibility lint&quot;:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>FutureIncompatibleInfo {
+    id: LintId::of(OVERLAPPING_INHERENT_IMPLS),
+    reference: &quot;issue #36889 &lt;https://github.com/rust-lang/rust/issues/36889&gt;&quot;,
+},
+<span class="boring">}
+</span></code></pre></pre>
+<p>Remove this too.</p>
+<h4 id="add-the-lint-to-the-list-of-removed-lists"><a class="header" href="#add-the-lint-to-the-list-of-removed-lists">Add the lint to the list of removed lists.</a></h4>
+<p>In <code>compiler/rustc_lint/src/lib.rs</code> there is a list of &quot;renamed and removed lints&quot;.
+You can add this lint to the list:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>store.register_removed(&quot;overlapping_inherent_impls&quot;, &quot;converted into hard error, see #36889&quot;);
+<span class="boring">}
+</span></code></pre></pre>
+<p>where <code>#36889</code> is the tracking issue for your lint.</p>
+<h4 id="update-the-places-that-issue-the-lint"><a class="header" href="#update-the-places-that-issue-the-lint">Update the places that issue the lint</a></h4>
+<p>Finally, the last class of references you will see are the places that actually
+<strong>trigger</strong> the lint itself (i.e., what causes the warnings to appear). These
+you do not want to delete. Instead, you want to convert them into errors. In
+this case, the <a href="https://github.com/rust-lang/rust/blob/085d71c3efe453863739c1fb68fd9bd1beff214f/src/librustc_typeck/coherence/inherent.rs#L300-L303"><code>add_lint</code> call</a> looks like this:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>self.tcx.sess.add_lint(lint::builtin::OVERLAPPING_INHERENT_IMPLS,
+                       node_id,
+                       self.tcx.span_of_impl(item1).unwrap(),
+                       msg);
+<span class="boring">}
+</span></code></pre></pre>
+<p>We want to convert this into an error. In some cases, there may be an
+existing error for this scenario. In others, we will need to allocate a
+fresh diagnostic code.  <a href="./diagnostics/diagnostic-codes.html">Instructions for allocating a fresh diagnostic
+code can be found here.</a> You may want
+to mention in the extended description that the compiler behavior
+changed on this point, and include a reference to the tracking issue for
+the change.</p>
+<p>Let's say that we've adopted <code>E0592</code> as our code. Then we can change the
+<code>add_lint()</code> call above to something like:</p>
+<pre><pre class="playground"><code class="language-rust">
+<span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>struct_span_err!(self.tcx.sess, self.tcx.span_of_impl(item1).unwrap(), msg)
+    .emit();
+<span class="boring">}
+</span></code></pre></pre>
+<h4 id="update-tests"><a class="header" href="#update-tests">Update tests</a></h4>
+<p>Finally, run the test suite. These should be some tests that used to reference
+the <code>overlapping_inherent_impls</code> lint, those will need to be updated. In
+general, if the test used to have <code>#[deny(overlapping_inherent_impls)]</code>, that
+can just be removed.</p>
+<pre><code>./x.py test
+</code></pre>
+<h4 id="all-done"><a class="header" href="#all-done">All done!</a></h4>
+<p>Open a PR. =)</p>
+<!-- -Links--------------------------------------------------------------------- -->
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="walkthrough.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="implementing_new_features.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="walkthrough.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="implementing_new_features.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

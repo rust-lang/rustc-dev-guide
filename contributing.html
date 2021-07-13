@@ -1,0 +1,710 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Introduction - Guide to Rustc Development</title>
+        
+        
+
+
+        <!-- Custom HTML head -->
+        
+
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="A guide to developing rustc">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        
+        <link rel="icon" href="favicon.svg">
+        
+        
+        <link rel="shortcut icon" href="favicon.png">
+        
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        
+        <link rel="stylesheet" href="css/print.css" media="print">
+        
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        
+        <link rel="stylesheet" href="fonts/fonts.css">
+        
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item affix "><a href="about-this-guide.html">About this guide</a></li><li class="chapter-item affix "><a href="getting-started.html">Getting Started</a></li><li class="spacer"></li><li class="chapter-item affix "><li class="part-title">Building and debugging rustc</li><li class="chapter-item "><a href="building/how-to-build-and-run.html"><strong aria-hidden="true">1.</strong> How to Build and Run the Compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="building/prerequisites.html"><strong aria-hidden="true">1.1.</strong> Prerequisites</a></li><li class="chapter-item "><a href="building/suggested.html"><strong aria-hidden="true">1.2.</strong> Suggested Workflows</a></li><li class="chapter-item "><a href="building/build-install-distribution-artifacts.html"><strong aria-hidden="true">1.3.</strong> Distribution artifacts</a></li><li class="chapter-item "><a href="building/compiler-documenting.html"><strong aria-hidden="true">1.4.</strong> Documenting Compiler</a></li><li class="chapter-item "><a href="rustdoc.html"><strong aria-hidden="true">1.5.</strong> Rustdoc overview</a></li><li class="chapter-item "><a href="building/ctags.html"><strong aria-hidden="true">1.6.</strong> ctags</a></li><li class="chapter-item "><a href="building/new-target.html"><strong aria-hidden="true">1.7.</strong> Adding a new target</a></li></ol></li><li class="chapter-item "><a href="tests/intro.html"><strong aria-hidden="true">2.</strong> The compiler testing framework</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="tests/running.html"><strong aria-hidden="true">2.1.</strong> Running tests</a></li><li class="chapter-item "><a href="tests/adding.html"><strong aria-hidden="true">2.2.</strong> Adding new tests</a></li><li class="chapter-item "><a href="compiletest.html"><strong aria-hidden="true">2.3.</strong> Using compiletest commands to control test execution</a></li></ol></li><li class="chapter-item "><a href="compiler-debugging.html"><strong aria-hidden="true">3.</strong> Debugging the Compiler</a></li><li class="chapter-item "><a href="profiling.html"><strong aria-hidden="true">4.</strong> Profiling the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="profiling/with_perf.html"><strong aria-hidden="true">4.1.</strong> with the linux perf tool</a></li><li class="chapter-item "><a href="profiling/wpa_profiling.html"><strong aria-hidden="true">4.2.</strong> with Windows Performance Analyzer</a></li></ol></li><li class="chapter-item "><a href="crates-io.html"><strong aria-hidden="true">5.</strong> crates.io Dependencies</a></li><li class="chapter-item affix "><li class="part-title">Contributing to Rust</li><li class="chapter-item expanded "><a href="contributing.html" class="active"><strong aria-hidden="true">6.</strong> Introduction</a></li><li class="chapter-item "><a href="compiler-team.html"><strong aria-hidden="true">7.</strong> About the compiler team</a></li><li class="chapter-item "><a href="git.html"><strong aria-hidden="true">8.</strong> Using Git</a></li><li class="chapter-item "><a href="rustbot.html"><strong aria-hidden="true">9.</strong> Mastering @rustbot</a></li><li class="chapter-item "><a href="walkthrough.html"><strong aria-hidden="true">10.</strong> Walkthrough: a typical contribution</a></li><li class="chapter-item "><a href="bug-fix-procedure.html"><strong aria-hidden="true">11.</strong> Bug Fix Procedure</a></li><li class="chapter-item "><a href="implementing_new_features.html"><strong aria-hidden="true">12.</strong> Implementing new features</a></li><li class="chapter-item "><a href="stability.html"><strong aria-hidden="true">13.</strong> Stability attributes</a></li><li class="chapter-item "><a href="stabilization_guide.html"><strong aria-hidden="true">14.</strong> Stabilizing Features</a></li><li class="chapter-item "><a href="feature-gates.html"><strong aria-hidden="true">15.</strong> Feature Gates</a></li><li class="chapter-item "><a href="conventions.html"><strong aria-hidden="true">16.</strong> Coding conventions</a></li><li class="chapter-item "><a href="notification-groups/about.html"><strong aria-hidden="true">17.</strong> Notification groups</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="notification-groups/arm.html"><strong aria-hidden="true">17.1.</strong> ARM</a></li><li class="chapter-item "><a href="notification-groups/cleanup-crew.html"><strong aria-hidden="true">17.2.</strong> Cleanup Crew</a></li><li class="chapter-item "><a href="notification-groups/llvm.html"><strong aria-hidden="true">17.3.</strong> LLVM</a></li><li class="chapter-item "><a href="notification-groups/risc-v.html"><strong aria-hidden="true">17.4.</strong> RISC-V</a></li><li class="chapter-item "><a href="notification-groups/windows.html"><strong aria-hidden="true">17.5.</strong> Windows</a></li></ol></li><li class="chapter-item "><a href="licenses.html"><strong aria-hidden="true">18.</strong> Licenses</a></li><li class="chapter-item affix "><li class="part-title">High-level Compiler Architecture</li><li class="chapter-item "><a href="part-2-intro.html"><strong aria-hidden="true">19.</strong> Prologue</a></li><li class="chapter-item "><a href="overview.html"><strong aria-hidden="true">20.</strong> Overview of the Compiler</a></li><li class="chapter-item "><a href="compiler-src.html"><strong aria-hidden="true">21.</strong> The compiler source code</a></li><li class="chapter-item "><a href="building/bootstrapping.html"><strong aria-hidden="true">22.</strong> Bootstrapping</a></li><li class="chapter-item "><a href="query.html"><strong aria-hidden="true">23.</strong> Queries: demand-driven compilation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="queries/query-evaluation-model-in-detail.html"><strong aria-hidden="true">23.1.</strong> The Query Evaluation Model in Detail</a></li><li class="chapter-item "><a href="queries/incremental-compilation.html"><strong aria-hidden="true">23.2.</strong> Incremental compilation</a></li><li class="chapter-item "><a href="queries/incremental-compilation-in-detail.html"><strong aria-hidden="true">23.3.</strong> Incremental compilation In Detail</a></li><li class="chapter-item "><a href="incrcomp-debugging.html"><strong aria-hidden="true">23.4.</strong> Debugging and Testing</a></li><li class="chapter-item "><a href="queries/profiling.html"><strong aria-hidden="true">23.5.</strong> Profiling Queries</a></li><li class="chapter-item "><a href="salsa.html"><strong aria-hidden="true">23.6.</strong> Salsa</a></li></ol></li><li class="chapter-item "><a href="memory.html"><strong aria-hidden="true">24.</strong> Memory Management in Rustc</a></li><li class="chapter-item "><a href="serialization.html"><strong aria-hidden="true">25.</strong> Serialization in Rustc</a></li><li class="chapter-item "><a href="parallel-rustc.html"><strong aria-hidden="true">26.</strong> Parallel Compilation</a></li><li class="chapter-item "><a href="rustdoc-internals.html"><strong aria-hidden="true">27.</strong> Rustdoc internals</a></li><li class="chapter-item affix "><li class="part-title">Source Code Representation</li><li class="chapter-item "><a href="part-3-intro.html"><strong aria-hidden="true">28.</strong> Prologue</a></li><li class="chapter-item "><a href="cli.html"><strong aria-hidden="true">29.</strong> Command-line arguments</a></li><li class="chapter-item "><a href="rustc-driver.html"><strong aria-hidden="true">30.</strong> The Rustc Driver and Interface</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="rustc-driver-interacting-with-the-ast.html"><strong aria-hidden="true">30.1.</strong> Ex: Type checking through rustc_interface</a></li><li class="chapter-item "><a href="rustc-driver-getting-diagnostics.html"><strong aria-hidden="true">30.2.</strong> Ex: Getting diagnostics through rustc_interface</a></li></ol></li><li class="chapter-item "><a href="syntax-intro.html"><strong aria-hidden="true">31.</strong> Syntax and the AST</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="the-parser.html"><strong aria-hidden="true">31.1.</strong> Lexing and Parsing</a></li><li class="chapter-item "><a href="macro-expansion.html"><strong aria-hidden="true">31.2.</strong> Macro expansion</a></li><li class="chapter-item "><a href="name-resolution.html"><strong aria-hidden="true">31.3.</strong> Name resolution</a></li><li class="chapter-item "><a href="test-implementation.html"><strong aria-hidden="true">31.4.</strong> #[test] Implementation</a></li><li class="chapter-item "><a href="panic-implementation.html"><strong aria-hidden="true">31.5.</strong> Panic Implementation</a></li><li class="chapter-item "><a href="ast-validation.html"><strong aria-hidden="true">31.6.</strong> AST Validation</a></li><li class="chapter-item "><a href="feature-gate-ck.html"><strong aria-hidden="true">31.7.</strong> Feature Gate Checking</a></li><li class="chapter-item "><a href="lang-items.html"><strong aria-hidden="true">31.8.</strong> Lang Items</a></li></ol></li><li class="chapter-item "><a href="hir.html"><strong aria-hidden="true">32.</strong> The HIR (High-level IR)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="lowering.html"><strong aria-hidden="true">32.1.</strong> Lowering AST to HIR</a></li><li class="chapter-item "><a href="hir-debugging.html"><strong aria-hidden="true">32.2.</strong> Debugging</a></li></ol></li><li class="chapter-item "><a href="thir.html"><strong aria-hidden="true">33.</strong> The THIR (Typed High-level IR)</a></li><li class="chapter-item "><a href="mir/index.html"><strong aria-hidden="true">34.</strong> The MIR (Mid-level IR)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="mir/construction.html"><strong aria-hidden="true">34.1.</strong> MIR construction</a></li><li class="chapter-item "><a href="mir/visitor.html"><strong aria-hidden="true">34.2.</strong> MIR visitor and traversal</a></li><li class="chapter-item "><a href="mir/passes.html"><strong aria-hidden="true">34.3.</strong> MIR passes: getting the MIR for a function</a></li></ol></li><li class="chapter-item "><a href="identifiers.html"><strong aria-hidden="true">35.</strong> Identifiers in the Compiler</a></li><li class="chapter-item "><a href="closure.html"><strong aria-hidden="true">36.</strong> Closure expansion</a></li><li class="chapter-item affix "><li class="part-title">Analysis</li><li class="chapter-item "><a href="part-4-intro.html"><strong aria-hidden="true">37.</strong> Prologue</a></li><li class="chapter-item "><a href="ty.html"><strong aria-hidden="true">38.</strong> The ty module: representing types</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="generics.html"><strong aria-hidden="true">38.1.</strong> Generics and substitutions</a></li><li class="chapter-item "><a href="ty-fold.html"><strong aria-hidden="true">38.2.</strong> TypeFolder and TypeFoldable</a></li><li class="chapter-item "><a href="generic_arguments.html"><strong aria-hidden="true">38.3.</strong> Generic arguments</a></li></ol></li><li class="chapter-item "><a href="type-inference.html"><strong aria-hidden="true">39.</strong> Type inference</a></li><li class="chapter-item "><a href="traits/resolution.html"><strong aria-hidden="true">40.</strong> Trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="early-late-bound.html"><strong aria-hidden="true">40.1.</strong> Early and Late Bound Parameters</a></li><li class="chapter-item "><a href="traits/hrtb.html"><strong aria-hidden="true">40.2.</strong> Higher-ranked trait bounds</a></li><li class="chapter-item "><a href="traits/caching.html"><strong aria-hidden="true">40.3.</strong> Caching subtleties</a></li><li class="chapter-item "><a href="traits/specialization.html"><strong aria-hidden="true">40.4.</strong> Specialization</a></li><li class="chapter-item "><a href="traits/chalk.html"><strong aria-hidden="true">40.5.</strong> Chalk-based trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="traits/lowering-to-logic.html"><strong aria-hidden="true">40.5.1.</strong> Lowering to logic</a></li><li class="chapter-item "><a href="traits/goals-and-clauses.html"><strong aria-hidden="true">40.5.2.</strong> Goals and clauses</a></li><li class="chapter-item "><a href="traits/canonical-queries.html"><strong aria-hidden="true">40.5.3.</strong> Canonical queries</a></li></ol></li></ol></li><li class="chapter-item "><a href="type-checking.html"><strong aria-hidden="true">41.</strong> Type checking</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="method-lookup.html"><strong aria-hidden="true">41.1.</strong> Method Lookup</a></li><li class="chapter-item "><a href="variance.html"><strong aria-hidden="true">41.2.</strong> Variance</a></li><li class="chapter-item "><a href="opaque-types-type-alias-impl-trait.html"><strong aria-hidden="true">41.3.</strong> Opaque Types</a></li></ol></li><li class="chapter-item "><a href="pat-exhaustive-checking.html"><strong aria-hidden="true">42.</strong> Pattern and Exhaustiveness Checking</a></li><li class="chapter-item "><a href="mir/dataflow.html"><strong aria-hidden="true">43.</strong> MIR dataflow</a></li><li class="chapter-item "><a href="borrow_check.html"><strong aria-hidden="true">44.</strong> The borrow checker</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="borrow_check/moves_and_initialization.html"><strong aria-hidden="true">44.1.</strong> Tracking moves and initialization</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="borrow_check/moves_and_initialization/move_paths.html"><strong aria-hidden="true">44.1.1.</strong> Move paths</a></li></ol></li><li class="chapter-item "><a href="borrow_check/type_check.html"><strong aria-hidden="true">44.2.</strong> MIR type checker</a></li><li class="chapter-item "><a href="borrow_check/region_inference.html"><strong aria-hidden="true">44.3.</strong> Region inference</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="borrow_check/region_inference/constraint_propagation.html"><strong aria-hidden="true">44.3.1.</strong> Constraint propagation</a></li><li class="chapter-item "><a href="borrow_check/region_inference/lifetime_parameters.html"><strong aria-hidden="true">44.3.2.</strong> Lifetime parameters</a></li><li class="chapter-item "><a href="borrow_check/region_inference/member_constraints.html"><strong aria-hidden="true">44.3.3.</strong> Member constraints</a></li><li class="chapter-item "><a href="borrow_check/region_inference/placeholders_and_universes.html"><strong aria-hidden="true">44.3.4.</strong> Placeholders and universes</a></li><li class="chapter-item "><a href="borrow_check/region_inference/closure_constraints.html"><strong aria-hidden="true">44.3.5.</strong> Closure constraints</a></li><li class="chapter-item "><a href="borrow_check/region_inference/error_reporting.html"><strong aria-hidden="true">44.3.6.</strong> Error reporting</a></li></ol></li><li class="chapter-item "><a href="borrow_check/two_phase_borrows.html"><strong aria-hidden="true">44.4.</strong> Two-phase-borrows</a></li></ol></li><li class="chapter-item "><a href="param_env.html"><strong aria-hidden="true">45.</strong> Parameter Environments</a></li><li class="chapter-item "><a href="diagnostics.html"><strong aria-hidden="true">46.</strong> Errors and Lints</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="diagnostics/sessiondiagnostic.html"><strong aria-hidden="true">46.1.</strong> Creating Errors With SessionDiagnostic</a></li><li class="chapter-item "><a href="diagnostics/lintstore.html"><strong aria-hidden="true">46.2.</strong> LintStore</a></li><li class="chapter-item "><a href="diagnostics/diagnostic-codes.html"><strong aria-hidden="true">46.3.</strong> Diagnostic Codes</a></li></ol></li><li class="chapter-item "><li class="part-title">MIR to Binaries</li><li class="chapter-item "><a href="part-5-intro.html"><strong aria-hidden="true">47.</strong> Prologue</a></li><li class="chapter-item "><a href="mir/optimizations.html"><strong aria-hidden="true">48.</strong> MIR optimizations</a></li><li class="chapter-item "><a href="mir/debugging.html"><strong aria-hidden="true">49.</strong> Debugging</a></li><li class="chapter-item "><a href="const-eval.html"><strong aria-hidden="true">50.</strong> Constant evaluation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="miri.html"><strong aria-hidden="true">50.1.</strong> miri const evaluator</a></li></ol></li><li class="chapter-item "><a href="backend/monomorph.html"><strong aria-hidden="true">51.</strong> Monomorphization</a></li><li class="chapter-item "><a href="backend/lowering-mir.html"><strong aria-hidden="true">52.</strong> Lowering MIR</a></li><li class="chapter-item "><a href="backend/codegen.html"><strong aria-hidden="true">53.</strong> Code Generation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="backend/updating-llvm.html"><strong aria-hidden="true">53.1.</strong> Updating LLVM</a></li><li class="chapter-item "><a href="backend/debugging.html"><strong aria-hidden="true">53.2.</strong> Debugging LLVM</a></li><li class="chapter-item "><a href="backend/backend-agnostic.html"><strong aria-hidden="true">53.3.</strong> Backend Agnostic Codegen</a></li><li class="chapter-item "><a href="backend/implicit-caller-location.html"><strong aria-hidden="true">53.4.</strong> Implicit Caller Location</a></li></ol></li><li class="chapter-item "><a href="backend/libs-and-metadata.html"><strong aria-hidden="true">54.</strong> Libraries and Metadata</a></li><li class="chapter-item "><a href="profile-guided-optimization.html"><strong aria-hidden="true">55.</strong> Profile-guided Optimization</a></li><li class="chapter-item "><a href="llvm-coverage-instrumentation.html"><strong aria-hidden="true">56.</strong> LLVM Source-Based Code Coverage</a></li><li class="chapter-item "><a href="sanitizers.html"><strong aria-hidden="true">57.</strong> Sanitizers Support</a></li><li class="chapter-item "><a href="debugging-support-in-rustc.html"><strong aria-hidden="true">58.</strong> Debugging Support in the Rust Compiler</a></li><li class="spacer"></li><li class="chapter-item affix "><a href="appendix/background.html">Appendix A: Background topics</a></li><li class="chapter-item affix "><a href="appendix/glossary.html">Appendix B: Glossary</a></li><li class="chapter-item affix "><a href="appendix/code-index.html">Appendix C: Code Index</a></li><li class="chapter-item affix "><a href="appendix/compiler-lecture.html">Appendix D: Compiler Lecture Series</a></li><li class="chapter-item affix "><a href="appendix/bibliography.html">Appendix E: Bibliography</a></li><li class="chapter-item affix "><a href="appendix/humorust.html">Appendix Z: HumorRust</a></li><li class="spacer"></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">Guide to Rustc Development</h1>
+
+                    <div class="right-buttons">
+                        
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                        
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="contributing-to-rust"><a class="header" href="#contributing-to-rust">Contributing to Rust</a></h1>
+<p>Thank you for your interest in contributing to Rust! There are many ways to
+contribute, and we appreciate all of them.</p>
+<ul>
+<li><a href="#feature-requests">Feature Requests</a></li>
+<li><a href="#bug-reports">Bug Reports</a></li>
+<li><a href="#pull-requests">Pull Requests</a>
+<ul>
+<li><a href="#opening-a-pr">Opening a PR</a></li>
+<li><a href="#external-dependencies-subtree">External Dependencies (subtree)</a>
+<ul>
+<li><a href="#synchronizing-a-subtree">Synchronizing a subtree</a></li>
+<li><a href="#creating-a-new-subtree-dependency">Creating a new subtree dependency</a></li>
+</ul>
+</li>
+<li><a href="#external-dependencies-submodules">External Dependencies (submodules)</a>
+<ul>
+<li><a href="#breaking-tools-built-with-the-compiler">Breaking Tools Built With The Compiler</a></li>
+<li><a href="#updating-submodules">Updating submodules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#writing-documentation">Writing Documentation</a>
+<ul>
+<li><a href="#contributing-to-rustc-dev-guide">Contributing to rustc-dev-guide</a></li>
+</ul>
+</li>
+<li><a href="#issue-triage">Issue Triage</a></li>
+<li><a href="#out-of-tree-contributions">Out-of-tree Contributions</a></li>
+<li><a href="#helpful-links-and-information">Helpful Links and Information</a></li>
+</ul>
+<p>If you have questions, please make a post on <a href="https://internals.rust-lang.org">internals.rust-lang.org</a> or
+hop on the <a href="http://discord.gg/rust-lang">Rust Discord server</a> or <a href="https://rust-lang.zulipchat.com">Rust Zulip server</a>.</p>
+<p>As a reminder, all contributors are expected to follow our <a href="https://www.rust-lang.org/conduct.html">Code of Conduct</a>.</p>
+<p>If this is your first time contributing, the <a href="./getting-started.html">Getting Started</a> and
+<a href="./walkthrough.html">walkthrough</a> chapters can give you a good example of how a typical
+contribution would go.</p>
+<h2 id="feature-requests"><a class="header" href="#feature-requests">Feature Requests</a></h2>
+<p>Feature requests need to go through a process to be approved by the relevant
+teams. Usually this requires a Final Comment Period (FCP) or even a Request for
+Comments (RFC). See <a href="./getting-started.html">Getting Started</a> for more information about these processes.</p>
+<h2 id="bug-reports"><a class="header" href="#bug-reports">Bug Reports</a></h2>
+<p>While bugs are unfortunate, they're a reality in software. We can't fix what we
+don't know about, so please report liberally. If you're not sure if something
+is a bug or not, feel free to file a bug anyway.</p>
+<p><strong>If you believe reporting your bug publicly represents a security risk to Rust users,
+please follow our <a href="https://www.rust-lang.org/policies/security">instructions for reporting security vulnerabilities</a></strong>.</p>
+<p>If you're using the nightly channel, please check if the bug exists in the
+latest toolchain before filing your bug. It might be fixed already.</p>
+<p>If you have the chance, before reporting a bug, please <a href="https://github.com/rust-lang/rust/issues?q=is%3Aissue">search existing
+issues</a>,
+as it's possible that someone else has already reported your error. This doesn't
+always work, and sometimes it's hard to know what to search for, so consider this
+extra credit. We won't mind if you accidentally file a duplicate report.</p>
+<p>Similarly, to help others who encountered the bug find your issue, consider
+filing an issue with a descriptive title, which contains information that might
+be unique to it.  This can be the language or compiler feature used, the
+conditions that trigger the bug, or part of the error message if there is any.
+An example could be: <strong>&quot;impossible case reached&quot; on lifetime inference for impl
+Trait in return position</strong>.</p>
+<p>Opening an issue is as easy as following <a href="https://github.com/rust-lang/rust/issues/new/choose">this
+link</a> and filling out the fields
+in the appropriate provided template.</p>
+<h2 id="pull-requests"><a class="header" href="#pull-requests">Pull Requests</a></h2>
+<p>Pull requests (or PRs for short) are the primary mechanism we use to change Rust.
+GitHub itself has some <a href="https://help.github.com/articles/about-pull-requests/">great documentation</a> on using the
+Pull Request feature. We use the &quot;fork and pull&quot; model <a href="https://help.github.com/articles/about-collaborative-development-models/">described here</a>,
+where contributors push changes to their personal fork and create pull requests to
+bring those changes into the source repository. We have more info about how to use git
+when contributing to Rust under <a href="./git.html">the git section</a>.</p>
+<p>All pull requests are reviewed by another person. We have a bot,
+<a href="https://github.com/rust-highfive">@rust-highfive</a>, that will automatically assign a random person
+to review your request.</p>
+<p>If you want to request that a specific person reviews your pull request, you
+can add an <code>r?</code> to the pull request description. For example,
+<a href="https://github.com/steveklabnik">Steve</a> usually reviews documentation changes. So if you were to
+make a documentation change, add</p>
+<pre><code>r? @steveklabnik
+</code></pre>
+<p>to the end of the pull request description, and <a href="https://github.com/rust-highfive">@rust-highfive</a> will assign
+<a href="https://github.com/steveklabnik">@steveklabnik</a> instead of a random person. This is entirely optional.</p>
+<p>In addition to being reviewed by a human, pull requests are automatically tested
+thanks to continuous integration (CI). Basically, every time you open and update
+a pull request, CI builds the compiler and tests it against the
+<a href="https://rustc-dev-guide.rust-lang.org/tests/intro.html">compiler test suite</a>, and also performs other tests such as checking that
+your pull request is in compliance with Rust's style guidelines.</p>
+<p>Running continuous integration tests allows PR authors to catch mistakes early
+without going through a first review cycle, and also helps reviewers stay aware
+of the status of a particular pull request.</p>
+<p>Rust has plenty of CI capacity, and you should never have to worry about wasting
+computational resources each time you push a change. It is also perfectly fine
+(and even encouraged!) to use the CI to test your changes if it can help your
+productivity. In particular, we don't recommend running the full <code>x.py test</code> suite locally,
+since it takes a very long time to execute.</p>
+<p>After someone has reviewed your pull request, they will leave an annotation
+on the pull request with an <code>r+</code>. It will look something like this:</p>
+<pre><code>@bors r+
+</code></pre>
+<p>This tells <a href="https://github.com/bors">@bors</a>, our lovable integration bot, that your pull request has
+been approved. The PR then enters the <a href="https://bors.rust-lang.org/queue/rust">merge queue</a>, where <a href="https://github.com/bors">@bors</a>
+will run <em>all</em> the tests on <em>every</em> platform we support. If it all works out,
+<a href="https://github.com/bors">@bors</a> will merge your code into <code>master</code> and close the pull request.</p>
+<p>Depending on the scale of the change, you may see a slightly different form of <code>r+</code>:</p>
+<pre><code>@bors r+ rollup
+</code></pre>
+<p>The additional <code>rollup</code> tells <a href="https://github.com/bors">@bors</a> that this change should always be &quot;rolled up&quot;.
+Changes that are rolled up are tested and merged alongside other PRs, to
+speed the process up. Typically only small changes that are expected not to conflict
+with one another are marked as &quot;always roll up&quot;.</p>
+<h3 id="opening-a-pr"><a class="header" href="#opening-a-pr">Opening a PR</a></h3>
+<p>You are now ready to file a pull request? Great! Here are a few points you
+should be aware of.</p>
+<p>All pull requests should be filed against the <code>master</code> branch, except in very
+particular scenarios. Unless you know for sure that you should target another
+branch, <code>master</code> will be the right choice (it's also the default).</p>
+<p>Make sure your pull request is in compliance with Rust's style guidelines by running</p>
+<pre><code>$ ./x.py test tidy --bless
+</code></pre>
+<p>We recommend to make this check before every pull request (and every new commit
+in a pull request); you can add <a href="https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks">git hooks</a>
+before every push to make sure you never forget to make this check. The
+CI will also run tidy and will fail if tidy fails.</p>
+<p>Rust follows a <em>no merge-commit policy</em>, meaning, when you encounter merge
+conflicts you are expected to always rebase instead of merging.  E.g. always use
+rebase when bringing the latest changes from the master branch to your feature
+branch.</p>
+<p>If you encounter merge conflicts or when a reviewer asks you to perform some
+changes, your PR will get marked as <code>S-waiting-on-author</code>. When you resolve
+them, you should use <code>@rustbot</code> to mark it as <code>S-waiting-on-review</code>:</p>
+<pre><code>@rustbot label -S-waiting-on-author +S-waiting-on-review
+</code></pre>
+<p>See <a href="./rustbot.html#issue-relabeling">this chapter</a> for more details.</p>
+<p>GitHub allows <a href="https://help.github.com/en/articles/closing-issues-using-keywords">closing issues using keywords</a>. This feature
+should be used to keep the issue tracker tidy. However, it is generally preferred
+to put the &quot;closes #123&quot; text in the PR description rather than the issue commit;
+particularly during rebasing, citing the issue number in the commit can &quot;spam&quot;
+the issue in question.</p>
+<h3 id="external-dependencies-subtree"><a class="header" href="#external-dependencies-subtree">External Dependencies (subtree)</a></h3>
+<p>As a developer to this repository, you don't have to treat the following external projects
+differently from other crates that are directly in this repo:</p>
+<ul>
+<li><a href="https://github.com/rust-lang/rust-clippy">Clippy</a></li>
+<li><a href="https://github.com/rust-lang/rustfmt">rustfmt</a></li>
+</ul>
+<p>They are just regular files and directories. This is in contrast to <code>submodule</code> dependencies
+(see below for those). Only tool authors will actually use any operations here.</p>
+<h4 id="synchronizing-a-subtree"><a class="header" href="#synchronizing-a-subtree">Synchronizing a subtree</a></h4>
+<p>There are two synchronization directions: <code>subtree push</code> and <code>subtree pull</code>.</p>
+<pre><code>git subtree push -P src/tools/clippy git@github.com:your-github-name/rust-clippy sync-from-rust
+</code></pre>
+<p>takes all the changes that
+happened to the copy in this repo and creates commits on the remote repo that match the local
+changes. Every local commit that touched the subtree causes a commit on the remote repo, but is
+modified to move the files from the specified directory to the tool repo root.</p>
+<p>Make sure to not pick the <code>master</code> branch on the tool repo, so you can open a normal PR to the tool
+to merge that subrepo push.</p>
+<pre><code>git subtree pull -P src/tools/clippy https://github.com/rust-lang/rust-clippy master
+</code></pre>
+<p>takes all changes since the last <code>subtree pull</code> from the tool repo
+and adds these commits to the rustc repo + a merge commit that moves the tool changes into
+the specified directory in the rust repository.</p>
+<p>It is recommended that you always do a push first and get that merged to the tool master branch.
+Then, when you do a pull, the merge works without conflicts.
+While it's definitely possible to resolve conflicts during a pull, you may have to redo the conflict
+resolution if your PR doesn't get merged fast enough and there are new conflicts. Do not try to
+rebase the result of a <code>git subtree pull</code>, rebasing merge commits is a bad idea in general.</p>
+<p>You always need to specify the <code>-P</code> prefix to the subtree directory and the corresponding remote
+repository. If you specify the wrong directory or repository
+you'll get very fun merges that try to push the wrong directory to the wrong remote repository.
+Luckily you can just abort this without any consequences by throwing away either the pulled commits
+in rustc or the pushed branch on the remote and try again. It is usually fairly obvious
+that this is happening because you suddenly get thousands of commits that want to be synchronized.</p>
+<h4 id="creating-a-new-subtree-dependency"><a class="header" href="#creating-a-new-subtree-dependency">Creating a new subtree dependency</a></h4>
+<p>If you want to create a new subtree dependency from an existing repository, call (from this
+repository's root directory!)</p>
+<pre><code>git subtree add -P src/tools/clippy https://github.com/rust-lang/rust-clippy.git master
+</code></pre>
+<p>This will create a new commit, which you may not rebase under any circumstances! Delete the commit
+and redo the operation if you need to rebase.</p>
+<p>Now you're done, the <code>src/tools/clippy</code> directory behaves as if Clippy were
+part of the rustc monorepo, so no one but you (or others that synchronize
+subtrees) actually needs to use <code>git subtree</code>.</p>
+<h3 id="external-dependencies-submodules"><a class="header" href="#external-dependencies-submodules">External Dependencies (submodules)</a></h3>
+<p>Currently building Rust will also build the following external projects:</p>
+<ul>
+<li><a href="https://github.com/rust-lang/miri">miri</a></li>
+<li><a href="https://github.com/rust-lang/rls/">rls</a></li>
+</ul>
+<p>We allow breakage of these tools in the nightly channel. Maintainers of these
+projects will be notified of the breakages and should fix them as soon as
+possible.</p>
+<p>After the external is fixed, one could add the changes with</p>
+<pre><code class="language-sh">git add path/to/submodule
+</code></pre>
+<p>outside the submodule.</p>
+<p>In order to prepare your tool-fixing PR, you can run the build locally by doing
+<code>./x.py build src/tools/TOOL</code>. If you will be editing the sources
+there, you may wish to set <code>submodules = false</code> in the <code>config.toml</code>
+to prevent <code>x.py</code> from resetting to the original branch.</p>
+<p>Breakage is not allowed in the beta and stable channels, and must be addressed
+before the PR is merged.</p>
+<h4 id="breaking-tools-built-with-the-compiler"><a class="header" href="#breaking-tools-built-with-the-compiler">Breaking Tools Built With The Compiler</a></h4>
+<p>Rust's build system builds a number of tools that make use of the internals of
+the compiler and that are hosted in a separate repository, and included in Rust
+via git submodules. This includes <a href="https://github.com/rust-lang/rls">RLS</a> and
+<a href="https://github.com/rust-lang/Miri">Miri</a>. If these tools break because of your
+changes, you may run into a sort of &quot;chicken and egg&quot; problem. These tools rely
+on the latest compiler to be built so you can't update them (in their own
+repositories) to reflect your changes to the compiler until those changes are
+merged into the compiler. At the same time, you can't get your changes merged
+into the compiler because the rust-lang/rust build won't pass until those tools
+build and pass their tests.</p>
+<p>Luckily, a feature was
+<a href="https://github.com/rust-lang/rust/issues/45861">added to Rust's build</a> to make
+all of this easy to handle. The idea is that we allow these tools to be
+&quot;broken&quot;, so that the rust-lang/rust build passes without trying to build them,
+then land the change in the compiler, and go update the tools that you
+broke. Some tools will require waiting for a nightly release before this can
+happen, while others use the builds uploaded after each bors merge and thus can
+be updated immediately (check the tool's documentation for details). Once you're
+done and the tools are working again, you go back in the compiler and update the
+tools so they can be distributed again.</p>
+<p>This should avoid a bunch of synchronization dances and is also much easier on contributors as
+there's no need to block on rls/miri/other tools changes going upstream.</p>
+<p>Here are those same steps in detail:</p>
+<ol>
+<li>(optional) First, if it doesn't exist already, create a <code>config.toml</code> by copying
+<code>config.toml.example</code> in the root directory of the Rust repository.
+Set <code>submodules = false</code> in the <code>[build]</code> section. This will prevent <code>x.py</code>
+from resetting to the original branch after you make your changes. If you
+need to <a href="#updating-submodules">update any submodules to their latest versions</a>,
+see the section of this file about that for more information.</li>
+<li>(optional) Run <code>./x.py test src/tools/rls</code> (substituting the submodule
+that broke for <code>rls</code>). Fix any errors in the submodule (and possibly others).</li>
+<li>(optional) Make commits for your changes and send them to upstream repositories as a PR.</li>
+<li>(optional) Maintainers of these submodules will <strong>not</strong> merge the PR. The PR can't be
+merged because CI will be broken. You'll want to write a message on the PR referencing
+your change, and how the PR should be merged once your change makes it into a nightly.</li>
+<li>Wait for your PR to merge.</li>
+<li>Wait for a nightly</li>
+<li>(optional) Help land your PR on the upstream repository now that your changes are in nightly.</li>
+<li>(optional) Send a PR to rust-lang/rust updating the submodule.</li>
+</ol>
+<h4 id="updating-submodules"><a class="header" href="#updating-submodules">Updating submodules</a></h4>
+<p>These instructions are specific to updating <code>rls</code>, however they may apply
+to the other submodules as well. Please help by improving these instructions
+if you find any discrepancies or special cases that need to be addressed.</p>
+<p>To update the <code>rls</code> submodule, start by running the appropriate
+<a href="https://git-scm.com/book/en/v2/Git-Tools-Submodules"><code>git submodule</code> command</a>.
+For example, to update to the latest commit on the remote master branch,
+you may want to run:</p>
+<pre><code>git submodule update --remote src/tools/rls
+</code></pre>
+<p>If you run <code>./x.py build</code> now, and you are lucky, it may just work. If you see
+an error message about patches that did not resolve to any crates, you will need
+to complete a few more steps which are outlined with their rationale below.</p>
+<p><em>(This error may change in the future to include more information.)</em></p>
+<pre><code>error: failed to resolve patches for `https://github.com/rust-lang/rls`
+
+Caused by:
+  patch for `rls` in `https://github.com/rust-lang/rls` did not resolve to any crates
+failed to run: ~/rust/build/x86_64-unknown-linux-gnu/stage0/bin/cargo build --manifest-path ~/rust/src/bootstrap/Cargo.toml
+</code></pre>
+<p>The <a href="http://doc.crates.io/manifest.html#the-patch-section"><code>[patch]</code></a> section of <code>Cargo.toml</code> can be very useful for
+testing. In addition to that, you should read the <a href="http://doc.crates.io/specifying-dependencies.html#overriding-dependencies">Overriding
+dependencies</a> section of the documentation.</p>
+<p>Specifically, the following <a href="http://doc.crates.io/specifying-dependencies.html#testing-a-bugfix">section in Overriding dependencies</a>
+reveals what the problem is:</p>
+<blockquote>
+<p>Next up we need to ensure that our lock file is updated to use this new
+version of uuid so our project uses the locally checked out copy instead of
+one from crates.io. The way <code>[patch]</code> works is that it'll load the dependency
+at ../path/to/uuid and then whenever crates.io is queried for versions of
+uuid it'll also return the local version.</p>
+<p>This means that the version number of the local checkout is significant and
+will affect whether the patch is used. Our manifest declared uuid = &quot;1.0&quot;
+which means we'll only resolve to &gt;= 1.0.0, &lt; 2.0.0, and Cargo's greedy
+resolution algorithm also means that we'll resolve to the maximum version
+within that range. Typically this doesn't matter as the version of the git
+repository will already be greater or match the maximum version published on
+crates.io, but it's important to keep this in mind!</p>
+</blockquote>
+<p>This says that when we updated the submodule, the version number in our
+<code>src/tools/rls/Cargo.toml</code> changed. The new version is different from
+the version in <code>Cargo.lock</code>, so the build can no longer continue.</p>
+<p>To resolve this, we need to update <code>Cargo.lock</code>. Luckily, cargo provides a
+command to do this easily.</p>
+<pre><code>$ cargo update -p rls
+</code></pre>
+<p>This should change the version listed in <code>Cargo.lock</code> to the new version you updated
+the submodule to. Running <code>./x.py build</code> should work now.</p>
+<h2 id="writing-documentation"><a class="header" href="#writing-documentation">Writing Documentation</a></h2>
+<p>Documentation improvements are very welcome. The source of <code>doc.rust-lang.org</code>
+is located in <a href="https://github.com/rust-lang/rust/tree/master/src/doc"><code>src/doc</code></a> in the tree, and standard API documentation is generated
+from the source code itself (e.g. <a href="https://github.com/rust-lang/rust/blob/master/library/std/src/lib.rs#L1"><code>lib.rs</code></a>). Documentation pull requests function
+in the same way as other pull requests.</p>
+<p>To find documentation-related issues, sort by the <a href="https://github.com/rust-lang/rust/issues?q=is%3Aopen%20is%3Aissue%20label%3AT-doc">T-doc label</a>.</p>
+<p>You can find documentation style guidelines in <a href="https://github.com/rust-lang/rfcs/blob/master/text/1574-more-api-documentation-conventions.md#appendix-a-full-conventions-text">RFC 1574</a>.</p>
+<p>In many cases, you don't need a full <code>./x.py doc --stage 2</code>, which will build
+the entire stage 2 compiler and compile the various books published on
+<a href="https://doc.rust-lang.org">doc.rust-lang.org</a>. When updating documentation for the standard library,
+first try <code>./x.py doc library/std</code>. If that fails, or if you need to
+see the output from the latest version of <code>rustdoc</code>, add <code>--stage 1</code>.
+Results should appear in <code>build/$TARGET/doc</code>.</p>
+<p>You can also use <code>rustdoc</code> directly to check small fixes. For example,
+<code>rustdoc src/doc/reference.md</code> will render reference to <code>doc/reference.html</code>.
+The CSS might be messed up, but you can verify that the HTML is right.</p>
+<h3 id="contributing-to-rustc-dev-guide"><a class="header" href="#contributing-to-rustc-dev-guide">Contributing to rustc-dev-guide</a></h3>
+<p>Contributions to the <a href="https://rustc-dev-guide.rust-lang.org/">rustc-dev-guide</a> are always welcome, and can be made directly at
+<a href="https://github.com/rust-lang/rustc-dev-guide">the rust-lang/rustc-dev-guide repo</a>.
+The issue tracker in that repo is also a great way to find things that need doing.
+There are issues for beginners and advanced compiler devs alike!</p>
+<p>Just a few things to keep in mind:</p>
+<ul>
+<li>
+<p>Please limit line length to 100 characters. This is enforced by CI, and you can run the checks
+locally with <code>ci/check_line_lengths.sh</code>.</p>
+</li>
+<li>
+<p>When contributing text to the guide, please contextualize the information with some time period
+and/or a reason so that the reader knows how much to trust or mistrust the information.
+Aim to provide a reasonable amount of context, possibly including but not limited to:</p>
+<ul>
+<li>
+<p>A reason for why the data may be out of date other than &quot;change&quot;, as change is a constant across
+the project.</p>
+</li>
+<li>
+<p>The date the comment was added, e.g. instead of writing <em>&quot;Currently, ...&quot;</em>
+or <em>&quot;As of now, ...&quot;</em>, consider writing
+<em>&quot;As of January 2021, ...&quot;</em>.
+Try to format the date as <code>&lt;MONTH&gt; &lt;YEAR&gt;</code> to ease search.</p>
+</li>
+<li>
+<p>Additionally, include a machine-readable comment of the form <code>&lt;!-- date: 2021-01 --&gt;</code> (if the current month is January 2021). We have an automated
+tool that uses these (in <code>ci/date-check</code>).</p>
+<p>So, for the month of January 2021, the comment would look like: <code>As of &lt;!-- date: 2021-01 --&gt; January 2021</code>. Make sure to put the comment <em>between</em> <code>as of</code>
+and <code>January 2021</code>; see <a href="https://github.com/rust-lang/rustc-dev-guide/pull/1066">PR #1066</a> for the rationale.</p>
+</li>
+<li>
+<p>A link to a relevant WG, tracking issue, <code>rustc</code> rustdoc page, or similar, that may provide
+further explanation for the change process or a way to verify that the information is not
+outdated.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>If a text grows rather long (more than a few page scrolls) or complicated (more than four
+subsections) it might benefit from having a Table of Contents at the beginning, which you can
+auto-generate by including the <code>&lt;!-- toc --&gt;</code> marker.</p>
+</li>
+</ul>
+<h2 id="issue-triage"><a class="header" href="#issue-triage">Issue Triage</a></h2>
+<p>Sometimes, an issue will stay open, even though the bug has been fixed. And
+sometimes, the original bug may go stale because something has changed in the
+meantime.</p>
+<p>It can be helpful to go through older bug reports and make sure that they are
+still valid. Load up an older issue, double check that it's still true, and
+leave a comment letting us know if it is or is not. The <a href="https://github.com/rust-lang/rust/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-asc">least recently
+updated sort</a> is good for finding issues like this.</p>
+<p><a href="./rustbot.html">Thanks to <code>@rustbot</code></a>, anyone can help triage issues by adding
+appropriate labels to issues that haven't been triaged yet:</p>
+<ul>
+<li>
+<p>Yellow, <strong>A</strong>-prefixed labels state which <strong>area</strong> of the project an issue
+relates to.</p>
+</li>
+<li>
+<p>Magenta, <strong>B</strong>-prefixed labels identify bugs which are <strong>blockers</strong>.</p>
+</li>
+<li>
+<p>Dark blue, <strong>beta-</strong> labels track changes which need to be backported into
+the beta branches.</p>
+</li>
+<li>
+<p>Light purple, <strong>C</strong>-prefixed labels represent the <strong>category</strong> of an issue.</p>
+</li>
+<li>
+<p>Green, <strong>E</strong>-prefixed labels explain the level of <strong>experience</strong> necessary
+to fix the issue.</p>
+</li>
+<li>
+<p>The dark blue <strong>final-comment-period</strong> label marks bugs that are using the
+RFC signoff functionality of <a href="https://github.com/anp/rfcbot-rs/">rfcbot</a> and are currently in the final
+comment period.</p>
+</li>
+<li>
+<p>Red, <strong>I</strong>-prefixed labels indicate the <strong>importance</strong> of the issue. The
+<a href="https://github.com/rust-lang/rust/issues?q=is%3Aopen+is%3Aissue+label%3AI-nominated">I-nominated</a> label indicates that an issue has been nominated for
+discussion at the next meeting of the team tagged using a
+<strong>T</strong>-prefixed label. Similarly, the <a href="https://github.com/rust-lang/rust/issues?q=is%3Aopen+is%3Aissue+label%3AI-prioritize">I-prioritize</a> indicates
+that an issue has been requested to be prioritized by the appropriate
+team.</p>
+</li>
+<li>
+<p>The purple <strong>metabug</strong> label marks lists of bugs collected by other
+categories.</p>
+</li>
+<li>
+<p>Purple gray, <strong>O</strong>-prefixed labels are the <strong>operating system</strong> or platform
+that this issue is specific to.</p>
+</li>
+<li>
+<p>Orange, <strong>P</strong>-prefixed labels indicate a bug's <strong>priority</strong>. These labels
+can be assigned by anyone that understand the issue and is able to
+prioritize it, and replace the <a href="https://github.com/rust-lang/rust/issues?q=is%3Aopen+is%3Aissue+label%3AI-prioritize">I-prioritize</a> label.</p>
+</li>
+<li>
+<p>The gray <strong>proposed-final-comment-period</strong> label marks bugs that are using
+the RFC signoff functionality of <a href="https://github.com/anp/rfcbot-rs/">rfcbot</a> and are currently awaiting
+signoff of all team members in order to enter the final comment period.</p>
+</li>
+<li>
+<p>Pink, <strong>regression</strong>-prefixed labels track regressions from stable to the
+release channels.</p>
+</li>
+<li>
+<p>The light orange <strong>relnotes</strong> label marks issues that should be documented in
+the release notes of the next release.</p>
+</li>
+<li>
+<p>Gray, <strong>S</strong>-prefixed labels are used for tracking the <strong>status</strong> of pull
+requests.</p>
+</li>
+<li>
+<p>Blue, <strong>T</strong>-prefixed bugs denote which <strong>team</strong> the issue belongs to.</p>
+</li>
+</ul>
+<p>If you're looking for somewhere to start, check out the <a href="https://github.com/rust-lang/rust/issues?q=is%3Aopen+is%3Aissue+label%3AE-easy">E-easy</a> tag.</p>
+<h2 id="out-of-tree-contributions"><a class="header" href="#out-of-tree-contributions">Out-of-tree Contributions</a></h2>
+<p>There are a number of other ways to contribute to Rust that don't deal with
+rust-lang/rust:</p>
+<ul>
+<li>Answer questions in the <em>Get Help!</em> channels on the <a href="http://discord.gg/rust-lang">Rust Discord
+server</a>, on <a href="https://users.rust-lang.org/">users.rust-lang.org</a>, or on
+<a href="http://stackoverflow.com/questions/tagged/rust">StackOverflow</a>.</li>
+<li>Participate in the <a href="https://github.com/rust-lang/rfcs">RFC process</a>.</li>
+<li>Find a <a href="https://github.com/rust-lang/rfcs/labels/A-community-library">requested community library</a>, build it, and publish
+it to <a href="http://crates.io">Crates.io</a>. Easier said than done, but very, very
+valuable!</li>
+</ul>
+<h2 id="helpful-links-and-information"><a class="header" href="#helpful-links-and-information">Helpful Links and Information</a></h2>
+<p>For people new to Rust, and just starting to contribute, or even for
+more seasoned developers, some useful places to look for information
+are:</p>
+<ul>
+<li>This guide contains information about how various parts of the
+compiler work and how to contribute to the compiler</li>
+<li><a href="https://forge.rust-lang.org/">Rust Forge</a> contains additional documentation, including
+write-ups of how to achieve common tasks</li>
+<li>The <a href="http://internals.rust-lang.org">Rust Internals forum</a>, a place to ask questions and
+discuss Rust's internals</li>
+<li>The <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/">generated documentation for Rust's compiler</a></li>
+<li>The <a href="https://doc.rust-lang.org/book/README.html">Rust reference</a>, even though it doesn't specifically talk about
+Rust's internals, is a great resource nonetheless</li>
+<li>Although out of date, <a href="https://tomlee.co/2014/04/a-more-detailed-tour-of-the-rust-compiler/">Tom Lee's great blog article</a> is very helpful</li>
+<li><a href="https://www.rustaceans.org/">rustaceans.org</a> is helpful, but mostly dedicated to IRC</li>
+<li>The <a href="https://rustc-dev-guide.rust-lang.org/tests/intro.html">Rust Compiler Testing Docs</a></li>
+<li>For <a href="https://github.com/bors">@bors</a>, <a href="https://bors.rust-lang.org/">this cheat sheet</a> is helpful</li>
+<li>Google is always helpful when programming.
+You can <a href="https://www.google.com/search?q=site:doc.rust-lang.org+your+query+here">search all Rust documentation</a> (the standard library,
+the compiler, the books, the references, and the guides) to quickly find
+information about the language and compiler.</li>
+<li>You can also use Rustdoc's built-in search feature to find documentation on
+types and functions within the crates you're looking at. You can also search
+by type signature! For example, searching for <code>* -&gt; vec</code> should find all
+functions that return a <code>Vec&lt;T&gt;</code>.
+<em>Hint:</em> Find more tips and keyboard shortcuts by typing <code>?</code> on any Rustdoc
+page!</li>
+<li>Don't be afraid to ask! The Rust community is friendly and helpful.</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="crates-io.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="compiler-team.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="crates-io.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="compiler-team.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

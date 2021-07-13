@@ -1,0 +1,476 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Rustdoc internals - Guide to Rustc Development</title>
+        
+        
+
+
+        <!-- Custom HTML head -->
+        
+
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="A guide to developing rustc">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        
+        <link rel="icon" href="favicon.svg">
+        
+        
+        <link rel="shortcut icon" href="favicon.png">
+        
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        
+        <link rel="stylesheet" href="css/print.css" media="print">
+        
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        
+        <link rel="stylesheet" href="fonts/fonts.css">
+        
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item affix "><a href="about-this-guide.html">About this guide</a></li><li class="chapter-item affix "><a href="getting-started.html">Getting Started</a></li><li class="spacer"></li><li class="chapter-item affix "><li class="part-title">Building and debugging rustc</li><li class="chapter-item "><a href="building/how-to-build-and-run.html"><strong aria-hidden="true">1.</strong> How to Build and Run the Compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="building/prerequisites.html"><strong aria-hidden="true">1.1.</strong> Prerequisites</a></li><li class="chapter-item "><a href="building/suggested.html"><strong aria-hidden="true">1.2.</strong> Suggested Workflows</a></li><li class="chapter-item "><a href="building/build-install-distribution-artifacts.html"><strong aria-hidden="true">1.3.</strong> Distribution artifacts</a></li><li class="chapter-item "><a href="building/compiler-documenting.html"><strong aria-hidden="true">1.4.</strong> Documenting Compiler</a></li><li class="chapter-item "><a href="rustdoc.html"><strong aria-hidden="true">1.5.</strong> Rustdoc overview</a></li><li class="chapter-item "><a href="building/ctags.html"><strong aria-hidden="true">1.6.</strong> ctags</a></li><li class="chapter-item "><a href="building/new-target.html"><strong aria-hidden="true">1.7.</strong> Adding a new target</a></li></ol></li><li class="chapter-item "><a href="tests/intro.html"><strong aria-hidden="true">2.</strong> The compiler testing framework</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="tests/running.html"><strong aria-hidden="true">2.1.</strong> Running tests</a></li><li class="chapter-item "><a href="tests/adding.html"><strong aria-hidden="true">2.2.</strong> Adding new tests</a></li><li class="chapter-item "><a href="compiletest.html"><strong aria-hidden="true">2.3.</strong> Using compiletest commands to control test execution</a></li></ol></li><li class="chapter-item "><a href="compiler-debugging.html"><strong aria-hidden="true">3.</strong> Debugging the Compiler</a></li><li class="chapter-item "><a href="profiling.html"><strong aria-hidden="true">4.</strong> Profiling the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="profiling/with_perf.html"><strong aria-hidden="true">4.1.</strong> with the linux perf tool</a></li><li class="chapter-item "><a href="profiling/wpa_profiling.html"><strong aria-hidden="true">4.2.</strong> with Windows Performance Analyzer</a></li></ol></li><li class="chapter-item "><a href="crates-io.html"><strong aria-hidden="true">5.</strong> crates.io Dependencies</a></li><li class="chapter-item affix "><li class="part-title">Contributing to Rust</li><li class="chapter-item "><a href="contributing.html"><strong aria-hidden="true">6.</strong> Introduction</a></li><li class="chapter-item "><a href="compiler-team.html"><strong aria-hidden="true">7.</strong> About the compiler team</a></li><li class="chapter-item "><a href="git.html"><strong aria-hidden="true">8.</strong> Using Git</a></li><li class="chapter-item "><a href="rustbot.html"><strong aria-hidden="true">9.</strong> Mastering @rustbot</a></li><li class="chapter-item "><a href="walkthrough.html"><strong aria-hidden="true">10.</strong> Walkthrough: a typical contribution</a></li><li class="chapter-item "><a href="bug-fix-procedure.html"><strong aria-hidden="true">11.</strong> Bug Fix Procedure</a></li><li class="chapter-item "><a href="implementing_new_features.html"><strong aria-hidden="true">12.</strong> Implementing new features</a></li><li class="chapter-item "><a href="stability.html"><strong aria-hidden="true">13.</strong> Stability attributes</a></li><li class="chapter-item "><a href="stabilization_guide.html"><strong aria-hidden="true">14.</strong> Stabilizing Features</a></li><li class="chapter-item "><a href="feature-gates.html"><strong aria-hidden="true">15.</strong> Feature Gates</a></li><li class="chapter-item "><a href="conventions.html"><strong aria-hidden="true">16.</strong> Coding conventions</a></li><li class="chapter-item "><a href="notification-groups/about.html"><strong aria-hidden="true">17.</strong> Notification groups</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="notification-groups/arm.html"><strong aria-hidden="true">17.1.</strong> ARM</a></li><li class="chapter-item "><a href="notification-groups/cleanup-crew.html"><strong aria-hidden="true">17.2.</strong> Cleanup Crew</a></li><li class="chapter-item "><a href="notification-groups/llvm.html"><strong aria-hidden="true">17.3.</strong> LLVM</a></li><li class="chapter-item "><a href="notification-groups/risc-v.html"><strong aria-hidden="true">17.4.</strong> RISC-V</a></li><li class="chapter-item "><a href="notification-groups/windows.html"><strong aria-hidden="true">17.5.</strong> Windows</a></li></ol></li><li class="chapter-item "><a href="licenses.html"><strong aria-hidden="true">18.</strong> Licenses</a></li><li class="chapter-item affix "><li class="part-title">High-level Compiler Architecture</li><li class="chapter-item "><a href="part-2-intro.html"><strong aria-hidden="true">19.</strong> Prologue</a></li><li class="chapter-item "><a href="overview.html"><strong aria-hidden="true">20.</strong> Overview of the Compiler</a></li><li class="chapter-item "><a href="compiler-src.html"><strong aria-hidden="true">21.</strong> The compiler source code</a></li><li class="chapter-item "><a href="building/bootstrapping.html"><strong aria-hidden="true">22.</strong> Bootstrapping</a></li><li class="chapter-item "><a href="query.html"><strong aria-hidden="true">23.</strong> Queries: demand-driven compilation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="queries/query-evaluation-model-in-detail.html"><strong aria-hidden="true">23.1.</strong> The Query Evaluation Model in Detail</a></li><li class="chapter-item "><a href="queries/incremental-compilation.html"><strong aria-hidden="true">23.2.</strong> Incremental compilation</a></li><li class="chapter-item "><a href="queries/incremental-compilation-in-detail.html"><strong aria-hidden="true">23.3.</strong> Incremental compilation In Detail</a></li><li class="chapter-item "><a href="incrcomp-debugging.html"><strong aria-hidden="true">23.4.</strong> Debugging and Testing</a></li><li class="chapter-item "><a href="queries/profiling.html"><strong aria-hidden="true">23.5.</strong> Profiling Queries</a></li><li class="chapter-item "><a href="salsa.html"><strong aria-hidden="true">23.6.</strong> Salsa</a></li></ol></li><li class="chapter-item "><a href="memory.html"><strong aria-hidden="true">24.</strong> Memory Management in Rustc</a></li><li class="chapter-item "><a href="serialization.html"><strong aria-hidden="true">25.</strong> Serialization in Rustc</a></li><li class="chapter-item "><a href="parallel-rustc.html"><strong aria-hidden="true">26.</strong> Parallel Compilation</a></li><li class="chapter-item expanded "><a href="rustdoc-internals.html" class="active"><strong aria-hidden="true">27.</strong> Rustdoc internals</a></li><li class="chapter-item affix "><li class="part-title">Source Code Representation</li><li class="chapter-item "><a href="part-3-intro.html"><strong aria-hidden="true">28.</strong> Prologue</a></li><li class="chapter-item "><a href="cli.html"><strong aria-hidden="true">29.</strong> Command-line arguments</a></li><li class="chapter-item "><a href="rustc-driver.html"><strong aria-hidden="true">30.</strong> The Rustc Driver and Interface</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="rustc-driver-interacting-with-the-ast.html"><strong aria-hidden="true">30.1.</strong> Ex: Type checking through rustc_interface</a></li><li class="chapter-item "><a href="rustc-driver-getting-diagnostics.html"><strong aria-hidden="true">30.2.</strong> Ex: Getting diagnostics through rustc_interface</a></li></ol></li><li class="chapter-item "><a href="syntax-intro.html"><strong aria-hidden="true">31.</strong> Syntax and the AST</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="the-parser.html"><strong aria-hidden="true">31.1.</strong> Lexing and Parsing</a></li><li class="chapter-item "><a href="macro-expansion.html"><strong aria-hidden="true">31.2.</strong> Macro expansion</a></li><li class="chapter-item "><a href="name-resolution.html"><strong aria-hidden="true">31.3.</strong> Name resolution</a></li><li class="chapter-item "><a href="test-implementation.html"><strong aria-hidden="true">31.4.</strong> #[test] Implementation</a></li><li class="chapter-item "><a href="panic-implementation.html"><strong aria-hidden="true">31.5.</strong> Panic Implementation</a></li><li class="chapter-item "><a href="ast-validation.html"><strong aria-hidden="true">31.6.</strong> AST Validation</a></li><li class="chapter-item "><a href="feature-gate-ck.html"><strong aria-hidden="true">31.7.</strong> Feature Gate Checking</a></li><li class="chapter-item "><a href="lang-items.html"><strong aria-hidden="true">31.8.</strong> Lang Items</a></li></ol></li><li class="chapter-item "><a href="hir.html"><strong aria-hidden="true">32.</strong> The HIR (High-level IR)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="lowering.html"><strong aria-hidden="true">32.1.</strong> Lowering AST to HIR</a></li><li class="chapter-item "><a href="hir-debugging.html"><strong aria-hidden="true">32.2.</strong> Debugging</a></li></ol></li><li class="chapter-item "><a href="thir.html"><strong aria-hidden="true">33.</strong> The THIR (Typed High-level IR)</a></li><li class="chapter-item "><a href="mir/index.html"><strong aria-hidden="true">34.</strong> The MIR (Mid-level IR)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="mir/construction.html"><strong aria-hidden="true">34.1.</strong> MIR construction</a></li><li class="chapter-item "><a href="mir/visitor.html"><strong aria-hidden="true">34.2.</strong> MIR visitor and traversal</a></li><li class="chapter-item "><a href="mir/passes.html"><strong aria-hidden="true">34.3.</strong> MIR passes: getting the MIR for a function</a></li></ol></li><li class="chapter-item "><a href="identifiers.html"><strong aria-hidden="true">35.</strong> Identifiers in the Compiler</a></li><li class="chapter-item "><a href="closure.html"><strong aria-hidden="true">36.</strong> Closure expansion</a></li><li class="chapter-item affix "><li class="part-title">Analysis</li><li class="chapter-item "><a href="part-4-intro.html"><strong aria-hidden="true">37.</strong> Prologue</a></li><li class="chapter-item "><a href="ty.html"><strong aria-hidden="true">38.</strong> The ty module: representing types</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="generics.html"><strong aria-hidden="true">38.1.</strong> Generics and substitutions</a></li><li class="chapter-item "><a href="ty-fold.html"><strong aria-hidden="true">38.2.</strong> TypeFolder and TypeFoldable</a></li><li class="chapter-item "><a href="generic_arguments.html"><strong aria-hidden="true">38.3.</strong> Generic arguments</a></li></ol></li><li class="chapter-item "><a href="type-inference.html"><strong aria-hidden="true">39.</strong> Type inference</a></li><li class="chapter-item "><a href="traits/resolution.html"><strong aria-hidden="true">40.</strong> Trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="early-late-bound.html"><strong aria-hidden="true">40.1.</strong> Early and Late Bound Parameters</a></li><li class="chapter-item "><a href="traits/hrtb.html"><strong aria-hidden="true">40.2.</strong> Higher-ranked trait bounds</a></li><li class="chapter-item "><a href="traits/caching.html"><strong aria-hidden="true">40.3.</strong> Caching subtleties</a></li><li class="chapter-item "><a href="traits/specialization.html"><strong aria-hidden="true">40.4.</strong> Specialization</a></li><li class="chapter-item "><a href="traits/chalk.html"><strong aria-hidden="true">40.5.</strong> Chalk-based trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="traits/lowering-to-logic.html"><strong aria-hidden="true">40.5.1.</strong> Lowering to logic</a></li><li class="chapter-item "><a href="traits/goals-and-clauses.html"><strong aria-hidden="true">40.5.2.</strong> Goals and clauses</a></li><li class="chapter-item "><a href="traits/canonical-queries.html"><strong aria-hidden="true">40.5.3.</strong> Canonical queries</a></li></ol></li></ol></li><li class="chapter-item "><a href="type-checking.html"><strong aria-hidden="true">41.</strong> Type checking</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="method-lookup.html"><strong aria-hidden="true">41.1.</strong> Method Lookup</a></li><li class="chapter-item "><a href="variance.html"><strong aria-hidden="true">41.2.</strong> Variance</a></li><li class="chapter-item "><a href="opaque-types-type-alias-impl-trait.html"><strong aria-hidden="true">41.3.</strong> Opaque Types</a></li></ol></li><li class="chapter-item "><a href="pat-exhaustive-checking.html"><strong aria-hidden="true">42.</strong> Pattern and Exhaustiveness Checking</a></li><li class="chapter-item "><a href="mir/dataflow.html"><strong aria-hidden="true">43.</strong> MIR dataflow</a></li><li class="chapter-item "><a href="borrow_check.html"><strong aria-hidden="true">44.</strong> The borrow checker</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="borrow_check/moves_and_initialization.html"><strong aria-hidden="true">44.1.</strong> Tracking moves and initialization</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="borrow_check/moves_and_initialization/move_paths.html"><strong aria-hidden="true">44.1.1.</strong> Move paths</a></li></ol></li><li class="chapter-item "><a href="borrow_check/type_check.html"><strong aria-hidden="true">44.2.</strong> MIR type checker</a></li><li class="chapter-item "><a href="borrow_check/region_inference.html"><strong aria-hidden="true">44.3.</strong> Region inference</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="borrow_check/region_inference/constraint_propagation.html"><strong aria-hidden="true">44.3.1.</strong> Constraint propagation</a></li><li class="chapter-item "><a href="borrow_check/region_inference/lifetime_parameters.html"><strong aria-hidden="true">44.3.2.</strong> Lifetime parameters</a></li><li class="chapter-item "><a href="borrow_check/region_inference/member_constraints.html"><strong aria-hidden="true">44.3.3.</strong> Member constraints</a></li><li class="chapter-item "><a href="borrow_check/region_inference/placeholders_and_universes.html"><strong aria-hidden="true">44.3.4.</strong> Placeholders and universes</a></li><li class="chapter-item "><a href="borrow_check/region_inference/closure_constraints.html"><strong aria-hidden="true">44.3.5.</strong> Closure constraints</a></li><li class="chapter-item "><a href="borrow_check/region_inference/error_reporting.html"><strong aria-hidden="true">44.3.6.</strong> Error reporting</a></li></ol></li><li class="chapter-item "><a href="borrow_check/two_phase_borrows.html"><strong aria-hidden="true">44.4.</strong> Two-phase-borrows</a></li></ol></li><li class="chapter-item "><a href="param_env.html"><strong aria-hidden="true">45.</strong> Parameter Environments</a></li><li class="chapter-item "><a href="diagnostics.html"><strong aria-hidden="true">46.</strong> Errors and Lints</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="diagnostics/sessiondiagnostic.html"><strong aria-hidden="true">46.1.</strong> Creating Errors With SessionDiagnostic</a></li><li class="chapter-item "><a href="diagnostics/lintstore.html"><strong aria-hidden="true">46.2.</strong> LintStore</a></li><li class="chapter-item "><a href="diagnostics/diagnostic-codes.html"><strong aria-hidden="true">46.3.</strong> Diagnostic Codes</a></li></ol></li><li class="chapter-item "><li class="part-title">MIR to Binaries</li><li class="chapter-item "><a href="part-5-intro.html"><strong aria-hidden="true">47.</strong> Prologue</a></li><li class="chapter-item "><a href="mir/optimizations.html"><strong aria-hidden="true">48.</strong> MIR optimizations</a></li><li class="chapter-item "><a href="mir/debugging.html"><strong aria-hidden="true">49.</strong> Debugging</a></li><li class="chapter-item "><a href="const-eval.html"><strong aria-hidden="true">50.</strong> Constant evaluation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="miri.html"><strong aria-hidden="true">50.1.</strong> miri const evaluator</a></li></ol></li><li class="chapter-item "><a href="backend/monomorph.html"><strong aria-hidden="true">51.</strong> Monomorphization</a></li><li class="chapter-item "><a href="backend/lowering-mir.html"><strong aria-hidden="true">52.</strong> Lowering MIR</a></li><li class="chapter-item "><a href="backend/codegen.html"><strong aria-hidden="true">53.</strong> Code Generation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="backend/updating-llvm.html"><strong aria-hidden="true">53.1.</strong> Updating LLVM</a></li><li class="chapter-item "><a href="backend/debugging.html"><strong aria-hidden="true">53.2.</strong> Debugging LLVM</a></li><li class="chapter-item "><a href="backend/backend-agnostic.html"><strong aria-hidden="true">53.3.</strong> Backend Agnostic Codegen</a></li><li class="chapter-item "><a href="backend/implicit-caller-location.html"><strong aria-hidden="true">53.4.</strong> Implicit Caller Location</a></li></ol></li><li class="chapter-item "><a href="backend/libs-and-metadata.html"><strong aria-hidden="true">54.</strong> Libraries and Metadata</a></li><li class="chapter-item "><a href="profile-guided-optimization.html"><strong aria-hidden="true">55.</strong> Profile-guided Optimization</a></li><li class="chapter-item "><a href="llvm-coverage-instrumentation.html"><strong aria-hidden="true">56.</strong> LLVM Source-Based Code Coverage</a></li><li class="chapter-item "><a href="sanitizers.html"><strong aria-hidden="true">57.</strong> Sanitizers Support</a></li><li class="chapter-item "><a href="debugging-support-in-rustc.html"><strong aria-hidden="true">58.</strong> Debugging Support in the Rust Compiler</a></li><li class="spacer"></li><li class="chapter-item affix "><a href="appendix/background.html">Appendix A: Background topics</a></li><li class="chapter-item affix "><a href="appendix/glossary.html">Appendix B: Glossary</a></li><li class="chapter-item affix "><a href="appendix/code-index.html">Appendix C: Code Index</a></li><li class="chapter-item affix "><a href="appendix/compiler-lecture.html">Appendix D: Compiler Lecture Series</a></li><li class="chapter-item affix "><a href="appendix/bibliography.html">Appendix E: Bibliography</a></li><li class="chapter-item affix "><a href="appendix/humorust.html">Appendix Z: HumorRust</a></li><li class="spacer"></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">Guide to Rustc Development</h1>
+
+                    <div class="right-buttons">
+                        
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                        
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="rustdoc-internals"><a class="header" href="#rustdoc-internals">Rustdoc internals</a></h1>
+<ul>
+<li><a href="#from-crate-to-clean">From crate to clean</a>
+<ul>
+<li><a href="#hot-potato">Hot potato</a></li>
+</ul>
+</li>
+<li><a href="#from-clean-to-crate">From clean to crate</a>
+<ul>
+<li><a href="#from-soup-to-nuts">From soup to nuts</a></li>
+</ul>
+</li>
+<li><a href="#other-tricks-up-its-sleeve">Other tricks up its sleeve</a></li>
+<li><a href="#dotting-is-and-crossing-ts">Dotting i's and crossing t's</a></li>
+<li><a href="#testing-locally">Testing locally</a></li>
+<li><a href="#see-also">See also</a></li>
+</ul>
+<p>This page describes rustdoc's passes and modes. For an overview of rustdoc,
+see the <a href="./rustdoc.html">&quot;Rustdoc overview&quot; chapter</a>.</p>
+<h2 id="from-crate-to-clean"><a class="header" href="#from-crate-to-clean">From crate to clean</a></h2>
+<p>In <code>core.rs</code> are two central items: the <code>DocContext</code> struct, and the <code>run_core</code>
+function. The latter is where rustdoc calls out to rustc to compile a crate to
+the point where rustdoc can take over. The former is a state container used
+when crawling through a crate to gather its documentation.</p>
+<p>The main process of crate crawling is done in <code>clean/mod.rs</code> through several
+implementations of the <code>Clean</code> trait defined within. This is a conversion
+trait, which defines one method:</p>
+<pre><code class="language-rust ignore">pub trait Clean&lt;T&gt; {
+    fn clean(&amp;self, cx: &amp;DocContext) -&gt; T;
+}
+</code></pre>
+<p><code>clean/mod.rs</code> also defines the types for the &quot;cleaned&quot; AST used later on to
+render documentation pages. Each usually accompanies an implementation of
+<code>Clean</code> that takes some AST or HIR type from rustc and converts it into the
+appropriate &quot;cleaned&quot; type. &quot;Big&quot; items like modules or associated items may
+have some extra processing in its <code>Clean</code> implementation, but for the most part
+these impls are straightforward conversions. The &quot;entry point&quot; to this module
+is the <code>impl Clean&lt;Crate&gt; for visit_ast::RustdocVisitor</code>, which is called by
+<code>run_core</code> above.</p>
+<p>You see, I actually lied a little earlier: There's another AST transformation
+that happens before the events in <code>clean/mod.rs</code>.  In <code>visit_ast.rs</code> is the
+type <code>RustdocVisitor</code>, which <em>actually</em> crawls a <code>rustc_hir::Crate</code> to get the first
+intermediate representation, defined in <code>doctree.rs</code>. This pass is mainly to
+get a few intermediate wrappers around the HIR types and to process visibility
+and inlining. This is where <code>#[doc(inline)]</code>, <code>#[doc(no_inline)]</code>, and
+<code>#[doc(hidden)]</code> are processed, as well as the logic for whether a <code>pub use</code>
+should get the full page or a &quot;Reexport&quot; line in the module page.</p>
+<p>The other major thing that happens in <code>clean/mod.rs</code> is the collection of doc
+comments and <code>#[doc=&quot;&quot;]</code> attributes into a separate field of the Attributes
+struct, present on anything that gets hand-written documentation. This makes it
+easier to collect this documentation later in the process.</p>
+<p>The primary output of this process is a <code>clean::Crate</code> with a tree of Items
+which describe the publicly-documentable items in the target crate.</p>
+<h3 id="hot-potato"><a class="header" href="#hot-potato">Hot potato</a></h3>
+<p>Before moving on to the next major step, a few important &quot;passes&quot; occur over
+the documentation. These do things like combine the separate &quot;attributes&quot; into
+a single string and strip leading whitespace to make the document easier on the
+markdown parser, or drop items that are not public or deliberately hidden with
+<code>#[doc(hidden)]</code>. These are all implemented in the <code>passes/</code> directory, one
+file per pass. By default, all of these passes are run on a crate, but the ones
+regarding dropping private/hidden items can be bypassed by passing
+<code>--document-private-items</code> to rustdoc. Note that unlike the previous set of AST
+transformations, the passes are run on the <em>cleaned</em> crate.</p>
+<p>(Strictly speaking, you can fine-tune the passes run and even add your own, but
+<a href="https://github.com/rust-lang/rust/issues/44136">we're trying to deprecate that</a>. If you need finer-grain control over
+these passes, please let us know!)</p>
+<p>Here is the list of passes as of <!-- date: 2021-02 --> February 2021:</p>
+<ul>
+<li>
+<p><code>calculate-doc-coverage</code> calculates information used for the <code>--show-coverage</code>
+flag.</p>
+</li>
+<li>
+<p><code>check-code-block-syntax</code> validates syntax inside Rust code blocks
+(````rust`)</p>
+</li>
+<li>
+<p><code>check-invalid-html-tags</code> detects invalid HTML (like an unclosed <code>&lt;span&gt;</code>)
+in doc comments.</p>
+</li>
+<li>
+<p><code>check-non-autolinks</code> detects links that could or should be written using
+angle brackets (the code behind the nightly-only <!-- date: 2021-02 --></p>
+<p><code>non_autolinks</code> lint).</p>
+</li>
+<li>
+<p><code>collapse-docs</code> concatenates all document attributes into one document
+attribute. This is necessary because each line of a doc comment is given as a
+separate doc attribute, and this will combine them into a single string with
+line breaks between each attribute.</p>
+</li>
+<li>
+<p><code>collect-intra-doc-links</code> resolves <a href="https://doc.rust-lang.org/rustdoc/linking-to-items-by-name.html">intra-doc links</a>.</p>
+</li>
+<li>
+<p><code>collect-trait-impls</code> collects trait impls for each item in the crate. For
+example, if we define a struct that implements a trait, this pass will note
+that the struct implements that trait.</p>
+</li>
+<li>
+<p><code>doc-test-lints</code> runs various lints on the doctests.</p>
+</li>
+<li>
+<p><code>propagate-doc-cfg</code> propagates <code>#[doc(cfg(...))]</code> to child items.</p>
+</li>
+<li>
+<p><code>strip-priv-imports</code> strips all private import statements (<code>use</code>, <code>extern crate</code>) from a crate. This is necessary because rustdoc will handle <em>public</em>
+imports by either inlining the item's documentation to the module or creating
+a &quot;Reexports&quot; section with the import in it. The pass ensures that all of
+these imports are actually relevant to documentation.</p>
+</li>
+<li>
+<p><code>strip-hidden</code> and <code>strip-private</code> strip all <code>doc(hidden)</code> and private items
+from the output. <code>strip-private</code> implies <code>strip-priv-imports</code>. Basically, the
+goal is to remove items that are not relevant for public documentation.</p>
+</li>
+<li>
+<p><code>unindent-comments</code> removes excess indentation on comments in order for the
+Markdown to be parsed correctly. This is necessary because the convention for
+writing documentation is to provide a space between the <code>///</code> or <code>//!</code> marker
+and the doc text, but Markdown is whitespace-sensitive. For example, a block
+of text with four-space indentation is parsed as a code block, so if we didn't
+unindent comments, these list items</p>
+<pre><code class="language-rust ignore">/// A list:
+///
+///    - Foo
+///    - Bar
+</code></pre>
+<p>would be parsed as if they were in a code block, which is likely not what the
+user intended.</p>
+</li>
+</ul>
+<p>There is also a <code>stripper</code> module in <code>passes/</code>, but it is a collection of
+utility functions for the <code>strip-*</code> passes and is not a pass itself.</p>
+<h2 id="from-clean-to-crate"><a class="header" href="#from-clean-to-crate">From clean to crate</a></h2>
+<p>This is where the &quot;second phase&quot; in rustdoc begins. This phase primarily lives
+in the <code>html/</code> folder, and it all starts with <code>run()</code> in <code>html/render.rs</code>. This
+code is responsible for setting up the <code>Context</code>, <code>SharedContext</code>, and <code>Cache</code>
+which are used during rendering, copying out the static files which live in
+every rendered set of documentation (things like the fonts, CSS, and JavaScript
+that live in <code>html/static/</code>), creating the search index, and printing out the
+source code rendering, before beginning the process of rendering all the
+documentation for the crate.</p>
+<p>Several functions implemented directly on <code>Context</code> take the <code>clean::Crate</code> and
+set up some state between rendering items or recursing on a module's child
+items. From here the &quot;page rendering&quot; begins, via an enormous <code>write!()</code> call
+in <code>html/layout.rs</code>. The parts that actually generate HTML from the items and
+documentation occurs within a series of <code>std::fmt::Display</code> implementations and
+functions that pass around a <code>&amp;mut std::fmt::Formatter</code>. The top-level
+implementation that writes out the page body is the <code>impl&lt;'a&gt; fmt::Display for Item&lt;'a&gt;</code> in <code>html/render.rs</code>, which switches out to one of several <code>item_*</code>
+functions based on the kind of <code>Item</code> being rendered.</p>
+<p>Depending on what kind of rendering code you're looking for, you'll probably
+find it either in <code>html/render.rs</code> for major items like &quot;what sections should I
+print for a struct page&quot; or <code>html/format.rs</code> for smaller component pieces like
+&quot;how should I print a where clause as part of some other item&quot;.</p>
+<p>Whenever rustdoc comes across an item that should print hand-written
+documentation alongside, it calls out to <code>html/markdown.rs</code> which interfaces
+with the Markdown parser. This is exposed as a series of types that wrap a
+string of Markdown, and implement <code>fmt::Display</code> to emit HTML text. It takes
+special care to enable certain features like footnotes and tables and add
+syntax highlighting to Rust code blocks (via <code>html/highlight.rs</code>) before
+running the Markdown parser. There's also a function in here
+(<code>find_testable_code</code>) that specifically scans for Rust code blocks so the
+test-runner code can find all the doctests in the crate.</p>
+<h3 id="from-soup-to-nuts"><a class="header" href="#from-soup-to-nuts">From soup to nuts</a></h3>
+<p>(alternate title: <a href="https://www.youtube.com/watch?v=hOLAGYmUQV0">&quot;An unbroken thread that stretches from those first <code>Cell</code>s
+to us&quot;</a>)</p>
+<p>It's important to note that the AST cleaning can ask the compiler for
+information (crucially, <code>DocContext</code> contains a <code>TyCtxt</code>), but page rendering
+cannot. The <code>clean::Crate</code> created within <code>run_core</code> is passed outside the
+compiler context before being handed to <code>html::render::run</code>. This means that a
+lot of the &quot;supplementary data&quot; that isn't immediately available inside an
+item's definition, like which trait is the <code>Deref</code> trait used by the language,
+needs to be collected during cleaning, stored in the <code>DocContext</code>, and passed
+along to the <code>SharedContext</code> during HTML rendering.  This manifests as a bunch
+of shared state, context variables, and <code>RefCell</code>s.</p>
+<p>Also of note is that some items that come from &quot;asking the compiler&quot; don't go
+directly into the <code>DocContext</code> - for example, when loading items from a foreign
+crate, rustdoc will ask about trait implementations and generate new <code>Item</code>s
+for the impls based on that information. This goes directly into the returned
+<code>Crate</code> rather than roundabout through the <code>DocContext</code>. This way, these
+implementations can be collected alongside the others, right before rendering
+the HTML.</p>
+<h2 id="other-tricks-up-its-sleeve"><a class="header" href="#other-tricks-up-its-sleeve">Other tricks up its sleeve</a></h2>
+<p>All this describes the process for generating HTML documentation from a Rust
+crate, but there are couple other major modes that rustdoc runs in. It can also
+be run on a standalone Markdown file, or it can run doctests on Rust code or
+standalone Markdown files. For the former, it shortcuts straight to
+<code>html/markdown.rs</code>, optionally including a mode which inserts a Table of
+Contents to the output HTML.</p>
+<p>For the latter, rustdoc runs a similar partial-compilation to get relevant
+documentation in <code>test.rs</code>, but instead of going through the full clean and
+render process, it runs a much simpler crate walk to grab <em>just</em> the
+hand-written documentation. Combined with the aforementioned
+&quot;<code>find_testable_code</code>&quot; in <code>html/markdown.rs</code>, it builds up a collection of
+tests to run before handing them off to the test runner. One notable
+location in <code>test.rs</code> is the function <code>make_test</code>, which is where hand-written
+doctests get transformed into something that can be executed.</p>
+<p>Some extra reading about <code>make_test</code> can be found
+<a href="https://quietmisdreavus.net/code/2018/02/23/how-the-doctests-get-made/">here</a>.</p>
+<h2 id="dotting-is-and-crossing-ts"><a class="header" href="#dotting-is-and-crossing-ts">Dotting i's and crossing t's</a></h2>
+<p>So that's rustdoc's code in a nutshell, but there's more things in the repo
+that deal with it. Since we have the full <code>compiletest</code> suite at hand, there's
+a set of tests in <code>src/test/rustdoc</code> that make sure the final HTML is what we
+expect in various situations. These tests also use a supplementary script,
+<code>src/etc/htmldocck.py</code>, that allows it to look through the final HTML using
+XPath notation to get a precise look at the output. The full description of all
+the commands available to rustdoc tests (e.g. <a href="https://github.com/rust-lang/rust/blob/master/src/etc/htmldocck.py#L39"><code>@has</code></a> and <a href="https://github.com/rust-lang/rust/blob/master/src/etc/htmldocck.py#L44"><code>@matches</code></a>) is in
+<a href="https://github.com/rust-lang/rust/blob/master/src/etc/htmldocck.py"><code>htmldocck.py</code></a>.</p>
+<p>To use multiple crates in a rustdoc test, add <code>// aux-build:filename.rs</code>
+to the top of the test file. <code>filename.rs</code> should be placed in an <code>auxiliary</code>
+directory relative to the test file with the comment. If you need to build
+docs for the auxiliary file, use <code>// build-aux-docs</code>.</p>
+<p>In addition, there are separate tests for the search index and rustdoc's
+ability to query it. The files in <code>src/test/rustdoc-js</code> each contain a
+different search query and the expected results, broken out by search tab.
+These files are processed by a script in <code>src/tools/rustdoc-js</code> and the Node.js
+runtime. These tests don't have as thorough of a writeup, but a broad example
+that features results in all tabs can be found in <code>basic.js</code>. The basic idea is
+that you match a given <code>QUERY</code> with a set of <code>EXPECTED</code> results, complete with
+the full item path of each item.</p>
+<h2 id="testing-locally"><a class="header" href="#testing-locally">Testing locally</a></h2>
+<p>Some features of the generated HTML documentation might require local
+storage to be used across pages, which doesn't work well without an HTTP
+server. To test these features locally, you can run a local HTTP server, like
+this:</p>
+<pre><code class="language-bash">$ ./x.py doc library/std
+# The documentation has been generated into `build/[YOUR ARCH]/doc`.
+$ python3 -m http.server -d build/[YOUR ARCH]/doc
+</code></pre>
+<p>Now you can browse your documentation just like you would if it was hosted
+on the internet. For example, the url for <code>std</code> will be `/std/&quot;.</p>
+<h2 id="see-also"><a class="header" href="#see-also">See also</a></h2>
+<ul>
+<li>The <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustdoc/"><code>rustdoc</code> api docs</a></li>
+<li><a href="./rustdoc.html">An overview of <code>rustdoc</code></a></li>
+<li><a href="https://doc.rust-lang.org/nightly/rustdoc/">The rustdoc user guide</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="parallel-rustc.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="part-3-intro.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="parallel-rustc.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="part-3-intro.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

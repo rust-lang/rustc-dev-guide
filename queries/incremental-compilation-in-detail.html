@@ -1,0 +1,736 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Incremental compilation In Detail - Guide to Rustc Development</title>
+        
+        
+
+
+        <!-- Custom HTML head -->
+        
+
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="A guide to developing rustc">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        
+        <link rel="icon" href="../favicon.svg">
+        
+        
+        <link rel="shortcut icon" href="../favicon.png">
+        
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        
+        <link rel="stylesheet" href="../css/print.css" media="print">
+        
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        
+        <link rel="stylesheet" href="../fonts/fonts.css">
+        
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item affix "><a href="../about-this-guide.html">About this guide</a></li><li class="chapter-item affix "><a href="../getting-started.html">Getting Started</a></li><li class="spacer"></li><li class="chapter-item affix "><li class="part-title">Building and debugging rustc</li><li class="chapter-item "><a href="../building/how-to-build-and-run.html"><strong aria-hidden="true">1.</strong> How to Build and Run the Compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../building/prerequisites.html"><strong aria-hidden="true">1.1.</strong> Prerequisites</a></li><li class="chapter-item "><a href="../building/suggested.html"><strong aria-hidden="true">1.2.</strong> Suggested Workflows</a></li><li class="chapter-item "><a href="../building/build-install-distribution-artifacts.html"><strong aria-hidden="true">1.3.</strong> Distribution artifacts</a></li><li class="chapter-item "><a href="../building/compiler-documenting.html"><strong aria-hidden="true">1.4.</strong> Documenting Compiler</a></li><li class="chapter-item "><a href="../rustdoc.html"><strong aria-hidden="true">1.5.</strong> Rustdoc overview</a></li><li class="chapter-item "><a href="../building/ctags.html"><strong aria-hidden="true">1.6.</strong> ctags</a></li><li class="chapter-item "><a href="../building/new-target.html"><strong aria-hidden="true">1.7.</strong> Adding a new target</a></li></ol></li><li class="chapter-item "><a href="../tests/intro.html"><strong aria-hidden="true">2.</strong> The compiler testing framework</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../tests/running.html"><strong aria-hidden="true">2.1.</strong> Running tests</a></li><li class="chapter-item "><a href="../tests/adding.html"><strong aria-hidden="true">2.2.</strong> Adding new tests</a></li><li class="chapter-item "><a href="../compiletest.html"><strong aria-hidden="true">2.3.</strong> Using compiletest commands to control test execution</a></li></ol></li><li class="chapter-item "><a href="../compiler-debugging.html"><strong aria-hidden="true">3.</strong> Debugging the Compiler</a></li><li class="chapter-item "><a href="../profiling.html"><strong aria-hidden="true">4.</strong> Profiling the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../profiling/with_perf.html"><strong aria-hidden="true">4.1.</strong> with the linux perf tool</a></li><li class="chapter-item "><a href="../profiling/wpa_profiling.html"><strong aria-hidden="true">4.2.</strong> with Windows Performance Analyzer</a></li></ol></li><li class="chapter-item "><a href="../crates-io.html"><strong aria-hidden="true">5.</strong> crates.io Dependencies</a></li><li class="chapter-item affix "><li class="part-title">Contributing to Rust</li><li class="chapter-item "><a href="../contributing.html"><strong aria-hidden="true">6.</strong> Introduction</a></li><li class="chapter-item "><a href="../compiler-team.html"><strong aria-hidden="true">7.</strong> About the compiler team</a></li><li class="chapter-item "><a href="../git.html"><strong aria-hidden="true">8.</strong> Using Git</a></li><li class="chapter-item "><a href="../rustbot.html"><strong aria-hidden="true">9.</strong> Mastering @rustbot</a></li><li class="chapter-item "><a href="../walkthrough.html"><strong aria-hidden="true">10.</strong> Walkthrough: a typical contribution</a></li><li class="chapter-item "><a href="../bug-fix-procedure.html"><strong aria-hidden="true">11.</strong> Bug Fix Procedure</a></li><li class="chapter-item "><a href="../implementing_new_features.html"><strong aria-hidden="true">12.</strong> Implementing new features</a></li><li class="chapter-item "><a href="../stability.html"><strong aria-hidden="true">13.</strong> Stability attributes</a></li><li class="chapter-item "><a href="../stabilization_guide.html"><strong aria-hidden="true">14.</strong> Stabilizing Features</a></li><li class="chapter-item "><a href="../feature-gates.html"><strong aria-hidden="true">15.</strong> Feature Gates</a></li><li class="chapter-item "><a href="../conventions.html"><strong aria-hidden="true">16.</strong> Coding conventions</a></li><li class="chapter-item "><a href="../notification-groups/about.html"><strong aria-hidden="true">17.</strong> Notification groups</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../notification-groups/arm.html"><strong aria-hidden="true">17.1.</strong> ARM</a></li><li class="chapter-item "><a href="../notification-groups/cleanup-crew.html"><strong aria-hidden="true">17.2.</strong> Cleanup Crew</a></li><li class="chapter-item "><a href="../notification-groups/llvm.html"><strong aria-hidden="true">17.3.</strong> LLVM</a></li><li class="chapter-item "><a href="../notification-groups/risc-v.html"><strong aria-hidden="true">17.4.</strong> RISC-V</a></li><li class="chapter-item "><a href="../notification-groups/windows.html"><strong aria-hidden="true">17.5.</strong> Windows</a></li></ol></li><li class="chapter-item "><a href="../licenses.html"><strong aria-hidden="true">18.</strong> Licenses</a></li><li class="chapter-item affix "><li class="part-title">High-level Compiler Architecture</li><li class="chapter-item "><a href="../part-2-intro.html"><strong aria-hidden="true">19.</strong> Prologue</a></li><li class="chapter-item "><a href="../overview.html"><strong aria-hidden="true">20.</strong> Overview of the Compiler</a></li><li class="chapter-item "><a href="../compiler-src.html"><strong aria-hidden="true">21.</strong> The compiler source code</a></li><li class="chapter-item "><a href="../building/bootstrapping.html"><strong aria-hidden="true">22.</strong> Bootstrapping</a></li><li class="chapter-item expanded "><a href="../query.html"><strong aria-hidden="true">23.</strong> Queries: demand-driven compilation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../queries/query-evaluation-model-in-detail.html"><strong aria-hidden="true">23.1.</strong> The Query Evaluation Model in Detail</a></li><li class="chapter-item "><a href="../queries/incremental-compilation.html"><strong aria-hidden="true">23.2.</strong> Incremental compilation</a></li><li class="chapter-item expanded "><a href="../queries/incremental-compilation-in-detail.html" class="active"><strong aria-hidden="true">23.3.</strong> Incremental compilation In Detail</a></li><li class="chapter-item "><a href="../incrcomp-debugging.html"><strong aria-hidden="true">23.4.</strong> Debugging and Testing</a></li><li class="chapter-item "><a href="../queries/profiling.html"><strong aria-hidden="true">23.5.</strong> Profiling Queries</a></li><li class="chapter-item "><a href="../salsa.html"><strong aria-hidden="true">23.6.</strong> Salsa</a></li></ol></li><li class="chapter-item "><a href="../memory.html"><strong aria-hidden="true">24.</strong> Memory Management in Rustc</a></li><li class="chapter-item "><a href="../serialization.html"><strong aria-hidden="true">25.</strong> Serialization in Rustc</a></li><li class="chapter-item "><a href="../parallel-rustc.html"><strong aria-hidden="true">26.</strong> Parallel Compilation</a></li><li class="chapter-item "><a href="../rustdoc-internals.html"><strong aria-hidden="true">27.</strong> Rustdoc internals</a></li><li class="chapter-item affix "><li class="part-title">Source Code Representation</li><li class="chapter-item "><a href="../part-3-intro.html"><strong aria-hidden="true">28.</strong> Prologue</a></li><li class="chapter-item "><a href="../cli.html"><strong aria-hidden="true">29.</strong> Command-line arguments</a></li><li class="chapter-item "><a href="../rustc-driver.html"><strong aria-hidden="true">30.</strong> The Rustc Driver and Interface</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../rustc-driver-interacting-with-the-ast.html"><strong aria-hidden="true">30.1.</strong> Ex: Type checking through rustc_interface</a></li><li class="chapter-item "><a href="../rustc-driver-getting-diagnostics.html"><strong aria-hidden="true">30.2.</strong> Ex: Getting diagnostics through rustc_interface</a></li></ol></li><li class="chapter-item "><a href="../syntax-intro.html"><strong aria-hidden="true">31.</strong> Syntax and the AST</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../the-parser.html"><strong aria-hidden="true">31.1.</strong> Lexing and Parsing</a></li><li class="chapter-item "><a href="../macro-expansion.html"><strong aria-hidden="true">31.2.</strong> Macro expansion</a></li><li class="chapter-item "><a href="../name-resolution.html"><strong aria-hidden="true">31.3.</strong> Name resolution</a></li><li class="chapter-item "><a href="../test-implementation.html"><strong aria-hidden="true">31.4.</strong> #[test] Implementation</a></li><li class="chapter-item "><a href="../panic-implementation.html"><strong aria-hidden="true">31.5.</strong> Panic Implementation</a></li><li class="chapter-item "><a href="../ast-validation.html"><strong aria-hidden="true">31.6.</strong> AST Validation</a></li><li class="chapter-item "><a href="../feature-gate-ck.html"><strong aria-hidden="true">31.7.</strong> Feature Gate Checking</a></li><li class="chapter-item "><a href="../lang-items.html"><strong aria-hidden="true">31.8.</strong> Lang Items</a></li></ol></li><li class="chapter-item "><a href="../hir.html"><strong aria-hidden="true">32.</strong> The HIR (High-level IR)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../lowering.html"><strong aria-hidden="true">32.1.</strong> Lowering AST to HIR</a></li><li class="chapter-item "><a href="../hir-debugging.html"><strong aria-hidden="true">32.2.</strong> Debugging</a></li></ol></li><li class="chapter-item "><a href="../thir.html"><strong aria-hidden="true">33.</strong> The THIR (Typed High-level IR)</a></li><li class="chapter-item "><a href="../mir/index.html"><strong aria-hidden="true">34.</strong> The MIR (Mid-level IR)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../mir/construction.html"><strong aria-hidden="true">34.1.</strong> MIR construction</a></li><li class="chapter-item "><a href="../mir/visitor.html"><strong aria-hidden="true">34.2.</strong> MIR visitor and traversal</a></li><li class="chapter-item "><a href="../mir/passes.html"><strong aria-hidden="true">34.3.</strong> MIR passes: getting the MIR for a function</a></li></ol></li><li class="chapter-item "><a href="../identifiers.html"><strong aria-hidden="true">35.</strong> Identifiers in the Compiler</a></li><li class="chapter-item "><a href="../closure.html"><strong aria-hidden="true">36.</strong> Closure expansion</a></li><li class="chapter-item affix "><li class="part-title">Analysis</li><li class="chapter-item "><a href="../part-4-intro.html"><strong aria-hidden="true">37.</strong> Prologue</a></li><li class="chapter-item "><a href="../ty.html"><strong aria-hidden="true">38.</strong> The ty module: representing types</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../generics.html"><strong aria-hidden="true">38.1.</strong> Generics and substitutions</a></li><li class="chapter-item "><a href="../ty-fold.html"><strong aria-hidden="true">38.2.</strong> TypeFolder and TypeFoldable</a></li><li class="chapter-item "><a href="../generic_arguments.html"><strong aria-hidden="true">38.3.</strong> Generic arguments</a></li></ol></li><li class="chapter-item "><a href="../type-inference.html"><strong aria-hidden="true">39.</strong> Type inference</a></li><li class="chapter-item "><a href="../traits/resolution.html"><strong aria-hidden="true">40.</strong> Trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../early-late-bound.html"><strong aria-hidden="true">40.1.</strong> Early and Late Bound Parameters</a></li><li class="chapter-item "><a href="../traits/hrtb.html"><strong aria-hidden="true">40.2.</strong> Higher-ranked trait bounds</a></li><li class="chapter-item "><a href="../traits/caching.html"><strong aria-hidden="true">40.3.</strong> Caching subtleties</a></li><li class="chapter-item "><a href="../traits/specialization.html"><strong aria-hidden="true">40.4.</strong> Specialization</a></li><li class="chapter-item "><a href="../traits/chalk.html"><strong aria-hidden="true">40.5.</strong> Chalk-based trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../traits/lowering-to-logic.html"><strong aria-hidden="true">40.5.1.</strong> Lowering to logic</a></li><li class="chapter-item "><a href="../traits/goals-and-clauses.html"><strong aria-hidden="true">40.5.2.</strong> Goals and clauses</a></li><li class="chapter-item "><a href="../traits/canonical-queries.html"><strong aria-hidden="true">40.5.3.</strong> Canonical queries</a></li></ol></li></ol></li><li class="chapter-item "><a href="../type-checking.html"><strong aria-hidden="true">41.</strong> Type checking</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../method-lookup.html"><strong aria-hidden="true">41.1.</strong> Method Lookup</a></li><li class="chapter-item "><a href="../variance.html"><strong aria-hidden="true">41.2.</strong> Variance</a></li><li class="chapter-item "><a href="../opaque-types-type-alias-impl-trait.html"><strong aria-hidden="true">41.3.</strong> Opaque Types</a></li></ol></li><li class="chapter-item "><a href="../pat-exhaustive-checking.html"><strong aria-hidden="true">42.</strong> Pattern and Exhaustiveness Checking</a></li><li class="chapter-item "><a href="../mir/dataflow.html"><strong aria-hidden="true">43.</strong> MIR dataflow</a></li><li class="chapter-item "><a href="../borrow_check.html"><strong aria-hidden="true">44.</strong> The borrow checker</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../borrow_check/moves_and_initialization.html"><strong aria-hidden="true">44.1.</strong> Tracking moves and initialization</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../borrow_check/moves_and_initialization/move_paths.html"><strong aria-hidden="true">44.1.1.</strong> Move paths</a></li></ol></li><li class="chapter-item "><a href="../borrow_check/type_check.html"><strong aria-hidden="true">44.2.</strong> MIR type checker</a></li><li class="chapter-item "><a href="../borrow_check/region_inference.html"><strong aria-hidden="true">44.3.</strong> Region inference</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../borrow_check/region_inference/constraint_propagation.html"><strong aria-hidden="true">44.3.1.</strong> Constraint propagation</a></li><li class="chapter-item "><a href="../borrow_check/region_inference/lifetime_parameters.html"><strong aria-hidden="true">44.3.2.</strong> Lifetime parameters</a></li><li class="chapter-item "><a href="../borrow_check/region_inference/member_constraints.html"><strong aria-hidden="true">44.3.3.</strong> Member constraints</a></li><li class="chapter-item "><a href="../borrow_check/region_inference/placeholders_and_universes.html"><strong aria-hidden="true">44.3.4.</strong> Placeholders and universes</a></li><li class="chapter-item "><a href="../borrow_check/region_inference/closure_constraints.html"><strong aria-hidden="true">44.3.5.</strong> Closure constraints</a></li><li class="chapter-item "><a href="../borrow_check/region_inference/error_reporting.html"><strong aria-hidden="true">44.3.6.</strong> Error reporting</a></li></ol></li><li class="chapter-item "><a href="../borrow_check/two_phase_borrows.html"><strong aria-hidden="true">44.4.</strong> Two-phase-borrows</a></li></ol></li><li class="chapter-item "><a href="../param_env.html"><strong aria-hidden="true">45.</strong> Parameter Environments</a></li><li class="chapter-item "><a href="../diagnostics.html"><strong aria-hidden="true">46.</strong> Errors and Lints</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../diagnostics/sessiondiagnostic.html"><strong aria-hidden="true">46.1.</strong> Creating Errors With SessionDiagnostic</a></li><li class="chapter-item "><a href="../diagnostics/lintstore.html"><strong aria-hidden="true">46.2.</strong> LintStore</a></li><li class="chapter-item "><a href="../diagnostics/diagnostic-codes.html"><strong aria-hidden="true">46.3.</strong> Diagnostic Codes</a></li></ol></li><li class="chapter-item "><li class="part-title">MIR to Binaries</li><li class="chapter-item "><a href="../part-5-intro.html"><strong aria-hidden="true">47.</strong> Prologue</a></li><li class="chapter-item "><a href="../mir/optimizations.html"><strong aria-hidden="true">48.</strong> MIR optimizations</a></li><li class="chapter-item "><a href="../mir/debugging.html"><strong aria-hidden="true">49.</strong> Debugging</a></li><li class="chapter-item "><a href="../const-eval.html"><strong aria-hidden="true">50.</strong> Constant evaluation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../miri.html"><strong aria-hidden="true">50.1.</strong> miri const evaluator</a></li></ol></li><li class="chapter-item "><a href="../backend/monomorph.html"><strong aria-hidden="true">51.</strong> Monomorphization</a></li><li class="chapter-item "><a href="../backend/lowering-mir.html"><strong aria-hidden="true">52.</strong> Lowering MIR</a></li><li class="chapter-item "><a href="../backend/codegen.html"><strong aria-hidden="true">53.</strong> Code Generation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../backend/updating-llvm.html"><strong aria-hidden="true">53.1.</strong> Updating LLVM</a></li><li class="chapter-item "><a href="../backend/debugging.html"><strong aria-hidden="true">53.2.</strong> Debugging LLVM</a></li><li class="chapter-item "><a href="../backend/backend-agnostic.html"><strong aria-hidden="true">53.3.</strong> Backend Agnostic Codegen</a></li><li class="chapter-item "><a href="../backend/implicit-caller-location.html"><strong aria-hidden="true">53.4.</strong> Implicit Caller Location</a></li></ol></li><li class="chapter-item "><a href="../backend/libs-and-metadata.html"><strong aria-hidden="true">54.</strong> Libraries and Metadata</a></li><li class="chapter-item "><a href="../profile-guided-optimization.html"><strong aria-hidden="true">55.</strong> Profile-guided Optimization</a></li><li class="chapter-item "><a href="../llvm-coverage-instrumentation.html"><strong aria-hidden="true">56.</strong> LLVM Source-Based Code Coverage</a></li><li class="chapter-item "><a href="../sanitizers.html"><strong aria-hidden="true">57.</strong> Sanitizers Support</a></li><li class="chapter-item "><a href="../debugging-support-in-rustc.html"><strong aria-hidden="true">58.</strong> Debugging Support in the Rust Compiler</a></li><li class="spacer"></li><li class="chapter-item affix "><a href="../appendix/background.html">Appendix A: Background topics</a></li><li class="chapter-item affix "><a href="../appendix/glossary.html">Appendix B: Glossary</a></li><li class="chapter-item affix "><a href="../appendix/code-index.html">Appendix C: Code Index</a></li><li class="chapter-item affix "><a href="../appendix/compiler-lecture.html">Appendix D: Compiler Lecture Series</a></li><li class="chapter-item affix "><a href="../appendix/bibliography.html">Appendix E: Bibliography</a></li><li class="chapter-item affix "><a href="../appendix/humorust.html">Appendix Z: HumorRust</a></li><li class="spacer"></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">Guide to Rustc Development</h1>
+
+                    <div class="right-buttons">
+                        
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                        
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="incremental-compilation-in-detail"><a class="header" href="#incremental-compilation-in-detail">Incremental Compilation In Detail</a></h1>
+<ul>
+<li><a href="#a-basic-algorithm-for-incremental-query-evaluation">A Basic Algorithm For Incremental Query Evaluation</a></li>
+<li><a href="#the-problem-with-the-basic-algorithm-false-positives">The Problem With The Basic Algorithm: False Positives</a></li>
+<li><a href="#improving-accuracy-the-red-green-algorithm">Improving Accuracy: The red-green Algorithm</a></li>
+<li><a href="#the-real-world-how-persistence-makes-everything-complicated">The Real World: How Persistence Makes Everything Complicated</a>
+<ul>
+<li><a href="#a-question-of-stability-bridging-the-gap-between-compilation-sessions">A Question Of Stability: Bridging The Gap Between Compilation Sessions</a></li>
+<li><a href="#checking-query-results-for-changes-hashstable-and-fingerprints">Checking Query Results For Changes: HashStable And Fingerprints</a></li>
+<li><a href="#a-tale-of-two-depgraphs-the-old-and-the-new">A Tale Of Two DepGraphs: The Old And The New</a></li>
+<li><a href="#didnt-you-forget-something-cache-promotion">Didn't You Forget Something?: Cache Promotion</a></li>
+</ul>
+</li>
+<li><a href="#incremental-compilation-and-the-compiler-backend">Incremental Compilation and the Compiler Backend</a>
+<ul>
+<li><a href="#query-modifiers">Query Modifiers</a></li>
+<li><a href="#the-projection-query-pattern">The Projection Query Pattern</a></li>
+</ul>
+</li>
+<li><a href="#shortcomings-of-the-current-system">Shortcomings of the Current System</a>
+<ul>
+<li><a href="#incrementality-of-on-disk-data-structures">Incrementality of on-disk data structures</a></li>
+<li><a href="#unnecessary-data-dependencies">Unnecessary data dependencies</a></li>
+</ul>
+</li>
+</ul>
+<p>The incremental compilation scheme is, in essence, a surprisingly
+simple extension to the overall query system. It relies on the fact that:</p>
+<ol>
+<li>queries are pure functions -- given the same inputs, a query will always
+yield the same result, and</li>
+<li>the query model structures compilation in an acyclic graph that makes
+dependencies between individual computations explicit.</li>
+</ol>
+<p>This chapter will explain how we can use these properties for making things
+incremental and then goes on to discuss version implementation issues.</p>
+<h2 id="a-basic-algorithm-for-incremental-query-evaluation"><a class="header" href="#a-basic-algorithm-for-incremental-query-evaluation">A Basic Algorithm For Incremental Query Evaluation</a></h2>
+<p>As explained in the <a href="./query-evaluation-model-in-detail.html">query evaluation model primer</a>, query
+invocations form a directed-acyclic graph. Here's the example from the
+previous chapter again:</p>
+<pre><code class="language-ignore">  list_of_all_hir_items &lt;----------------------------- type_check_crate()
+                                                               |
+                                                               |
+  Hir(foo) &lt;--- type_of(foo) &lt;--- type_check_item(foo) &lt;-------+
+                                      |                        |
+                    +-----------------+                        |
+                    |                                          |
+                    v                                          |
+  Hir(bar) &lt;--- type_of(bar) &lt;--- type_check_item(bar) &lt;-------+
+</code></pre>
+<p>Since every access from one query to another has to go through the query
+context, we can record these accesses and thus actually build this dependency
+graph in memory. With dependency tracking enabled, when compilation is done,
+we know which queries were invoked (the nodes of the graph) and for each
+invocation, which other queries or input has gone into computing the query's
+result (the edges of the graph).</p>
+<p>Now suppose we change the source code of our program so that
+HIR of <code>bar</code> looks different than before. Our goal is to only recompute
+those queries that are actually affected by the change while re-using
+the cached results of all the other queries. Given the dependency graph we can
+do exactly that. For a given query invocation, the graph tells us exactly
+what data has gone into computing its results, we just have to follow the
+edges until we reach something that has changed. If we don't encounter
+anything that has changed, we know that the query still would evaluate to
+the same result we already have in our cache.</p>
+<p>Taking the <code>type_of(foo)</code> invocation from above as an example, we can check
+whether the cached result is still valid by following the edges to its
+inputs. The only edge leads to <code>Hir(foo)</code>, an input that has not been affected
+by the change. So we know that the cached result for <code>type_of(foo)</code> is still
+valid.</p>
+<p>The story is a bit different for <code>type_check_item(foo)</code>: We again walk the
+edges and already know that <code>type_of(foo)</code> is fine. Then we get to
+<code>type_of(bar)</code> which we have not checked yet, so we walk the edges of
+<code>type_of(bar)</code> and encounter <code>Hir(bar)</code> which <em>has</em> changed. Consequently
+the result of <code>type_of(bar)</code> might yield a different same result than what we
+have in the cache and, transitively, the result of <code>type_check_item(foo)</code>
+might have changed too. We thus re-run <code>type_check_item(foo)</code>, which in
+turn will re-run <code>type_of(bar)</code>, which will yield an up-to-date result
+because it reads the up-to-date version of <code>Hir(bar)</code>.</p>
+<h2 id="the-problem-with-the-basic-algorithm-false-positives"><a class="header" href="#the-problem-with-the-basic-algorithm-false-positives">The Problem With The Basic Algorithm: False Positives</a></h2>
+<p>If you read the previous paragraph carefully you'll notice that it says that
+<code>type_of(bar)</code> <em>might</em> have changed because one of its inputs has changed.
+There's also the possibility that it might still yield exactly the same
+result <em>even though</em> its input has changed. Consider an example with a
+simple query that just computes the sign of an integer:</p>
+<pre><code class="language-ignore">  IntValue(x) &lt;---- sign_of(x) &lt;--- some_other_query(x)
+</code></pre>
+<p>Let's say that <code>IntValue(x)</code> starts out as <code>1000</code> and then is set to <code>2000</code>.
+Even though <code>IntValue(x)</code> is different in the two cases, <code>sign_of(x)</code> yields
+the result <code>+</code> in both cases.</p>
+<p>If we follow the basic algorithm, however, <code>some_other_query(x)</code> would have to
+(unnecessarily) be re-evaluated because it transitively depends on a changed
+input. Change detection yields a &quot;false positive&quot; in this case because it has
+to conservatively assume that <code>some_other_query(x)</code> might be affected by that
+changed input.</p>
+<p>Unfortunately it turns out that the actual queries in the compiler are full
+of examples like this and small changes to the input often potentially affect
+very large parts of the output binaries. As a consequence, we had to make the
+change detection system smarter and more accurate.</p>
+<h2 id="improving-accuracy-the-red-green-algorithm"><a class="header" href="#improving-accuracy-the-red-green-algorithm">Improving Accuracy: The red-green Algorithm</a></h2>
+<p>The &quot;false positives&quot; problem can be solved by interleaving change detection
+and query re-evaluation. Instead of walking the graph all the way to the
+inputs when trying to find out if some cached result is still valid, we can
+check if a result has <em>actually</em> changed after we were forced to re-evaluate
+it.</p>
+<p>We call this algorithm the red-green algorithm because nodes
+in the dependency graph are assigned the color green if we were able to prove
+that its cached result is still valid and the color red if the result has
+turned out to be different after re-evaluating it.</p>
+<p>The meat of red-green change tracking is implemented in the try-mark-green
+algorithm, that, you've guessed it, tries to mark a given node as green:</p>
+<pre><code class="language-rust ignore">fn try_mark_green(tcx, current_node) -&gt; bool {
+
+    // Fetch the inputs to `current_node`, i.e. get the nodes that the direct
+    // edges from `node` lead to.
+    let dependencies = tcx.dep_graph.get_dependencies_of(current_node);
+
+    // Now check all the inputs for changes
+    for dependency in dependencies {
+
+        match tcx.dep_graph.get_node_color(dependency) {
+            Green =&gt; {
+                // This input has already been checked before and it has not
+                // changed; so we can go on to check the next one
+            }
+            Red =&gt; {
+                // We found an input that has changed. We cannot mark
+                // `current_node` as green without re-running the
+                // corresponding query.
+                return false
+            }
+            Unknown =&gt; {
+                // This is the first time we look at this node. Let's try
+                // to mark it green by calling try_mark_green() recursively.
+                if try_mark_green(tcx, dependency) {
+                    // We successfully marked the input as green, on to the
+                    // next.
+                } else {
+                    // We could *not* mark the input as green. This means we
+                    // don't know if its value has changed. In order to find
+                    // out, we re-run the corresponding query now!
+                    tcx.run_query_for(dependency);
+
+                    // Fetch and check the node color again. Running the query
+                    // has forced it to either red (if it yielded a different
+                    // result than we have in the cache) or green (if it
+                    // yielded the same result).
+                    match tcx.dep_graph.get_node_color(dependency) {
+                        Red =&gt; {
+                            // The input turned out to be red, so we cannot
+                            // mark `current_node` as green.
+                            return false
+                        }
+                        Green =&gt; {
+                            // Re-running the query paid off! The result is the
+                            // same as before, so this particular input does
+                            // not invalidate `current_node`.
+                        }
+                        Unknown =&gt; {
+                            // There is no way a node has no color after
+                            // re-running the query.
+                            panic!(&quot;unreachable&quot;)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // If we have gotten through the entire loop, it means that all inputs
+    // have turned out to be green. If all inputs are unchanged, it means
+    // that the query result corresponding to `current_node` cannot have
+    // changed either.
+    tcx.dep_graph.mark_green(current_node);
+
+    true
+}
+
+// Note: The actual implementation can be found in
+//       compiler/rustc_middle/src/dep_graph/graph.rs
+</code></pre>
+<p>By using red-green marking we can avoid the devastating cumulative effect of
+having false positives during change detection. Whenever a query is executed
+in incremental mode, we first check if its already green. If not, we run
+<code>try_mark_green()</code> on it. If it still isn't green after that, then we actually
+invoke the query provider to re-compute the result.</p>
+<h2 id="the-real-world-how-persistence-makes-everything-complicated"><a class="header" href="#the-real-world-how-persistence-makes-everything-complicated">The Real World: How Persistence Makes Everything Complicated</a></h2>
+<p>The sections above described the underlying algorithm for incremental
+compilation but because the compiler process exits after being finished and
+takes the query context with its result cache with it into oblivion, we have to
+persist data to disk, so the next compilation session can make use of it.
+This comes with a whole new set of implementation challenges:</p>
+<ul>
+<li>The query result cache is stored to disk, so they are not readily available
+for change comparison.</li>
+<li>A subsequent compilation session will start off with new version of the code
+that has arbitrary changes applied to it. All kinds of IDs and indices that
+are generated from a global, sequential counter (e.g. <code>NodeId</code>, <code>DefId</code>, etc)
+might have shifted, making the persisted results on disk not immediately
+usable anymore because the same numeric IDs and indices might refer to
+completely new things in the new compilation session.</li>
+<li>Persisting things to disk comes at a cost, so not every tiny piece of
+information should be actually cached in between compilation sessions.
+Fixed-sized, plain-old-data is preferred to complex things that need to run
+through an expensive (de-)serialization step.</li>
+</ul>
+<p>The following sections describe how the compiler solves these issues.</p>
+<h3 id="a-question-of-stability-bridging-the-gap-between-compilation-sessions"><a class="header" href="#a-question-of-stability-bridging-the-gap-between-compilation-sessions">A Question Of Stability: Bridging The Gap Between Compilation Sessions</a></h3>
+<p>As noted before, various IDs (like <code>DefId</code>) are generated by the compiler in a
+way that depends on the contents of the source code being compiled. ID assignment
+is usually deterministic, that is, if the exact same code is compiled twice,
+the same things will end up with the same IDs. However, if something
+changes, e.g. a function is added in the middle of a file, there is no
+guarantee that anything will have the same ID as it had before.</p>
+<p>As a consequence we cannot represent the data in our on-disk cache the same
+way it is represented in memory. For example, if we just stored a piece
+of type information like <code>TyKind::FnDef(DefId, &amp;'tcx Substs&lt;'tcx&gt;)</code> (as we do
+in memory) and then the contained <code>DefId</code> points to a different function in
+a new compilation session we'd be in trouble.</p>
+<p>The solution to this problem is to find &quot;stable&quot; forms for IDs which remain
+valid in between compilation sessions. For the most important case, <code>DefId</code>s,
+these are the so-called <code>DefPath</code>s. Each <code>DefId</code> has a
+corresponding <code>DefPath</code> but in place of a numeric ID, a <code>DefPath</code> is based on
+the path to the identified item, e.g. <code>std::collections::HashMap</code>. The
+advantage of an ID like this is that it is not affected by unrelated changes.
+For example, one can add a new function to <code>std::collections</code> but
+<code>std::collections::HashMap</code> would still be <code>std::collections::HashMap</code>. A
+<code>DefPath</code> is &quot;stable&quot; across changes made to the source code while a <code>DefId</code>
+isn't.</p>
+<p>There is also the <code>DefPathHash</code> which is just a 128-bit hash value of the
+<code>DefPath</code>. The two contain the same information and we mostly use the
+<code>DefPathHash</code> because it simpler to handle, being <code>Copy</code> and self-contained.</p>
+<p>This principle of stable identifiers is used to make the data in the on-disk
+cache resilient to source code changes. Instead of storing a <code>DefId</code>, we store
+the <code>DefPathHash</code> and when we deserialize something from the cache, we map the
+<code>DefPathHash</code> to the corresponding <code>DefId</code> in the <em>current</em> compilation session
+(which is just a simple hash table lookup).</p>
+<p>The <code>HirId</code>, used for identifying HIR components that don't have their own
+<code>DefId</code>, is another such stable ID. It is (conceptually) a pair of a <code>DefPath</code>
+and a <code>LocalId</code>, where the <code>LocalId</code> identifies something (e.g. a <code>hir::Expr</code>)
+locally within its &quot;owner&quot; (e.g. a <code>hir::Item</code>). If the owner is moved around,
+the <code>LocalId</code>s within it are still the same.</p>
+<h3 id="checking-query-results-for-changes-hashstable-and-fingerprints"><a class="header" href="#checking-query-results-for-changes-hashstable-and-fingerprints">Checking Query Results For Changes: HashStable And Fingerprints</a></h3>
+<p>In order to do red-green-marking we often need to check if the result of a
+query has changed compared to the result it had during the previous
+compilation session. There are two performance problems with this though:</p>
+<ul>
+<li>We'd like to avoid having to load the previous result from disk just for
+doing the comparison. We already computed the new result and will use that.
+Also loading a result from disk will &quot;pollute&quot; the interners with data that
+is unlikely to ever be used.</li>
+<li>We don't want to store each and every result in the on-disk cache. For
+example, it would be wasted effort to persist things to disk that are
+already available in upstream crates.</li>
+</ul>
+<p>The compiler avoids these problems by using so-called <code>Fingerprint</code>s. Each time
+a new query result is computed, the query engine will compute a 128 bit hash
+value of the result. We call this hash value &quot;the <code>Fingerprint</code> of the query
+result&quot;. The hashing is (and has to be) done &quot;in a stable way&quot;. This means
+that whenever something is hashed that might change in between compilation
+sessions (e.g. a <code>DefId</code>), we instead hash its stable equivalent
+(e.g. the corresponding <code>DefPath</code>). That's what the whole <code>HashStable</code>
+infrastructure is for. This way <code>Fingerprint</code>s computed in two
+different compilation sessions are still comparable.</p>
+<p>The next step is to store these fingerprints along with the dependency graph.
+This is cheap since fingerprints are just bytes to be copied. It's also cheap to
+load the entire set of fingerprints together with the dependency graph.</p>
+<p>Now, when red-green-marking reaches the point where it needs to check if a
+result has changed, it can just compare the (already loaded) previous
+fingerprint to the fingerprint of the new result.</p>
+<p>This approach works rather well but it's not without flaws:</p>
+<ul>
+<li>
+<p>There is a small possibility of hash collisions. That is, two different
+results could have the same fingerprint and the system would erroneously
+assume that the result hasn't changed, leading to a missed update.</p>
+<p>We mitigate this risk by using a high-quality hash function and a 128 bit
+wide hash value. Due to these measures the practical risk of a hash
+collision is negligible.</p>
+</li>
+<li>
+<p>Computing fingerprints is quite costly. It is the main reason why incremental
+compilation can be slower than non-incremental compilation. We are forced to
+use a good and thus expensive hash function, and we have to map things to
+their stable equivalents while doing the hashing.</p>
+</li>
+</ul>
+<h3 id="a-tale-of-two-depgraphs-the-old-and-the-new"><a class="header" href="#a-tale-of-two-depgraphs-the-old-and-the-new">A Tale Of Two DepGraphs: The Old And The New</a></h3>
+<p>The initial description of dependency tracking glosses over a few details
+that quickly become a head scratcher when actually trying to implement things.
+In particular it's easy to overlook that we are actually dealing with <em>two</em>
+dependency graphs: The one we built during the previous compilation session and
+the one that we are building for the current compilation session.</p>
+<p>When a compilation session starts, the compiler loads the previous dependency
+graph into memory as an immutable piece of data. Then, when a query is invoked,
+it will first try to mark the corresponding node in the graph as green. This
+means really that we are trying to mark the node in the <em>previous</em> dep-graph
+as green that corresponds to the query key in the <em>current</em> session. How do we
+do this mapping between current query key and previous <code>DepNode</code>? The answer
+is again <code>Fingerprint</code>s: Nodes in the dependency graph are identified by a
+fingerprint of the query key. Since fingerprints are stable across compilation
+sessions, computing one in the current session allows us to find a node
+in the dependency graph from the previous session. If we don't find a node with
+the given fingerprint, it means that the query key refers to something that
+did not yet exist in the previous session.</p>
+<p>So, having found the dep-node in the previous dependency graph, we can look
+up its dependencies (i.e. also dep-nodes in the previous graph) and continue with
+the rest of the try-mark-green algorithm. The next interesting thing happens
+when we successfully marked the node as green. At that point we copy the node
+and the edges to its dependencies from the old graph into the new graph. We
+have to do this because the new dep-graph cannot not acquire the
+node and edges via the regular dependency tracking. The tracking system can
+only record edges while actually running a query -- but running the query,
+although we have the result already cached, is exactly what we want to avoid.</p>
+<p>Once the compilation session has finished, all the unchanged parts have been
+copied over from the old into the new dependency graph, while the changed parts
+have been added to the new graph by the tracking system. At this point, the
+new graph is serialized out to disk, alongside the query result cache, and can
+act as the previous dep-graph in a subsequent compilation session.</p>
+<h3 id="didnt-you-forget-something-cache-promotion"><a class="header" href="#didnt-you-forget-something-cache-promotion">Didn't You Forget Something?: Cache Promotion</a></h3>
+<p>The system described so far has a somewhat subtle property: If all inputs of a
+dep-node are green then the dep-node itself can be marked as green without
+computing or loading the corresponding query result. Applying this property
+transitively often leads to the situation that some intermediate results are
+never actually loaded from disk, as in the following example:</p>
+<pre><code class="language-ignore">   input(A) &lt;-- intermediate_query(B) &lt;-- leaf_query(C)
+</code></pre>
+<p>The compiler might need the value of <code>leaf_query(C)</code> in order to generate some
+output artifact. If it can mark <code>leaf_query(C)</code> as green, it will load the
+result from the on-disk cache. The result of <code>intermediate_query(B)</code> is never
+loaded though. As a consequence, when the compiler persists the <em>new</em> result
+cache by writing all in-memory query results to disk, <code>intermediate_query(B)</code>
+will not be in memory and thus will be missing from the new result cache.</p>
+<p>If there subsequently is another compilation session that actually needs the
+result of <code>intermediate_query(B)</code> it will have to be re-computed even though we
+had a perfectly valid result for it in the cache just before.</p>
+<p>In order to prevent this from happening, the compiler does something called
+&quot;cache promotion&quot;: Before emitting the new result cache it will walk all green
+dep-nodes and make sure that their query result is loaded into memory. That way
+the result cache doesn't unnecessarily shrink again.</p>
+<h1 id="incremental-compilation-and-the-compiler-backend"><a class="header" href="#incremental-compilation-and-the-compiler-backend">Incremental Compilation and the Compiler Backend</a></h1>
+<p>The compiler backend, the part involving LLVM, is using the query system but
+it is not implemented in terms of queries itself. As a consequence
+it does not automatically partake in dependency tracking. However, the manual
+integration with the tracking system is pretty straight-forward. The compiler
+simply tracks what queries get invoked when generating the initial LLVM version
+of each codegen unit, which results in a dep-node for each of them. In
+subsequent compilation sessions it then tries to mark the dep-node for a CGU as
+green. If it succeeds it knows that the corresponding object and bitcode files
+on disk are still valid. If it doesn't succeed, the entire codegen unit has to
+be recompiled.</p>
+<p>This is the same approach that is used for regular queries. The main differences
+are:</p>
+<ul>
+<li>
+<p>that we cannot easily compute a fingerprint for LLVM modules (because
+they are opaque C++ objects),</p>
+</li>
+<li>
+<p>that the logic for dealing with cached values is rather different from
+regular queries because here we have bitcode and object files instead of
+serialized Rust values in the common result cache file, and</p>
+</li>
+<li>
+<p>the operations around LLVM are so expensive in terms of computation time and
+memory consumption that we need to have tight control over what is
+executed when and what stays in memory for how long.</p>
+</li>
+</ul>
+<p>The query system could probably be extended with general purpose mechanisms to
+deal with all of the above but so far that seemed like more trouble than it
+would save.</p>
+<h2 id="query-modifiers"><a class="header" href="#query-modifiers">Query Modifiers</a></h2>
+<p>The query system allows for applying <a href="../query.html#adding-a-new-kind-of-query">modifiers</a> to queries. These
+modifiers affect certain aspects of how the system treats the query with
+respect to incremental compilation:</p>
+<ul>
+<li>
+<p><code>eval_always</code> - A query with the <code>eval_always</code> attribute is re-executed
+unconditionally during incremental compilation. I.e. the system will not
+even try to mark the query's dep-node as green. This attribute has two use
+cases:</p>
+<ul>
+<li>
+<p><code>eval_always</code> queries can read inputs (from files, global state, etc).
+They can also produce side effects like writing to files and changing global state.</p>
+</li>
+<li>
+<p>Some queries are very likely to be re-evaluated because their result
+depends on the entire source code. In this case <code>eval_always</code> can be used
+as an optimization because the system can skip recording dependencies in
+the first place.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><code>no_hash</code> - Applying <code>no_hash</code> to a query tells the system to not compute
+the fingerprint of the query's result. This has two consequences:</p>
+<ul>
+<li>
+<p>Not computing the fingerprint can save quite a bit of time because
+fingerprinting is expensive, especially for large, complex values.</p>
+</li>
+<li>
+<p>Without the fingerprint, the system has to unconditionally assume that
+the result of the query has changed. As a consequence anything depending
+on a <code>no_hash</code> query will always be re-executed.</p>
+</li>
+</ul>
+<p>Using <code>no_hash</code> for a query can make sense in two circumstances:</p>
+<ul>
+<li>
+<p>If the result of the query is very likely to change whenever one of its
+inputs changes, e.g. a function like <code>|a, b, c| -&gt; (a * b * c)</code>. In such
+a case recomputing the query will always yield a red node if one of the
+inputs is red so we can spare us the trouble and default to red immediately.
+A counter example would be a function like <code>|a| -&gt; (a == 42)</code> where the
+result does not change for most changes of <code>a</code>.</p>
+</li>
+<li>
+<p>If the result of a query is a big, monolithic collection (e.g. <code>index_hir</code>)
+and there are &quot;projection queries&quot; reading from that collection
+(e.g. <code>hir_owner</code>). In such a case the big collection will likely fulfill the
+condition above (any changed input means recomputing the whole collection)
+and the results of the projection queries will be hashed anyway. If we also
+hashed the collection query it would mean that we effectively hash the same
+data twice: once when hashing the collection and another time when hashing all
+the projection query results. <code>no_hash</code> allows us to avoid that redundancy
+and the projection queries act as a &quot;firewall&quot;, shielding their dependents
+from the unconditionally red <code>no_hash</code> node.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><code>cache_on_disk_if</code> - This attribute is what determines which query results
+are persisted in the incremental compilation query result cache. The
+attribute takes an expression that allows per query invocation
+decisions. For example, it makes no sense to store values from upstream
+crates in the cache because they are already available in the upstream
+crate's metadata.</p>
+</li>
+<li>
+<p><code>anon</code> - This attribute makes the system use &quot;anonymous&quot; dep-nodes for the
+given query. An anonymous dep-node is not identified by the corresponding
+query key, instead its ID is computed from the IDs of its dependencies. This
+allows the red-green system to do its change detection even if there is no
+query key available for a given dep-node -- something which is needed for
+handling trait selection because it is not based on queries.</p>
+</li>
+</ul>
+<h2 id="the-projection-query-pattern"><a class="header" href="#the-projection-query-pattern">The Projection Query Pattern</a></h2>
+<p>It's interesting to note that <code>eval_always</code> and <code>no_hash</code> can be used together
+in the so-called &quot;projection query&quot; pattern. It is often the case that there is
+one query that depends on the entirety of the compiler's input (e.g. the indexed HIR)
+and another query that projects individual values out of this monolithic value
+(e.g. a HIR item with a certain <code>DefId</code>). These projection queries allow for
+building change propagation &quot;firewalls&quot; because even if the result of the
+monolithic query changes (which it is very likely to do) the small projections
+can still mostly be marked as green.</p>
+<pre><code class="language-ignore">  +------------+
+  |            |           +---------------+           +--------+
+  |            | &lt;---------| projection(x) | &lt;---------| foo(a) |
+  |            |           +---------------+           +--------+
+  |            |
+  | monolithic |           +---------------+           +--------+
+  |   query    | &lt;---------| projection(y) | &lt;---------| bar(b) |
+  |            |           +---------------+           +--------+
+  |            |
+  |            |           +---------------+           +--------+
+  |            | &lt;---------| projection(z) | &lt;---------| baz(c) |
+  |            |           +---------------+           +--------+
+  +------------+
+</code></pre>
+<p>Let's assume that the result <code>monolithic_query</code> changes so that also the result
+of <code>projection(x)</code> has changed, i.e. both their dep-nodes are being marked as
+red. As a consequence <code>foo(a)</code> needs to be re-executed; but <code>bar(b)</code> and
+<code>baz(c)</code> can be marked as green. However, if <code>foo</code>, <code>bar</code>, and <code>baz</code> would have
+directly depended on <code>monolithic_query</code> then all of them would have had to be
+re-evaluated.</p>
+<p>This pattern works even without <code>eval_always</code> and <code>no_hash</code> but the two
+modifiers can be used to avoid unnecessary overhead. If the monolithic query
+is likely to change at any minor modification of the compiler's input it makes
+sense to mark it as <code>eval_always</code>, thus getting rid of its dependency tracking
+cost. And it always makes sense to mark the monolithic query as <code>no_hash</code>
+because we have the projections to take care of keeping things green as much
+as possible.</p>
+<h1 id="shortcomings-of-the-current-system"><a class="header" href="#shortcomings-of-the-current-system">Shortcomings of the Current System</a></h1>
+<p>There are many things that still can be improved.</p>
+<h2 id="incrementality-of-on-disk-data-structures"><a class="header" href="#incrementality-of-on-disk-data-structures">Incrementality of on-disk data structures</a></h2>
+<p>The current system is not able to update on-disk caches and the dependency graph
+in-place. Instead it has to rewrite each file entirely in each compilation
+session. The overhead of doing so is a few percent of total compilation time.</p>
+<h2 id="unnecessary-data-dependencies"><a class="header" href="#unnecessary-data-dependencies">Unnecessary data dependencies</a></h2>
+<p>Data structures used as query results could be factored in a way that removes
+edges from the dependency graph. Especially &quot;span&quot; information is very volatile,
+so including it in query result will increase the chance that that result won't
+be reusable. See <a href="https://github.com/rust-lang/rust/issues/47389">https://github.com/rust-lang/rust/issues/47389</a> for more
+information.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="../queries/incremental-compilation.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="../incrcomp-debugging.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="../queries/incremental-compilation.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="../incrcomp-debugging.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

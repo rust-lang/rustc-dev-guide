@@ -1,0 +1,675 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Overview of the Compiler - Guide to Rustc Development</title>
+        
+        
+
+
+        <!-- Custom HTML head -->
+        
+
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="A guide to developing rustc">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        
+        <link rel="icon" href="favicon.svg">
+        
+        
+        <link rel="shortcut icon" href="favicon.png">
+        
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        
+        <link rel="stylesheet" href="css/print.css" media="print">
+        
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        
+        <link rel="stylesheet" href="fonts/fonts.css">
+        
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item affix "><a href="about-this-guide.html">About this guide</a></li><li class="chapter-item affix "><a href="getting-started.html">Getting Started</a></li><li class="spacer"></li><li class="chapter-item affix "><li class="part-title">Building and debugging rustc</li><li class="chapter-item "><a href="building/how-to-build-and-run.html"><strong aria-hidden="true">1.</strong> How to Build and Run the Compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="building/prerequisites.html"><strong aria-hidden="true">1.1.</strong> Prerequisites</a></li><li class="chapter-item "><a href="building/suggested.html"><strong aria-hidden="true">1.2.</strong> Suggested Workflows</a></li><li class="chapter-item "><a href="building/build-install-distribution-artifacts.html"><strong aria-hidden="true">1.3.</strong> Distribution artifacts</a></li><li class="chapter-item "><a href="building/compiler-documenting.html"><strong aria-hidden="true">1.4.</strong> Documenting Compiler</a></li><li class="chapter-item "><a href="rustdoc.html"><strong aria-hidden="true">1.5.</strong> Rustdoc overview</a></li><li class="chapter-item "><a href="building/ctags.html"><strong aria-hidden="true">1.6.</strong> ctags</a></li><li class="chapter-item "><a href="building/new-target.html"><strong aria-hidden="true">1.7.</strong> Adding a new target</a></li></ol></li><li class="chapter-item "><a href="tests/intro.html"><strong aria-hidden="true">2.</strong> The compiler testing framework</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="tests/running.html"><strong aria-hidden="true">2.1.</strong> Running tests</a></li><li class="chapter-item "><a href="tests/adding.html"><strong aria-hidden="true">2.2.</strong> Adding new tests</a></li><li class="chapter-item "><a href="compiletest.html"><strong aria-hidden="true">2.3.</strong> Using compiletest commands to control test execution</a></li></ol></li><li class="chapter-item "><a href="compiler-debugging.html"><strong aria-hidden="true">3.</strong> Debugging the Compiler</a></li><li class="chapter-item "><a href="profiling.html"><strong aria-hidden="true">4.</strong> Profiling the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="profiling/with_perf.html"><strong aria-hidden="true">4.1.</strong> with the linux perf tool</a></li><li class="chapter-item "><a href="profiling/wpa_profiling.html"><strong aria-hidden="true">4.2.</strong> with Windows Performance Analyzer</a></li></ol></li><li class="chapter-item "><a href="crates-io.html"><strong aria-hidden="true">5.</strong> crates.io Dependencies</a></li><li class="chapter-item affix "><li class="part-title">Contributing to Rust</li><li class="chapter-item "><a href="contributing.html"><strong aria-hidden="true">6.</strong> Introduction</a></li><li class="chapter-item "><a href="compiler-team.html"><strong aria-hidden="true">7.</strong> About the compiler team</a></li><li class="chapter-item "><a href="git.html"><strong aria-hidden="true">8.</strong> Using Git</a></li><li class="chapter-item "><a href="rustbot.html"><strong aria-hidden="true">9.</strong> Mastering @rustbot</a></li><li class="chapter-item "><a href="walkthrough.html"><strong aria-hidden="true">10.</strong> Walkthrough: a typical contribution</a></li><li class="chapter-item "><a href="bug-fix-procedure.html"><strong aria-hidden="true">11.</strong> Bug Fix Procedure</a></li><li class="chapter-item "><a href="implementing_new_features.html"><strong aria-hidden="true">12.</strong> Implementing new features</a></li><li class="chapter-item "><a href="stability.html"><strong aria-hidden="true">13.</strong> Stability attributes</a></li><li class="chapter-item "><a href="stabilization_guide.html"><strong aria-hidden="true">14.</strong> Stabilizing Features</a></li><li class="chapter-item "><a href="feature-gates.html"><strong aria-hidden="true">15.</strong> Feature Gates</a></li><li class="chapter-item "><a href="conventions.html"><strong aria-hidden="true">16.</strong> Coding conventions</a></li><li class="chapter-item "><a href="notification-groups/about.html"><strong aria-hidden="true">17.</strong> Notification groups</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="notification-groups/arm.html"><strong aria-hidden="true">17.1.</strong> ARM</a></li><li class="chapter-item "><a href="notification-groups/cleanup-crew.html"><strong aria-hidden="true">17.2.</strong> Cleanup Crew</a></li><li class="chapter-item "><a href="notification-groups/llvm.html"><strong aria-hidden="true">17.3.</strong> LLVM</a></li><li class="chapter-item "><a href="notification-groups/risc-v.html"><strong aria-hidden="true">17.4.</strong> RISC-V</a></li><li class="chapter-item "><a href="notification-groups/windows.html"><strong aria-hidden="true">17.5.</strong> Windows</a></li></ol></li><li class="chapter-item "><a href="licenses.html"><strong aria-hidden="true">18.</strong> Licenses</a></li><li class="chapter-item affix "><li class="part-title">High-level Compiler Architecture</li><li class="chapter-item "><a href="part-2-intro.html"><strong aria-hidden="true">19.</strong> Prologue</a></li><li class="chapter-item expanded "><a href="overview.html" class="active"><strong aria-hidden="true">20.</strong> Overview of the Compiler</a></li><li class="chapter-item "><a href="compiler-src.html"><strong aria-hidden="true">21.</strong> The compiler source code</a></li><li class="chapter-item "><a href="building/bootstrapping.html"><strong aria-hidden="true">22.</strong> Bootstrapping</a></li><li class="chapter-item "><a href="query.html"><strong aria-hidden="true">23.</strong> Queries: demand-driven compilation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="queries/query-evaluation-model-in-detail.html"><strong aria-hidden="true">23.1.</strong> The Query Evaluation Model in Detail</a></li><li class="chapter-item "><a href="queries/incremental-compilation.html"><strong aria-hidden="true">23.2.</strong> Incremental compilation</a></li><li class="chapter-item "><a href="queries/incremental-compilation-in-detail.html"><strong aria-hidden="true">23.3.</strong> Incremental compilation In Detail</a></li><li class="chapter-item "><a href="incrcomp-debugging.html"><strong aria-hidden="true">23.4.</strong> Debugging and Testing</a></li><li class="chapter-item "><a href="queries/profiling.html"><strong aria-hidden="true">23.5.</strong> Profiling Queries</a></li><li class="chapter-item "><a href="salsa.html"><strong aria-hidden="true">23.6.</strong> Salsa</a></li></ol></li><li class="chapter-item "><a href="memory.html"><strong aria-hidden="true">24.</strong> Memory Management in Rustc</a></li><li class="chapter-item "><a href="serialization.html"><strong aria-hidden="true">25.</strong> Serialization in Rustc</a></li><li class="chapter-item "><a href="parallel-rustc.html"><strong aria-hidden="true">26.</strong> Parallel Compilation</a></li><li class="chapter-item "><a href="rustdoc-internals.html"><strong aria-hidden="true">27.</strong> Rustdoc internals</a></li><li class="chapter-item affix "><li class="part-title">Source Code Representation</li><li class="chapter-item "><a href="part-3-intro.html"><strong aria-hidden="true">28.</strong> Prologue</a></li><li class="chapter-item "><a href="cli.html"><strong aria-hidden="true">29.</strong> Command-line arguments</a></li><li class="chapter-item "><a href="rustc-driver.html"><strong aria-hidden="true">30.</strong> The Rustc Driver and Interface</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="rustc-driver-interacting-with-the-ast.html"><strong aria-hidden="true">30.1.</strong> Ex: Type checking through rustc_interface</a></li><li class="chapter-item "><a href="rustc-driver-getting-diagnostics.html"><strong aria-hidden="true">30.2.</strong> Ex: Getting diagnostics through rustc_interface</a></li></ol></li><li class="chapter-item "><a href="syntax-intro.html"><strong aria-hidden="true">31.</strong> Syntax and the AST</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="the-parser.html"><strong aria-hidden="true">31.1.</strong> Lexing and Parsing</a></li><li class="chapter-item "><a href="macro-expansion.html"><strong aria-hidden="true">31.2.</strong> Macro expansion</a></li><li class="chapter-item "><a href="name-resolution.html"><strong aria-hidden="true">31.3.</strong> Name resolution</a></li><li class="chapter-item "><a href="test-implementation.html"><strong aria-hidden="true">31.4.</strong> #[test] Implementation</a></li><li class="chapter-item "><a href="panic-implementation.html"><strong aria-hidden="true">31.5.</strong> Panic Implementation</a></li><li class="chapter-item "><a href="ast-validation.html"><strong aria-hidden="true">31.6.</strong> AST Validation</a></li><li class="chapter-item "><a href="feature-gate-ck.html"><strong aria-hidden="true">31.7.</strong> Feature Gate Checking</a></li><li class="chapter-item "><a href="lang-items.html"><strong aria-hidden="true">31.8.</strong> Lang Items</a></li></ol></li><li class="chapter-item "><a href="hir.html"><strong aria-hidden="true">32.</strong> The HIR (High-level IR)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="lowering.html"><strong aria-hidden="true">32.1.</strong> Lowering AST to HIR</a></li><li class="chapter-item "><a href="hir-debugging.html"><strong aria-hidden="true">32.2.</strong> Debugging</a></li></ol></li><li class="chapter-item "><a href="thir.html"><strong aria-hidden="true">33.</strong> The THIR (Typed High-level IR)</a></li><li class="chapter-item "><a href="mir/index.html"><strong aria-hidden="true">34.</strong> The MIR (Mid-level IR)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="mir/construction.html"><strong aria-hidden="true">34.1.</strong> MIR construction</a></li><li class="chapter-item "><a href="mir/visitor.html"><strong aria-hidden="true">34.2.</strong> MIR visitor and traversal</a></li><li class="chapter-item "><a href="mir/passes.html"><strong aria-hidden="true">34.3.</strong> MIR passes: getting the MIR for a function</a></li></ol></li><li class="chapter-item "><a href="identifiers.html"><strong aria-hidden="true">35.</strong> Identifiers in the Compiler</a></li><li class="chapter-item "><a href="closure.html"><strong aria-hidden="true">36.</strong> Closure expansion</a></li><li class="chapter-item affix "><li class="part-title">Analysis</li><li class="chapter-item "><a href="part-4-intro.html"><strong aria-hidden="true">37.</strong> Prologue</a></li><li class="chapter-item "><a href="ty.html"><strong aria-hidden="true">38.</strong> The ty module: representing types</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="generics.html"><strong aria-hidden="true">38.1.</strong> Generics and substitutions</a></li><li class="chapter-item "><a href="ty-fold.html"><strong aria-hidden="true">38.2.</strong> TypeFolder and TypeFoldable</a></li><li class="chapter-item "><a href="generic_arguments.html"><strong aria-hidden="true">38.3.</strong> Generic arguments</a></li></ol></li><li class="chapter-item "><a href="type-inference.html"><strong aria-hidden="true">39.</strong> Type inference</a></li><li class="chapter-item "><a href="traits/resolution.html"><strong aria-hidden="true">40.</strong> Trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="early-late-bound.html"><strong aria-hidden="true">40.1.</strong> Early and Late Bound Parameters</a></li><li class="chapter-item "><a href="traits/hrtb.html"><strong aria-hidden="true">40.2.</strong> Higher-ranked trait bounds</a></li><li class="chapter-item "><a href="traits/caching.html"><strong aria-hidden="true">40.3.</strong> Caching subtleties</a></li><li class="chapter-item "><a href="traits/specialization.html"><strong aria-hidden="true">40.4.</strong> Specialization</a></li><li class="chapter-item "><a href="traits/chalk.html"><strong aria-hidden="true">40.5.</strong> Chalk-based trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="traits/lowering-to-logic.html"><strong aria-hidden="true">40.5.1.</strong> Lowering to logic</a></li><li class="chapter-item "><a href="traits/goals-and-clauses.html"><strong aria-hidden="true">40.5.2.</strong> Goals and clauses</a></li><li class="chapter-item "><a href="traits/canonical-queries.html"><strong aria-hidden="true">40.5.3.</strong> Canonical queries</a></li></ol></li></ol></li><li class="chapter-item "><a href="type-checking.html"><strong aria-hidden="true">41.</strong> Type checking</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="method-lookup.html"><strong aria-hidden="true">41.1.</strong> Method Lookup</a></li><li class="chapter-item "><a href="variance.html"><strong aria-hidden="true">41.2.</strong> Variance</a></li><li class="chapter-item "><a href="opaque-types-type-alias-impl-trait.html"><strong aria-hidden="true">41.3.</strong> Opaque Types</a></li></ol></li><li class="chapter-item "><a href="pat-exhaustive-checking.html"><strong aria-hidden="true">42.</strong> Pattern and Exhaustiveness Checking</a></li><li class="chapter-item "><a href="mir/dataflow.html"><strong aria-hidden="true">43.</strong> MIR dataflow</a></li><li class="chapter-item "><a href="borrow_check.html"><strong aria-hidden="true">44.</strong> The borrow checker</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="borrow_check/moves_and_initialization.html"><strong aria-hidden="true">44.1.</strong> Tracking moves and initialization</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="borrow_check/moves_and_initialization/move_paths.html"><strong aria-hidden="true">44.1.1.</strong> Move paths</a></li></ol></li><li class="chapter-item "><a href="borrow_check/type_check.html"><strong aria-hidden="true">44.2.</strong> MIR type checker</a></li><li class="chapter-item "><a href="borrow_check/region_inference.html"><strong aria-hidden="true">44.3.</strong> Region inference</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="borrow_check/region_inference/constraint_propagation.html"><strong aria-hidden="true">44.3.1.</strong> Constraint propagation</a></li><li class="chapter-item "><a href="borrow_check/region_inference/lifetime_parameters.html"><strong aria-hidden="true">44.3.2.</strong> Lifetime parameters</a></li><li class="chapter-item "><a href="borrow_check/region_inference/member_constraints.html"><strong aria-hidden="true">44.3.3.</strong> Member constraints</a></li><li class="chapter-item "><a href="borrow_check/region_inference/placeholders_and_universes.html"><strong aria-hidden="true">44.3.4.</strong> Placeholders and universes</a></li><li class="chapter-item "><a href="borrow_check/region_inference/closure_constraints.html"><strong aria-hidden="true">44.3.5.</strong> Closure constraints</a></li><li class="chapter-item "><a href="borrow_check/region_inference/error_reporting.html"><strong aria-hidden="true">44.3.6.</strong> Error reporting</a></li></ol></li><li class="chapter-item "><a href="borrow_check/two_phase_borrows.html"><strong aria-hidden="true">44.4.</strong> Two-phase-borrows</a></li></ol></li><li class="chapter-item "><a href="param_env.html"><strong aria-hidden="true">45.</strong> Parameter Environments</a></li><li class="chapter-item "><a href="diagnostics.html"><strong aria-hidden="true">46.</strong> Errors and Lints</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="diagnostics/sessiondiagnostic.html"><strong aria-hidden="true">46.1.</strong> Creating Errors With SessionDiagnostic</a></li><li class="chapter-item "><a href="diagnostics/lintstore.html"><strong aria-hidden="true">46.2.</strong> LintStore</a></li><li class="chapter-item "><a href="diagnostics/diagnostic-codes.html"><strong aria-hidden="true">46.3.</strong> Diagnostic Codes</a></li></ol></li><li class="chapter-item "><li class="part-title">MIR to Binaries</li><li class="chapter-item "><a href="part-5-intro.html"><strong aria-hidden="true">47.</strong> Prologue</a></li><li class="chapter-item "><a href="mir/optimizations.html"><strong aria-hidden="true">48.</strong> MIR optimizations</a></li><li class="chapter-item "><a href="mir/debugging.html"><strong aria-hidden="true">49.</strong> Debugging</a></li><li class="chapter-item "><a href="const-eval.html"><strong aria-hidden="true">50.</strong> Constant evaluation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="miri.html"><strong aria-hidden="true">50.1.</strong> miri const evaluator</a></li></ol></li><li class="chapter-item "><a href="backend/monomorph.html"><strong aria-hidden="true">51.</strong> Monomorphization</a></li><li class="chapter-item "><a href="backend/lowering-mir.html"><strong aria-hidden="true">52.</strong> Lowering MIR</a></li><li class="chapter-item "><a href="backend/codegen.html"><strong aria-hidden="true">53.</strong> Code Generation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="backend/updating-llvm.html"><strong aria-hidden="true">53.1.</strong> Updating LLVM</a></li><li class="chapter-item "><a href="backend/debugging.html"><strong aria-hidden="true">53.2.</strong> Debugging LLVM</a></li><li class="chapter-item "><a href="backend/backend-agnostic.html"><strong aria-hidden="true">53.3.</strong> Backend Agnostic Codegen</a></li><li class="chapter-item "><a href="backend/implicit-caller-location.html"><strong aria-hidden="true">53.4.</strong> Implicit Caller Location</a></li></ol></li><li class="chapter-item "><a href="backend/libs-and-metadata.html"><strong aria-hidden="true">54.</strong> Libraries and Metadata</a></li><li class="chapter-item "><a href="profile-guided-optimization.html"><strong aria-hidden="true">55.</strong> Profile-guided Optimization</a></li><li class="chapter-item "><a href="llvm-coverage-instrumentation.html"><strong aria-hidden="true">56.</strong> LLVM Source-Based Code Coverage</a></li><li class="chapter-item "><a href="sanitizers.html"><strong aria-hidden="true">57.</strong> Sanitizers Support</a></li><li class="chapter-item "><a href="debugging-support-in-rustc.html"><strong aria-hidden="true">58.</strong> Debugging Support in the Rust Compiler</a></li><li class="spacer"></li><li class="chapter-item affix "><a href="appendix/background.html">Appendix A: Background topics</a></li><li class="chapter-item affix "><a href="appendix/glossary.html">Appendix B: Glossary</a></li><li class="chapter-item affix "><a href="appendix/code-index.html">Appendix C: Code Index</a></li><li class="chapter-item affix "><a href="appendix/compiler-lecture.html">Appendix D: Compiler Lecture Series</a></li><li class="chapter-item affix "><a href="appendix/bibliography.html">Appendix E: Bibliography</a></li><li class="chapter-item affix "><a href="appendix/humorust.html">Appendix Z: HumorRust</a></li><li class="spacer"></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">Guide to Rustc Development</h1>
+
+                    <div class="right-buttons">
+                        
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                        
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="overview-of-the-compiler"><a class="header" href="#overview-of-the-compiler">Overview of the Compiler</a></h1>
+<ul>
+<li><a href="#what-the-compiler-does-to-your-code">What the compiler does to your code</a></li>
+<li><a href="#how-it-does-it">How it does it</a>
+<ul>
+<li><a href="#intermediate-representations">Intermediate representations</a></li>
+<li><a href="#queries">Queries</a></li>
+<li><a href="#tyty"><code>ty::Ty</code></a></li>
+<li><a href="#parallelism">Parallelism</a></li>
+<li><a href="#bootstrapping">Bootstrapping</a></li>
+</ul>
+</li>
+<li><a href="#unresolved-questions">Unresolved Questions</a></li>
+<li><a href="#references">References</a></li>
+</ul>
+<p>This chapter is about the overall process of compiling a program -- how
+everything fits together.</p>
+<p>The rust compiler is special in two ways: it does things to your code that
+other compilers don't do (e.g. borrow checking) and it has a lot of
+unconventional implementation choices (e.g. queries). We will talk about these
+in turn in this chapter, and in the rest of the guide, we will look at all the
+individual pieces in more detail.</p>
+<h2 id="what-the-compiler-does-to-your-code"><a class="header" href="#what-the-compiler-does-to-your-code">What the compiler does to your code</a></h2>
+<p>So first, let's look at what the compiler does to your code. For now, we will
+avoid mentioning how the compiler implements these steps except as needed;
+we'll talk about that later.</p>
+<ul>
+<li>
+<p>The compile process begins when a user writes a Rust source program in text
+and invokes the <code>rustc</code> compiler on it. The work that the compiler needs to
+perform is defined by command-line options. For example, it is possible to
+enable nightly features (<code>-Z</code> flags), perform <code>check</code>-only builds, or emit
+LLVM-IR rather than executable machine code. The <code>rustc</code> executable call may
+be indirect through the use of <code>cargo</code>.</p>
+</li>
+<li>
+<p>Command line argument parsing occurs in the <a href="https://rustc-dev-guide.rust-lang.org/rustc-driver.html"><code>rustc_driver</code></a>. This crate
+defines the compile configuration that is requested by the user and passes it
+to the rest of the compilation process as a <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/struct.Config.html"><code>rustc_interface::Config</code></a>.</p>
+</li>
+<li>
+<p>The raw Rust source text is analyzed by a low-level lexer located in
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lexer/index.html"><code>rustc_lexer</code></a>. At this stage, the source text is turned into a stream of
+atomic source code units known as <em>tokens</em>.  The lexer supports the
+Unicode character encoding.</p>
+</li>
+<li>
+<p>The token stream passes through a higher-level lexer located in
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_parse/index.html"><code>rustc_parse</code></a> to prepare for the next stage of the compile process. The
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_parse/lexer/struct.StringReader.html"><code>StringReader</code></a> struct is used at this stage to perform a set of validations
+and turn strings into interned symbols (<em>interning</em> is discussed later).
+<a href="https://en.wikipedia.org/wiki/String_interning">String interning</a> is a way of storing only one immutable
+copy of each distinct string value.</p>
+</li>
+<li>
+<p>The lexer has a small interface and doesn't depend directly on the
+diagnostic infrastructure in <code>rustc</code>. Instead it provides diagnostics as plain
+data which are emitted in <code>rustc_parse::lexer::mod</code> as real diagnostics.</p>
+</li>
+<li>
+<p>The lexer preserves full fidelity information for both IDEs and proc macros.</p>
+</li>
+<li>
+<p>The parser <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_parse/index.html">translates the token stream from the lexer into an Abstract Syntax
+Tree (AST)</a>. It uses a recursive descent (top-down) approach to syntax
+analysis. The crate entry points for the parser are the <code>Parser::parse_crate_mod()</code> and
+<code>Parser::parse_mod()</code> methods found in <code>rustc_parse::parser::item</code>. The external
+module parsing entry point is <code>rustc_expand::module::parse_external_mod</code>. And
+the macro parser entry point is <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_parse/parser/struct.Parser.html#method.parse_nonterminal"><code>Parser::parse_nonterminal()</code></a>.</p>
+</li>
+<li>
+<p>Parsing is performed with a set of <code>Parser</code> utility methods including <code>fn bump</code>,
+<code>fn check</code>, <code>fn eat</code>, <code>fn expect</code>, <code>fn look_ahead</code>.</p>
+</li>
+<li>
+<p>Parsing is organized by the semantic construct that is being parsed. Separate
+<code>parse_*</code> methods can be found in <code>rustc_parse</code> <code>parser</code> directory. The source
+file name follows the construct name. For example, the following files are found
+in the parser:</p>
+<ul>
+<li><code>expr.rs</code></li>
+<li><code>pat.rs</code></li>
+<li><code>ty.rs</code></li>
+<li><code>stmt.rs</code></li>
+</ul>
+</li>
+<li>
+<p>This naming scheme is used across many compiler stages. You will find
+either a file or directory with the same name across the parsing, lowering,
+type checking, THIR lowering, and MIR building sources.</p>
+</li>
+<li>
+<p>Macro expansion, AST validation, name resolution, and early linting takes place
+during this stage of the compile process.</p>
+</li>
+<li>
+<p>The parser uses the standard <code>DiagnosticBuilder</code> API for error handling, but we
+try to recover, parsing a superset of Rust's grammar, while also emitting an error.</p>
+</li>
+<li>
+<p><code>rustc_ast::ast::{Crate, Mod, Expr, Pat, ...}</code> AST nodes are returned from the parser.</p>
+</li>
+<li>
+<p>We then take the AST and <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/index.html">convert it to High-Level Intermediate
+Representation (HIR)</a>. This is a compiler-friendly representation of the
+AST.  This involves a lot of desugaring of things like loops and <code>async fn</code>.</p>
+</li>
+<li>
+<p>We use the HIR to do <a href="https://rustc-dev-guide.rust-lang.org/type-inference.html">type inference</a> (the process of automatic
+detection of the type of an expression), <a href="https://rustc-dev-guide.rust-lang.org/traits/resolution.html">trait solving</a> (the process
+of pairing up an impl with each reference to a trait), and <a href="https://rustc-dev-guide.rust-lang.org/type-checking.html">type
+checking</a> (the process of converting the types found in the HIR
+(<code>hir::Ty</code>), which represent the syntactic things that the user wrote,
+into the internal representation used by the compiler (<code>Ty&lt;'tcx&gt;</code>),
+and using that information to verify the type safety, correctness and
+coherence of the types used in the program).</p>
+</li>
+<li>
+<p>The HIR is then <a href="https://rustc-dev-guide.rust-lang.org/mir/index.html">lowered to Mid-Level Intermediate Representation (MIR)</a>.</p>
+<ul>
+<li>Along the way, we construct the THIR, which is an even more desugared HIR.
+THIR is used for pattern and exhaustiveness checking. It is also more
+convenient to convert into MIR than HIR is.</li>
+</ul>
+</li>
+<li>
+<p>The MIR is used for <a href="https://rustc-dev-guide.rust-lang.org/borrow_check.html">borrow checking</a>.</p>
+</li>
+<li>
+<p>We (want to) do <a href="https://rustc-dev-guide.rust-lang.org/mir/optimizations.html">many optimizations on the MIR</a> because it is still
+generic and that improves the code we generate later, improving compilation
+speed too.</p>
+<ul>
+<li>MIR is a higher level (and generic) representation, so it is easier to do
+some optimizations at MIR level than at LLVM-IR level. For example LLVM
+doesn't seem to be able to optimize the pattern the <a href="https://github.com/rust-lang/rust/pull/66282"><code>simplify_try</code></a> mir
+opt looks for.</li>
+</ul>
+</li>
+<li>
+<p>Rust code is <em>monomorphized</em>, which means making copies of all the generic
+code with the type parameters replaced by concrete types. To do
+this, we need to collect a list of what concrete types to generate code for.
+This is called <em>monomorphization collection</em>.</p>
+</li>
+<li>
+<p>We then begin what is vaguely called <em>code generation</em> or <em>codegen</em>.</p>
+<ul>
+<li>The <a href="https://rustc-dev-guide.rust-lang.org/backend/codegen.html">code generation stage (codegen)</a> is when higher level
+representations of source are turned into an executable binary. <code>rustc</code>
+uses LLVM for code generation. The first step is to convert the MIR
+to LLVM Intermediate Representation (LLVM IR). This is where the MIR
+is actually monomorphized, according to the list we created in the
+previous step.</li>
+<li>The LLVM IR is passed to LLVM, which does a lot more optimizations on it.
+It then emits machine code. It is basically assembly code with additional
+low-level types and annotations added. (e.g. an ELF object or wasm).</li>
+<li>The different libraries/binaries are linked together to produce the final
+binary.</li>
+</ul>
+</li>
+</ul>
+<h2 id="how-it-does-it"><a class="header" href="#how-it-does-it">How it does it</a></h2>
+<p>Ok, so now that we have a high-level view of what the compiler does to your
+code, let's take a high-level view of <em>how</em> it does all that stuff. There are a
+lot of constraints and conflicting goals that the compiler needs to
+satisfy/optimize for. For example,</p>
+<ul>
+<li>Compilation speed: how fast is it to compile a program. More/better
+compile-time analyses often means compilation is slower.
+<ul>
+<li>Also, we want to support incremental compilation, so we need to take that
+into account. How can we keep track of what work needs to be redone and
+what can be reused if the user modifies their program?
+<ul>
+<li>Also we can't store too much stuff in the incremental cache because
+it would take a long time to load from disk and it could take a lot
+of space on the user's system...</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Compiler memory usage: while compiling a program, we don't want to use more
+memory than we need.</li>
+<li>Program speed: how fast is your compiled program. More/better compile-time
+analyses often means the compiler can do better optimizations.</li>
+<li>Program size: how large is the compiled binary? Similar to the previous
+point.</li>
+<li>Compiler compilation speed: how long does it take to compile the compiler?
+This impacts contributors and compiler maintenance.</li>
+<li>Implementation complexity: building a compiler is one of the hardest
+things a person/group can do, and Rust is not a very simple language, so how
+do we make the compiler's code base manageable?</li>
+<li>Compiler correctness: the binaries produced by the compiler should do what
+the input programs says they do, and should continue to do so despite the
+tremendous amount of change constantly going on.</li>
+<li>Integration: a number of other tools need to use the compiler in
+various ways (e.g. cargo, clippy, miri, RLS) that must be supported.</li>
+<li>Compiler stability: the compiler should not crash or fail ungracefully on the
+stable channel.</li>
+<li>Rust stability: the compiler must respect Rust's stability guarantees by not
+breaking programs that previously compiled despite the many changes that are
+always going on to its implementation.</li>
+<li>Limitations of other tools: rustc uses LLVM in its backend, and LLVM has some
+strengths we leverage and some limitations/weaknesses we need to work around.</li>
+</ul>
+<p>So, as you read through the rest of the guide, keep these things in mind. They
+will often inform decisions that we make.</p>
+<h3 id="intermediate-representations"><a class="header" href="#intermediate-representations">Intermediate representations</a></h3>
+<p>As with most compilers, <code>rustc</code> uses some intermediate representations (IRs) to
+facilitate computations. In general, working directly with the source code is
+extremely inconvenient and error-prone. Source code is designed to be human-friendly while at
+the same time being unambiguous, but it's less convenient for doing something
+like, say, type checking.</p>
+<p>Instead most compilers, including <code>rustc</code>, build some sort of IR out of the
+source code which is easier to analyze. <code>rustc</code> has a few IRs, each optimized
+for different purposes:</p>
+<ul>
+<li>Token stream: the lexer produces a stream of tokens directly from the source
+code. This stream of tokens is easier for the parser to deal with than raw
+text.</li>
+<li>Abstract Syntax Tree (AST): the abstract syntax tree is built from the stream
+of tokens produced by the lexer. It represents
+pretty much exactly what the user wrote. It helps to do some syntactic sanity
+checking (e.g. checking that a type is expected where the user wrote one).</li>
+<li>High-level IR (HIR): This is a sort of desugared AST. It's still close
+to what the user wrote syntactically, but it includes some implicit things
+such as some elided lifetimes, etc. This IR is amenable to type checking.</li>
+<li>Typed HIR (THIR): This is an intermediate between HIR and MIR, and used to be called
+High-level Abstract IR (HAIR). It is like the HIR but it is fully typed and a bit
+more desugared (e.g. method calls and implicit dereferences are made fully explicit).
+Moreover, it is easier to lower to MIR from THIR than from HIR.</li>
+<li>Middle-level IR (MIR): This IR is basically a Control-Flow Graph (CFG). A CFG
+is a type of diagram that shows the basic blocks of a program and how control
+flow can go between them. Likewise, MIR also has a bunch of basic blocks with
+simple typed statements inside them (e.g. assignment, simple computations,
+etc) and control flow edges to other basic blocks (e.g., calls, dropping
+values). MIR is used for borrow checking and other
+important dataflow-based checks, such as checking for uninitialized values.
+It is also used for a series of optimizations and for constant evaluation (via
+MIRI). Because MIR is still generic, we can do a lot of analyses here more
+efficiently than after monomorphization.</li>
+<li>LLVM IR: This is the standard form of all input to the LLVM compiler. LLVM IR
+is a sort of typed assembly language with lots of annotations. It's
+a standard format that is used by all compilers that use LLVM (e.g. the clang
+C compiler also outputs LLVM IR). LLVM IR is designed to be easy for other
+compilers to emit and also rich enough for LLVM to run a bunch of
+optimizations on it.</li>
+</ul>
+<p>One other thing to note is that many values in the compiler are <em>interned</em>.
+This is a performance and memory optimization in which we allocate the values
+in a special allocator called an <em>arena</em>. Then, we pass around references to
+the values allocated in the arena. This allows us to make sure that identical
+values (e.g. types in your program) are only allocated once and can be compared
+cheaply by comparing pointers. Many of the intermediate representations are
+interned.</p>
+<h3 id="queries"><a class="header" href="#queries">Queries</a></h3>
+<p>The first big implementation choice is the <em>query</em> system. The rust compiler
+uses a query system which is unlike most textbook compilers, which are
+organized as a series of passes over the code that execute sequentially. The
+compiler does this to make incremental compilation possible -- that is, if the
+user makes a change to their program and recompiles, we want to do as little
+redundant work as possible to produce the new binary.</p>
+<p>In <code>rustc</code>, all the major steps above are organized as a bunch of queries that
+call each other. For example, there is a query to ask for the type of something
+and another to ask for the optimized MIR of a function. These
+queries can call each other and are all tracked through the query system.
+The results of the queries are cached on disk so that we can tell which
+queries' results changed from the last compilation and only redo those. This is
+how incremental compilation works.</p>
+<p>In principle, for the query-fied steps, we do each of the above for each item
+individually. For example, we will take the HIR for a function and use queries
+to ask for the LLVM IR for that HIR. This drives the generation of optimized
+MIR, which drives the borrow checker, which drives the generation of MIR, and
+so on.</p>
+<p>... except that this is very over-simplified. In fact, some queries are not
+cached on disk, and some parts of the compiler have to run for all code anyway
+for correctness even if the code is dead code (e.g. the borrow checker). For
+example, <a href="https://github.com/rust-lang/rust/blob/45ebd5808afd3df7ba842797c0fcd4447ddf30fb/src/librustc_interface/passes.rs#L824">currently the <code>mir_borrowck</code> query is first executed on all functions
+of a crate.</a> Then the codegen backend invokes the
+<code>collect_and_partition_mono_items</code> query, which first recursively requests the
+<code>optimized_mir</code> for all reachable functions, which in turn runs <code>mir_borrowck</code>
+for that function and then creates codegen units. This kind of split will need
+to remain to ensure that unreachable functions still have their errors emitted.</p>
+<p>Moreover, the compiler wasn't originally built to use a query system; the query
+system has been retrofitted into the compiler, so parts of it are not query-fied
+yet. Also, LLVM isn't our code, so that isn't querified either. The plan is to
+eventually query-fy all of the steps listed in the previous section,
+but as of <!-- date: 2021-02 --> February 2021, only the steps between HIR and
+LLVM IR are query-fied. That is, lexing, parsing, name resolution, and macro
+expansion are done all at once for the whole program.</p>
+<p>One other thing to mention here is the all-important &quot;typing context&quot;,
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.TyCtxt.html"><code>TyCtxt</code></a>, which is a giant struct that is at the center of all things.
+(Note that the name is mostly historic. This is <em>not</em> a &quot;typing context&quot; in the
+sense of <code>Γ</code> or <code>Δ</code> from type theory. The name is retained because that's what
+the name of the struct is in the source code.) All
+queries are defined as methods on the <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.TyCtxt.html"><code>TyCtxt</code></a> type, and the in-memory query
+cache is stored there too. In the code, there is usually a variable called
+<code>tcx</code> which is a handle on the typing context. You will also see lifetimes with
+the name <code>'tcx</code>, which means that something is tied to the lifetime of the
+<code>TyCtxt</code> (usually it is stored or interned there).</p>
+<h3 id="tyty"><a class="header" href="#tyty"><code>ty::Ty</code></a></h3>
+<p>Types are really important in Rust, and they form the core of a lot of compiler
+analyses. The main type (in the compiler) that represents types (in the user's
+program) is <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/type.Ty.html"><code>rustc_middle::ty::Ty</code></a>. This is so important that we have a whole chapter
+on <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/type.Ty.html"><code>ty::Ty</code></a>, but for now, we just want to mention that it exists and is the way
+<code>rustc</code> represents types!</p>
+<p>Also note that the <code>rustc_middle::ty</code> module defines the <code>TyCtxt</code> struct we mentioned before.</p>
+<h3 id="parallelism"><a class="header" href="#parallelism">Parallelism</a></h3>
+<p>Compiler performance is a problem that we would like to improve on
+(and are always working on). One aspect of that is parallelizing
+<code>rustc</code> itself.</p>
+<p>Currently, there is only one part of rustc that is already parallel: codegen.
+During monomorphization, the compiler will split up all the code to be
+generated into smaller chunks called <em>codegen units</em>. These are then generated
+by independent instances of LLVM. Since they are independent, we can run them
+in parallel. At the end, the linker is run to combine all the codegen units
+together into one binary.</p>
+<p>However, the rest of the compiler is still not yet parallel. There have been
+lots of efforts spent on this, but it is generally a hard problem. The current
+approach is to turn <code>RefCell</code>s into <code>Mutex</code>s -- that is, we
+switch to thread-safe internal mutability. However, there are ongoing
+challenges with lock contention, maintaining query-system invariants under
+concurrency, and the complexity of the code base. One can try out the current
+work by enabling parallel compilation in <code>config.toml</code>. It's still early days,
+but there are already some promising performance improvements.</p>
+<h3 id="bootstrapping"><a class="header" href="#bootstrapping">Bootstrapping</a></h3>
+<p><code>rustc</code> itself is written in Rust. So how do we compile the compiler? We use an
+older compiler to compile the newer compiler. This is called <a href="https://en.wikipedia.org/wiki/Bootstrapping_(compilers)"><em>bootstrapping</em></a>.</p>
+<p>Bootstrapping has a lot of interesting implications. For example, it means
+that one of the major users of Rust is the Rust compiler, so we are
+constantly testing our own software (&quot;eating our own dogfood&quot;).</p>
+<p>For more details on bootstrapping, see
+<a href="building/bootstrapping.html">the bootstrapping section of the guide</a>.</p>
+<h1 id="unresolved-questions"><a class="header" href="#unresolved-questions">Unresolved Questions</a></h1>
+<ul>
+<li>Does LLVM ever do optimizations in debug builds?</li>
+<li>How do I explore phases of the compile process in my own sources (lexer,
+parser, HIR, etc)? - e.g., <code>cargo rustc -- -Z unpretty=hir-tree</code> allows you to
+view HIR representation</li>
+<li>What is the main source entry point for <code>X</code>?</li>
+<li>Where do phases diverge for cross-compilation to machine code across
+different platforms?</li>
+</ul>
+<h1 id="references"><a class="header" href="#references">References</a></h1>
+<ul>
+<li>Command line parsing
+<ul>
+<li>Guide: <a href="https://rustc-dev-guide.rust-lang.org/rustc-driver.html">The Rustc Driver and Interface</a></li>
+<li>Driver definition: <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_driver/"><code>rustc_driver</code></a></li>
+<li>Main entry point: <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/config/fn.build_session_options.html"><code>rustc_session::config::build_session_options</code></a></li>
+</ul>
+</li>
+<li>Lexical Analysis: Lex the user program to a stream of tokens
+<ul>
+<li>Guide: <a href="https://rustc-dev-guide.rust-lang.org/the-parser.html">Lexing and Parsing</a></li>
+<li>Lexer definition: <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lexer/index.html"><code>rustc_lexer</code></a></li>
+<li>Main entry point: <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lexer/fn.first_token.html"><code>rustc_lexer::first_token</code></a></li>
+</ul>
+</li>
+<li>Parsing: Parse the stream of tokens to an Abstract Syntax Tree (AST)
+<ul>
+<li>Guide: <a href="https://rustc-dev-guide.rust-lang.org/the-parser.html">Lexing and Parsing</a></li>
+<li>Parser definition: <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_parse/index.html"><code>rustc_parse</code></a></li>
+<li>Main entry points:
+<ul>
+<li><a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/passes/fn.parse.html">Entry point for first file in crate</a></li>
+<li><a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_expand/module/fn.parse_external_mod.html">Entry point for outline module parsing</a></li>
+<li><a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_parse/parser/struct.Parser.html#method.parse_nonterminal">Entry point for macro fragments</a></li>
+</ul>
+</li>
+<li>AST definition: <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_ast/ast/index.html"><code>rustc_ast</code></a></li>
+<li>Expansion: <strong>TODO</strong></li>
+<li>Name Resolution: <strong>TODO</strong></li>
+<li>Feature gating: <strong>TODO</strong></li>
+<li>Early linting: <strong>TODO</strong></li>
+</ul>
+</li>
+<li>The High Level Intermediate Representation (HIR)
+<ul>
+<li>Guide: <a href="https://rustc-dev-guide.rust-lang.org/hir.html">The HIR</a></li>
+<li>Guide: <a href="https://rustc-dev-guide.rust-lang.org/hir.html#identifiers-in-the-hir">Identifiers in the HIR</a></li>
+<li>Guide: <a href="https://rustc-dev-guide.rust-lang.org/hir.html#the-hir-map">The HIR Map</a></li>
+<li>Guide: <a href="https://rustc-dev-guide.rust-lang.org/lowering.html">Lowering AST to HIR</a></li>
+<li>How to view HIR representation for your code <code>cargo rustc -- -Z unpretty=hir-tree</code></li>
+<li>Rustc HIR definition: <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/index.html"><code>rustc_hir</code></a></li>
+<li>Main entry point: <strong>TODO</strong></li>
+<li>Late linting: <strong>TODO</strong></li>
+</ul>
+</li>
+<li>Type Inference
+<ul>
+<li>Guide: <a href="https://rustc-dev-guide.rust-lang.org/type-inference.html">Type Inference</a></li>
+<li>Guide: <a href="https://rustc-dev-guide.rust-lang.org/ty.html">The ty Module: Representing Types</a> (semantics)</li>
+<li>Main entry point (type inference): <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_infer/infer/struct.InferCtxtBuilder.html#method.enter"><code>InferCtxtBuilder::enter</code></a></li>
+<li>Main entry point (type checking bodies): <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.TyCtxt.html#method.typeck">the <code>typeck</code> query</a>
+<ul>
+<li>These two functions can't be decoupled.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>The Mid Level Intermediate Representation (MIR)
+<ul>
+<li>Guide: <a href="https://rustc-dev-guide.rust-lang.org/mir/index.html">The MIR (Mid level IR)</a></li>
+<li>Definition: <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/index.html"><code>rustc_middle/src/mir</code></a></li>
+<li>Definition of source that manipulates the MIR: <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/index.html"><code>rustc_mir</code></a></li>
+</ul>
+</li>
+<li>The Borrow Checker
+<ul>
+<li>Guide: <a href="https://rustc-dev-guide.rust-lang.org/borrow_check.html">MIR Borrow Check</a></li>
+<li>Definition: <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/borrow_check/index.html"><code>rustc_mir/borrow_check</code></a></li>
+<li>Main entry point: <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/borrow_check/fn.mir_borrowck.html"><code>mir_borrowck</code> query</a></li>
+</ul>
+</li>
+<li>MIR Optimizations
+<ul>
+<li>Guide: <a href="https://rustc-dev-guide.rust-lang.org/mir/optimizations.html">MIR Optimizations</a></li>
+<li>Definition: <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/transform/index.html"><code>rustc_mir/transform</code></a></li>
+<li>Main entry point: <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/transform/fn.optimized_mir.html"><code>optimized_mir</code> query</a></li>
+</ul>
+</li>
+<li>Code Generation
+<ul>
+<li>Guide: <a href="https://rustc-dev-guide.rust-lang.org/backend/codegen.html">Code Generation</a></li>
+<li>Generating Machine Code from LLVM IR with LLVM - <strong>TODO: reference?</strong></li>
+<li>Main entry point: <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_codegen_ssa/base/fn.codegen_crate.html"><code>rustc_codegen_ssa::base::codegen_crate</code></a>
+<ul>
+<li>This monomorphizes and produces LLVM IR for one codegen unit. It then
+starts a background thread to run LLVM, which must be joined later.</li>
+<li>Monomorphization happens lazily via <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_codegen_ssa/mir/struct.FunctionCx.html#method.monomorphize"><code>FunctionCx::monomorphize</code></a> and <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_codegen_ssa/base/fn.codegen_instance.html"><code>rustc_codegen_ssa::base::codegen_instance </code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="part-2-intro.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="compiler-src.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="part-2-intro.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="compiler-src.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

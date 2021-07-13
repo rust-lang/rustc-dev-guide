@@ -1,0 +1,464 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Queries: demand-driven compilation - Guide to Rustc Development</title>
+        
+        
+
+
+        <!-- Custom HTML head -->
+        
+
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="A guide to developing rustc">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        
+        <link rel="icon" href="favicon.svg">
+        
+        
+        <link rel="shortcut icon" href="favicon.png">
+        
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        
+        <link rel="stylesheet" href="css/print.css" media="print">
+        
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        
+        <link rel="stylesheet" href="fonts/fonts.css">
+        
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item affix "><a href="about-this-guide.html">About this guide</a></li><li class="chapter-item affix "><a href="getting-started.html">Getting Started</a></li><li class="spacer"></li><li class="chapter-item affix "><li class="part-title">Building and debugging rustc</li><li class="chapter-item "><a href="building/how-to-build-and-run.html"><strong aria-hidden="true">1.</strong> How to Build and Run the Compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="building/prerequisites.html"><strong aria-hidden="true">1.1.</strong> Prerequisites</a></li><li class="chapter-item "><a href="building/suggested.html"><strong aria-hidden="true">1.2.</strong> Suggested Workflows</a></li><li class="chapter-item "><a href="building/build-install-distribution-artifacts.html"><strong aria-hidden="true">1.3.</strong> Distribution artifacts</a></li><li class="chapter-item "><a href="building/compiler-documenting.html"><strong aria-hidden="true">1.4.</strong> Documenting Compiler</a></li><li class="chapter-item "><a href="rustdoc.html"><strong aria-hidden="true">1.5.</strong> Rustdoc overview</a></li><li class="chapter-item "><a href="building/ctags.html"><strong aria-hidden="true">1.6.</strong> ctags</a></li><li class="chapter-item "><a href="building/new-target.html"><strong aria-hidden="true">1.7.</strong> Adding a new target</a></li></ol></li><li class="chapter-item "><a href="tests/intro.html"><strong aria-hidden="true">2.</strong> The compiler testing framework</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="tests/running.html"><strong aria-hidden="true">2.1.</strong> Running tests</a></li><li class="chapter-item "><a href="tests/adding.html"><strong aria-hidden="true">2.2.</strong> Adding new tests</a></li><li class="chapter-item "><a href="compiletest.html"><strong aria-hidden="true">2.3.</strong> Using compiletest commands to control test execution</a></li></ol></li><li class="chapter-item "><a href="compiler-debugging.html"><strong aria-hidden="true">3.</strong> Debugging the Compiler</a></li><li class="chapter-item "><a href="profiling.html"><strong aria-hidden="true">4.</strong> Profiling the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="profiling/with_perf.html"><strong aria-hidden="true">4.1.</strong> with the linux perf tool</a></li><li class="chapter-item "><a href="profiling/wpa_profiling.html"><strong aria-hidden="true">4.2.</strong> with Windows Performance Analyzer</a></li></ol></li><li class="chapter-item "><a href="crates-io.html"><strong aria-hidden="true">5.</strong> crates.io Dependencies</a></li><li class="chapter-item affix "><li class="part-title">Contributing to Rust</li><li class="chapter-item "><a href="contributing.html"><strong aria-hidden="true">6.</strong> Introduction</a></li><li class="chapter-item "><a href="compiler-team.html"><strong aria-hidden="true">7.</strong> About the compiler team</a></li><li class="chapter-item "><a href="git.html"><strong aria-hidden="true">8.</strong> Using Git</a></li><li class="chapter-item "><a href="rustbot.html"><strong aria-hidden="true">9.</strong> Mastering @rustbot</a></li><li class="chapter-item "><a href="walkthrough.html"><strong aria-hidden="true">10.</strong> Walkthrough: a typical contribution</a></li><li class="chapter-item "><a href="bug-fix-procedure.html"><strong aria-hidden="true">11.</strong> Bug Fix Procedure</a></li><li class="chapter-item "><a href="implementing_new_features.html"><strong aria-hidden="true">12.</strong> Implementing new features</a></li><li class="chapter-item "><a href="stability.html"><strong aria-hidden="true">13.</strong> Stability attributes</a></li><li class="chapter-item "><a href="stabilization_guide.html"><strong aria-hidden="true">14.</strong> Stabilizing Features</a></li><li class="chapter-item "><a href="feature-gates.html"><strong aria-hidden="true">15.</strong> Feature Gates</a></li><li class="chapter-item "><a href="conventions.html"><strong aria-hidden="true">16.</strong> Coding conventions</a></li><li class="chapter-item "><a href="notification-groups/about.html"><strong aria-hidden="true">17.</strong> Notification groups</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="notification-groups/arm.html"><strong aria-hidden="true">17.1.</strong> ARM</a></li><li class="chapter-item "><a href="notification-groups/cleanup-crew.html"><strong aria-hidden="true">17.2.</strong> Cleanup Crew</a></li><li class="chapter-item "><a href="notification-groups/llvm.html"><strong aria-hidden="true">17.3.</strong> LLVM</a></li><li class="chapter-item "><a href="notification-groups/risc-v.html"><strong aria-hidden="true">17.4.</strong> RISC-V</a></li><li class="chapter-item "><a href="notification-groups/windows.html"><strong aria-hidden="true">17.5.</strong> Windows</a></li></ol></li><li class="chapter-item "><a href="licenses.html"><strong aria-hidden="true">18.</strong> Licenses</a></li><li class="chapter-item affix "><li class="part-title">High-level Compiler Architecture</li><li class="chapter-item "><a href="part-2-intro.html"><strong aria-hidden="true">19.</strong> Prologue</a></li><li class="chapter-item "><a href="overview.html"><strong aria-hidden="true">20.</strong> Overview of the Compiler</a></li><li class="chapter-item "><a href="compiler-src.html"><strong aria-hidden="true">21.</strong> The compiler source code</a></li><li class="chapter-item "><a href="building/bootstrapping.html"><strong aria-hidden="true">22.</strong> Bootstrapping</a></li><li class="chapter-item expanded "><a href="query.html" class="active"><strong aria-hidden="true">23.</strong> Queries: demand-driven compilation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="queries/query-evaluation-model-in-detail.html"><strong aria-hidden="true">23.1.</strong> The Query Evaluation Model in Detail</a></li><li class="chapter-item "><a href="queries/incremental-compilation.html"><strong aria-hidden="true">23.2.</strong> Incremental compilation</a></li><li class="chapter-item "><a href="queries/incremental-compilation-in-detail.html"><strong aria-hidden="true">23.3.</strong> Incremental compilation In Detail</a></li><li class="chapter-item "><a href="incrcomp-debugging.html"><strong aria-hidden="true">23.4.</strong> Debugging and Testing</a></li><li class="chapter-item "><a href="queries/profiling.html"><strong aria-hidden="true">23.5.</strong> Profiling Queries</a></li><li class="chapter-item "><a href="salsa.html"><strong aria-hidden="true">23.6.</strong> Salsa</a></li></ol></li><li class="chapter-item "><a href="memory.html"><strong aria-hidden="true">24.</strong> Memory Management in Rustc</a></li><li class="chapter-item "><a href="serialization.html"><strong aria-hidden="true">25.</strong> Serialization in Rustc</a></li><li class="chapter-item "><a href="parallel-rustc.html"><strong aria-hidden="true">26.</strong> Parallel Compilation</a></li><li class="chapter-item "><a href="rustdoc-internals.html"><strong aria-hidden="true">27.</strong> Rustdoc internals</a></li><li class="chapter-item affix "><li class="part-title">Source Code Representation</li><li class="chapter-item "><a href="part-3-intro.html"><strong aria-hidden="true">28.</strong> Prologue</a></li><li class="chapter-item "><a href="cli.html"><strong aria-hidden="true">29.</strong> Command-line arguments</a></li><li class="chapter-item "><a href="rustc-driver.html"><strong aria-hidden="true">30.</strong> The Rustc Driver and Interface</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="rustc-driver-interacting-with-the-ast.html"><strong aria-hidden="true">30.1.</strong> Ex: Type checking through rustc_interface</a></li><li class="chapter-item "><a href="rustc-driver-getting-diagnostics.html"><strong aria-hidden="true">30.2.</strong> Ex: Getting diagnostics through rustc_interface</a></li></ol></li><li class="chapter-item "><a href="syntax-intro.html"><strong aria-hidden="true">31.</strong> Syntax and the AST</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="the-parser.html"><strong aria-hidden="true">31.1.</strong> Lexing and Parsing</a></li><li class="chapter-item "><a href="macro-expansion.html"><strong aria-hidden="true">31.2.</strong> Macro expansion</a></li><li class="chapter-item "><a href="name-resolution.html"><strong aria-hidden="true">31.3.</strong> Name resolution</a></li><li class="chapter-item "><a href="test-implementation.html"><strong aria-hidden="true">31.4.</strong> #[test] Implementation</a></li><li class="chapter-item "><a href="panic-implementation.html"><strong aria-hidden="true">31.5.</strong> Panic Implementation</a></li><li class="chapter-item "><a href="ast-validation.html"><strong aria-hidden="true">31.6.</strong> AST Validation</a></li><li class="chapter-item "><a href="feature-gate-ck.html"><strong aria-hidden="true">31.7.</strong> Feature Gate Checking</a></li><li class="chapter-item "><a href="lang-items.html"><strong aria-hidden="true">31.8.</strong> Lang Items</a></li></ol></li><li class="chapter-item "><a href="hir.html"><strong aria-hidden="true">32.</strong> The HIR (High-level IR)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="lowering.html"><strong aria-hidden="true">32.1.</strong> Lowering AST to HIR</a></li><li class="chapter-item "><a href="hir-debugging.html"><strong aria-hidden="true">32.2.</strong> Debugging</a></li></ol></li><li class="chapter-item "><a href="thir.html"><strong aria-hidden="true">33.</strong> The THIR (Typed High-level IR)</a></li><li class="chapter-item "><a href="mir/index.html"><strong aria-hidden="true">34.</strong> The MIR (Mid-level IR)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="mir/construction.html"><strong aria-hidden="true">34.1.</strong> MIR construction</a></li><li class="chapter-item "><a href="mir/visitor.html"><strong aria-hidden="true">34.2.</strong> MIR visitor and traversal</a></li><li class="chapter-item "><a href="mir/passes.html"><strong aria-hidden="true">34.3.</strong> MIR passes: getting the MIR for a function</a></li></ol></li><li class="chapter-item "><a href="identifiers.html"><strong aria-hidden="true">35.</strong> Identifiers in the Compiler</a></li><li class="chapter-item "><a href="closure.html"><strong aria-hidden="true">36.</strong> Closure expansion</a></li><li class="chapter-item affix "><li class="part-title">Analysis</li><li class="chapter-item "><a href="part-4-intro.html"><strong aria-hidden="true">37.</strong> Prologue</a></li><li class="chapter-item "><a href="ty.html"><strong aria-hidden="true">38.</strong> The ty module: representing types</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="generics.html"><strong aria-hidden="true">38.1.</strong> Generics and substitutions</a></li><li class="chapter-item "><a href="ty-fold.html"><strong aria-hidden="true">38.2.</strong> TypeFolder and TypeFoldable</a></li><li class="chapter-item "><a href="generic_arguments.html"><strong aria-hidden="true">38.3.</strong> Generic arguments</a></li></ol></li><li class="chapter-item "><a href="type-inference.html"><strong aria-hidden="true">39.</strong> Type inference</a></li><li class="chapter-item "><a href="traits/resolution.html"><strong aria-hidden="true">40.</strong> Trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="early-late-bound.html"><strong aria-hidden="true">40.1.</strong> Early and Late Bound Parameters</a></li><li class="chapter-item "><a href="traits/hrtb.html"><strong aria-hidden="true">40.2.</strong> Higher-ranked trait bounds</a></li><li class="chapter-item "><a href="traits/caching.html"><strong aria-hidden="true">40.3.</strong> Caching subtleties</a></li><li class="chapter-item "><a href="traits/specialization.html"><strong aria-hidden="true">40.4.</strong> Specialization</a></li><li class="chapter-item "><a href="traits/chalk.html"><strong aria-hidden="true">40.5.</strong> Chalk-based trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="traits/lowering-to-logic.html"><strong aria-hidden="true">40.5.1.</strong> Lowering to logic</a></li><li class="chapter-item "><a href="traits/goals-and-clauses.html"><strong aria-hidden="true">40.5.2.</strong> Goals and clauses</a></li><li class="chapter-item "><a href="traits/canonical-queries.html"><strong aria-hidden="true">40.5.3.</strong> Canonical queries</a></li></ol></li></ol></li><li class="chapter-item "><a href="type-checking.html"><strong aria-hidden="true">41.</strong> Type checking</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="method-lookup.html"><strong aria-hidden="true">41.1.</strong> Method Lookup</a></li><li class="chapter-item "><a href="variance.html"><strong aria-hidden="true">41.2.</strong> Variance</a></li><li class="chapter-item "><a href="opaque-types-type-alias-impl-trait.html"><strong aria-hidden="true">41.3.</strong> Opaque Types</a></li></ol></li><li class="chapter-item "><a href="pat-exhaustive-checking.html"><strong aria-hidden="true">42.</strong> Pattern and Exhaustiveness Checking</a></li><li class="chapter-item "><a href="mir/dataflow.html"><strong aria-hidden="true">43.</strong> MIR dataflow</a></li><li class="chapter-item "><a href="borrow_check.html"><strong aria-hidden="true">44.</strong> The borrow checker</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="borrow_check/moves_and_initialization.html"><strong aria-hidden="true">44.1.</strong> Tracking moves and initialization</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="borrow_check/moves_and_initialization/move_paths.html"><strong aria-hidden="true">44.1.1.</strong> Move paths</a></li></ol></li><li class="chapter-item "><a href="borrow_check/type_check.html"><strong aria-hidden="true">44.2.</strong> MIR type checker</a></li><li class="chapter-item "><a href="borrow_check/region_inference.html"><strong aria-hidden="true">44.3.</strong> Region inference</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="borrow_check/region_inference/constraint_propagation.html"><strong aria-hidden="true">44.3.1.</strong> Constraint propagation</a></li><li class="chapter-item "><a href="borrow_check/region_inference/lifetime_parameters.html"><strong aria-hidden="true">44.3.2.</strong> Lifetime parameters</a></li><li class="chapter-item "><a href="borrow_check/region_inference/member_constraints.html"><strong aria-hidden="true">44.3.3.</strong> Member constraints</a></li><li class="chapter-item "><a href="borrow_check/region_inference/placeholders_and_universes.html"><strong aria-hidden="true">44.3.4.</strong> Placeholders and universes</a></li><li class="chapter-item "><a href="borrow_check/region_inference/closure_constraints.html"><strong aria-hidden="true">44.3.5.</strong> Closure constraints</a></li><li class="chapter-item "><a href="borrow_check/region_inference/error_reporting.html"><strong aria-hidden="true">44.3.6.</strong> Error reporting</a></li></ol></li><li class="chapter-item "><a href="borrow_check/two_phase_borrows.html"><strong aria-hidden="true">44.4.</strong> Two-phase-borrows</a></li></ol></li><li class="chapter-item "><a href="param_env.html"><strong aria-hidden="true">45.</strong> Parameter Environments</a></li><li class="chapter-item "><a href="diagnostics.html"><strong aria-hidden="true">46.</strong> Errors and Lints</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="diagnostics/sessiondiagnostic.html"><strong aria-hidden="true">46.1.</strong> Creating Errors With SessionDiagnostic</a></li><li class="chapter-item "><a href="diagnostics/lintstore.html"><strong aria-hidden="true">46.2.</strong> LintStore</a></li><li class="chapter-item "><a href="diagnostics/diagnostic-codes.html"><strong aria-hidden="true">46.3.</strong> Diagnostic Codes</a></li></ol></li><li class="chapter-item "><li class="part-title">MIR to Binaries</li><li class="chapter-item "><a href="part-5-intro.html"><strong aria-hidden="true">47.</strong> Prologue</a></li><li class="chapter-item "><a href="mir/optimizations.html"><strong aria-hidden="true">48.</strong> MIR optimizations</a></li><li class="chapter-item "><a href="mir/debugging.html"><strong aria-hidden="true">49.</strong> Debugging</a></li><li class="chapter-item "><a href="const-eval.html"><strong aria-hidden="true">50.</strong> Constant evaluation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="miri.html"><strong aria-hidden="true">50.1.</strong> miri const evaluator</a></li></ol></li><li class="chapter-item "><a href="backend/monomorph.html"><strong aria-hidden="true">51.</strong> Monomorphization</a></li><li class="chapter-item "><a href="backend/lowering-mir.html"><strong aria-hidden="true">52.</strong> Lowering MIR</a></li><li class="chapter-item "><a href="backend/codegen.html"><strong aria-hidden="true">53.</strong> Code Generation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="backend/updating-llvm.html"><strong aria-hidden="true">53.1.</strong> Updating LLVM</a></li><li class="chapter-item "><a href="backend/debugging.html"><strong aria-hidden="true">53.2.</strong> Debugging LLVM</a></li><li class="chapter-item "><a href="backend/backend-agnostic.html"><strong aria-hidden="true">53.3.</strong> Backend Agnostic Codegen</a></li><li class="chapter-item "><a href="backend/implicit-caller-location.html"><strong aria-hidden="true">53.4.</strong> Implicit Caller Location</a></li></ol></li><li class="chapter-item "><a href="backend/libs-and-metadata.html"><strong aria-hidden="true">54.</strong> Libraries and Metadata</a></li><li class="chapter-item "><a href="profile-guided-optimization.html"><strong aria-hidden="true">55.</strong> Profile-guided Optimization</a></li><li class="chapter-item "><a href="llvm-coverage-instrumentation.html"><strong aria-hidden="true">56.</strong> LLVM Source-Based Code Coverage</a></li><li class="chapter-item "><a href="sanitizers.html"><strong aria-hidden="true">57.</strong> Sanitizers Support</a></li><li class="chapter-item "><a href="debugging-support-in-rustc.html"><strong aria-hidden="true">58.</strong> Debugging Support in the Rust Compiler</a></li><li class="spacer"></li><li class="chapter-item affix "><a href="appendix/background.html">Appendix A: Background topics</a></li><li class="chapter-item affix "><a href="appendix/glossary.html">Appendix B: Glossary</a></li><li class="chapter-item affix "><a href="appendix/code-index.html">Appendix C: Code Index</a></li><li class="chapter-item affix "><a href="appendix/compiler-lecture.html">Appendix D: Compiler Lecture Series</a></li><li class="chapter-item affix "><a href="appendix/bibliography.html">Appendix E: Bibliography</a></li><li class="chapter-item affix "><a href="appendix/humorust.html">Appendix Z: HumorRust</a></li><li class="spacer"></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">Guide to Rustc Development</h1>
+
+                    <div class="right-buttons">
+                        
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                        
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="queries-demand-driven-compilation"><a class="header" href="#queries-demand-driven-compilation">Queries: demand-driven compilation</a></h1>
+<p>As described in <a href="./compiler-src.html">the high-level overview of the compiler</a>, the Rust compiler
+is still (as of <!-- date: 2021-07 --> July 2021) transitioning from a
+traditional &quot;pass-based&quot; setup to a &quot;demand-driven&quot; system. <strong>The Compiler Query
+System is the key to our new demand-driven organization.</strong> The idea is pretty
+simple. You have various queries that compute things about the input – for
+example, there is a query called <code>type_of(def_id)</code> that, given the <a href="appendix/glossary.html#def-id">def-id</a> of
+some item, will compute the type of that item and return it to you.</p>
+<p>Query execution is <strong>memoized</strong> – so the first time you invoke a
+query, it will go do the computation, but the next time, the result is
+returned from a hashtable. Moreover, query execution fits nicely into
+<strong>incremental computation</strong>; the idea is roughly that, when you do a
+query, the result <strong>may</strong> be returned to you by loading stored data
+from disk (but that's a separate topic we won't discuss further here).</p>
+<p>The overall vision is that, eventually, the entire compiler
+control-flow will be query driven. There will effectively be one
+top-level query (&quot;compile&quot;) that will run compilation on a crate; this
+will in turn demand information about that crate, starting from the
+<em>end</em>.  For example:</p>
+<ul>
+<li>This &quot;compile&quot; query might demand to get a list of codegen-units
+(i.e. modules that need to be compiled by LLVM).</li>
+<li>But computing the list of codegen-units would invoke some subquery
+that returns the list of all modules defined in the Rust source.</li>
+<li>That query in turn would invoke something asking for the HIR.</li>
+<li>This keeps going further and further back until we wind up doing the
+actual parsing.</li>
+</ul>
+<p>However, that vision is not fully realized. Still, big chunks of the
+compiler (for example, generating MIR) work exactly like this.</p>
+<h3 id="incremental-compilation-in-detail"><a class="header" href="#incremental-compilation-in-detail">Incremental Compilation in Detail</a></h3>
+<p>The <a href="queries/incremental-compilation-in-detail.html">Incremental Compilation in Detail</a> chapter gives a more
+in-depth description of what queries are and how they work.
+If you intend to write a query of your own, this is a good read.</p>
+<h3 id="invoking-queries"><a class="header" href="#invoking-queries">Invoking queries</a></h3>
+<p>To invoke a query is simple. The tcx (&quot;type context&quot;) offers a method
+for each defined query. So, for example, to invoke the <code>type_of</code>
+query, you would just do this:</p>
+<pre><code class="language-rust ignore">let ty = tcx.type_of(some_def_id);
+</code></pre>
+<h3 id="how-the-compiler-executes-a-query"><a class="header" href="#how-the-compiler-executes-a-query">How the compiler executes a query</a></h3>
+<p>So you may be wondering what happens when you invoke a query
+method. The answer is that, for each query, the compiler maintains a
+cache – if your query has already been executed, then, the answer is
+simple: we clone the return value out of the cache and return it
+(therefore, you should try to ensure that the return types of queries
+are cheaply cloneable; insert a <code>Rc</code> if necessary).</p>
+<h4 id="providers"><a class="header" href="#providers">Providers</a></h4>
+<p>If, however, the query is <em>not</em> in the cache, then the compiler will
+try to find a suitable <strong>provider</strong>. A provider is a function that has
+been defined and linked into the compiler somewhere that contains the
+code to compute the result of the query.</p>
+<p><strong>Providers are defined per-crate.</strong> The compiler maintains,
+internally, a table of providers for every crate, at least
+conceptually. Right now, there are really two sets: the providers for
+queries about the <strong>local crate</strong> (that is, the one being compiled)
+and providers for queries about <strong>external crates</strong> (that is,
+dependencies of the local crate). Note that what determines the crate
+that a query is targeting is not the <em>kind</em> of query, but the <em>key</em>.
+For example, when you invoke <code>tcx.type_of(def_id)</code>, that could be a
+local query or an external query, depending on what crate the <code>def_id</code>
+is referring to (see the <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_query_impl/keys/trait.Key.html"><code>self::keys::Key</code></a> trait for more
+information on how that works).</p>
+<p>Providers always have the same signature:</p>
+<pre><code class="language-rust ignore">fn provider&lt;'tcx&gt;(
+    tcx: TyCtxt&lt;'tcx&gt;,
+    key: QUERY_KEY,
+) -&gt; QUERY_RESULT {
+    ...
+}
+</code></pre>
+<p>Providers take two arguments: the <code>tcx</code> and the query key.
+They return the result of the query.</p>
+<h4 id="how-providers-are-setup"><a class="header" href="#how-providers-are-setup">How providers are setup</a></h4>
+<p>When the tcx is created, it is given the providers by its creator using
+the <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/query/struct.Providers.html"><code>Providers</code></a> struct. This struct is generated by
+the macros here, but it is basically a big list of function pointers:</p>
+<pre><code class="language-rust ignore">struct Providers {
+    type_of: for&lt;'tcx&gt; fn(TyCtxt&lt;'tcx&gt;, DefId) -&gt; Ty&lt;'tcx&gt;,
+    ...
+}
+</code></pre>
+<p>At present, we have one copy of the struct for local crates, and one
+for external crates, though the plan is that we may eventually have
+one per crate.</p>
+<p>These <code>Providers</code> structs are ultimately created and populated by
+<code>rustc_driver</code>, but it does this by distributing the work
+throughout the other <code>rustc_*</code> crates. This is done by invoking
+various <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/hir/fn.provide.html"><code>provide</code></a> functions. These functions tend to look
+something like this:</p>
+<pre><code class="language-rust ignore">pub fn provide(providers: &amp;mut Providers) {
+    *providers = Providers {
+        type_of,
+        ..*providers
+    };
+}
+</code></pre>
+<p>That is, they take an <code>&amp;mut Providers</code> and mutate it in place. Usually
+we use the formulation above just because it looks nice, but you could
+as well do <code>providers.type_of = type_of</code>, which would be equivalent.
+(Here, <code>type_of</code> would be a top-level function, defined as we saw
+before.) So, if we want to add a provider for some other query,
+let's call it <code>fubar</code>, into the crate above, we might modify the <code>provide()</code>
+function like so:</p>
+<pre><code class="language-rust ignore">pub fn provide(providers: &amp;mut Providers) {
+    *providers = Providers {
+        type_of,
+        fubar,
+        ..*providers
+    };
+}
+
+fn fubar&lt;'tcx&gt;(tcx: TyCtxt&lt;'tcx&gt;, key: DefId) -&gt; Fubar&lt;'tcx&gt; { ... }
+</code></pre>
+<p>N.B. Most of the <code>rustc_*</code> crates only provide <strong>local
+providers</strong>. Almost all <strong>extern providers</strong> wind up going through the
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_metadata/index.html"><code>rustc_metadata</code> crate</a>, which loads the information
+from the crate metadata. But in some cases there are crates that
+provide queries for <em>both</em> local and external crates, in which case
+they define both a <code>provide</code> and a <code>provide_extern</code> function, through
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_codegen_ssa/back/symbol_export/fn.wasm_import_module_map.html"><code>wasm_import_module_map</code></a>, that <code>rustc_driver</code> can invoke.</p>
+<h3 id="adding-a-new-kind-of-query"><a class="header" href="#adding-a-new-kind-of-query">Adding a new kind of query</a></h3>
+<p>So suppose you want to add a new kind of query, how do you do so?
+Well, defining a query takes place in two steps:</p>
+<ol>
+<li>first, you have to specify the query name and arguments; and then,</li>
+<li>you have to supply query providers where needed.</li>
+</ol>
+<p>To specify the query name and arguments, you simply add an entry to
+the big macro invocation in
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/query/index.html"><code>compiler/rustc_middle/src/query/mod.rs</code></a>, which looks something like:</p>
+<pre><code class="language-rust ignore">rustc_queries! {
+    Other {
+        /// Records the type of every item.
+        query type_of(key: DefId) -&gt; Ty&lt;'tcx&gt; {
+            cache { key.is_local() }
+        }
+    }
+
+    ...
+}
+</code></pre>
+<p>Queries are grouped into categories (<code>Other</code>, <code>Codegen</code>, <code>TypeChecking</code>, etc.).
+Each group contains one or more queries. Each query definition is broken up like
+this:</p>
+<pre><code class="language-rust ignore">query type_of(key: DefId) -&gt; Ty&lt;'tcx&gt; { ... }
+^^    ^^^^^^^      ^^^^^     ^^^^^^^^   ^^^
+|     |            |         |          |
+|     |            |         |          query modifiers
+|     |            |         result type of query
+|     |            query key type
+|     name of query
+query keyword
+</code></pre>
+<p>Let's go over them one by one:</p>
+<ul>
+<li><strong>Query keyword:</strong> indicates a start of a query definition.</li>
+<li><strong>Name of query:</strong> the name of the query method
+(<code>tcx.type_of(..)</code>). Also used as the name of a struct
+(<code>ty::queries::type_of</code>) that will be generated to represent
+this query.</li>
+<li><strong>Query key type:</strong> the type of the argument to this query.
+This type must implement the <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_query_impl/keys/trait.Key.html"><code>ty::query::keys::Key</code></a> trait, which
+defines (for example) how to map it to a crate, and so forth.</li>
+<li><strong>Result type of query:</strong> the type produced by this query. This type
+should (a) not use <code>RefCell</code> or other interior mutability and (b) be
+cheaply cloneable. Interning or using <code>Rc</code> or <code>Arc</code> is recommended for
+non-trivial data types.
+<ul>
+<li>The one exception to those rules is the <code>ty::steal::Steal</code> type,
+which is used to cheaply modify MIR in place. See the definition
+of <code>Steal</code> for more details. New uses of <code>Steal</code> should <strong>not</strong> be
+added without alerting <code>@rust-lang/compiler</code>.</li>
+</ul>
+</li>
+<li><strong>Query modifiers:</strong> various flags and options that customize how the
+query is processed (mostly with respect to <a href="queries/incremental-compilation-in-detail.html#query-modifiers">incremental compilation</a>).</li>
+</ul>
+<p>So, to add a query:</p>
+<ul>
+<li>Add an entry to <code>rustc_queries!</code> using the format above.</li>
+<li>Link the provider by modifying the appropriate <code>provide</code> method;
+or add a new one if needed and ensure that <code>rustc_driver</code> is invoking it.</li>
+</ul>
+<h4 id="query-structs-and-descriptions"><a class="header" href="#query-structs-and-descriptions">Query structs and descriptions</a></h4>
+<p>For each kind, the <code>rustc_queries</code> macro will generate a &quot;query struct&quot;
+named after the query. This struct is a kind of a place-holder
+describing the query. Each such struct implements the
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_query_system/query/config/trait.QueryConfig.html"><code>self::config::QueryConfig</code></a> trait, which has associated types for the
+key/value of that particular query. Basically the code generated looks something
+like this:</p>
+<pre><code class="language-rust ignore">// Dummy struct representing a particular kind of query:
+pub struct type_of&lt;'tcx&gt; { data: PhantomData&lt;&amp;'tcx ()&gt; }
+
+impl&lt;'tcx&gt; QueryConfig for type_of&lt;'tcx&gt; {
+  type Key = DefId;
+  type Value = Ty&lt;'tcx&gt;;
+
+  const NAME: QueryName = QueryName::type_of;
+  const CATEGORY: ProfileCategory = ProfileCategory::Other;
+}
+</code></pre>
+<p>There is an additional trait that you may wish to implement called
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_query_system/query/config/trait.QueryDescription.html"><code>self::config::QueryDescription</code></a>. This trait is
+used during cycle errors to give a &quot;human readable&quot; name for the query,
+so that we can summarize what was happening when the cycle occurred.
+Implementing this trait is optional if the query key is <code>DefId</code>, but
+if you <em>don't</em> implement it, you get a pretty generic error (&quot;processing <code>foo</code>...&quot;).
+You can put new impls into the <code>config</code> module. They look something like this:</p>
+<pre><code class="language-rust ignore">impl&lt;'tcx&gt; QueryDescription for queries::type_of&lt;'tcx&gt; {
+    fn describe(tcx: TyCtxt, key: DefId) -&gt; String {
+        format!(&quot;computing the type of `{}`&quot;, tcx.def_path_str(key))
+    }
+}
+</code></pre>
+<p>Another option is to add <code>desc</code> modifier:</p>
+<pre><code class="language-rust ignore">rustc_queries! {
+    Other {
+        /// Records the type of every item.
+        query type_of(key: DefId) -&gt; Ty&lt;'tcx&gt; {
+            desc { |tcx| &quot;computing the type of `{}`&quot;, tcx.def_path_str(key) }
+        }
+    }
+}
+</code></pre>
+<p><code>rustc_queries</code> macro will generate an appropriate <code>impl</code> automatically.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="building/bootstrapping.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="queries/query-evaluation-model-in-detail.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="building/bootstrapping.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="queries/query-evaluation-model-in-detail.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>

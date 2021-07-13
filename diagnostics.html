@@ -1,0 +1,1025 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Errors and Lints - Guide to Rustc Development</title>
+        
+        
+
+
+        <!-- Custom HTML head -->
+        
+
+
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="A guide to developing rustc">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        
+        <link rel="icon" href="favicon.svg">
+        
+        
+        <link rel="shortcut icon" href="favicon.png">
+        
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        
+        <link rel="stylesheet" href="css/print.css" media="print">
+        
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        
+        <link rel="stylesheet" href="fonts/fonts.css">
+        
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item affix "><a href="about-this-guide.html">About this guide</a></li><li class="chapter-item affix "><a href="getting-started.html">Getting Started</a></li><li class="spacer"></li><li class="chapter-item affix "><li class="part-title">Building and debugging rustc</li><li class="chapter-item "><a href="building/how-to-build-and-run.html"><strong aria-hidden="true">1.</strong> How to Build and Run the Compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="building/prerequisites.html"><strong aria-hidden="true">1.1.</strong> Prerequisites</a></li><li class="chapter-item "><a href="building/suggested.html"><strong aria-hidden="true">1.2.</strong> Suggested Workflows</a></li><li class="chapter-item "><a href="building/build-install-distribution-artifacts.html"><strong aria-hidden="true">1.3.</strong> Distribution artifacts</a></li><li class="chapter-item "><a href="building/compiler-documenting.html"><strong aria-hidden="true">1.4.</strong> Documenting Compiler</a></li><li class="chapter-item "><a href="rustdoc.html"><strong aria-hidden="true">1.5.</strong> Rustdoc overview</a></li><li class="chapter-item "><a href="building/ctags.html"><strong aria-hidden="true">1.6.</strong> ctags</a></li><li class="chapter-item "><a href="building/new-target.html"><strong aria-hidden="true">1.7.</strong> Adding a new target</a></li></ol></li><li class="chapter-item "><a href="tests/intro.html"><strong aria-hidden="true">2.</strong> The compiler testing framework</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="tests/running.html"><strong aria-hidden="true">2.1.</strong> Running tests</a></li><li class="chapter-item "><a href="tests/adding.html"><strong aria-hidden="true">2.2.</strong> Adding new tests</a></li><li class="chapter-item "><a href="compiletest.html"><strong aria-hidden="true">2.3.</strong> Using compiletest commands to control test execution</a></li></ol></li><li class="chapter-item "><a href="compiler-debugging.html"><strong aria-hidden="true">3.</strong> Debugging the Compiler</a></li><li class="chapter-item "><a href="profiling.html"><strong aria-hidden="true">4.</strong> Profiling the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="profiling/with_perf.html"><strong aria-hidden="true">4.1.</strong> with the linux perf tool</a></li><li class="chapter-item "><a href="profiling/wpa_profiling.html"><strong aria-hidden="true">4.2.</strong> with Windows Performance Analyzer</a></li></ol></li><li class="chapter-item "><a href="crates-io.html"><strong aria-hidden="true">5.</strong> crates.io Dependencies</a></li><li class="chapter-item affix "><li class="part-title">Contributing to Rust</li><li class="chapter-item "><a href="contributing.html"><strong aria-hidden="true">6.</strong> Introduction</a></li><li class="chapter-item "><a href="compiler-team.html"><strong aria-hidden="true">7.</strong> About the compiler team</a></li><li class="chapter-item "><a href="git.html"><strong aria-hidden="true">8.</strong> Using Git</a></li><li class="chapter-item "><a href="rustbot.html"><strong aria-hidden="true">9.</strong> Mastering @rustbot</a></li><li class="chapter-item "><a href="walkthrough.html"><strong aria-hidden="true">10.</strong> Walkthrough: a typical contribution</a></li><li class="chapter-item "><a href="bug-fix-procedure.html"><strong aria-hidden="true">11.</strong> Bug Fix Procedure</a></li><li class="chapter-item "><a href="implementing_new_features.html"><strong aria-hidden="true">12.</strong> Implementing new features</a></li><li class="chapter-item "><a href="stability.html"><strong aria-hidden="true">13.</strong> Stability attributes</a></li><li class="chapter-item "><a href="stabilization_guide.html"><strong aria-hidden="true">14.</strong> Stabilizing Features</a></li><li class="chapter-item "><a href="feature-gates.html"><strong aria-hidden="true">15.</strong> Feature Gates</a></li><li class="chapter-item "><a href="conventions.html"><strong aria-hidden="true">16.</strong> Coding conventions</a></li><li class="chapter-item "><a href="notification-groups/about.html"><strong aria-hidden="true">17.</strong> Notification groups</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="notification-groups/arm.html"><strong aria-hidden="true">17.1.</strong> ARM</a></li><li class="chapter-item "><a href="notification-groups/cleanup-crew.html"><strong aria-hidden="true">17.2.</strong> Cleanup Crew</a></li><li class="chapter-item "><a href="notification-groups/llvm.html"><strong aria-hidden="true">17.3.</strong> LLVM</a></li><li class="chapter-item "><a href="notification-groups/risc-v.html"><strong aria-hidden="true">17.4.</strong> RISC-V</a></li><li class="chapter-item "><a href="notification-groups/windows.html"><strong aria-hidden="true">17.5.</strong> Windows</a></li></ol></li><li class="chapter-item "><a href="licenses.html"><strong aria-hidden="true">18.</strong> Licenses</a></li><li class="chapter-item affix "><li class="part-title">High-level Compiler Architecture</li><li class="chapter-item "><a href="part-2-intro.html"><strong aria-hidden="true">19.</strong> Prologue</a></li><li class="chapter-item "><a href="overview.html"><strong aria-hidden="true">20.</strong> Overview of the Compiler</a></li><li class="chapter-item "><a href="compiler-src.html"><strong aria-hidden="true">21.</strong> The compiler source code</a></li><li class="chapter-item "><a href="building/bootstrapping.html"><strong aria-hidden="true">22.</strong> Bootstrapping</a></li><li class="chapter-item "><a href="query.html"><strong aria-hidden="true">23.</strong> Queries: demand-driven compilation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="queries/query-evaluation-model-in-detail.html"><strong aria-hidden="true">23.1.</strong> The Query Evaluation Model in Detail</a></li><li class="chapter-item "><a href="queries/incremental-compilation.html"><strong aria-hidden="true">23.2.</strong> Incremental compilation</a></li><li class="chapter-item "><a href="queries/incremental-compilation-in-detail.html"><strong aria-hidden="true">23.3.</strong> Incremental compilation In Detail</a></li><li class="chapter-item "><a href="incrcomp-debugging.html"><strong aria-hidden="true">23.4.</strong> Debugging and Testing</a></li><li class="chapter-item "><a href="queries/profiling.html"><strong aria-hidden="true">23.5.</strong> Profiling Queries</a></li><li class="chapter-item "><a href="salsa.html"><strong aria-hidden="true">23.6.</strong> Salsa</a></li></ol></li><li class="chapter-item "><a href="memory.html"><strong aria-hidden="true">24.</strong> Memory Management in Rustc</a></li><li class="chapter-item "><a href="serialization.html"><strong aria-hidden="true">25.</strong> Serialization in Rustc</a></li><li class="chapter-item "><a href="parallel-rustc.html"><strong aria-hidden="true">26.</strong> Parallel Compilation</a></li><li class="chapter-item "><a href="rustdoc-internals.html"><strong aria-hidden="true">27.</strong> Rustdoc internals</a></li><li class="chapter-item affix "><li class="part-title">Source Code Representation</li><li class="chapter-item "><a href="part-3-intro.html"><strong aria-hidden="true">28.</strong> Prologue</a></li><li class="chapter-item "><a href="cli.html"><strong aria-hidden="true">29.</strong> Command-line arguments</a></li><li class="chapter-item "><a href="rustc-driver.html"><strong aria-hidden="true">30.</strong> The Rustc Driver and Interface</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="rustc-driver-interacting-with-the-ast.html"><strong aria-hidden="true">30.1.</strong> Ex: Type checking through rustc_interface</a></li><li class="chapter-item "><a href="rustc-driver-getting-diagnostics.html"><strong aria-hidden="true">30.2.</strong> Ex: Getting diagnostics through rustc_interface</a></li></ol></li><li class="chapter-item "><a href="syntax-intro.html"><strong aria-hidden="true">31.</strong> Syntax and the AST</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="the-parser.html"><strong aria-hidden="true">31.1.</strong> Lexing and Parsing</a></li><li class="chapter-item "><a href="macro-expansion.html"><strong aria-hidden="true">31.2.</strong> Macro expansion</a></li><li class="chapter-item "><a href="name-resolution.html"><strong aria-hidden="true">31.3.</strong> Name resolution</a></li><li class="chapter-item "><a href="test-implementation.html"><strong aria-hidden="true">31.4.</strong> #[test] Implementation</a></li><li class="chapter-item "><a href="panic-implementation.html"><strong aria-hidden="true">31.5.</strong> Panic Implementation</a></li><li class="chapter-item "><a href="ast-validation.html"><strong aria-hidden="true">31.6.</strong> AST Validation</a></li><li class="chapter-item "><a href="feature-gate-ck.html"><strong aria-hidden="true">31.7.</strong> Feature Gate Checking</a></li><li class="chapter-item "><a href="lang-items.html"><strong aria-hidden="true">31.8.</strong> Lang Items</a></li></ol></li><li class="chapter-item "><a href="hir.html"><strong aria-hidden="true">32.</strong> The HIR (High-level IR)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="lowering.html"><strong aria-hidden="true">32.1.</strong> Lowering AST to HIR</a></li><li class="chapter-item "><a href="hir-debugging.html"><strong aria-hidden="true">32.2.</strong> Debugging</a></li></ol></li><li class="chapter-item "><a href="thir.html"><strong aria-hidden="true">33.</strong> The THIR (Typed High-level IR)</a></li><li class="chapter-item "><a href="mir/index.html"><strong aria-hidden="true">34.</strong> The MIR (Mid-level IR)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="mir/construction.html"><strong aria-hidden="true">34.1.</strong> MIR construction</a></li><li class="chapter-item "><a href="mir/visitor.html"><strong aria-hidden="true">34.2.</strong> MIR visitor and traversal</a></li><li class="chapter-item "><a href="mir/passes.html"><strong aria-hidden="true">34.3.</strong> MIR passes: getting the MIR for a function</a></li></ol></li><li class="chapter-item "><a href="identifiers.html"><strong aria-hidden="true">35.</strong> Identifiers in the Compiler</a></li><li class="chapter-item "><a href="closure.html"><strong aria-hidden="true">36.</strong> Closure expansion</a></li><li class="chapter-item affix "><li class="part-title">Analysis</li><li class="chapter-item "><a href="part-4-intro.html"><strong aria-hidden="true">37.</strong> Prologue</a></li><li class="chapter-item "><a href="ty.html"><strong aria-hidden="true">38.</strong> The ty module: representing types</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="generics.html"><strong aria-hidden="true">38.1.</strong> Generics and substitutions</a></li><li class="chapter-item "><a href="ty-fold.html"><strong aria-hidden="true">38.2.</strong> TypeFolder and TypeFoldable</a></li><li class="chapter-item "><a href="generic_arguments.html"><strong aria-hidden="true">38.3.</strong> Generic arguments</a></li></ol></li><li class="chapter-item "><a href="type-inference.html"><strong aria-hidden="true">39.</strong> Type inference</a></li><li class="chapter-item "><a href="traits/resolution.html"><strong aria-hidden="true">40.</strong> Trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="early-late-bound.html"><strong aria-hidden="true">40.1.</strong> Early and Late Bound Parameters</a></li><li class="chapter-item "><a href="traits/hrtb.html"><strong aria-hidden="true">40.2.</strong> Higher-ranked trait bounds</a></li><li class="chapter-item "><a href="traits/caching.html"><strong aria-hidden="true">40.3.</strong> Caching subtleties</a></li><li class="chapter-item "><a href="traits/specialization.html"><strong aria-hidden="true">40.4.</strong> Specialization</a></li><li class="chapter-item "><a href="traits/chalk.html"><strong aria-hidden="true">40.5.</strong> Chalk-based trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="traits/lowering-to-logic.html"><strong aria-hidden="true">40.5.1.</strong> Lowering to logic</a></li><li class="chapter-item "><a href="traits/goals-and-clauses.html"><strong aria-hidden="true">40.5.2.</strong> Goals and clauses</a></li><li class="chapter-item "><a href="traits/canonical-queries.html"><strong aria-hidden="true">40.5.3.</strong> Canonical queries</a></li></ol></li></ol></li><li class="chapter-item "><a href="type-checking.html"><strong aria-hidden="true">41.</strong> Type checking</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="method-lookup.html"><strong aria-hidden="true">41.1.</strong> Method Lookup</a></li><li class="chapter-item "><a href="variance.html"><strong aria-hidden="true">41.2.</strong> Variance</a></li><li class="chapter-item "><a href="opaque-types-type-alias-impl-trait.html"><strong aria-hidden="true">41.3.</strong> Opaque Types</a></li></ol></li><li class="chapter-item "><a href="pat-exhaustive-checking.html"><strong aria-hidden="true">42.</strong> Pattern and Exhaustiveness Checking</a></li><li class="chapter-item "><a href="mir/dataflow.html"><strong aria-hidden="true">43.</strong> MIR dataflow</a></li><li class="chapter-item "><a href="borrow_check.html"><strong aria-hidden="true">44.</strong> The borrow checker</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="borrow_check/moves_and_initialization.html"><strong aria-hidden="true">44.1.</strong> Tracking moves and initialization</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="borrow_check/moves_and_initialization/move_paths.html"><strong aria-hidden="true">44.1.1.</strong> Move paths</a></li></ol></li><li class="chapter-item "><a href="borrow_check/type_check.html"><strong aria-hidden="true">44.2.</strong> MIR type checker</a></li><li class="chapter-item "><a href="borrow_check/region_inference.html"><strong aria-hidden="true">44.3.</strong> Region inference</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="borrow_check/region_inference/constraint_propagation.html"><strong aria-hidden="true">44.3.1.</strong> Constraint propagation</a></li><li class="chapter-item "><a href="borrow_check/region_inference/lifetime_parameters.html"><strong aria-hidden="true">44.3.2.</strong> Lifetime parameters</a></li><li class="chapter-item "><a href="borrow_check/region_inference/member_constraints.html"><strong aria-hidden="true">44.3.3.</strong> Member constraints</a></li><li class="chapter-item "><a href="borrow_check/region_inference/placeholders_and_universes.html"><strong aria-hidden="true">44.3.4.</strong> Placeholders and universes</a></li><li class="chapter-item "><a href="borrow_check/region_inference/closure_constraints.html"><strong aria-hidden="true">44.3.5.</strong> Closure constraints</a></li><li class="chapter-item "><a href="borrow_check/region_inference/error_reporting.html"><strong aria-hidden="true">44.3.6.</strong> Error reporting</a></li></ol></li><li class="chapter-item "><a href="borrow_check/two_phase_borrows.html"><strong aria-hidden="true">44.4.</strong> Two-phase-borrows</a></li></ol></li><li class="chapter-item "><a href="param_env.html"><strong aria-hidden="true">45.</strong> Parameter Environments</a></li><li class="chapter-item expanded "><a href="diagnostics.html" class="active"><strong aria-hidden="true">46.</strong> Errors and Lints</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="diagnostics/sessiondiagnostic.html"><strong aria-hidden="true">46.1.</strong> Creating Errors With SessionDiagnostic</a></li><li class="chapter-item "><a href="diagnostics/lintstore.html"><strong aria-hidden="true">46.2.</strong> LintStore</a></li><li class="chapter-item "><a href="diagnostics/diagnostic-codes.html"><strong aria-hidden="true">46.3.</strong> Diagnostic Codes</a></li></ol></li><li class="chapter-item "><li class="part-title">MIR to Binaries</li><li class="chapter-item "><a href="part-5-intro.html"><strong aria-hidden="true">47.</strong> Prologue</a></li><li class="chapter-item "><a href="mir/optimizations.html"><strong aria-hidden="true">48.</strong> MIR optimizations</a></li><li class="chapter-item "><a href="mir/debugging.html"><strong aria-hidden="true">49.</strong> Debugging</a></li><li class="chapter-item "><a href="const-eval.html"><strong aria-hidden="true">50.</strong> Constant evaluation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="miri.html"><strong aria-hidden="true">50.1.</strong> miri const evaluator</a></li></ol></li><li class="chapter-item "><a href="backend/monomorph.html"><strong aria-hidden="true">51.</strong> Monomorphization</a></li><li class="chapter-item "><a href="backend/lowering-mir.html"><strong aria-hidden="true">52.</strong> Lowering MIR</a></li><li class="chapter-item "><a href="backend/codegen.html"><strong aria-hidden="true">53.</strong> Code Generation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="backend/updating-llvm.html"><strong aria-hidden="true">53.1.</strong> Updating LLVM</a></li><li class="chapter-item "><a href="backend/debugging.html"><strong aria-hidden="true">53.2.</strong> Debugging LLVM</a></li><li class="chapter-item "><a href="backend/backend-agnostic.html"><strong aria-hidden="true">53.3.</strong> Backend Agnostic Codegen</a></li><li class="chapter-item "><a href="backend/implicit-caller-location.html"><strong aria-hidden="true">53.4.</strong> Implicit Caller Location</a></li></ol></li><li class="chapter-item "><a href="backend/libs-and-metadata.html"><strong aria-hidden="true">54.</strong> Libraries and Metadata</a></li><li class="chapter-item "><a href="profile-guided-optimization.html"><strong aria-hidden="true">55.</strong> Profile-guided Optimization</a></li><li class="chapter-item "><a href="llvm-coverage-instrumentation.html"><strong aria-hidden="true">56.</strong> LLVM Source-Based Code Coverage</a></li><li class="chapter-item "><a href="sanitizers.html"><strong aria-hidden="true">57.</strong> Sanitizers Support</a></li><li class="chapter-item "><a href="debugging-support-in-rustc.html"><strong aria-hidden="true">58.</strong> Debugging Support in the Rust Compiler</a></li><li class="spacer"></li><li class="chapter-item affix "><a href="appendix/background.html">Appendix A: Background topics</a></li><li class="chapter-item affix "><a href="appendix/glossary.html">Appendix B: Glossary</a></li><li class="chapter-item affix "><a href="appendix/code-index.html">Appendix C: Code Index</a></li><li class="chapter-item affix "><a href="appendix/compiler-lecture.html">Appendix D: Compiler Lecture Series</a></li><li class="chapter-item affix "><a href="appendix/bibliography.html">Appendix E: Bibliography</a></li><li class="chapter-item affix "><a href="appendix/humorust.html">Appendix Z: HumorRust</a></li><li class="spacer"></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </div>
+
+                    <h1 class="menu-title">Guide to Rustc Development</h1>
+
+                    <div class="right-buttons">
+                        
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        
+                        
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="errors-and-lints"><a class="header" href="#errors-and-lints">Errors and Lints</a></h1>
+<ul>
+<li><a href="#diagnostic-structure">Diagnostic structure</a>
+<ul>
+<li><a href="#error-explanations">Error explanations</a></li>
+<li><a href="#lints-versus-fixed-diagnostics">Lints versus fixed diagnostics</a></li>
+</ul>
+</li>
+<li><a href="#diagnostic-output-style-guide">Diagnostic output style guide</a>
+<ul>
+<li><a href="#lint-naming">Lint naming</a></li>
+<li><a href="#diagnostic-levels">Diagnostic levels</a></li>
+</ul>
+</li>
+<li><a href="#helpful-tips-and-options">Helpful tips and options</a>
+<ul>
+<li><a href="#finding-the-source-of-errors">Finding the source of errors</a></li>
+</ul>
+</li>
+<li><a href="#span"><code>Span</code></a></li>
+<li><a href="#error-messages">Error messages</a></li>
+<li><a href="#suggestions">Suggestions</a>
+<ul>
+<li><a href="#suggestion-style-guide">Suggestion Style Guide</a></li>
+</ul>
+</li>
+<li><a href="#lints">Lints</a>
+<ul>
+<li><a href="#declaring-a-lint">Declaring a lint</a></li>
+<li><a href="#edition-gated-lints">Edition-gated lints</a></li>
+<li><a href="#future-incompatible-lints">Future-incompatible lints</a></li>
+<li><a href="#renaming-or-removing-a-lint">Renaming or removing a lint</a></li>
+<li><a href="#lint-groups">Lint Groups</a></li>
+<li><a href="#linting-early-in-the-compiler">Linting early in the compiler</a>
+<ul>
+<li><a href="#linting-even-earlier-in-the-compiler">Linting even earlier in the compiler</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#json-diagnostic-output">JSON diagnostic output</a></li>
+<li><a href="#rustc_on_unimplemented"><code>#[rustc_on_unimplemented(...)]</code></a></li>
+</ul>
+<p>A lot of effort has been put into making <code>rustc</code> have great error messages.
+This chapter is about how to emit compile errors and lints from the compiler.</p>
+<h2 id="diagnostic-structure"><a class="header" href="#diagnostic-structure">Diagnostic structure</a></h2>
+<p>The main parts of a diagnostic error are the following:</p>
+<pre><code>error[E0000]: main error message
+  --&gt; file.rs:LL:CC
+   |
+LL | &lt;code&gt;
+   | -^^^^- secondary label
+   |  |
+   |  primary label
+   |
+   = note: note without a `Span`, created with `.note`
+note: sub-diagnostic message for `.span_note`
+  --&gt; file.rs:LL:CC
+   |
+LL | more code
+   |      ^^^^
+</code></pre>
+<ul>
+<li>Description (<code>error</code>, <code>warning</code>, etc.).</li>
+<li>Code (for example, for &quot;mismatched types&quot;, it is <code>E0308</code>). It helps
+users get more information about the current error through an extended
+description of the problem in the error code index.</li>
+<li>Message. It is the main description of the problem. It should be general and
+able to stand on its own, so that it can make sense even in isolation.</li>
+<li>Diagnostic window. This contains several things:
+<ul>
+<li>The path, line number and column of the beginning of the primary span.</li>
+<li>The users' affected code and its surroundings.</li>
+<li>Primary and secondary spans underlying the users' code. These spans can
+optionally contain one or more labels.
+<ul>
+<li>Primary spans should have enough text to describe the problem in such a
+way that if it where the only thing being displayed (for example, in an
+IDE) it would still make sense. Because it is &quot;spatially aware&quot; (it
+points at the code), it can generally be more succinct than the error
+message.</li>
+<li>If cluttered output can be foreseen in cases when multiple span labels
+overlap, it is a good idea to tweak the output appropriately. For
+example, the <code>if/else arms have incompatible types</code> error uses different
+spans depending on whether the arms are all in the same line, if one of
+the arms is empty and if none of those cases applies.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Sub-diagnostics. Any error can have multiple sub-diagnostics that look
+similar to the main part of the error. These are used for cases where the
+order of the explanation might not correspond with the order of the code. If
+the order of the explanation can be &quot;order free&quot;, leveraging secondary labels
+in the main diagnostic is preferred, as it is typically less verbose.</li>
+</ul>
+<p>The text should be matter of fact and avoid capitalization and periods, unless
+multiple sentences are <em>needed</em>:</p>
+<pre><code class="language-txt">error: the fobrulator needs to be krontrificated
+</code></pre>
+<p>When code or an identifier must appear in a message or label, it should be
+surrounded with single acute accents `.</p>
+<h3 id="error-explanations"><a class="header" href="#error-explanations">Error explanations</a></h3>
+<p>Some errors include long form descriptions. They may be viewed with the
+<code>--explain</code> flag, or via the <a href="https://doc.rust-lang.org/error-index.html">error index</a>. Each explanation comes with an
+example of how to trigger it and advice on how to fix it.</p>
+<p>Please read <a href="https://github.com/rust-lang/rfcs/blob/master/text/1567-long-error-codes-explanation-normalization.md">RFC 1567</a> for details on how to format and write long error
+codes.</p>
+<p>The descriptions are written in Markdown, and all of them are linked in the
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_error_codes/error_codes/index.html"><code>rustc_error_codes</code></a> crate.</p>
+<p>As a general rule, give an error a code (with an associated explanation) if the
+explanation would give more information than the error itself. A lot of the time
+it's better to put all the information in the emitted error itself. However,
+sometimes that would make the error verbose or there are too many possible
+triggers to include useful information for all cases in the error, in which case
+it's a good idea to add an explanation.<sup class="footnote-reference"><a href="#estebank">1</a></sup>
+As always, if you are not sure, just ask your reviewer!</p>
+<div class="footnote-definition" id="estebank"><sup class="footnote-definition-label">1</sup>
+<p>This rule of thumb was suggested by <strong>@estebank</strong> <a href="https://github.com/rust-lang/rustc-dev-guide/pull/967#issuecomment-733218283">here</a>.</p>
+</div>
+<h3 id="lints-versus-fixed-diagnostics"><a class="header" href="#lints-versus-fixed-diagnostics">Lints versus fixed diagnostics</a></h3>
+<p>Some messages are emitted via <a href="#lints">lints</a>, where the user can control the
+level. Most diagnostics are hard-coded such that the user cannot control the
+level.</p>
+<p>Usually it is obvious whether a diagnostic should be &quot;fixed&quot; or a lint, but
+there are some grey areas.</p>
+<p>Here are a few examples:</p>
+<ul>
+<li>Borrow checker errors: these are fixed errors. The user cannot adjust the
+level of these diagnostics to silence the borrow checker.</li>
+<li>Dead code: this is a lint. While the user probably doesn't want dead code in
+their crate, making this a hard error would make refactoring and development
+very painful.</li>
+<li><a href="https://github.com/rust-lang/rust/issues/46043">safe_packed_borrows future compatibility warning</a>:
+this is a silencable lint related to safety. It was judged that the making
+this a hard (fixed) error would cause too much breakage, so instead a
+warning is emitted that eventually will be turned into a hard error.</li>
+</ul>
+<p>Hard-coded warnings (those using the <code>span_warn</code> methods) should be avoided
+for normal code, preferring to use lints instead. Some cases, such as warnings
+with CLI flags, will require the use of hard-coded warnings.</p>
+<p>See the <code>deny</code> <a href="#diagnostic-levels">lint level</a> below for guidelines when to
+use an error-level lint instead of a fixed error.</p>
+<h2 id="diagnostic-output-style-guide"><a class="header" href="#diagnostic-output-style-guide">Diagnostic output style guide</a></h2>
+<ul>
+<li>Write in plain simple English. If your message, when shown on a – possibly
+small – screen (which hasn't been cleaned for a while), cannot be understood
+by a normal programmer, who just came out of bed after a night partying,
+it's too complex.</li>
+<li><code>Error</code>, <code>Warning</code>, <code>Note</code>, and <code>Help</code> messages start with a lowercase
+letter and do not end with punctuation.</li>
+<li>Error messages should be succinct. Users will see these error messages many
+times, and more verbose descriptions can be viewed with the <code>--explain</code>
+flag. That said, don't make it so terse that it's hard to understand.</li>
+<li>The word &quot;illegal&quot; is illegal. Prefer &quot;invalid&quot; or a more specific word
+instead.</li>
+<li>Errors should document the span of code where they occur – the
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/diagnostic_builder/struct.DiagnosticBuilder.html"><code>rustc_errors::diagnostic_builder::DiagnosticBuilder</code></a>  <code>span_*</code>
+methods allow to easily do this. Also <code>note</code> other spans that have
+contributed to the error if the span isn't too large.</li>
+<li>When emitting a message with span, try to reduce the span to the smallest
+amount possible that still signifies the issue</li>
+<li>Try not to emit multiple error messages for the same error. This may require
+detecting duplicates.</li>
+<li>When the compiler has too little information for a specific error message,
+consult with the compiler team to add new attributes for library code that
+allow adding more information. For example see
+<a href="#rustc_on_unimplemented"><code>#[rustc_on_unimplemented]</code></a>. Use these
+annotations when available!</li>
+<li>Keep in mind that Rust's learning curve is rather steep, and that the
+compiler messages are an important learning tool.</li>
+<li>When talking about the compiler, call it <code>the compiler</code>, not <code>Rust</code> or
+<code>rustc</code>.</li>
+</ul>
+<h3 id="lint-naming"><a class="header" href="#lint-naming">Lint naming</a></h3>
+<p>From <a href="https://github.com/rust-lang/rfcs/blob/master/text/0344-conventions-galore.md#lints">RFC 0344</a>, lint names should be consistent, with the following
+guidelines:</p>
+<p>The basic rule is: the lint name should make sense when read as &quot;allow
+<em>lint-name</em>&quot; or &quot;allow <em>lint-name</em> items&quot;. For example, &quot;allow
+<code>deprecated</code> items&quot; and &quot;allow <code>dead_code</code>&quot; makes sense, while &quot;allow
+<code>unsafe_block</code>&quot; is ungrammatical (should be plural).</p>
+<ul>
+<li>
+<p>Lint names should state the bad thing being checked for, e.g. <code>deprecated</code>,
+so that <code>#[allow(deprecated)]</code> (items) reads correctly. Thus <code>ctypes</code> is not
+an appropriate name; <code>improper_ctypes</code> is.</p>
+</li>
+<li>
+<p>Lints that apply to arbitrary items (like the stability lints) should just
+mention what they check for: use <code>deprecated</code> rather than
+<code>deprecated_items</code>. This keeps lint names short. (Again, think &quot;allow
+<em>lint-name</em> items&quot;.)</p>
+</li>
+<li>
+<p>If a lint applies to a specific grammatical class, mention that class and
+use the plural form: use <code>unused_variables</code> rather than <code>unused_variable</code>.
+This makes <code>#[allow(unused_variables)]</code> read correctly.</p>
+</li>
+<li>
+<p>Lints that catch unnecessary, unused, or useless aspects of code should use
+the term <code>unused</code>, e.g. <code>unused_imports</code>, <code>unused_typecasts</code>.</p>
+</li>
+<li>
+<p>Use snake case in the same way you would for function names.</p>
+</li>
+</ul>
+<h3 id="diagnostic-levels"><a class="header" href="#diagnostic-levels">Diagnostic levels</a></h3>
+<p>Guidelines for different diagnostic levels:</p>
+<ul>
+<li>
+<p><code>error</code>: emitted when the compiler detects a problem that makes it unable to
+compile the program, either because the program is invalid or the programmer
+has decided to make a specific <code>warning</code> into an error.</p>
+</li>
+<li>
+<p><code>warning</code>: emitted when the compiler detects something odd about a program.
+Care should be taken when adding warnings to avoid warning fatigue, and
+avoid false-positives where there really isn't a problem with the code. Some
+examples of when it is appropriate to issue a warning:</p>
+<ul>
+<li>A situation where the user <em>should</em> take action, such as swap out a
+deprecated item, or use a <code>Result</code>, but otherwise doesn't prevent
+compilation.</li>
+<li>Unnecessary syntax that can be removed without affecting the semantics of
+the code. For example, unused code, or unnecessary <code>unsafe</code>.</li>
+<li>Code that is very likely to be incorrect, dangerous, or confusing, but the
+language technically allows, and is not ready or confident enough to make
+an error. For example <code>unused_comparisons</code> (out of bounds comparisons) or
+<code>bindings_with_variant_name</code> (the user likely did not intend to create a
+binding in a pattern).</li>
+<li><a href="#future-incompatible">Future-incompatible lints</a>, where something was
+accidentally or erroneously accepted in the past, but rejecting would
+cause excessive breakage in the ecosystem.</li>
+<li>Stylistic choices. For example, camel or snake case, or the <code>dyn</code> trait
+warning in the 2018 edition. These have a high bar to be added, and should
+only be used in exceptional circumstances. Other stylistic choices should
+either be allow-by-default lints, or part of other tools like Clippy or
+rustfmt.</li>
+</ul>
+</li>
+<li>
+<p><code>help</code>: emitted following an <code>error</code> or <code>warning</code> to give additional
+information to the user about how to solve their problem. These messages
+often include a suggestion string and <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/enum.Applicability.html"><code>rustc_errors::Applicability</code></a>
+confidence level to guide automated source fixes by tools. See the
+<a href="#suggestions">Suggestions</a> section for more details.</p>
+<p>The error or warning portion should <em>not</em> suggest how to fix the problem,
+only the &quot;help&quot; sub-diagnostic should.</p>
+</li>
+<li>
+<p><code>note</code>: emitted to identify additional circumstances and parts of the code
+that caused the warning or error. For example, the borrow checker will note
+any previous conflicting borrows.</p>
+</li>
+</ul>
+<p>Not to be confused with <em>lint levels</em>, whose guidelines are:</p>
+<ul>
+<li>
+<p><code>forbid</code>: Lints should never default to <code>forbid</code>.</p>
+</li>
+<li>
+<p><code>deny</code>: Equivalent to <code>error</code> diagnostic level. Some examples:</p>
+<ul>
+<li>A future-incompatible or edition-based lint that has graduated from the
+warning level.</li>
+<li>Something that has an extremely high confidence that is incorrect, but
+still want an escape hatch to allow it to pass.</li>
+</ul>
+</li>
+<li>
+<p><code>warn</code>: Equivalent to the <code>warning</code> diagnostic level. See <code>warning</code> above
+for guidelines.</p>
+</li>
+<li>
+<p><code>allow</code>: Examples of the kinds of lints that should default to <code>allow</code>:</p>
+<ul>
+<li>The lint has a too high false positive rate.</li>
+<li>The lint is too opinionated.</li>
+<li>The lint is experimental.</li>
+<li>The lint is used for enforcing something that is not normally enforced.
+For example, the <code>unsafe_code</code> lint can be used to prevent usage of unsafe
+code.</li>
+</ul>
+</li>
+</ul>
+<p>More information about lint levels can be found in the <a href="https://doc.rust-lang.org/nightly/rustc/lints/levels.html">rustc
+book</a> and the <a href="https://doc.rust-lang.org/nightly/reference/attributes/diagnostics.html#lint-check-attributes">reference</a>.</p>
+<h2 id="helpful-tips-and-options"><a class="header" href="#helpful-tips-and-options">Helpful tips and options</a></h2>
+<h3 id="finding-the-source-of-errors"><a class="header" href="#finding-the-source-of-errors">Finding the source of errors</a></h3>
+<p>There are two main ways to find where a given error is emitted:</p>
+<ul>
+<li><code>grep</code> for either a sub-part of the error message/label or error code. This
+usually works well and is straightforward, but there are some cases where
+the error emitting code is removed from the code where the error is
+constructed behind a relatively deep call-stack. Even then, it is a good way
+to get your bearings.</li>
+<li>Invoking <code>rustc</code> with the nightly-only flag <code>-Z treat-err-as-bug=1</code>, which
+will treat the first error being emitted as an Internal Compiler Error, which
+allows you to use the environment variable <code>RUST_BACKTRACE=full</code> to get a
+stack trace at the point the error has been emitted. Change the <code>1</code> to
+something else if you whish to trigger on a later error. Some limitations
+with this approach is that some calls get elided from the stack trace because
+they get inlined in the compiled <code>rustc</code>, and the same problem we faced with
+the prior approach, where the <em>construction</em> of the error is far away from
+where it is <em>emitted</em>. In some cases we buffer multiple errors in order to
+emit them in order.</li>
+</ul>
+<p>The regular development practices apply: judicious use of <code>debug!()</code> statements
+and use of a debugger to trigger break points in order to figure out in what
+order things are happening.</p>
+<h2 id="span"><a class="header" href="#span"><code>Span</code></a></h2>
+<p><a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_span/struct.Span.html"><code>Span</code></a> is the primary data structure in <code>rustc</code> used to represent a
+location in the code being compiled. <code>Span</code>s are attached to most constructs in
+HIR and MIR, allowing for more informative error reporting.</p>
+<p>A <code>Span</code> can be looked up in a <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_span/source_map/struct.SourceMap.html"><code>SourceMap</code></a> to get a &quot;snippet&quot;
+useful for displaying errors with <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_span/source_map/struct.SourceMap.html#method.span_to_snippet"><code>span_to_snippet</code></a> and other
+similar methods on the <code>SourceMap</code>.</p>
+<h2 id="error-messages"><a class="header" href="#error-messages">Error messages</a></h2>
+<p>The <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/index.html"><code>rustc_errors</code></a> crate defines most of the utilities used for
+reporting errors.</p>
+<p><a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/struct.Session.html"><code>Session</code></a> and <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/parse/struct.ParseSess.html"><code>ParseSess</code></a> have
+methods (or fields with methods) that allow reporting errors. These methods
+usually have names like <code>span_err</code> or <code>struct_span_err</code> or <code>span_warn</code>, etc...
+There are lots of them; they emit different types of &quot;errors&quot;, such as
+warnings, errors, fatal errors, suggestions, etc.</p>
+<p>In general, there are two classes of such methods: ones that emit an error
+directly and ones that allow finer control over what to emit. For example,
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/struct.Session.html#method.span_err"><code>span_err</code></a> emits the given error message at the given <code>Span</code>, but
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/struct.Session.html#method.struct_span_err"><code>struct_span_err</code></a> instead returns a
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/diagnostic_builder/struct.DiagnosticBuilder.html"><code>DiagnosticBuilder</code></a>.</p>
+<p><code>DiagnosticBuilder</code> allows you to add related notes and suggestions to an error
+before emitting it by calling the <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/diagnostic_builder/struct.DiagnosticBuilder.html#method.emit"><code>emit</code></a> method. (Failing to either
+emit or <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/struct.Diagnostic.html#method.cancel">cancel</a> a <code>DiagnosticBuilder</code> will result in an ICE.) See the
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/diagnostic_builder/struct.DiagnosticBuilder.html">docs</a> for more info on what you can do.</p>
+<pre><code class="language-rust ignore">// Get a DiagnosticBuilder. This does _not_ emit an error yet.
+let mut err = sess.struct_span_err(sp, &quot;oh no! this is an error!&quot;);
+
+// In some cases, you might need to check if `sp` is generated by a macro to
+// avoid printing weird errors about macro-generated code.
+
+if let Ok(snippet) = sess.source_map().span_to_snippet(sp) {
+    // Use the snippet to generate a suggested fix
+    err.span_suggestion(suggestion_sp, &quot;try using a qux here&quot;, format!(&quot;qux {}&quot;, snippet));
+} else {
+    // If we weren't able to generate a snippet, then emit a &quot;help&quot; message
+    // instead of a concrete &quot;suggestion&quot;. In practice this is unlikely to be
+    // reached.
+    err.span_help(suggestion_sp, &quot;you could use a qux here instead&quot;);
+}
+
+// emit the error
+err.emit();
+</code></pre>
+<p>Alternatively, for less-complex diagnostics, the <code>SessionDiagnostic</code> derive
+macro can be used -- see <a href="./diagnostics/sessiondiagnostic.html">Creating Errors With SessionDiagnostic</a>.</p>
+<h2 id="suggestions"><a class="header" href="#suggestions">Suggestions</a></h2>
+<p>In addition to telling the user exactly <em>why</em> their code is wrong, it's
+oftentimes furthermore possible to tell them how to fix it. To this end,
+<code>DiagnosticBuilder</code> offers a structured suggestions API, which formats code
+suggestions pleasingly in the terminal, or (when the <code>--error-format json</code> flag
+is passed) as JSON for consumption by tools, most notably the <a href="https://github.com/rust-lang/rls">Rust Language
+Server</a> and <a href="https://github.com/rust-lang/rustfix"><code>rustfix</code></a>.</p>
+<p>Not all suggestions should be applied mechanically, they have a degree of
+confidence in the suggested code, from high
+(<code>Applicability::MachineApplicable</code>) to low (<code>Applicability::MaybeIncorrect</code>).
+Be conservative when choosing the level. Use the
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/struct.DiagnosticBuilder.html#method.span_suggestion"><code>span_suggestion</code></a> method of <code>DiagnosticBuilder</code> to
+make a suggestion. The last argument provides a hint to tools whether
+the suggestion is mechanically applicable or not.</p>
+<p>Suggestions point to one or more spans with corresponding code that will
+replace their current content.</p>
+<p>The message that accompanies them should be understandable in the following
+contexts:</p>
+<ul>
+<li>shown as an independent sub-diagnostic (this is the default output)</li>
+<li>shown as a label pointing at the affected span (this is done automatically if
+some heuristics for verbosity are met)</li>
+<li>shown as a <code>help</code> sub-diagnostic with no content (used for cases where the
+suggestion is obvious from the text, but we still want to let tools to apply
+them))</li>
+<li>not shown (used for <em>very</em> obvious cases, but we still want to allow tools to
+apply them)</li>
+</ul>
+<p>For example, to make our <code>qux</code> suggestion machine-applicable, we would do:</p>
+<pre><code class="language-rust ignore">let mut err = sess.struct_span_err(sp, &quot;oh no! this is an error!&quot;);
+
+if let Ok(snippet) = sess.source_map().span_to_snippet(sp) {
+    err.span_suggestion(
+        suggestion_sp,
+        &quot;try using a qux here&quot;,
+        format!(&quot;qux {}&quot;, snippet),
+        Applicability::MachineApplicable,
+    );
+} else {
+    err.span_help(suggestion_sp, &quot;you could use a qux here instead&quot;);
+}
+
+err.emit();
+</code></pre>
+<p>This might emit an error like</p>
+<pre><code class="language-console">$ rustc mycode.rs
+error[E0999]: oh no! this is an error!
+ --&gt; mycode.rs:3:5
+  |
+3 |     sad()
+  |     ^ help: try using a qux here: `qux sad()`
+
+error: aborting due to previous error
+
+For more information about this error, try `rustc --explain E0999`.
+</code></pre>
+<p>In some cases, like when the suggestion spans multiple lines or when there are
+multiple suggestions, the suggestions are displayed on their own:</p>
+<pre><code class="language-console">error[E0999]: oh no! this is an error!
+ --&gt; mycode.rs:3:5
+  |
+3 |     sad()
+  |     ^
+help: try using a qux here:
+  |
+3 |     qux sad()
+  |     ^^^
+
+error: aborting due to previous error
+
+For more information about this error, try `rustc --explain E0999`.
+</code></pre>
+<p>The possible values of <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/enum.Applicability.html"><code>Applicability</code></a> are:</p>
+<ul>
+<li><code>MachineApplicable</code>: Can be applied mechanically.</li>
+<li><code>HasPlaceholders</code>: Cannot be applied mechanically because it has placeholder
+text in the suggestions. For example, &quot;Try adding a type: `let x:
+&lt;type&gt;`&quot;.</li>
+<li><code>MaybeIncorrect</code>: Cannot be applied mechanically because the suggestion may
+or may not be a good one.</li>
+<li><code>Unspecified</code>: Cannot be applied mechanically because we don't know which
+of the above cases it falls into.</li>
+</ul>
+<h3 id="suggestion-style-guide"><a class="header" href="#suggestion-style-guide">Suggestion Style Guide</a></h3>
+<ul>
+<li>
+<p>Suggestions should not be a question. In particular, language like &quot;did you
+mean&quot; should be avoided. Sometimes, it's unclear why a particular suggestion
+is being made. In these cases, it's better to be upfront about what the
+suggestion is.</p>
+<p>Compare &quot;did you mean: <code>Foo</code>&quot; vs. &quot;there is a struct with a similar name: <code>Foo</code>&quot;.</p>
+</li>
+<li>
+<p>The message should not contain any phrases like &quot;the following&quot;, &quot;as shown&quot;,
+etc. Use the span to convey what is being talked about.</p>
+</li>
+<li>
+<p>The message may contain further instruction such as &quot;to do xyz, use&quot; or &quot;to do
+xyz, use abc&quot;.</p>
+</li>
+<li>
+<p>The message may contain a name of a function, variable, or type, but avoid
+whole expressions.</p>
+</li>
+</ul>
+<h2 id="lints"><a class="header" href="#lints">Lints</a></h2>
+<p>The compiler linting infrastructure is defined in the <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/lint/index.html"><code>rustc_middle::lint</code></a>
+module.</p>
+<h3 id="declaring-a-lint"><a class="header" href="#declaring-a-lint">Declaring a lint</a></h3>
+<p>The built-in compiler lints are defined in the <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/index.html"><code>rustc_lint</code></a>
+crate. Lints that need to be implemented in other crates are defined in
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint_defs/index.html"><code>rustc_lint_defs</code></a>. You should prefer to place lints in <code>rustc_lint</code> if
+possible. One benefit is that it is close to the dependency root, so it can be
+much faster to work on.</p>
+<p>Every lint is implemented via a <code>struct</code> that implements the <code>LintPass</code> <code>trait</code>
+(you can also implement one of the more specific lint pass traits, either
+<code>EarlyLintPass</code> or <code>LateLintPass</code> depending on when is best for your lint to run). 
+The trait implementation allows you to check certain syntactic constructs 
+as the linter walks the AST. You can then choose to emit lints in a 
+very similar way to compile errors.</p>
+<p>You also declare the metadata of a particular lint via the <code>declare_lint!</code>
+macro. This includes the name, the default level, a short description, and some
+more details.</p>
+<p>Note that the lint and the lint pass must be registered with the compiler.</p>
+<p>For example, the following lint checks for uses
+of <code>while true { ... }</code> and suggests using <code>loop { ... }</code> instead.</p>
+<pre><code class="language-rust ignore">// Declare a lint called `WHILE_TRUE`
+declare_lint! {
+    WHILE_TRUE,
+
+    // warn-by-default
+    Warn,
+
+    // This string is the lint description
+    &quot;suggest using `loop { }` instead of `while true { }`&quot;
+}
+
+// This declares a struct and a lint pass, providing a list of associated lints. The
+// compiler currently doesn't use the associated lints directly (e.g., to not
+// run the pass or otherwise check that the pass emits the appropriate set of
+// lints). However, it's good to be accurate here as it's possible that we're
+// going to register the lints via the get_lints method on our lint pass (that
+// this macro generates).
+declare_lint_pass!(WhileTrue =&gt; [WHILE_TRUE]);
+
+// Helper function for `WhileTrue` lint.
+// Traverse through any amount of parenthesis and return the first non-parens expression.
+fn pierce_parens(mut expr: &amp;ast::Expr) -&gt; &amp;ast::Expr {
+    while let ast::ExprKind::Paren(sub) = &amp;expr.kind {
+        expr = sub;
+    }
+    expr
+}
+
+// `EarlyLintPass` has lots of methods. We only override the definition of
+// `check_expr` for this lint because that's all we need, but you could
+// override other methods for your own lint. See the rustc docs for a full
+// list of methods.
+impl EarlyLintPass for WhileTrue {
+    fn check_expr(&amp;mut self, cx: &amp;EarlyContext&lt;'_&gt;, e: &amp;ast::Expr) {
+        if let ast::ExprKind::While(cond, ..) = &amp;e.kind {
+            if let ast::ExprKind::Lit(ref lit) = pierce_parens(cond).kind {
+                if let ast::LitKind::Bool(true) = lit.kind {
+                    if !lit.span.from_expansion() {
+                        let msg = &quot;denote infinite loops with `loop { ... }`&quot;;
+                        let condition_span = cx.sess.source_map().guess_head_span(e.span);
+                        cx.struct_span_lint(WHILE_TRUE, condition_span, |lint| {
+                            lint.build(msg)
+                                .span_suggestion_short(
+                                    condition_span,
+                                    &quot;use `loop`&quot;,
+                                    &quot;loop&quot;.to_owned(),
+                                    Applicability::MachineApplicable,
+                                )
+                                .emit();
+                        })
+                    }
+                }
+            }
+        }
+    }
+}
+</code></pre>
+<h3 id="edition-gated-lints"><a class="header" href="#edition-gated-lints">Edition-gated lints</a></h3>
+<p>Sometimes we want to change the behavior of a lint in a new edition. To do this,
+we just add the transition to our invocation of <code>declare_lint!</code>:</p>
+<pre><code class="language-rust ignore">declare_lint! {
+    pub ANONYMOUS_PARAMETERS,
+    Allow,
+    &quot;detects anonymous parameters&quot;,
+    Edition::Edition2018 =&gt; Warn,
+}
+</code></pre>
+<p>This makes the <code>ANONYMOUS_PARAMETERS</code> lint allow-by-default in the 2015 edition
+but warn-by-default in the 2018 edition.</p>
+<h3 id="future-incompatible-lints"><a class="header" href="#future-incompatible-lints">Future-incompatible lints</a></h3>
+<p>The use of the term <code>future-incompatible</code> within the compiler has a slightly
+broader meaning than what rustc exposes to users of the compiler.</p>
+<p>Inside rustc, future-incompatible lints are for signalling to the user that code they have 
+written may not compile in the future. In general, future-incompatible code
+exists for two reasons:</p>
+<ul>
+<li>the user has written unsound code that the compiler mistakenly accepted. While 
+it is within Rust's backwards compatibility guarantees to fix the soundness hole 
+(breaking the user's code), the lint is there to warn the user that this will happen 
+in some upcoming version of rustc <em>regardless of which edition the code uses</em>. This is the 
+meaning that rustc exclusively exposes to users as &quot;future incompatible&quot;.</li>
+<li>the user has written code that will either no longer compiler <em>or</em> will change 
+meaning in an upcoming <em>edition</em>. These are often called &quot;edition lints&quot; and can be
+typically seen in the various &quot;edition compatibility&quot; lint groups (e.g., <code>rust_2021_compatibility</code>)
+that are used to lint against code that will break if the user updates the crate's edition.</li>
+</ul>
+<p>A future-incompatible lint should be declared with the <code>@future_incompatible</code>
+additional &quot;field&quot;:</p>
+<pre><code class="language-rust ignore">declare_lint! {
+    pub ANONYMOUS_PARAMETERS,
+    Allow,
+    &quot;detects anonymous parameters&quot;,
+    @future_incompatible = FutureIncompatibleInfo {
+        reference: &quot;issue #41686 &lt;https://github.com/rust-lang/rust/issues/41686&gt;&quot;,
+        reason: FutureIncompatibilityReason::EditionError(Edition::Edition2018),
+    };
+}
+</code></pre>
+<p>Notice the <code>reason</code> field which describes why the future incompatible change is happening.
+This will change the diagnostic message the user receives as well as determine which
+lint groups the lint is added to. In the example above, the lint is an &quot;edition lint&quot;
+(since it's &quot;reason&quot; is <code>EditionError</code>) signifying to the user that the use of anonymous 
+parameters will no longer compile in Rust 2018 and beyond.</p>
+<p>Inside <a href="https://github.com/rust-lang/rust/blob/51fd129ac12d5bfeca7d216c47b0e337bf13e0c2/compiler/rustc_lint/src/context.rs#L212-L237">LintStore::register_lints</a>, lints with <code>future_incompatible</code> 
+fields get placed into either edition-based lint groups (if their <code>reason</code> is tied to 
+an edition) or into the <code>future_incompatibility</code> lint group.</p>
+<p>If you need a combination of options that's not supported by the
+<code>declare_lint!</code> macro, you can always change the <code>declare_lint!</code> macro
+to support this.</p>
+<h3 id="renaming-or-removing-a-lint"><a class="header" href="#renaming-or-removing-a-lint">Renaming or removing a lint</a></h3>
+<p>If it is determined that a lint is either improperly named or no longer needed, 
+the lint must be registered for renaming or removal, which will trigger a warning if a user tries
+to use the old lint name. To declare a rename/remove, add a line with
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/struct.LintStore.html#method.register_renamed"><code>store.register_renamed</code></a> or <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/struct.LintStore.html#method.register_removed"><code>store.register_removed</code></a> to the code of the
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/fn.register_builtins.html"><code>rustc_lint::register_builtins</code></a> function.</p>
+<pre><code class="language-rust ignore">store.register_renamed(&quot;single_use_lifetime&quot;, &quot;single_use_lifetimes&quot;);
+</code></pre>
+<h3 id="lint-groups"><a class="header" href="#lint-groups">Lint Groups</a></h3>
+<p>Lints can be turned on in groups. These groups are declared in the
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/fn.register_builtins.html"><code>register_builtins</code></a> function in <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/index.html"><code>rustc_lint::lib</code></a>. The
+<code>add_lint_group!</code> macro is used to declare a new group.</p>
+<p>For example,</p>
+<pre><code class="language-rust ignore">add_lint_group!(sess,
+    &quot;nonstandard_style&quot;,
+    NON_CAMEL_CASE_TYPES,
+    NON_SNAKE_CASE,
+    NON_UPPER_CASE_GLOBALS);
+</code></pre>
+<p>This defines the <code>nonstandard_style</code> group which turns on the listed lints. A
+user can turn on these lints with a <code>!#[warn(nonstandard_style)]</code> attribute in
+the source code, or by passing <code>-W nonstandard-style</code> on the command line.</p>
+<p>Some lint groups are created automatically in <code>LintStore::register_lints</code>. For instance, 
+any lint declared with <code>FutureIncompatibleInfo</code> where the reason is 
+<code>FutureIncompatibilityReason::FutureReleaseError</code> (the default when 
+<code>@future_incompatible</code> is used in <code>declare_lint!</code>), will be added to
+the <code>future_incompatible</code> lint group. Editions also have their own lint groups 
+(e.g., <code>rust_2021_compatibility</code>) automatically generated for any lints signaling
+future-incompatible code that will break in the specified edition.</p>
+<h3 id="linting-early-in-the-compiler"><a class="header" href="#linting-early-in-the-compiler">Linting early in the compiler</a></h3>
+<p>On occasion, you may need to define a lint that runs before the linting system
+has been initialized (e.g. during parsing or macro expansion). This is
+problematic because we need to have computed lint levels to know whether we
+should emit a warning or an error or nothing at all.</p>
+<p>To solve this problem, we buffer the lints until the linting system is
+processed. <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/struct.Session.html#method.buffer_lint"><code>Session</code></a> and <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/parse/struct.ParseSess.html#method.buffer_lint"><code>ParseSess</code></a> both have
+<code>buffer_lint</code> methods that allow you to buffer a lint for later. The linting
+system automatically takes care of handling buffered lints later.</p>
+<p>Thus, to define a lint that runs early in the compilation, one defines a lint
+like normal but invokes the lint with <code>buffer_lint</code>.</p>
+<h4 id="linting-even-earlier-in-the-compiler"><a class="header" href="#linting-even-earlier-in-the-compiler">Linting even earlier in the compiler</a></h4>
+<p>The parser (<code>rustc_ast</code>) is interesting in that it cannot have dependencies on
+any of the other <code>rustc*</code> crates. In particular, it cannot depend on
+<code>rustc_middle::lint</code> or <code>rustc_lint</code>, where all of the compiler linting
+infrastructure is defined. That's troublesome!</p>
+<p>To solve this, <code>rustc_ast</code> defines its own buffered lint type, which
+<code>ParseSess::buffer_lint</code> uses. After macro expansion, these buffered lints are
+then dumped into the <code>Session::buffered_lints</code> used by the rest of the compiler.</p>
+<h2 id="json-diagnostic-output"><a class="header" href="#json-diagnostic-output">JSON diagnostic output</a></h2>
+<p>The compiler accepts an <code>--error-format json</code> flag to output
+diagnostics as JSON objects (for the benefit of tools such as <code>cargo fix</code> or the RLS). It looks like this:</p>
+<pre><code class="language-console">$ rustc json_error_demo.rs --error-format json
+{&quot;message&quot;:&quot;cannot add `&amp;str` to `{integer}`&quot;,&quot;code&quot;:{&quot;code&quot;:&quot;E0277&quot;,&quot;explanation&quot;:&quot;\nYou tried to use a type which doesn't implement some trait in a place which\nexpected that trait. Erroneous code example:\n\n```compile_fail,E0277\n// here we declare the Foo trait with a bar method\ntrait Foo {\n    fn bar(&amp;self);\n}\n\n// we now declare a function which takes an object implementing the Foo trait\nfn some_func&lt;T: Foo&gt;(foo: T) {\n    foo.bar();\n}\n\nfn main() {\n    // we now call the method with the i32 type, which doesn't implement\n    // the Foo trait\n    some_func(5i32); // error: the trait bound `i32 : Foo` is not satisfied\n}\n```\n\nIn order to fix this error, verify that the type you're using does implement\nthe trait. Example:\n\n```\ntrait Foo {\n    fn bar(&amp;self);\n}\n\nfn some_func&lt;T: Foo&gt;(foo: T) {\n    foo.bar(); // we can now use this method since i32 implements the\n               // Foo trait\n}\n\n// we implement the trait on the i32 type\nimpl Foo for i32 {\n    fn bar(&amp;self) {}\n}\n\nfn main() {\n    some_func(5i32); // ok!\n}\n```\n\nOr in a generic context, an erroneous code example would look like:\n\n```compile_fail,E0277\nfn some_func&lt;T&gt;(foo: T) {\n    println!(\&quot;{:?}\&quot;, foo); // error: the trait `core::fmt::Debug` is not\n                           //        implemented for the type `T`\n}\n\nfn main() {\n    // We now call the method with the i32 type,\n    // which *does* implement the Debug trait.\n    some_func(5i32);\n}\n```\n\nNote that the error here is in the definition of the generic function: Although\nwe only call it with a parameter that does implement `Debug`, the compiler\nstill rejects the function: It must work with all possible input types. In\norder to make this example compile, we need to restrict the generic type we're\naccepting:\n\n```\nuse std::fmt;\n\n// Restrict the input type to types that implement Debug.\nfn some_func&lt;T: fmt::Debug&gt;(foo: T) {\n    println!(\&quot;{:?}\&quot;, foo);\n}\n\nfn main() {\n    // Calling the method is still fine, as i32 implements Debug.\n    some_func(5i32);\n\n    // This would fail to compile now:\n    // struct WithoutDebug;\n    // some_func(WithoutDebug);\n}\n```\n\nRust only looks at the signature of the called function, as such it must\nalready specify all requirements that will be used for every type parameter.\n&quot;},&quot;level&quot;:&quot;error&quot;,&quot;spans&quot;:[{&quot;file_name&quot;:&quot;json_error_demo.rs&quot;,&quot;byte_start&quot;:50,&quot;byte_end&quot;:51,&quot;line_start&quot;:4,&quot;line_end&quot;:4,&quot;column_start&quot;:7,&quot;column_end&quot;:8,&quot;is_primary&quot;:true,&quot;text&quot;:[{&quot;text&quot;:&quot;    a + b&quot;,&quot;highlight_start&quot;:7,&quot;highlight_end&quot;:8}],&quot;label&quot;:&quot;no implementation for `{integer} + &amp;str`&quot;,&quot;suggested_replacement&quot;:null,&quot;suggestion_applicability&quot;:null,&quot;expansion&quot;:null}],&quot;children&quot;:[{&quot;message&quot;:&quot;the trait `std::ops::Add&lt;&amp;str&gt;` is not implemented for `{integer}`&quot;,&quot;code&quot;:null,&quot;level&quot;:&quot;help&quot;,&quot;spans&quot;:[],&quot;children&quot;:[],&quot;rendered&quot;:null}],&quot;rendered&quot;:&quot;error[E0277]: cannot add `&amp;str` to `{integer}`\n --&gt; json_error_demo.rs:4:7\n  |\n4 |     a + b\n  |       ^ no implementation for `{integer} + &amp;str`\n  |\n  = help: the trait `std::ops::Add&lt;&amp;str&gt;` is not implemented for `{integer}`\n\n&quot;}
+{&quot;message&quot;:&quot;aborting due to previous error&quot;,&quot;code&quot;:null,&quot;level&quot;:&quot;error&quot;,&quot;spans&quot;:[],&quot;children&quot;:[],&quot;rendered&quot;:&quot;error: aborting due to previous error\n\n&quot;}
+{&quot;message&quot;:&quot;For more information about this error, try `rustc --explain E0277`.&quot;,&quot;code&quot;:null,&quot;level&quot;:&quot;&quot;,&quot;spans&quot;:[],&quot;children&quot;:[],&quot;rendered&quot;:&quot;For more information about this error, try `rustc --explain E0277`.\n&quot;}
+</code></pre>
+<p>Note that the output is a series of lines, each of which is a JSON
+object, but the series of lines taken together is, unfortunately, not
+valid JSON, thwarting tools and tricks (such as <a href="https://docs.python.org/3/library/json.html#module-json.tool">piping to <code>python3 -m json.tool</code></a>)
+that require such. (One speculates that this was intentional for LSP
+performance purposes, so that each line/object can be sent to RLS as
+it is flushed?)</p>
+<p>Also note the &quot;rendered&quot; field, which contains the &quot;human&quot; output as a
+string; this was introduced so that UI tests could both make use of
+the structured JSON and see the &quot;human&quot; output (well, <em>sans</em> colors)
+without having to compile everything twice.</p>
+<p>The &quot;human&quot; readable and the json format emitter can be found under
+<code>rustc_errors</code>, both were moved from the <code>rustc_ast</code> crate to the
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/index.html">rustc_errors crate</a>.</p>
+<p>The JSON emitter defines <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/json/struct.Diagnostic.html">its own <code>Diagnostic</code>
+struct</a>
+(and sub-structs) for the JSON serialization. Don't confuse this with
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/struct.Diagnostic.html"><code>errors::Diagnostic</code></a>!</p>
+<h2 id="rustc_on_unimplemented"><a class="header" href="#rustc_on_unimplemented"><code>#[rustc_on_unimplemented(...)]</code></a></h2>
+<p>The <code>#[rustc_on_unimplemented]</code> attribute allows trait definitions to add specialized
+notes to error messages when an implementation was expected but not found.
+You can refer to the trait's generic arguments by name and to the resolved type using <code>Self</code>.</p>
+<p>For example:</p>
+<pre><code class="language-rust ignore">#![feature(rustc_attrs)]
+
+#[rustc_on_unimplemented=&quot;an iterator over elements of type `{A}` \
+    cannot be built from a collection of type `{Self}`&quot;]
+trait MyIterator&lt;A&gt; {
+    fn next(&amp;mut self) -&gt; A;
+}
+
+fn iterate_chars&lt;I: MyIterator&lt;char&gt;&gt;(i: I) {
+    // ...
+}
+
+fn main() {
+    iterate_chars(&amp;[1, 2, 3][..]);
+}
+</code></pre>
+<p>When the user compiles this, they will see the following;</p>
+<pre><code class="language-txt">error[E0277]: the trait bound `&amp;[{integer}]: MyIterator&lt;char&gt;` is not satisfied
+  --&gt; &lt;anon&gt;:14:5
+   |
+14 |     iterate_chars(&amp;[1, 2, 3][..]);
+   |     ^^^^^^^^^^^^^ an iterator over elements of type `char` cannot be built from a collection of type `&amp;[{integer}]`
+   |
+   = help: the trait `MyIterator&lt;char&gt;` is not implemented for `&amp;[{integer}]`
+   = note: required by `iterate_chars`
+</code></pre>
+<p><code>rustc_on_unimplemented</code> also supports advanced filtering for better targeting
+of messages, as well as modifying specific parts of the error message. You
+target the text of:</p>
+<ul>
+<li>the main error message (<code>message</code>)</li>
+<li>the label (<code>label</code>)</li>
+<li>an extra note (<code>note</code>)</li>
+</ul>
+<p>For example, the following attribute</p>
+<pre><code class="language-rust ignore">#[rustc_on_unimplemented(
+    message=&quot;message&quot;,
+    label=&quot;label&quot;,
+    note=&quot;note&quot;
+)]
+trait MyIterator&lt;A&gt; {
+    fn next(&amp;mut self) -&gt; A;
+}
+</code></pre>
+<p>Would generate the following output:</p>
+<pre><code class="language-text">error[E0277]: message
+  --&gt; &lt;anon&gt;:14:5
+   |
+14 |     iterate_chars(&amp;[1, 2, 3][..]);
+   |     ^^^^^^^^^^^^^ label
+   |
+   = note: note
+   = help: the trait `MyIterator&lt;char&gt;` is not implemented for `&amp;[{integer}]`
+   = note: required by `iterate_chars`
+</code></pre>
+<p>To allow more targeted error messages, it is possible to filter the
+application of these fields based on a variety of attributes when using
+<code>on</code>:</p>
+<ul>
+<li><code>crate_local</code>: whether the code causing the trait bound to not be
+fulfilled is part of the user's crate. This is used to avoid suggesting
+code changes that would require modifying a dependency.</li>
+<li>Any of the generic arguments that can be substituted in the text can be
+referred by name as well for filtering, like <code>Rhs=&quot;i32&quot;</code>, except for
+<code>Self</code>.</li>
+<li><code>_Self</code>: to filter only on a particular calculated trait resolution, like
+<code>Self=&quot;std::iter::Iterator&lt;char&gt;&quot;</code>. This is needed because <code>Self</code> is a
+keyword which cannot appear in attributes.</li>
+<li><code>direct</code>: user-specified rather than derived obligation.</li>
+<li><code>from_method</code>: usable both as boolean (whether the flag is present, like
+<code>crate_local</code>) or matching against a particular method. Currently used
+for <code>try</code>.</li>
+<li><code>from_desugaring</code>: usable both as boolean (whether the flag is present)
+or matching against a particular desugaring. The desugaring is identified
+with its variant name in the <code>DesugaringKind</code> enum.</li>
+</ul>
+<p>For example, the <code>Iterator</code> trait can be annotated in the following way:</p>
+<pre><code class="language-rust ignore">#[rustc_on_unimplemented(
+    on(
+        _Self=&quot;&amp;str&quot;,
+        note=&quot;call `.chars()` or `.as_bytes()` on `{Self}&quot;
+    ),
+    message=&quot;`{Self}` is not an iterator&quot;,
+    label=&quot;`{Self}` is not an iterator&quot;,
+    note=&quot;maybe try calling `.iter()` or a similar method&quot;
+)]
+pub trait Iterator {}
+</code></pre>
+<p>Which would produce the following outputs:</p>
+<pre><code class="language-text">error[E0277]: `Foo` is not an iterator
+ --&gt; src/main.rs:4:16
+  |
+4 |     for foo in Foo {}
+  |                ^^^ `Foo` is not an iterator
+  |
+  = note: maybe try calling `.iter()` or a similar method
+  = help: the trait `std::iter::Iterator` is not implemented for `Foo`
+  = note: required by `std::iter::IntoIterator::into_iter`
+
+error[E0277]: `&amp;str` is not an iterator
+ --&gt; src/main.rs:5:16
+  |
+5 |     for foo in &quot;&quot; {}
+  |                ^^ `&amp;str` is not an iterator
+  |
+  = note: call `.chars()` or `.bytes() on `&amp;str`
+  = help: the trait `std::iter::Iterator` is not implemented for `&amp;str`
+  = note: required by `std::iter::IntoIterator::into_iter`
+</code></pre>
+<p>If you need to filter on multiple attributes, you can use <code>all</code>, <code>any</code> or
+<code>not</code> in the following way:</p>
+<pre><code class="language-rust ignore">#[rustc_on_unimplemented(
+    on(
+        all(_Self=&quot;&amp;str&quot;, T=&quot;std::string::String&quot;),
+        note=&quot;you can coerce a `{T}` into a `{Self}` by writing `&amp;*variable`&quot;
+    )
+)]
+pub trait From&lt;T&gt;: Sized { /* ... */ }
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+                            <a rel="prev" href="param_env.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        
+
+                        
+                            <a rel="next" href="diagnostics/sessiondiagnostic.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+                    <a rel="prev" href="param_env.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="diagnostics/sessiondiagnostic.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+
+    </body>
+</html>
