@@ -37,7 +37,7 @@ details.
   See [LLVM docs](https://llvm.org/docs/CommandGuide/FileCheck.html) for how to
   write such tests.
 - `codegen-units` – tests for the [monomorphization](../backend/monomorph.md)
-  collector and CGU partitioning
+  collector and CGU partitioning.
 - `assembly` – similar to `codegen` tests, but verifies assembly output
   to make sure LLVM target backend can handle provided code.
 - `mir-opt` – tests that check parts of the generated MIR to make
@@ -52,9 +52,9 @@ details.
   contain the expected documentation.
 - `rustfix` – tests for applying [diagnostic
   suggestions](../diagnostics.md#suggestions) with the
-  [`rustfix`](https://github.com/rust-lang/rustfix/) crate
+  [`rustfix`](https://github.com/rust-lang/rustfix/) crate.
 - `*-fulldeps` – same as above, but indicates that the test depends
-  on things other than `std` (and hence those things must be built)
+  on things other than `std` (and hence those things must be built).
 
 ## Other Tests
 
@@ -82,7 +82,7 @@ including:
   other tidy checks.
 
 - **Unit tests** – The Rust standard library and many of the Rust packages
-  include typical Rust `#[test]` unittests.  Under the hood, `x.py` will run
+  include typical Rust `#[test]` unit tests.  Under the hood, `x.py` will run
   `cargo test` on each package to run all the tests.
 
   Example: `./x.py test library/std`
@@ -323,7 +323,7 @@ caveats:
 
 - Not all code is on crates.io! There is a lot of code in repos on GitHub and
   elsewhere. Also, companies may not wish to publish their code. Thus, a
-  successful crater run is not a magically green light that there will be no
+  successful crater run is not a guaranteed confirmation that there will be no
   breakage; you still need to be careful.
 
 - Crater only runs Linux builds on x86_64. Thus, other architectures and
@@ -345,7 +345,7 @@ of popular crates. Different configurations include "fresh builds", builds
 with incremental compilation, etc.
 
 The result of a perf run is a comparison between two versions of the
-compiler (by their commit hashes).
+compiler (identified by their commit hashes).
 
 You should request a perf run if your PR may affect performance, especially
 if it can affect performance adversely.

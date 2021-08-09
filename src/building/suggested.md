@@ -12,9 +12,9 @@ that will automatically run `x.py test tidy --bless` on each commit, to ensure
 your code is up to par. If you decide later that this behavior is
 undesirable, you can delete the `pre-commit` file in `.git/hooks`.
 
-A prebuilt git hook lives at [`src/etc/pre-commit.sh`](https://github.com/rust-lang/rust/blob/master/src/etc/pre-commit.sh) which can be copied into your `.git/hooks` folder as `pre-commit` (without the `.sh` extension!).
+A pre-built git hook lives at [`src/etc/pre-commit.sh`](https://github.com/rust-lang/rust/blob/master/src/etc/pre-commit.sh) which can be copied into your `.git/hooks` folder as `pre-commit` (without the `.sh` extension!).
 
-You can also install the hook as a step of running `x.py setup`!
+`x.py setup` gives you the option to automatically install the Git hook!
 
 ## Configuring `rust-analyzer` for `rustc`
 

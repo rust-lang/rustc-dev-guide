@@ -36,7 +36,7 @@ winget install cmake
 ```
 
 If any of those is installed already, winget will detect it.
-Then edit your systems `PATH` variable and add: `C:\Program Files\CMake\bin`.
+After installing, add `C:\Program Files\CMake\bin` to your systems `PATH` variable.
 
 For more information about building on Windows,
 see [the `rust-lang/rust` README](https://github.com/rust-lang/rust#building-on-windows).
@@ -52,11 +52,11 @@ These are not so much requirements as _recommendations_:
 
 Beefier machines will lead to much faster builds. If your machine is not very
 powerful, a common strategy is to only use `./x.py check` on your local machine
-and let the CI build test your changes when you push to a PR branch.
+and let the CI build and test your changes when you push to a PR branch.
 
 ## `rustc` and toolchain installation
 
-Follow the installation given in the [Rust book][install] to install a working
-`rustc` and the necessary C/++ toolchain on your platform.
+Follow the installation guide given in the [Rust book][install] to install a working
+`rustc` binary and the necessary C/++ toolchain on your platform.
 
 [install]: https://doc.rust-lang.org/book/ch01-01-installation.html

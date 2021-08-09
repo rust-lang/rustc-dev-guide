@@ -12,7 +12,7 @@ and does have built-in Rust support.
 The following script can be used to set up Exuberant Ctags:
 [https://github.com/nikomatsakis/rust-etags][etags].
 
-`ctags` integrates into emacs and vim quite easily. The following can then be
+`ctags` integrates into Emacs and Vim quite easily. The following can then be
 used to build and generate tags:
 
 ```console

@@ -61,9 +61,9 @@ from before. Below are the different ways to utilize `x.py` in order to
 effectively deal with the repo for various common tasks.
 
 This chapter focuses on the basics to be productive, but
-if you want to learn more about `x.py`, read its README.md
-[here](https://github.com/rust-lang/rust/blob/master/src/bootstrap/README.md).
-To read more about the bootstrap process and why `x.py` is necessary,
+if you want to learn more about `x.py`, you can
+[read its README](https://github.com/rust-lang/rust/blob/master/src/bootstrap/README.md).
+To learn more about the bootstrap process and why `x.py` is necessary,
 [read this chapter][bootstrap].
 
 ### Running `x.py` slightly more conveniently
@@ -78,12 +78,12 @@ You can install it with `cargo install --path src/tools/x`.
 
 ## Building the Compiler
 
-To build a compiler, run `./x.py build`. This will build up to the stage1 compiler,
+To build the compiler, run `./x.py build`. This will build up to the stage1 compiler,
 including `rustdoc`, producing a usable compiler toolchain from the source
 code you have checked out.
 
 Note that building will require a relatively large amount of storage space.
-You may want to have upwards of 10 or 15 gigabytes available to build the compiler.
+You should have upwards of 10 or 15 gigabytes available to build the compiler.
 
 There are many flags you can pass to the build command of `x.py` that can be
 beneficial to cutting down compile times or fitting other things you might
@@ -105,17 +105,16 @@ Options:
     -h, --help          print this help message
 ```
 
-For hacking, often building the stage 1 compiler is enough, but for
-final testing and release, the stage 2 compiler is used.
+For hacking building the stage1 compiler is often enough, but for
+final testing and release, the stage2 compiler should be used.
 
-`./x.py check` is really fast to build the rust compiler.
-It is, in particular, very useful when you're doing some kind of
-"type-based refactoring", like renaming a method, or changing the
-signature of some function.
+`./x.py check` is really fast compared to other commands.
+It is useful when you're doing some kind of "type-based refactoring", like
+renaming a method or changing the signature of some function.
 
 Once you've created a `config.toml`, you are now ready to run
 `x.py`. There are a lot of options here, but let's start with what is
-probably the best "go to" command for building a local rust:
+probably the best "go to" command for building a local rust toolchain:
 
 ```bash
 ./x.py build -i library/std
@@ -141,7 +140,7 @@ results to make producing the stage1 **compiler** faster.
 Unfortunately, incremental cannot be used to speed up making the
 stage1 libraries.  This is because incremental only works when you run
 the *same compiler* twice in a row.  In this case, we are building a
-*new stage1 compiler* every time. Therefore, the old incremental
+*new* stage1 compiler every time. Therefore, the old incremental
 results may not apply. **As a result, you will probably find that
 building the stage1 `std` is a bottleneck for you** -- but fear not,
 there is a (hacky) workaround.  See [the section on "recommended
@@ -153,20 +152,20 @@ build. The **full** `rustc` build (what you get if you say `./x.py build
 
 - Build `rustc` with the stage1 compiler.
   - The resulting compiler here is called the "stage2" compiler.
-- Build `std` with stage2 compiler.
+- Build `std` with the stage2 compiler.
 - Build `librustdoc` and a bunch of other things with the stage2 compiler.
 
 <a name=toolchain></a>
 
 ## Build specific components
 
-- Build only the core library
+- Build only the core library:
 
 ```bash
 ./x.py build --stage 0 library/core
 ```
 
-- Build only the core and `proc_macro` libraries
+- Build only the core and `proc_macro` libraries:
 
 ```bash
 ./x.py build --stage 0 library/core library/proc_macro
@@ -218,7 +217,7 @@ Here are a few other useful `x.py` commands. We'll cover some of them in detail
 in other sections:
 
 - Building things:
-  - `./x.py build` – builds everything using the stage 1 compiler,
+  - `./x.py build` – builds everything using the stage1 compiler,
     not just up to `std`
   - `./x.py build --stage 2` – builds the stage2 compiler
 - Running tests (see the [section on running tests](../tests/running.html) for
@@ -233,7 +232,7 @@ in other sections:
 ### Cleaning out build directories
 
 Sometimes you need to start fresh, but this is normally not the case.
-If you need to run this then `rustbuild` is most likely not acting right and
+If you need to run this then `rustbuild` is most likely acting up and
 you should file a bug as to what is going wrong. If you do need to clean
 everything up then you only need to run one command!
 

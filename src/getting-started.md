@@ -3,7 +3,7 @@
 <!-- toc -->
 
 This documentation is _not_ intended to be comprehensive; it is meant to be a
-quick guide for the most useful things. For more information, [see this
+quick guide for the most useful things. For more comprehensive information, [see this
 chapter on how to build and run the compiler](./building/how-to-build-and-run.md).
 
 ## Asking Questions
@@ -14,11 +14,11 @@ The compiler team (or `t-compiler`) usually hangs out in Zulip [in this
 [z]: https://rust-lang.zulipchat.com/#narrow/stream/131828-t-compiler
 
 **Please ask questions!** A lot of people report feeling that they are "wasting
-expert time", but nobody on `t-compiler` feels this way. Contributors are
+expert time", but nobody in `t-compiler` feels this way. Contributors are
 important to us.
 
 Also, if you feel comfortable, prefer public topics, as this means others can
-see the questions and answers, and perhaps even integrate them back into this
+see the questions and answers and perhaps even integrate them back into this
 guide :)
 
 ### Experts
@@ -27,7 +27,7 @@ Not all `t-compiler` members are experts on all parts of `rustc`; it's a pretty
 large project.  To find out who has expertise on different parts of the
 compiler, [consult this "experts map"][map].
 
-It's not perfectly complete, though, so please also feel free to ask questions
+It's not perfectly complete though, so please also feel free to ask questions
 even if you can't figure out who to ping.
 
 [map]: https://github.com/rust-lang/compiler-team/blob/master/content/experts/map.toml
@@ -40,13 +40,13 @@ contributing to Rust.
 
 Just pinging someone without providing any context can be a bit annoying and
 just create noise, so we ask that you be mindful of the fact that the
-`t-compiler` folks get a lot of pings in a day.
+`t-compiler` folks get a lot of pings.
 
 ## Cloning and Building
 
 The main repository is [`rust-lang/rust`][repo]. This contains the compiler,
-the standard library (including `core`, `alloc`, `test`, `proc_macro`, etc),
-and a bunch of tools (e.g. `rustdoc`, the bootstrapping infrastructure, etc).
+the standard library (including `core`, `alloc`, `test`, `proc_macro`, etc.),
+and a bunch of tools (e.g. `rustdoc`, the bootstrapping infrastructure, etc.).
 
 [repo]: https://github.com/rust-lang/rust
 
@@ -69,7 +69,7 @@ computationally expensive, so a beefier machine will help, and I wouldn't
 recommend trying to build on a Raspberry Pi :P
 
 - Recommended >=30GB of free disk space; otherwise, you will have to keep
-  clearing incremental caches. More space is better, the compiler is a bit of a
+  clearing incremental caches. More space is better; the compiler is a bit of a
   hog; it's a problem we are aware of.
 - Recommended >=8GB RAM.
 - Recommended >=2 cores; having more cores really helps.
@@ -84,7 +84,7 @@ you use CI-built LLVM ([see below][configsec]).
 [configsec]: #configuring-the-compiler
 
 Like `cargo`, the build system will use as many cores as possible. Sometimes
-this can cause you to run low on memory. You can use `-j` to adjust the number
+this can cause you to run low on memory. You can use `-j` to adjust the number of
 concurrent jobs. If a full build takes more than ~45 minutes to an hour,
 you are probably spending most of the time swapping memory in and out;
 try using `-j1`.
@@ -131,7 +131,7 @@ In the top level of the repo:
 $ x.py setup
 ```
 
-This will walk you through an interactive setup for x.py that looks like this:
+This will walk you through an interactive setup for `x.py` that looks like this:
 
 ```
 $ x.py setup
@@ -166,7 +166,7 @@ download-ci-llvm = true
 
 ["Updating LLVM" section]: https://rustc-dev-guide.rust-lang.org/backend/updating-llvm.html?highlight=download-ci-llvm#feature-updates
 
-### x.py Intro
+### `x.py` Intro
 
 `rustc` is a _bootstrapping_ compiler, which means that it is written in Rust
 and thus needs to be compiled by itself. So where do you
@@ -198,7 +198,7 @@ should still read the rest of the section:
 | `x.py check` | Quick check to see if things compile; [rust-analyzer can run this automatically for you][rust-analyzer] |
 | `x.py build --stage 0 [library/std]` | Build only the standard library, without building the compiler |
 | `x.py build library/std` | Build just the 1st stage of the compiler, along with the standard library; this is faster than building stage 2 and usually good enough |
-| `x.py build --keep-stage 1 library/std` | Build the 1st stage of the compiler and skips rebuilding the standard library; this is useful after you've done an ordinary stage1 build to skip compilation time, but it can cause weird problems. (Just do a regular build to resolve.) |
+| `x.py build --keep-stage 1 library/std` | Build the 1st stage of the compiler and skips rebuilding the standard library; this is useful after you've done an ordinary stage 1 build to skip compilation time, but it can cause weird problems. (Just do a regular build to resolve.) |
 | `x.py test [--keep-stage 1]` | Run the test suite using the stage1 compiler |
 | `x.py test --bless [--keep-stage 1]` | Run the test suite using the stage1 compiler _and_ update expected test output. |
 | `x.py build --stage 2 compiler/rustc` | Do a full 2-stage build. You almost never want to do this. |
@@ -233,8 +233,8 @@ For most contributions, you only need to build stage 1, which saves a lot of tim
 This will take a while, especially the first time. Be wary of accidentally
 touching or formatting the compiler, as `./x.py` will try to recompile it.
 
-**NOTE**: The `--keep-stage 1` will _assume_ that the stage 0 standard library
-does not need to be rebuilt, which is usually true, which will save some time.
+**NOTE**: The `--keep-stage 1` will _assume_ that the stage0 standard library
+does not need to be rebuilt, which is usually true, saving time.
 However, if you are changing certain parts of the compiler, this may lead to
 weird errors. Feel free to ask on [zulip][z] if you are running into issues.
 
@@ -276,7 +276,7 @@ completes in a couple of minutes on my laptop. **A common workflow when working
 on the compiler is to make changes and repeatedly check with `./x.py check`.
 Then, run the tests as shown above when you think things should work.**
 
-Finally, the CI ensures that the codebase is using consistent style. To format
+Finally, the CI ensures that the codebase is using a consistent style. To format
 the code:
 
 ```sh
@@ -400,7 +400,7 @@ team member you've been working with), you can specifically request them by
 writing `r? @user` (e.g. `r? @eddyb`) in either the original post or a followup
 comment (you can see [this comment][r?] for example).
 
-Please note that the reviewers are humans, who for the most part work on `rustc`
+Please note that the reviewers are humans who, for the most part work, on `rustc`
 in their free time. This means that they can take some time to respond and review
 your PR. It also means that reviewers can miss some PRs that are assigned to them.
 
@@ -454,7 +454,7 @@ channels: stable, beta, and nightly.
   channel where unstable, incomplete, or experimental features are usable with
   feature gates.
 
-In order to implement a new feature, usually you will need to go through [the
+In order to implement a new feature, usually, you will need to go through [the
 RFC process][rfc] to propose a design, have discussions, etc. In some cases,
 small features can be added with only an FCP ([see below][break]). If in doubt, ask the
 compiler, language, or libs team (whichever is most relevant).
@@ -481,7 +481,7 @@ features.](./implementing_new_features.md)
 
 As mentioned above, Rust has strong backwards-compatibility guarantees. To this
 end, we are reluctant to make breaking changes. However, sometimes they are
-needed to correct compiler bugs (e.g. code that compiled but should not) or
+needed to correct compiler bugs (e.g. code that compiles but should not) or
 make progress on some features.
 
 Depending on the scale of the breakage, there are a few different actions that
@@ -530,10 +530,10 @@ few years into [gradually improving it][perfdash].
 
 If you suspect that your change may cause a performance regression (or
 improvement), you can request a "perf run" (your reviewer may also request one
-before approving). This is yet another bot that will compile a collection of
+before approving). This is yet another bot that will run a collection of
 benchmarks on a compiler with your changes. The numbers are reported
 [here][perf], and you can see a comparison of your changes against the latest
-master.
+nightly compiler.
 
 [perf]: https://perf.rust-lang.org
 

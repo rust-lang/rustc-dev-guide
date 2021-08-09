@@ -11,8 +11,7 @@ For more details about how rustdoc works, see the
 
 Rustdoc is implemented entirely within the crate [`librustdoc`][rd]. It runs
 the compiler up to the point where we have an internal representation of a
-crate (HIR) and the ability to run some queries about the types of items. [HIR]
-and [queries] are discussed in the linked chapters.
+crate ([HIR]) and are able to run some [queries] about the types of items.
 
 [HIR]: ./hir.md
 [queries]: ./query.md
@@ -21,23 +20,23 @@ and [queries] are discussed in the linked chapters.
 `librustdoc` performs two major steps after that to render a set of
 documentation:
 
-* "Clean" the AST into a form that's more suited to creating documentation (and
+1. "Clean" the AST into a form that's more suited to creating documentation (and
   slightly more resistant to churn in the compiler).
-* Use this cleaned AST to render a crate's documentation, one page at a time.
+2. Use this cleaned AST to render a crate's documentation, one page at a time.
 
 Naturally, there's more than just this, and those descriptions simplify out
-lots of details, but that's the high-level overview.
+**lots** of details, but that's the high-level overview.
 
-(Side note: `librustdoc` is a library crate! The `rustdoc` binary is created
-using the project in [`src/tools/rustdoc`][bin]. Note that literally all that
-does is call the `main()` that's in this crate's `lib.rs`, though.)
+Side note: `librustdoc` is a library crate! The `rustdoc` binary is created
+using the project in [`src/tools/rustdoc`][bin]. Literally all that
+does is just call the `main` function that's in `librustdoc`.
 
 [bin]: https://github.com/rust-lang/rust/tree/master/src/tools/rustdoc
 
 ## Cheat sheet
 
 * Use `./x.py build` to make a usable
-  rustdoc you can run on other projects.
+  rustdoc that you can run on other projects.
   * Add `library/test` to be able to use `rustdoc --test`.
   * If you've used `rustup toolchain link local /path/to/build/$TARGET/stage1`
     previously, then after the previous build command, `cargo +local doc` will
@@ -52,8 +51,8 @@ does is call the `main()` that's in this crate's `lib.rs`, though.)
 * Most of the HTML printing code is in `html/format.rs` and `html/render.rs`.
   It's in a bunch of `fmt::Display` implementations and supplementary
   functions.
-* The types that got `Display` impls above are defined in `clean/mod.rs`, right
-  next to the custom `Clean` trait used to process them out of the rustc HIR.
+* The types that have `Display` impls above are defined in `clean/mod.rs`, right
+  next to the custom `Clean` trait used to process them out of the rustc [HIR].
 * The bits specific to using rustdoc as a test harness are in `test.rs`.
 * The Markdown renderer is loaded up in `html/markdown.rs`, including functions
   for extracting doctests from a given block of Markdown.

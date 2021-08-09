@@ -16,13 +16,12 @@ test that it works on your target system. You’ll want to run this command:
    ./x.py install
    ```
 
-   Note: If you are testing out a modification to a compiler, you
-   might want to use it to compile some project.
+   Note: To test a modified compiler, you might want to try compiling some project with it.
    Usually, you do not want to use ./x.py install for testing.
-   Rather, you should create a toolchain as discussed in
+   Rather, you should create a toolchain as discussed
    [here][create-rustup-toolchain].
 
-   For example, if the toolchain you created is called foo, you
+   For example, if the toolchain you created is called `foo`, you
    would then invoke it with `rustc +foo ...` (where ... represents
    the rest of the arguments).
 

@@ -6,19 +6,17 @@ development.
 
 There are seven parts to this guide:
 
-1. [Building and debugging `rustc`][p1]: Contains information that should be
-   useful no matter how you are contributing, about building, debugging,
-   profiling, etc.
-2. [Contributing to `rustc`][p2]: Contains information that should be useful
-   no matter how you are contributing, about procedures for contribution, using git
-   and Github, stabilizing features, etc.
+1. [Building and debugging `rustc`][p1]: Contains information about building, debugging,
+   profiling, etc., useful no matter how you are contributing.
+2. [Contributing to `rustc`][p2]:  About procedures for contribution, using git
+   and Github, stabilizing features, etc, useful no matter how you are contributing.
 3. [High-Level Compiler Architecture][p3]: Discusses the high-level
    architecture of the compiler and stages of the compile process.
 4. [Source Code Representation][p4]: Describes the process of taking raw source code from the user and
    transforming it into various forms that the compiler can work with easily.
-5. [Analysis][p5]: discusses the analyses that the compiler uses to check various
+5. [Analysis][p5]: Discusses the analyses that the compiler uses to check various
    properties of the code and inform later stages of the compile process (e.g., type checking).
-6. [From MIR to Binaries][p6]: How linked executable machine code is generated.
+6. [From MIR to Binaries][p6]: Describes how linked executable machine code is generated.
 7. [Appendices][p7] at the end with useful reference information. There are a
    few of these with different information, including a glossary.
 
@@ -32,7 +30,7 @@ There are seven parts to this guide:
 
 ### Constant change
 
-Keep in mind that `rustc` is a real production-quality product, being worked upon continuously by a
+Keep in mind that `rustc` is a real production-quality product being worked upon continuously by a
 sizeable set of contributors.
 As such, it has its fair share of codebase churn and technical debt.
 In addition, many of the ideas discussed throughout this guide are idealized designs that are not

@@ -9,9 +9,9 @@ you will almost never want to use! – is as follows:
 ./x.py test
 ```
 
-This will build the stage 1 compiler and then run the whole test
-suite. You probably don't want to do this very often, because it takes
-a very long time, and anyway bors / GitHub Actions will do it for you.
+This will build the stage1 compiler and then run the whole test
+suite. You probably don't want to do this very often because it takes
+a very long time, and anyway, bors / GitHub Actions will do it for you.
 (Often, I will run this command in the background after opening a PR that
 I think is done, but rarely otherwise. -nmatsakis)
 
@@ -25,7 +25,7 @@ Note that some tests require a Python-enabled gdb. You can test if
 your gdb install supports Python by using the `python` command from
 within gdb. Once invoked you can type some Python code (e.g.
 `print("hi")`) followed by return and then `CTRL+D` to execute it.
-If you are building gdb from source, you will need to configure with
+If you are building gdb from source, you will need to configure it with
 `--with-python=<path-to-python-binary>`.
 
 ## Running a subset of the test suites
@@ -88,19 +88,19 @@ Likewise, you can test a single file by passing its path:
 By listing which test suites you want to run you avoid having to run
 tests for components you did not change at all.
 
-**Warning:** Note that bors only runs the tests with the full stage 2
+**Warning:** bors only runs the tests with the full stage 2
 build; therefore, while the tests **usually** work fine with stage 1,
 there are some limitations.
 
 ## Run unit tests on the compiler/library
 
-You may want to run unit tests on a specific file with following:
+You may try to run unit tests on a specific file with following:
 
 ```bash
 ./x.py test compiler/rustc_data_structures/src/thin_vec/tests.rs
 ```
 
-But unfortunately, it's impossible. You should invoke following instead:
+But unfortunately, it's impossible. You should invoke the following instead:
 
 ```bash
 ./x.py test compiler/rustc_data_structures/ --test-args thin_vec
@@ -148,14 +148,14 @@ exists in the test file. For example, you can run all the tests in
 ./x.py test src/test/ui --pass check
 ```
 
-By passing `--pass $mode`, you can reduce the testing time. For each
-mode, please see [here][mode].
+By passing `--pass $mode`, you can reduce the testing time. For more information
+on the different modes, please see [here][mode].
 
 [mode]: ./adding.md#tests-that-do-not-result-in-compile-errors
 
 ## Using incremental compilation
 
-You can further enable the `--incremental` flag to save additional
+You can also enable the `--incremental` flag to save additional
 time in subsequent rebuilds:
 
 ```bash
@@ -192,12 +192,12 @@ Other examples of compare-modes are "noopt", "migrate", and
 ## Running tests manually
 
 Sometimes it's easier and faster to just run the test by hand. Most tests are
-just `rs` files, so you can do something like
+just `rs` files, so you can do something like:
 
 ```bash
 rustc +stage1 src/test/ui/issue-1234.rs
 ```
 
 This is much faster, but doesn't always work. For example, some tests
-include directives that specify specific compiler flags, or which rely
+include directives that specify certain compiler flags, or which rely
 on other crates, and they may not run the same without those options.

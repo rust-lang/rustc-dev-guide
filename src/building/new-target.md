@@ -80,7 +80,7 @@ Look for existing targets to use as examples
 
 You may need to make changes to crates that the compiler depends on,
 such as [`libc`][] or [`cc`][]. If so, you can use Cargo's
-[`[patch]`][patch] ability. For example, if you want to use an
+[`[patch]`][patch] section. For example, if you want to use an
 unreleased version of `libc`, you can add it to the top-level
 `Cargo.toml` file:
 
