@@ -22,7 +22,6 @@ But it has some other interesting features that distinguish it from the HIR:
 - Like the MIR, the THIR only represents bodies, i.e. "executable code"; this includes
   function bodies, but also `const` initializers, for example. Specifically, all [body owners] have
   THIR created. Consequently, the THIR has no representation for items like `struct`s or `trait`s.
-  References to those items are represented as `HirId`s in the THIR.
 
 - Each body of THIR is only stored temporarily and is dropped as soon as it's no longer
   needed, as opposed to being stored until the end of the compilation process (which
