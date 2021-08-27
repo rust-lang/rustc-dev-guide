@@ -44,7 +44,7 @@ A new diagnostic item can be added with these two steps:
     For the naming conventions of diagnostic items, please refer to
     [*Naming Conventions*](#naming-conventions).
 
-2. As of August 2021 <!-- Date: 2021-08 --> diagnostic items in code are accessed via symbols in
+2. As of August 2021 <!-- date: 2021-08 --> diagnostic items in code are accessed via symbols in
     [`rustc_span::symbol::sym`]. To add your newly created diagnostic item simply open the
     module file and add the name (In this case `Cat`) at the correct point in the list.
 
@@ -56,7 +56,7 @@ items in other projects like Clippy, it might take some time until the repos get
 Diagnostic items don't have a set in stone naming convention yet. These are some guidelines that
 should be used for the future, but might differ from existing names:
 
-* Types, traits and enums are named using UpperCamelCanse (Examples: `Iterator`, `HashMap`, ...)
+* Types, traits and enums are named using UpperCamelCase (Examples: `Iterator`, `HashMap`, ...)
 * For type names that are used multiple times like `Writer` it's good to choose a more precise
   name, maybe by adding the module to it. (Example: `IoWriter`)
 * Associated items should not get their own diagnostic items, but instead be accessed indirectly
@@ -69,9 +69,9 @@ should be used for the future, but might differ from existing names:
 
 ## How To Use Diagnostic Items
 
-In rustc diagnostic items in code are accessed via [`Symbol`]s inside the
+In rustc, diagnostic items are looked up via [`Symbol`]s from inside the
 [`rustc_span::symbol::sym`] module. These can then be mapped to [`DefId`]s using
-[`TyCtxt::get_diagnostic_item()`] or to check if they match a [`DefId`] using
+[`TyCtxt::get_diagnostic_item()`] or checked if they match a [`DefId`] using
 [`TyCtxt::is_diagnostic_item()`]. When mapping from a diagnostic item to a [`DefId`] the method
 will return a `Option<DefId>`. This can be `None` if either the symbol isn't a diagnostic item
 or the type is not registered, for instance when compiling with `#[no_std]`. All following
@@ -119,8 +119,8 @@ object which can be used for further checks. Checkout
 ### Usage In Clippy
 
 Clippy tries to use diagnostic items where possible and has developed some wrapper and utility
-functions. Please also refer to the documentation when using diagnostic items in Clippy. (See
-[*Common tools for writing lints*][clippy-Common-tools-for-writing-lints])
+functions. Please also refer to its documentation when using diagnostic items in Clippy. (See
+[*Common tools for writing lints*][clippy-Common-tools-for-writing-lints].)
 
 ## Related Issues
 
