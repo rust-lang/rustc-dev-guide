@@ -34,24 +34,29 @@ this would cause a query cycle.
 
 ### Generic arguments of anonymous constants
 
-Anonymous constants inherit the generic parameters of their parent, which is why the array length in `foo<const N: usize>() -> [u8; N + 1]`
-can use `N`.
+Anonymous constants inherit the generic parameters of their parent, which is
+why the array length in `foo<const N: usize>() -> [u8; N + 1]` can use `N`.
 
-Without any manual adjustments, this causes us to include parameters even if the constant doesn't use them in any way.
-This can cause [some interesting errors](pcg-unused-substs) and breaks some already stable code.
+Without any manual adjustments, this causes us to include parameters even if
+the constant doesn't use them in any way. This can cause
+[some interesting errors](pcg-unused-substs) and breaks some already stable code.
 
-To deal with this, we intend to look at the generic parameters explicitly mentioned by the constants and then search the predicates
-of its parents to figure out which of the other generic parameters are reachable by our constant.
+To deal with this, we intend to look at the generic parameters explicitly mentioned
+by the constants and then search the predicates of its parents to figure out which
+of the other generic parameters are reachable by our constant.
 
 **TODO**: Expand this section once the parameter filtering is implemented.
 
-As constants can be part of their parents `where`-clauses, we mention unevaluated constants in their parents predicates.
-It is therefore necessary to mention unevaluated constants without being able to first compute the generic parameters
+As constants can be part of their parents `where`-clauses, we mention unevaluated
+constants in their parents predicates. It is therefore necessary to mention unevaluated
+constants without being able to first compute the generic parameters
 available to these constants.
 
-To do this unevaluated constants start out with [`substs_`] being `None` while assuming that their generic arguments could be arbitrary generic
-parameters. When first accessing the generic arguments of an unevaluated constants, we then replace `substs_` with the actual
-default arguments of a constants, which are the generic parameters of their parent we assume to be used by this constant.
+To do this unevaluated constants start out with [`substs_`] being `None` while assuming
+that their generic arguments could be arbitrary generic parameters.
+When first accessing the generic arguments of an unevaluated constants, we then replace
+`substs_` with the actual default arguments of a constants, which are the generic parameters
+of their parent we assume to be used by this constant.
 
 [`ty::Const`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.Const.html
 [`ty::ConstKind`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/enum.ConstKind.html
