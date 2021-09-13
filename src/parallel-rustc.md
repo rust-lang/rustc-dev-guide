@@ -18,11 +18,11 @@ use the `parking_lot` crate as well.
 There are two underlying thread safe data structures used in code generation.
 The crates they are used in are listed below:
 
-- `Lrc` -> `Arc`
+- `Lrc` -> [`Arc`][Arc]
     - `rustc_codegen_llvm::debuginfo::DebugLoc`
     - `rustc_codegen_ssa::back::write`
     - `rustc_codegen_ssa`
-- `MetadataRef` -> `OwningRef<Box<dyn Erased + Send + Sync>, [u8]>`
+- `MetadataRef` -> [`OwningRef<Box<dyn Erased + Send + Sync>, [u8]>`][OwningRef]
     - `rustc_codegen_ssa::traits::backend`
     - `rustc_codegen_ssa::back::metadata`
 
@@ -104,3 +104,5 @@ are a bit out of date):
 [tracking]: https://github.com/rust-lang/rust/issues/48685
 [monomorphization]:https://rustc-dev-guide.rust-lang.org/backend/monomorph.html
 [parallel-rustdoc]:https://github.com/rust-lang/rust/issues/82741
+[Arc]:https://doc.rust-lang.org/std/sync/struct.Arc.html
+[OwningRef]:https://kimundi.github.io/owning-ref-rs/owning_ref/struct.OwningRef.html
