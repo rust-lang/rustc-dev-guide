@@ -10,8 +10,8 @@ These next few sections describe where and how parallelism is currently used,
 and the current status of making parallel compilation the default in `rustc`.
 
 The underlying thread-safe data-structures used in the parallel compiler 
-can be found in the `rustc_data_structures::sync` crate. Some of these data structures
-use the `parking_lot` module as well.
+can be found in the `rustc_data_structures::sync` module. Some of these data structures
+use the `parking_lot` crate as well.
 
 ## Codegen
 
@@ -105,4 +105,4 @@ are a bit out of date):
 [monomorphization]:https://rustc-dev-guide.rust-lang.org/backend/monomorph.html
 [parallel-rustdoc]:https://github.com/rust-lang/rust/issues/82741
 [Arc]:https://doc.rust-lang.org/std/sync/struct.Arc.html
-[OwningRef]:https://doc.rust-lang.org/beta/nightly-rustc/rustc_data_structures/owning_ref/index.html
+[OwningRef]:https://doc.rust-lang.org/nightly/nightly-rustc/rustc_data_structures/owning_ref/index.html
