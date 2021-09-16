@@ -102,4 +102,5 @@ are a bit out of date):
 [monomorphization]:https://rustc-dev-guide.rust-lang.org/backend/monomorph.html
 [parallel-rustdoc]:https://github.com/rust-lang/rust/issues/82741
 [Arc]:https://doc.rust-lang.org/std/sync/struct.Arc.html
+[Rc]:https://doc.rust-lang.org/std/rc/struct.Rc.html
 [OwningRef]:https://doc.rust-lang.org/nightly/nightly-rustc/rustc_data_structures/owning_ref/index.html
