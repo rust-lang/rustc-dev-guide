@@ -49,7 +49,7 @@ of the other generic parameters are reachable by our constant.
 
 As constants can be part of their parents `where`-clauses, we mention unevaluated
 constants in their parents predicates. It is therefore necessary to mention unevaluated
-constants without being able to first compute the generic parameters
+constants before we have computed the generic parameters
 available to these constants.
 
 To do this unevaluated constants start out with [`substs_`] being `None` while assuming
