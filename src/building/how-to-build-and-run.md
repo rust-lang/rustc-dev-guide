@@ -52,6 +52,10 @@ If you have already built `rustc` and you change settings related to LLVM, then 
 execute `rm -rf build` for subsequent configuration changes to take effect. Note that `./x.py
 clean` will not cause a rebuild of LLVM.
 
+If you are building LLVM (i.e. you didn't add `download-ci-llvm = true`
+to the `[llvm]` section of `config.toml`), you'll want to
+[install the `ninja-build` tool](https://github.com/ninja-build/ninja/wiki/Pre-built-Ninja-packages).
+
 ## What is `x.py`?
 
 `x.py` is the script used to orchestrate the tooling in the `rustc` repository.
