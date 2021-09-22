@@ -42,8 +42,9 @@ impacting overall performance.
 Once the partitions have been organized they must be translated into LLVM-IR, where they are
 then passed to independent instances of LLVM running in parallel. It is important to note
 that if `parallel_compiler` is _not_ true, these translations can only occur on a single thread.
-This creates a staircase effect where all of the LLVM threads must wait on a single thread to generate
-work for them. If `parallel_compiler` _is_ true, the LLVM queue is loaded in parallel.
+This creates a staircase effect where all of the LLVM threads must wait on a single 
+thread to generate work for them. If `parallel_compiler` _is_ true, the LLVM queue is 
+loaded in parallel.
 
 At the end, the linker is ran and combines all the compiled codegen units together into one binary.
 
