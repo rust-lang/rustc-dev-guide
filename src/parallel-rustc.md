@@ -25,25 +25,25 @@ There are two underlying thread safe data structures used in code generation:
 - `MetadataRef`
     - A `rustc` version of an [OwningRef][OwningRef]
 
-During [monomorphization][monomorphization] the compiler splits up all the code to 
-be generated into smaller chunks called _codegen units_. More specifically, codegen units are
-individual partitions of monomorphized LLVM-IR. These units are paired according to their size.
-The largest and smallest form a pair, the second largest and smallest form a pair,
-the third largest and smallest form a pair, and so on. Sorting the units in this way is
-a compromise between parallel throughput and memory consumption.
+First, we collect and partition the [monomorphized][monomorphization] version of the program
+that has been compiled. The individual partitions are then sorted from largest to smallest.
+Once the partitions have been sorted, the smallest and largest halves are iterated over separately.
+Their elements are paired and stored in a `Vec` so that the largest and smallest partitions are first and second,
+the second largest and smallest are third and fourth, and so on. These partitions are then translated
+into LLVM-IR.
 
-Initially, the units were sorted from largest to smallest to increase thread utilization.
-This minimized the amount of idle threads; as larger units at the end meant more threads
-would end up finishing their work and waiting for the others to finish. However,
-this meant that all of the largest units would be in memory at the same time; causing
-a large, though momentary increase in memory consumption.
+Organizing the partitions in this way is a compromise between throughput and memory consumption.
+Initially, they were sorted from largest to smallest to increase thread utilization.
+This minimized the amount of idle threads, as larger units at the end meant more threads
+finishing their work early and waiting for the others to finish. However, this meant that all of
+the largest partitions would be in memory at the same time; increasing memory consumption and
+impacting overall performance.
 
-The individual codegen units, alongside the global `TyCtxt` are then passed to
-independent instances of LLVM running in parallel. Although these units are compiled
-in parallel, `rustc` is single threaded by default. This means there is a "staircase"
-effect where the N LLVM threads end up waiting on a single codegen thread to create work for them.
-Fortunately if `parallel_compiler` is true, the work for LLVM threads can be generated in parallel,
-mitigating the staircase effect.
+Once the partitions have been organized they must be translated into LLVM-IR, where they are
+then passed to independent instances of LLVM running in parallel. It is important to note
+that if `parallel_compiler` is _not_ true, these translations can only occur on a single thread.
+This creates a staircase effect where all of the LLVM threads must wait on a single thread to generate
+work for them. If `parallel_compiler` _is_ true, the LLVM queue is loaded in parallel.
 
 At the end, the linker is ran and combines all the compiled codegen units together into one binary.
 
