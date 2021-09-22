@@ -28,8 +28,8 @@ There are two underlying thread safe data structures used in code generation:
 First, we collect and partition the [monomorphized][monomorphization] version of the program
 that has been compiled. The individual partitions are then sorted from largest to smallest.
 Once the partitions have been sorted, the smallest and largest halves are iterated over separately.
-Their elements are paired and stored in a `Vec` so that the largest 
-and smallest partitions are first and second, the second largest and smallest are 
+Their elements are paired and stored in a `Vec` so that the largest
+and smallest partitions are first and second, the second largest and smallest are
 third and fourth, and so on. These partitions are then translated into LLVM-IR.
 
 Organizing the partitions in this way is a compromise between throughput and memory consumption.
