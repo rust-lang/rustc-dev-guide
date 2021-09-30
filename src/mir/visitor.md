@@ -41,7 +41,7 @@ A very simple example of a visitor can be found in [`NoLandingPads`].
 That visitor doesn't even require any state: it just visits all
 terminators and removes their `unwind` successors.
 
-[`NoLandingPads`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/transform/no_landing_pads/struct.NoLandingPads.html
+[`NoLandingPads`]: https://github.com/rust-lang/rust/blob/72710d6dc2d0511cd21378f7cc99ac59ac3a5af5/src/librustc_mir/transform/no_landing_pads.rs
 
 ## Traversal
 
