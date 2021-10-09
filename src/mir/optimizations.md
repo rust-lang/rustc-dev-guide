@@ -81,7 +81,7 @@ The list of passes run and the order in which they are run is defined by the
 [`run_optimization_passes`][rop] function. It contains an array of passes to
 run.  Each pass in the array is a struct that implements the [`MirPass`] trait.
 The array is an array of `&dyn MirPass` trait objects. Typically, a pass is
-implemented in its own submodule of the [`rustc_mir::transform`][trans] module.
+implemented in its own submodule of the [`rustc_mir_transform`][trans] module.
 
 [rop]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_transform/fn.run_optimization_passes.html
 [`MirPass`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_transform/trait.MirPass.html
