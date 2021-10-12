@@ -11,7 +11,7 @@ some item, will compute the type of that item and return it to you.
 [def-id]: appendix/glossary.md#def-id
 [hl]: ./compiler-src.md
 
-Query execution is **memoized** – so the first time you invoke a
+Query execution is **memorized** – so the first time you invoke a
 query, it will go do the computation, but the next time, the result is
 returned from a hashtable. Moreover, query execution fits nicely into
 **incremental computation**; the idea is roughly that, when you do a
