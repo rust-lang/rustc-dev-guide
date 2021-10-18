@@ -104,7 +104,7 @@ Miri, but just use the cached result.
 [`Immediate`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_const_eval/interpret/enum.Immediate.html
 [`ConstValue`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/interpret/enum.ConstValue.html
 [`Scalar`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/interpret/enum.Scalar.html
-[`op_to_const`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_const_eval/eval_queries/fn.op_to_const.html
+[`op_to_const`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_const_eval/const_eval/eval_queries/fn.op_to_const.html
 
 ## Datastructures
 
