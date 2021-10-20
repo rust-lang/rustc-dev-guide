@@ -27,7 +27,7 @@ where we want to access the MIR for type checking or other purposes:
 A `MirPass` is some bit of code that processes the MIR, typically –
 but not always – transforming it along the way somehow. For example,
 it might perform an optimization. The `MirPass` trait itself is found
-in [the `rustc_mir_transform` module][mirtransform], and it
+in [the `rustc_mir_transform` crate][mirtransform], and it
 basically consists of one method, `run_pass`, that simply gets an
 `&mut Mir` (along with the tcx and some information about where it
 came from). The MIR is therefore modified in place (which helps to
