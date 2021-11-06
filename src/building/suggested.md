@@ -47,9 +47,8 @@ in your `.vscode/settings.json` file. This will ask `rust-analyzer` to use
 
 > NOTE: Make sure to replace `TARGET_TRIPLE` in the `rust-analyzer.rustfmt.overrideCommand`
 > setting with the appropriate target triple for your machine. An example of such
-> a triple is `x86_64-unknown-linux-gnu`. An easy way to check the target triple
-> is looking in the `build` folder in the root of your rust clone after building the
-> compiler at least once. It will have a folder with the same name as your target triple.
+> a triple is `x86_64-unknown-linux-gnu`. An easy way to check your target triple
+> is to run `rustc -vV` and checking the `host` value of its output.
 
 If you're running `coc.nvim`, you can use `:CocLocalConfig` to create a
 `.vim/coc-settings.json` and enter the same settings as above, but replacing
