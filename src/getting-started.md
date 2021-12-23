@@ -62,7 +62,7 @@ advice.**][suggested]
 ### System Requirements
 
 [**See this chapter for detailed software requirements.**](./building/prerequisites.md)
-Most notably, you will need Python 2 or 3 to run `x.py`.
+Most notably, you will need Python 2 or 3.
 
 There are no hard hardware requirements, but building the compiler is
 computationally expensive, so a beefier machine will help, and I wouldn't
@@ -117,6 +117,15 @@ git submodule update --init --recursive
 git submodule update
 ```
 
+### `x.py` Intro
+
+`rustc` is a [bootstrapping] compiler, which makes it more complex than a
+typical Rust program. As a result, you cannot use Cargo to build it. Instead
+you must use the special tool `x.py`. It is used for the things Cargo is
+normally used for: building, testing, creating releases, formatting, etc.
+
+[bootstrapping]: ./building/bootstrapping.md
+
 ### Configuring the Compiler
 
 The compiler has a configuration file which contains a ton of settings. We will
@@ -165,28 +174,6 @@ download-ci-llvm = true
 ```
 
 ["Updating LLVM" section]: https://rustc-dev-guide.rust-lang.org/backend/updating-llvm.html?highlight=download-ci-llvm#feature-updates
-
-### `x.py` Intro
-
-`rustc` is a _bootstrapping_ compiler, which means that it is written in Rust
-and thus needs to be compiled by itself. So where do you
-get the original compiler from? We use the current beta compiler
-to build a new compiler. Then, we use that compiler to build itself. Thus,
-`rustc` has a 2-stage build. You can read more about bootstrapping
-[here][boot], but you don't need to know much more to contribute.
-
-[boot]: ./building/bootstrapping.md
-
-We have a special tool `x.py` that drives this process. It is used for
-building the compiler, the standard libraries, and `rustdoc`. It is also used
-for driving CI and building the final release artifacts.
-
-Unfortunately, a proper 2-stage build takes a long time depending on your
-hardware, but it is the only correct way to build everything (e.g. it's what
-the CI and release processes use). **However, in most cases, you can get by
-without a full 2-stage build**. In the following section, we give instructions
-for how to do "the correct thing", but then we also give various tips to speed
-things up.
 
 ### Building and Testing `rustc`
 
