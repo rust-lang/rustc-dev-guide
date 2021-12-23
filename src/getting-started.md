@@ -46,42 +46,22 @@ just create noise, so we ask that you be mindful of the fact that the
 
 ### System Requirements
 
-[**See this chapter for detailed software requirements.**](./building/prerequisites.md)
-Most notably, you will need Python 2 or 3.
+Internet access is required.
 
-There are no hard hardware requirements, but building the compiler is
-computationally expensive, so a beefier machine will help, and I wouldn't
-recommend trying to build on a Raspberry Pi :P
+The most notable software requirement is that you will need Python 2 or 3, but
+there are various others.
 
-- Recommended >=30GB of free disk space; otherwise, you will have to keep
-  clearing incremental caches. More space is better, the compiler is a bit of a
-  hog; it's a problem we are aware of.
-- Recommended >=8GB RAM.
-- Recommended >=2 cores; having more cores really helps.
-- You will need an internet connection to build; the bootstrapping process
-  involves updating git submodules and downloading a beta compiler. It doesn't
-  need to be super fast, but that can help.
+The following hardware is recommended.
+* 30GB+ of free disk space.
+* 8GB+ RAM
+* 2+ cores
 
-Building the compiler takes more than half an hour on my moderately powerful
-laptop. The first time you build the compiler, LLVM will also be built unless
-you use CI-built LLVM ([see below][configsec]).
+More powerful machines will lead to much faster builds. There are various
+strategies to work around lesser hardware in the following chapters.
 
-[configsec]: #configuring-the-compiler
+See [this chapter][prereqs] for more details about software and hardware prerequisites.
 
-Like `cargo`, the build system will use as many cores as possible. Sometimes
-this can cause you to run low on memory. You can use `-j` to adjust the number
-concurrent jobs. If a full build takes more than ~45 minutes to an hour,
-you are probably spending most of the time swapping memory in and out;
-try using `-j1`.
-
-On a slow machine, the build times for rustc are very painful. Consider using
-`./x.py check` instead of a full build and letting the automated tests run
-when you push to GitHub.
-
-If you don't have too much free disk space, you may want to turn off
-incremental compilation ([see below][configsec]). This will make
-compilation take longer (especially after a rebase),
-but will save a ton of space from the incremental caches.
+[prereqs]: ./building/prerequisites.md
 
 ### Cloning
 
