@@ -44,21 +44,6 @@ just create noise, so we ask that you be mindful of the fact that the
 
 ## Cloning and Building
 
-The main repository is [`rust-lang/rust`][repo]. This contains the compiler,
-the standard library (including `core`, `alloc`, `test`, `proc_macro`, etc),
-and a bunch of tools (e.g. `rustdoc`, the bootstrapping infrastructure, etc).
-
-[repo]: https://github.com/rust-lang/rust
-
-There are also a bunch of submodules for things like LLVM, `clippy`, `miri`,
-etc. You don't need to clone these immediately, but the build tool will
-automatically clone and sync them (more on this later).
-
-[**Take a look at the "Suggested Workflows" chapter for some helpful
-advice.**][suggested]
-
-[suggested]: ./building/suggested.md
-
 ### System Requirements
 
 [**See this chapter for detailed software requirements.**](./building/prerequisites.md)
@@ -104,17 +89,7 @@ You can just do a normal git clone:
 
 ```sh
 git clone https://github.com/rust-lang/rust.git
-```
-
-You don't need to clone the submodules at this time. But if you want to, you
-can do the following:
-
-```sh
-# first time
-git submodule update --init --recursive
-
-# subsequent times (to pull new commits)
-git submodule update
+cd rust
 ```
 
 ### `x.py` Intro

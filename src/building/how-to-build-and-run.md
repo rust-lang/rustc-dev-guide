@@ -11,11 +11,29 @@ see [the next page](./prerequisites.md).
 
 ## Get the source code
 
+The main repository is [`rust-lang/rust`][repo]. This contains the compiler,
+the standard library (including `core`, `alloc`, `test`, `proc_macro`, etc),
+and a bunch of tools (e.g. `rustdoc`, the bootstrapping infrastructure, etc).
+
+[repo]: https://github.com/rust-lang/rust
+
 The very first step to work on `rustc` is to clone the repository:
 
 ```bash
 git clone https://github.com/rust-lang/rust.git
 cd rust
+```
+
+There are also submodules for things like LLVM, `clippy`, `miri`, etc. The
+build tool will automatically clone and sync these for you. But if you want to,
+you can do the following:
+
+```sh
+# first time
+git submodule update --init --recursive
+
+# subsequent times (to pull new commits)
+git submodule update
 ```
 
 ## Create a `config.toml`
