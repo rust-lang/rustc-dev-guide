@@ -128,52 +128,18 @@ normally used for: building, testing, creating releases, formatting, etc.
 
 ### Configuring the Compiler
 
-The compiler has a configuration file which contains a ton of settings. We will
-provide some recommendations here that should work for most, but [check out
-this chapter for more info][config].
-
-[config]: ./building/how-to-build-and-run.md#create-a-configtoml
-
 In the top level of the repo:
 
 ```sh
 $ ./x.py setup
 ```
 
-This will walk you through an interactive setup for `x.py` that looks like this:
+This will do some initialization and walk you through an interactive setup to
+create `config.toml`, the primary configuration file.
 
-```
-$ ./x.py setup
-Welcome to the Rust project! What do you want to do with x.py?
-a) Contribute to the standard library
-b) Contribute to the compiler
-c) Contribute to the compiler, and also modify LLVM or codegen
-d) Install Rust from source
-Please choose one (a/b/c/d): a
-`x.py` will now use the configuration at /home/joshua/rustc2/src/bootstrap/defaults/config.toml.library
-To get started, try one of the following commands:
-- `x.py check`
-- `x.py build`
-- `x.py test library/std`
-- `x.py doc`
-For more suggestions, see https://rustc-dev-guide.rust-lang.org/building/suggested.html
-```
+See [this chapter][config] for more info about configuration.
 
-Note that by default, `./x.py setup` will use CI-built LLVM if available for your
-platform so that you don't need to build LLVM in addition to building the
-compiler. In some circumstances, such as when updating the version of LLVM used
-by `rustc`, you may want to temporarily disable this feature. See the ["Updating
-LLVM" section] for more.
-
-If you want to download LLVM from CI without running `./x.py setup`, you can set
-the `download-ci-llvm` option to `true` in your `config.toml`:
-
-```toml
-[llvm]
-download-ci-llvm = true
-```
-
-["Updating LLVM" section]: https://rustc-dev-guide.rust-lang.org/backend/updating-llvm.html?highlight=download-ci-llvm#feature-updates
+[config]: ./building/how-to-build-and-run.md#create-a-configtoml
 
 ### Building and Testing `rustc`
 
