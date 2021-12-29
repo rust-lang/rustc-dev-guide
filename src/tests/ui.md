@@ -9,7 +9,7 @@ UI tests are a particular [test suite](compiletest.md#test-suites) of compiletes
 The tests in [`src/test/ui`] are a collection of general-purpose tests which
 primarily focus on validating the console output of the compiler, but can be
 used for many other purposes.
-For example, tests can also be configure to [run the resulting
+For example, tests can also be configured to [run the resulting
 program](#controlling-passfail-expectations) to verify its behavior.
 
 [`src/test/ui`]: https://github.com/rust-lang/rust/blob/master/src/test/ui
@@ -96,40 +96,41 @@ generated.
 The compiler output is normalized to eliminate output difference between
 platforms, mainly about filenames.
 
-The following strings replace their corresponding values:
+Compiletest makes the following replacements on the compiler output:
 
-- `$DIR`: The directory where the test is defined.
-  - Example: `/path/to/rust/src/test/ui/error-codes`
-- `$SRC_DIR`: The root source directory.
-  - Example: `/path/to/rust/src`
-- `$TEST_BUILD_DIR`: The base directory where the test's output goes.
-  - Example: `/path/to/rust/build/x86_64-unknown-linux-gnu/test/ui`
-
-Additionally, the following changes are made:
-
-- Line and column numbers for paths in `$SRC_DIR` are replaced with `LL:CC`.
-  For example, `/path/to/rust/library/core/src/clone.rs:122:8` is replaced with
-  `$SRC_DIR/core/src/clone.rs:LL:COL`.
-
-  Note: The line and column numbers for `-->` lines pointing to the test are
-  *not* normalized, and left as-is. This ensures that the compiler continues
-  to point to the correct location, and keeps the stderr files readable.
-  Ideally all line/column information would be retained, but small changes to
-  the source causes large diffs, and more frequent merge conflicts and test
-  errors. See also `-Z ui-testing` below which applies additional line number
-  normalization.
-- `\t` is replaced with an actual tab character.
-- Error line annotations like `//~ ERROR some message` are removed.
+- The directory where the test is defined is replaced with `$DIR`.
+  Example: `/path/to/rust/src/test/ui/error-codes`
+- The directory to the standard library source is replaced with `$SRC_DIR`.
+  Example: `/path/to/rust/library`
+- Line and column numbers for paths in `$SRC_DIR` are replaced with `LL:COL`.
+  This helps ensure that changes to the layout of the standard library do not
+  cause widespread changes to the `.stderr` files.
+  Example: `$SRC_DIR/alloc/src/sync.rs:53:46`
+- The base directory where the test's output goes is replaced with `$TEST_BUILD_DIR`.
+  This only comes up in a few rare circumstances.
+  Example: `/path/to/rust/build/x86_64-unknown-linux-gnu/test/ui`
+- Tabs are replaced with `\t`.
 - Backslashes (`\`) are converted to forward slashes (`/`) within paths (using
   a heuristic). This helps normalize differences with Windows-style paths.
 - CRLF newlines are converted to LF.
+- Error line annotations like `//~ ERROR some message` are removed.
+- Various v0 and legacy symbol hashes are replaced with placeholders like
+  `[HASH]` or `<SYMBOL_HASH>`.
 
 Additionally, the compiler is run with the `-Z ui-testing` flag which causes
 the compiler itself to apply some changes to the diagnostic output to make it
-more suitable for UI testing. For example, it will anonymize line numbers in
-the output (line numbers prefixing each source line are replaced with `LL`).
+more suitable for UI testing.
+For example, it will anonymize line numbers in the output (line numbers
+prefixing each source line are replaced with `LL`).
 In extremely rare situations, this mode can be disabled with the header
 command `// compile-flags: -Z ui-testing=no`.
+
+Note: The line and column numbers for `-->` lines pointing to the test are
+*not* normalized, and left as-is. This ensures that the compiler continues
+to point to the correct location, and keeps the stderr files readable.
+Ideally all line/column information would be retained, but small changes to
+the source causes large diffs, and more frequent merge conflicts and test
+errors.
 
 Sometimes these built-in normalizations are not enough. In such cases, you
 may provide custom normalization rules using the header commands, e.g.
@@ -189,8 +190,9 @@ the source.
 Finally, they ensure that no additional unexpected errors are generated.
 
 They have several forms, but generally are a comment with the diagnostic
-level (such as `ERROR`) and a substring of the expected error output
-(you don't have to write out the entire text, just whatever is important).
+level (such as `ERROR`) and a substring of the expected error output.
+You don't have to write out the entire message, just make sure to include the
+important part of the message to make it self-documenting.
 
 The error annotation needs to match with the line of the diagnostic.
 There are several ways to match the message with the line (see the examples below):
@@ -204,13 +206,6 @@ There are several ways to match the message with the line (see the examples belo
   previous comment.
   This is more convenient than using multiple carets when there are multiple
   messages associated with the same line.
-
-Error annotations are considered during tidy lints of line length and should
-be formatted according to tidy requirements.
-You may use an error message prefix sub-string if necessary to meet line
-length requirements.
-Make sure that the text is long enough for the error message to be
-self-documenting.
 
 ### Error annotation examples
 

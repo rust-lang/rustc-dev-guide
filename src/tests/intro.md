@@ -43,7 +43,8 @@ The standard library relies very heavily on documentation tests to cover its fun
 However, unit tests and integration tests can also be used as needed.
 Almost all of the compiler packages have doctests disabled.
 
-The standard library and compiler often place all unit tests in a separate `tests` file.
+The standard library and compiler always place all unit tests in a separate `tests` file
+(this is enforced in [tidy][tidy-unit-tests]).
 This approach ensures that when the test file is changed, the crate does not need to be recompiled.
 For example:
 
@@ -61,6 +62,8 @@ then that would require recompiling the entire standard library, and the entiret
 
 * `--doc` — Only runs documentation tests in the package.
 * `--no-doc` — Run all tests *except* documentation tests.
+
+[tidy-unit-tests]: https://github.com/rust-lang/rust/blob/master/src/tools/tidy/src/unit_tests.rs
 
 ### Tidy
 
