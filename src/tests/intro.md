@@ -141,7 +141,7 @@ This ensures there aren't any significant regressions.
 
 ### Crater
 
-Crater is a tool which runs tests a many thousands of public projects.
+Crater is a tool which runs tests on many thousands of public projects.
 This tool has its own separate infrastructure for running.
 See the [Crater chapter](crater.md) for more details.
 
