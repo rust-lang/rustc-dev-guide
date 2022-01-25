@@ -43,6 +43,21 @@ anything turns up.
 
 The rustc build process builds the LLVM tools into
 `./build/<host-triple>/llvm/bin`. They can be called directly.
+These tools include:
+ * [`llc`], which compiles bitcode (`.bc` files) to executable code; this can be used to
+   replicate LLVM backend bugs.
+ * [`opt`], a bitcode transformer that runs LLVM optimization passes.
+ * [`bugpoint`], which reduces large test cases to small, useful ones.
+ * and many others, some of which are referenced in the text below.
+
+[`llc`]: https://llvm.org/docs/CommandGuide/llc.html
+[`opt`]: https://llvm.org/docs/CommandGuide/opt.html
+[`bugpoint`]: https://llvm.org/docs/Bugpoint.html
+
+By default, the Rust build system does not check for changes to the LLVM source code or
+its build configuration settings. So, if you need to rebuild the LLVM that is linked
+into `rustc`, first delete the file `llvm-finished-building`, which should be located
+in `build/<host-triple>/llvm/`.
 
 The default rustc compilation pipeline has multiple codegen units, which is
 hard to replicate manually and means that LLVM is called multiple times in
@@ -116,7 +131,7 @@ pass was run or skipped.  Setting the limit to an index of -1 (e.g.,
 `RUSTFLAGS="-C llvm-args=-opt-bisect-limit=-1"`) will show all passes and
 their corresponding index values.
 
-If you want to play with the optimization pipeline, you can use the `opt` tool
+If you want to play with the optimization pipeline, you can use the [`opt`] tool
 from `./build/<host-triple>/llvm/bin/` with the LLVM IR emitted by rustc.
 
 ### Getting help and asking questions
