@@ -81,8 +81,9 @@ pass was run or skipped.  Setting the limit to an index of -1 (e.g.,
 their corresponding index values.
 
 If you want to play with the optimization pipeline, you can use the `opt` tool
-from `./build/<host-triple>/llvm/bin/` with the LLVM IR emitted by rustc.  Note
-that rustc emits different IR depending on whether `-O` is enabled, even
+from `./build/<host-triple>/llvm/bin/` with the LLVM IR emitted by rustc.
+
+Note that rustc emits different IR depending on whether `-O` is enabled, even
 without LLVM's optimizations, so if you want to play with the IR rustc emits,
 you should:
 
