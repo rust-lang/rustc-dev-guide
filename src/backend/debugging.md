@@ -11,6 +11,8 @@ project on its own that probably needs to have its own debugging document (not
 that I could find one). But here are some tips that are important in a rustc
 context:
 
+### Minimize the example
+
 As a general rule, compilers generate lots of information from analyzing code.
 Thus, a useful first step is usually to find a minimal example. One way to do
 this is to
@@ -23,6 +25,8 @@ everything relevant to the new crate
 
 3. further minimize the issue by making the code shorter (there are tools that
 help with this like `creduce`)
+
+### Enable LLVM internal checks
 
 The official compilers (including nightlies) have LLVM assertions disabled,
 which means that LLVM assertion failures can show up as compiler crashes (not
@@ -40,6 +44,8 @@ hard to replicate manually and means that LLVM is called multiple times in
 parallel.  If you can get away with it (i.e. if it doesn't make your bug
 disappear), passing `-C codegen-units=1` to rustc will make debugging easier.
 
+### Get your hands on raw LLVM input
+
 For rustc to generate LLVM IR, you need to pass the `--emit=llvm-ir` flag. If
 you are building via cargo, use the `RUSTFLAGS` environment variable (e.g.
 `RUSTFLAGS='--emit=llvm-ir'`). This causes rustc to spit out LLVM IR into the
@@ -55,6 +61,8 @@ other useful options. Also, debug info in LLVM IR can clutter the output a lot:
 different stages during compilation, which is sometimes useful. One just needs
 to convert the bitcode files to `.ll` files using `llvm-dis` which should be in
 the target local compilation of rustc.
+
+### Investigate LLVM optimization passes
 
 If you are seeing incorrect behavior due to an optimization pass, a very handy
 LLVM option is `-opt-bisect-limit`, which takes an integer denoting the index
@@ -79,6 +87,8 @@ $ rustc +local my-file.rs --emit=llvm-ir -O -C no-prepopulate-passes \
 $ OPT=./build/$TRIPLE/llvm/bin/opt
 $ $OPT -S -O2 < my-file.ll > my
 ```
+
+### Get your hands on raw LLVM input, part II
 
 If you just want to get the LLVM IR during the LLVM pipeline, to e.g. see which
 IR causes an optimization-time assertion to fail, or to see when LLVM performs
