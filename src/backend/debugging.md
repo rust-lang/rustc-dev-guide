@@ -26,6 +26,11 @@ everything relevant to the new crate
 3. further minimize the issue by making the code shorter (there are tools that
 help with this like `creduce`)
 
+For more discussion on methodology for steps 2 and 3 above, there is an
+[epic blog post][mcve-blog] from pnkfelix specifically about Rust program minimization.
+
+[mcve-blog]: https://blog.pnkfx.org/blog/2019/11/18/rust-bug-minimization-patterns/
+
 ### Enable LLVM internal checks
 
 The official compilers (including nightlies) have LLVM assertions disabled,
