@@ -83,6 +83,8 @@ their corresponding index values.
 If you want to play with the optimization pipeline, you can use the `opt` tool
 from `./build/<host-triple>/llvm/bin/` with the LLVM IR emitted by rustc.
 
+### Get your hands on raw LLVM input, part II
+
 Note that rustc emits different IR depending on whether `-O` is enabled, even
 without LLVM's optimizations, so if you want to play with the IR rustc emits,
 you should:
@@ -93,8 +95,6 @@ $ rustc +local my-file.rs --emit=llvm-ir -O -C no-prepopulate-passes \
 $ OPT=./build/$TRIPLE/llvm/bin/opt
 $ $OPT -S -O2 < my-file.ll > my
 ```
-
-### Get your hands on raw LLVM input, part II
 
 If you just want to get the LLVM IR during the LLVM pipeline, to e.g. see which
 IR causes an optimization-time assertion to fail, or to see when LLVM performs
