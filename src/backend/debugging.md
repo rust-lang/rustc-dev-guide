@@ -164,7 +164,9 @@ create a minimal working example with Godbolt. Go to
    optimizations transform it.
 
 5. Once you have a godbolt link demonstrating the issue, it is pretty easy to
-   fill in an LLVM bug. Just visit [bugs.llvm.org](https://bugs.llvm.org/).
+   fill in an LLVM bug. Just visit their [github issues page][llvm-issues].
+
+[llvm-issues]: https://github.com/llvm/llvm-project/issues
 
 ### Porting bug fixes from LLVM
 
