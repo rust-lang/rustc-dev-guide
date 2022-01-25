@@ -67,8 +67,6 @@ different stages during compilation, which is sometimes useful. One just needs
 to convert the bitcode files to `.ll` files using `llvm-dis` which should be in
 the target local compilation of rustc.
 
-### Get your hands on raw LLVM input, part II
-
 Note that rustc emits different IR depending on whether `-O` is enabled, even
 without LLVM's optimizations, so if you want to play with the IR rustc emits,
 you should:
