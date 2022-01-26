@@ -173,8 +173,10 @@ The quick summary is:
  * Setting `assertions=true` enables coarse-grain debug messaging.
    * beyond that, setting `optimize=false` enables fine-grain debug messaging.
  * `LLVM_DEBUG(dbgs() << msg)` in LLVM is like `debug!(msg)` in `rustc`.
- * The `-debug` option turns on all messaging; it is like setting the environment variable `RUSTC_LOG=debug` in `rustc`.
- * The `-debug-only=<pass1>,<pass2>` variant of that option is more selective; it is like setting the environment variable `RUSTC_LOG=path1,path2` in `rustc`.
+ * The `-debug` option turns on all messaging; it is like setting the
+   environment variable `RUSTC_LOG=debug` in `rustc`.
+ * The `-debug-only=<pass1>,<pass2>` variant is more selective; it is like
+   setting the environment variable `RUSTC_LOG=path1,path2` in `rustc`.
 
 [llvm-debug]: https://llvm.org/docs/ProgrammersManual.html#the-llvm-debug-macro-and-debug-option
 
