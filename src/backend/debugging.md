@@ -120,7 +120,7 @@ printouts will mix together and you won't be able to read anything.
  * One caveat to the aforementioned methodology: the `-print` family of options
    to LLVM only prints the IR unit that the pass runs on (e.g., just a
    function), and does not include any referenced declarations, globals,
-   metadata, etc. This means you cannot in general feed the ouptut of `-print`
+   metadata, etc. This means you cannot in general feed the output of `-print`
    into `llc` to reproduce a given problem.
 
  * Within LLVM itself, calling `F.getParent()->dump()` at the beginning of
