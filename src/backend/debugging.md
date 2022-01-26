@@ -78,9 +78,20 @@ other useful options. Also, debug info in LLVM IR can clutter the output a lot:
 `RUSTFLAGS="-C debuginfo=0"` is really useful.
 
 `RUSTFLAGS="-C save-temps"` outputs LLVM bitcode (not the same as IR) at
-different stages during compilation, which is sometimes useful. One just needs
-to convert the bitcode files to `.ll` files using `llvm-dis` which should be in
-the target local compilation of rustc.
+different stages during compilation, which is sometimes useful. The output LLVM
+bitcode will be in `.bc` files in the compiler's output directory, set via the
+`--out-dir DIR` argument to `rustc`.
+
+ * If you are hitting an assertion failure or segmentation fault from the LLVM
+   backend when invoking `rustc` itself, it is a good idea to try passing each
+   of these `.bc` files to the `llc` command, and see if you get the same
+   failure. (LLVM developers often prefer a bug reduced to a `.bc` file over one
+   that uses a Rust crate for its minimized reproduction.)
+
+ * To get human readable versions of the LLVM bitcode, one just needs to convert
+   the bitcode (`.bc`) files to `.ll` files using `llvm-dis`, which should be in
+   the target local compilation of rustc.
+
 
 Note that rustc emits different IR depending on whether `-O` is enabled, even
 without LLVM's optimizations, so if you want to play with the IR rustc emits,
