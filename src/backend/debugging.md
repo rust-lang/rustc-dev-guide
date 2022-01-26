@@ -145,6 +145,27 @@ their corresponding index values.
 If you want to play with the optimization pipeline, you can use the [`opt`] tool
 from `./build/<host-triple>/llvm/bin/` with the LLVM IR emitted by rustc.
 
+When investigating the implementation of LLVM itself, you should be
+aware of its [internal debug infrastructure][llvm-debug].
+This is provided in LLVM Debug builds, which you enable for rustc
+LLVM builds by changing this setting in the config.toml:
+```
+[llvm]
+# Indicates whether the LLVM assertions are enabled or not
+assertions = true
+
+# Indicates whether the LLVM build is a Release or Debug build
+optimize = false
+```
+The quick summary is:
+ * Setting `assertions=true` enables coarse-grain debug messaging.
+   * beyond that, setting `optimize=false` enables fine-grain debug messaging.
+ * `LLVM_DEBUG(dbgs() << msg)` in LLVM is like `debug!(msg)` in `rustc`.
+ * The `-debug` option turns on all messaging; it is like setting the environment variable `RUSTC_LOG=debug` in `rustc`.
+ * The `-debug-only=<pass1>,<pass2>` variant of that option is more selective; it is like setting the environment variable `RUSTC_LOG=path1,path2` in `rustc`.
+
+[llvm-debug]: https://llvm.org/docs/ProgrammersManual.html#the-llvm-debug-macro-and-debug-option
+
 ### Getting help and asking questions
 
 If you have some questions, head over to the [rust-lang Zulip] and
