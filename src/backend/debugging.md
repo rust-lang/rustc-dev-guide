@@ -117,6 +117,18 @@ to some file. Also, if you are using neither `-filter-print-funcs` nor `-C
 codegen-units=1`, then, because the multiple codegen units run in parallel, the
 printouts will mix together and you won't be able to read anything.
 
+ * One caveat to the aforementioned methodology: the `-print` family of options
+   to LLVM only prints the IR unit that the pass runs on (e.g., just a
+   function), and does not include any referenced declarations, globals,
+   metadata, etc. This means you cannot in general feed the ouptut of `-print`
+   into `llc` to reproduce a given problem.
+
+ * Within LLVM itself, calling `F.getParent()->dump()` at the beginning of
+   `SafeStackLegacyPass::runOnFunction` will dump the whole module, which
+   may provide better basis for reproduction. (However, you
+   should be able to get that same dump from the `.bc` files dumped by
+   `-C save-temps`.)
+
 If you want just the IR for a specific function (say, you want to see why it
 causes an assertion or doesn't optimize correctly), you can use `llvm-extract`,
 e.g.
