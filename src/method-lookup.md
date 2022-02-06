@@ -100,8 +100,9 @@ might have two candidates:
 Finally, to actually pick the method, we will search down the steps,
 trying to match the receiver type against the candidate types. At
 each step, we also consider an auto-ref and auto-mut-ref to see whether
-that makes any of the candidates match. We pick the first step where
-we find a match.
+that makes any of the candidates match. For each resulting receiver
+type, we consider inherent candidates before extension candidates.
+We pick the first match we find.
 
 In the case of our example, the first step is `Rc<Box<[T; 3]>>`,
 which does not itself match any candidate. But when we autoref it, we
