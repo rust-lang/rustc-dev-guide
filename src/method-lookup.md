@@ -100,7 +100,9 @@ trying to match the receiver type against the candidate types. At
 each step, we also consider an auto-ref and auto-mut-ref to see whether
 that makes any of the candidates match. For each resulting receiver
 type, we consider inherent candidates before extension candidates.
-We pick the first match we find.
+If there are multiple matching candidates in a group, we report an
+error, except that multiple impls of the same trait are treated as a
+single match. Otherwise we pick the first match we find.
 
 In the case of our example, the first step is `Rc<Box<[T; 3]>>`,
 which does not itself match any candidate. But when we autoref it, we
