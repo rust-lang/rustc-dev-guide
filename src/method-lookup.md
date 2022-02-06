@@ -89,7 +89,7 @@ method.
 So, let's continue our example. Imagine that we were calling a method
 `foo` with the receiver `Rc<Box<[T; 3]>>` and there is a trait `Foo`
 that defines it with `&self` for the type `Rc<U>` as well as a method
-on the type `Box` that defines `Foo` but with `&mut self`. Then we
+on the type `Box` that defines `foo` but with `&mut self`. Then we
 might have two candidates:
 
 - `&Rc<Box<[T; 3]>>` from the impl of `Foo` for `Rc<U>` where `U=Box<[T; 3]>`
