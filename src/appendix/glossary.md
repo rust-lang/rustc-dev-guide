@@ -75,7 +75,7 @@ Term                                                  | Meaning
 <span id="substs">substs</span>                &nbsp; |  The substitutions for a given generic type or item (e.g. the `i32`, `u32` in `HashMap<i32, u32>`).
 <span id="sysroot">sysroot</span>              &nbsp; |  The directory for build artifacts that are loaded by the compiler at runtime. ([see more](../building/bootstrapping.html#what-is-a-sysroot))
 <span id="tag">tag</span>                      &nbsp; |  The "tag" of an enum/generator encodes the [discriminant](#discriminant) of the active variant/state.  Tags can either be "direct" (simply storing the discriminant in a field) or use a ["niche"](#niche).
-<span id="tcx">`tcx`</span>                    &nbsp; |  Conventional variable name for the "typing context" (`TyCtxt`), main data structure of the compiler. ([see more](../ty.md))
+<span id="tcx">`tcx`</span>                    &nbsp; |  Standard variable name for the "typing context" (`TyCtxt`), main data structure of the compiler. ([see more](../ty.md))
 <span id="lifetime-tcx">`'tcx`</span>          &nbsp; |  The lifetime of the allocation arenas used by `TyCtxt`. Most data interned during a compilation session will use this lifetime with the exception of HIR data which uses the `'hir` lifetime. ([see more](../ty.md))
 <span id="token">token</span>                  &nbsp; |  The smallest unit of parsing. Tokens are produced after lexing ([see more](../the-parser.md)).
 <span id="tls">[TLS]</span>                    &nbsp; |  Thread-Local Storage. Variables may be defined so that each thread has its own copy (rather than all threads sharing the variable). This has some interactions with LLVM. Not all platforms support TLS.
