@@ -1,5 +1,7 @@
 # Queries: demand-driven compilation
 
+<!-- toc -->
+
 As described in [the high-level overview of the compiler][hl], the Rust compiler
 is still (as of <!-- date: 2021-07 --> July 2021) transitioning from a
 traditional "pass-based" setup to a "demand-driven" system. The compiler query
@@ -158,13 +160,13 @@ they define both a `provide` and a `provide_extern` function, through
 [rustc_metadata]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_metadata/index.html
 [wasm_import_module_map]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_codegen_ssa/back/symbol_export/fn.wasm_import_module_map.html
 
-### Adding a new kind of query
+### Adding a new query
 
-So suppose you want to add a new kind of query, how do you do so?
-Well, defining a query takes place in two steps:
+Suppose you want to add a new query: how do you do so?
+Defining a query takes place in two steps:
 
-1. first, you have to specify the query name and arguments; and then,
-2. you have to supply query providers where needed.
+1. Specify the query name and its arguments.
+2. Supply query providers where needed.
 
 To specify the query name and arguments, you simply add an entry to
 the big macro invocation in
@@ -186,8 +188,9 @@ rustc_queries! {
 ```
 
 Queries are grouped into categories (`Other`, `Codegen`, `TypeChecking`, etc.).
-Each group contains one or more queries. Each query definition is broken up like
-this:
+Each group contains one or more queries.
+
+A query definition has the following form:
 
 ```rust,ignore
 query type_of(key: DefId) -> Ty<'tcx> { ... }
@@ -200,7 +203,7 @@ query type_of(key: DefId) -> Ty<'tcx> { ... }
 query keyword
 ```
 
-Let's go over them one by one:
+Let's go over these elements one by one:
 
 - **Query keyword:** indicates a start of a query definition.
 - **Name of query:** the name of the query method
@@ -213,11 +216,7 @@ Let's go over them one by one:
 - **Result type of query:** the type produced by this query. This type
   should (a) not use `RefCell` or other interior mutability and (b) be
   cheaply cloneable. Interning or using `Rc` or `Arc` is recommended for
-  non-trivial data types.
-  - The one exception to those rules is the `ty::steal::Steal` type,
-    which is used to cheaply modify MIR in place. See the definition
-    of `Steal` for more details. New uses of `Steal` should **not** be
-    added without alerting `@rust-lang/compiler`.
+  non-trivial data types.[^2]
 - **Query modifiers:** various flags and options that customize how the
   query is processed (mostly with respect to [incremental compilation][incrcomp]).
 
@@ -308,3 +307,8 @@ More discussion and issues:
 [^1]: The ["Incremental Compilation in Detail](queries/incremental-compilation-in-detail.md) chapter gives a more
 in-depth description of what queries are and how they work.
 If you intend to write a query of your own, this is a good read.
+
+[^2]: The one exception to those rules is the `ty::steal::Steal` type,
+which is used to cheaply modify MIR in place. See the definition
+of `Steal` for more details. New uses of `Steal` should **not** be
+added without alerting `@rust-lang/compiler`.
