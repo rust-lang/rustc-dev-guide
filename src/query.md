@@ -7,7 +7,7 @@ is still (as of <!-- date: 2021-07 --> July 2021) transitioning from a
 traditional "pass-based" setup to a "demand-driven" system. The compiler query
 system is the key to rustc's demand-driven organization.
 The idea is pretty simple. Instead of entirely independent passes
-(parsing, type-checking, etc.), various smaller *queries*
+(parsing, type-checking, etc.), a set of function-like *queries*
 compute information about the input source. For example,
 there is a query called `type_of(def_id)` that, given the [`DefId`] of
 some item, will compute the type of that item and return it to you.
