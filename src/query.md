@@ -18,7 +18,7 @@ some item, will compute the type of that item and return it to you.
 Query execution is *memoized*. The first time you invoke a
 query, it will go do the computation, but the next time, the result is
 returned from a hashtable. Moreover, query execution fits nicely into
-*incremental computation*; the idea is roughly that, when you do a
+*incremental computation*; the idea is roughly that, when you invoke a
 query, the result *may* be returned to you by loading stored data
 from disk.[^1]
 
@@ -36,12 +36,12 @@ will in turn demand information about that crate, starting from the
 - This keeps going further and further back until we wind up doing the
   actual parsing.
 
-Although this vision is not fully realized, large sections of
-compiler (for example, generating [MIR](mir/)) currently work exactly like this.
+Although this vision is not fully realized, large sections of the
+compiler (for example, generating [MIR](./mir/)) currently work exactly like this.
 
 ### Invoking queries
 
-Invoking a query is simple. The [`TyTcx`] ("type context") struct offers a method
+Invoking a query is simple. The [`TyCtxt`] ("type context") struct offers a method
 for each defined query. For example, to invoke the `type_of`
 query, you would just do this:
 
@@ -162,7 +162,7 @@ they define both a `provide` and a `provide_extern` function, through
 
 ### Adding a new query
 
-Suppose you want to add a new query: how do you do so?
+How do you add a new query?
 Defining a query takes place in two steps:
 
 1. Specify the query name and its arguments.
@@ -232,7 +232,7 @@ So, to add a query:
 #### Query structs and descriptions
 
 For each query, the `rustc_queries` macro will generate a "query struct"
-named after the query. This struct is a kind of a place-holder
+named after the query. This struct is a kind of placeholder
 describing the query. Each query struct implements the
 [`self::config::QueryConfig`][QueryConfig] trait, which has associated types for the
 key/value of that particular query. Basically the code generated looks something
