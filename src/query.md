@@ -2,29 +2,31 @@
 
 As described in [the high-level overview of the compiler][hl], the Rust compiler
 is still (as of <!-- date: 2021-07 --> July 2021) transitioning from a
-traditional "pass-based" setup to a "demand-driven" system. **The Compiler Query
-System is the key to our new demand-driven organization.** The idea is pretty
-simple. You have various queries that compute things about the input – for
-example, there is a query called `type_of(def_id)` that, given the [def-id] of
+traditional "pass-based" setup to a "demand-driven" system. The compiler query
+system is the key to rustc's demand-driven organization.
+The idea is pretty simple. Instead of entirely independent passes
+(parsing, type-checking, etc.), various smaller *queries*
+compute information about the input source. For example,
+there is a query called `type_of(def_id)` that, given the [`DefId`] of
 some item, will compute the type of that item and return it to you.
 
-[def-id]: appendix/glossary.md#def-id
+[`DefId`]: appendix/glossary.md#def-id
 [hl]: ./compiler-src.md
 
-Query execution is **memoized**. The first time you invoke a
+Query execution is *memoized*. The first time you invoke a
 query, it will go do the computation, but the next time, the result is
 returned from a hashtable. Moreover, query execution fits nicely into
-**incremental computation**; the idea is roughly that, when you do a
-query, the result **may** be returned to you by loading stored data
-from disk (but that's a separate topic we won't discuss further here).
+*incremental computation*; the idea is roughly that, when you do a
+query, the result *may* be returned to you by loading stored data
+from disk.[^1]
 
-The overall vision is that, eventually, the entire compiler
-control-flow will be query driven. There will effectively be one
-top-level query ("compile") that will run compilation on a crate; this
+Eventually, we want the entire compiler
+control-flow to be query driven. There will effectively be one
+top-level query (`compile`) that will run compilation on a crate; this
 will in turn demand information about that crate, starting from the
 *end*.  For example:
 
-- This "compile" query might demand to get a list of codegen-units
+- The `compile` query might demand to get a list of codegen-units
   (i.e. modules that need to be compiled by LLVM).
 - But computing the list of codegen-units would invoke some subquery
   that returns the list of all modules defined in the Rust source.
@@ -32,8 +34,8 @@ will in turn demand information about that crate, starting from the
 - This keeps going further and further back until we wind up doing the
   actual parsing.
 
-However, that vision is not fully realized. Still, big chunks of the
-compiler (for example, generating MIR) work exactly like this.
+Although this vision is not fully realized, large sections of
+compiler (for example, generating [MIR](mir/)) currently work exactly like this.
 
 ### Invoking queries
 
@@ -46,14 +48,6 @@ let ty = tcx.type_of(some_def_id);
 ```
 
 [`TyTcx`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.TyCtxt.html
-
-### Incremental Compilation in Detail
-
-The [Incremental Compilation in Detail][query-model] chapter gives a more
-in-depth description of what queries are and how they work.
-If you intend to write a query of your own, this is a good read.
-
-[query-model]: queries/incremental-compilation-in-detail.md
 
 ### How the compiler executes a query
 
@@ -310,3 +304,7 @@ More discussion and issues:
 [GitHub issue #42633]: https://github.com/rust-lang/rust/issues/42633
 [Incremental Compilation Beta]: https://internals.rust-lang.org/t/incremental-compilation-beta/4721
 [Incremental Compilation Announcement]: https://blog.rust-lang.org/2016/09/08/incremental.html
+
+[^1]: The ["Incremental Compilation in Detail](queries/incremental-compilation-in-detail.md) chapter gives a more
+in-depth description of what queries are and how they work.
+If you intend to write a query of your own, this is a good read.
