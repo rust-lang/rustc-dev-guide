@@ -20,7 +20,7 @@ query, it will go do the computation, but the next time, the result is
 returned from a hashtable. Moreover, query execution fits nicely into
 *incremental computation*; the idea is roughly that, when you invoke a
 query, the result *may* be returned to you by loading stored data
-from disk.[^1]
+from disk.[^incr-comp-detail]
 
 Eventually, we want the entire compiler
 control-flow to be query driven. There will effectively be one
@@ -38,6 +38,10 @@ will in turn demand information about that crate, starting from the
 
 Although this vision is not fully realized, large sections of the
 compiler (for example, generating [MIR](./mir/)) currently work exactly like this.
+
+[^incr-comp-detail]: The ["Incremental Compilation in Detail](queries/incremental-compilation-in-detail.md) chapter gives a more
+in-depth description of what queries are and how they work.
+If you intend to write a query of your own, this is a good read.
 
 ### Invoking queries
 
@@ -216,7 +220,7 @@ Let's go over these elements one by one:
 - **Result type of query:** the type produced by this query. This type
   should (a) not use `RefCell` or other interior mutability and (b) be
   cheaply cloneable. Interning or using `Rc` or `Arc` is recommended for
-  non-trivial data types.[^2]
+  non-trivial data types.[^steal]
 - **Query modifiers:** various flags and options that customize how the
   query is processed (mostly with respect to [incremental compilation][incrcomp]).
 
@@ -228,6 +232,11 @@ So, to add a query:
 - Add an entry to `rustc_queries!` using the format above.
 - Link the provider by modifying the appropriate `provide` method;
   or add a new one if needed and ensure that `rustc_driver` is invoking it.
+
+[^steal]: The one exception to those rules is the `ty::steal::Steal` type,
+which is used to cheaply modify MIR in place. See the definition
+of `Steal` for more details. New uses of `Steal` should **not** be
+added without alerting `@rust-lang/compiler`.
 
 #### Query structs and descriptions
 
@@ -304,11 +313,3 @@ More discussion and issues:
 [Incremental Compilation Beta]: https://internals.rust-lang.org/t/incremental-compilation-beta/4721
 [Incremental Compilation Announcement]: https://blog.rust-lang.org/2016/09/08/incremental.html
 
-[^1]: The ["Incremental Compilation in Detail](queries/incremental-compilation-in-detail.md) chapter gives a more
-in-depth description of what queries are and how they work.
-If you intend to write a query of your own, this is a good read.
-
-[^2]: The one exception to those rules is the `ty::steal::Steal` type,
-which is used to cheaply modify MIR in place. See the definition
-of `Steal` for more details. New uses of `Steal` should **not** be
-added without alerting `@rust-lang/compiler`.
