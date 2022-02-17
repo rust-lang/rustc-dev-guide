@@ -8,6 +8,9 @@ source code lives.
 
 [`rust-lang/rust`]: https://github.com/rust-lang/rust
 
+> You may find it helpful to read the ["Overview of the compiler"](./overview.md)
+> chapter, which introduces how the compiler works, before this one.
+
 ## Workspace structure
 
 The `rust-lang/rust` repository consists of a single large cargo workspace
@@ -27,10 +30,7 @@ The repository consists of three main directories:
 
 ## Compiler
 
-> You may find it helpful to read [The Overview Chapter](./overview.md) first,
-> which gives an overview of how the compiler works. The crates mentioned in
-> this section implement the compiler, and are underneath `compiler/`
-
+The compiler is implemented in the various `compiler/` crates.
 The `compiler/` crates all have names starting with `rustc_*`. These are a
 collection of around 50 interdependent crates ranging in size from tiny to
 huge. There is also the `rustc` crate which is the actual binary (i.e. the
