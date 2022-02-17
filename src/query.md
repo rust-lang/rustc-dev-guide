@@ -35,6 +35,18 @@ will in turn demand information about that crate, starting from the
 However, that vision is not fully realized. Still, big chunks of the
 compiler (for example, generating MIR) work exactly like this.
 
+### Invoking queries
+
+Invoking a query is simple. The [`TyTcx`] ("type context") struct offers a method
+for each defined query. For example, to invoke the `type_of`
+query, you would just do this:
+
+```rust,ignore
+let ty = tcx.type_of(some_def_id);
+```
+
+[`TyTcx`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.TyCtxt.html
+
 ### Incremental Compilation in Detail
 
 The [Incremental Compilation in Detail][query-model] chapter gives a more
@@ -42,16 +54,6 @@ in-depth description of what queries are and how they work.
 If you intend to write a query of your own, this is a good read.
 
 [query-model]: queries/incremental-compilation-in-detail.md
-
-### Invoking queries
-
-To invoke a query is simple. The tcx ("type context") offers a method
-for each defined query. So, for example, to invoke the `type_of`
-query, you would just do this:
-
-```rust,ignore
-let ty = tcx.type_of(some_def_id);
-```
 
 ### How the compiler executes a query
 
