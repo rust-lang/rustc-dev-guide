@@ -175,6 +175,15 @@ from `src/tools/`, such as [`tidy`] or [`compiletest`].
 
 [bootstch]: ./building/bootstrapping.md
 
+## Standard library
+
+The standard library crates are all in `library/`. They have intuitive names
+like `std`, `core`, `alloc`, etc.  There is also `proc_macro`, `test`, and
+other runtime libraries.
+
+This code is fairly similar to most other Rust crates except that it must be
+built in a special way because it can use unstable features.
+
 ## Other
 
 There are a lot of other things in the `rust-lang/rust` repo that are related
