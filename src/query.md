@@ -12,7 +12,7 @@ compute information about the input source. For example,
 there is a query called `type_of` that, given the [`DefId`] of
 some item, will compute the type of that item and return it to you.
 
-[`DefId`]: appendix/glossary.md#def-id
+[`DefId`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_span/def_id/struct.DefId.html
 [hl]: ./compiler-src.md
 
 Query execution is *memoized*. The first time you invoke a
