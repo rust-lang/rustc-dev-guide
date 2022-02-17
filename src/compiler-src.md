@@ -79,7 +79,7 @@ explanation of these crates here.
 
 ### Big picture
 
-The dependency structure is influenced 
+The dependency structure is influenced by two main factors:
 
 1. Organization. The compiler is a _huge_ codebase; it would be an impossibly
    large crate. In part, the dependency structure reflects the code structure
