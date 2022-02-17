@@ -22,9 +22,11 @@ The repository consists of three main directories:
 
 - `compiler/` contains the source code for `rustc`. It consists of many crates
   that together make up the compiler.
+  
 - `library/` contains the standard libraries (`core`, `alloc`, `std`,
   `proc_macro`, `test`), as well as the Rust runtime (`backtrace`, `rtstartup`,
   `lang_start`).
+  
 - `src/` contains the source code for rustdoc, clippy, cargo, the build system,
   compiler tests, language docs, etc.
 
