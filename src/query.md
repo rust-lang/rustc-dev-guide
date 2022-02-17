@@ -198,10 +198,10 @@ A query definition has the following form:
 
 ```rust,ignore
 query type_of(key: DefId) -> Ty<'tcx> { ... }
-^^    ^^^^^^^      ^^^^^     ^^^^^^^^   ^^^
+^^^^^ ^^^^^^^      ^^^^^     ^^^^^^^^   ^^^
 |     |            |         |          |
 |     |            |         |          query modifiers
-|     |            |         result type of query
+|     |            |         result type
 |     |            query key type
 |     name of query
 query keyword
