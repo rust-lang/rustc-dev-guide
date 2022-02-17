@@ -9,7 +9,7 @@ system is the key to rustc's demand-driven organization.
 The idea is pretty simple. Instead of entirely independent passes
 (parsing, type-checking, etc.), a set of function-like *queries*
 compute information about the input source. For example,
-there is a query called `type_of(def_id)` that, given the [`DefId`] of
+there is a query called `type_of` that, given the [`DefId`] of
 some item, will compute the type of that item and return it to you.
 
 [`DefId`]: appendix/glossary.md#def-id
