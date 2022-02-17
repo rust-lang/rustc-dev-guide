@@ -231,9 +231,9 @@ So, to add a query:
 
 #### Query structs and descriptions
 
-For each kind, the `rustc_queries` macro will generate a "query struct"
+For each query, the `rustc_queries` macro will generate a "query struct"
 named after the query. This struct is a kind of a place-holder
-describing the query. Each such struct implements the
+describing the query. Each query struct implements the
 [`self::config::QueryConfig`][QueryConfig] trait, which has associated types for the
 key/value of that particular query. Basically the code generated looks something
 like this:
