@@ -96,7 +96,9 @@ by the whole compiler (e.g. [`rustc_span`]). The very early parts of the
 compilation process (e.g. parsing and the AST) depend on only these.
 
 After the AST is constructed, the compiler's [query system][query]
-gets set up.[^query-setup]
+gets set up.The query system is set up in a clever way using function
+pointers. This allows us to break dependencies between crates, allowing more
+parallel compilation.
 The query system is defined in [`rustc_middle`], so nearly all
 subsequent parts of the compiler depend on this crate. It is a really large
 crate, leading to long compile times. Some efforts have been made to move stuff
@@ -124,10 +126,6 @@ compilation to completion.
 [query]: ./query.md
 
 [orgch]: ./overview.md
-
-[^query-setup]: The query system is set up in a clever way using function
-pointers. This allows us to break dependencies between crates, allowing more
-parallel compilation.
 
 ## rustdoc
 
