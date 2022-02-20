@@ -33,6 +33,10 @@ There are seven parts to this guide:
 
 ### Constant change
 
+> “‘All conditioned things are impermanent’ — 
+> when one sees this with wisdom, one turns away from suffering.”
+> _The Dhammapada, verse 277_
+
 Keep in mind that `rustc` is a real production-quality product,
 being worked upon continuously by a sizeable set of contributors.
 As such, it has its fair share of codebase churn and technical debt.
@@ -49,10 +53,6 @@ If you do contribute to the guide,
 please see the corresponding [subsection on writing documentation in this guide].
 
 [subsection on writing documentation in this guide]: contributing.md#contributing-to-rustc-dev-guide
-
-> “‘All conditioned things are impermanent’ — 
-> when one sees this with wisdom, one turns away from suffering.”
-> _The Dhammapada, verse 277_
 
 ## Other places to find information
 
