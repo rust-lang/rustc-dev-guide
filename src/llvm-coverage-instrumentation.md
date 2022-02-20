@@ -295,7 +295,7 @@ intrinsic calls to increment the runtime counters.
 Expected results for both the `mir-opt` tests and the `coverage*` tests under
 `run-make-fulldeps` can be refreshed by running:
 
-```shell
+```sh
 $ ./x.py test mir-opt --bless
 $ ./x.py test src/test/run-make-fulldeps/coverage --bless
 ```
@@ -423,7 +423,7 @@ produce a Graphviz document with "dark mode" styling. If you use a dark mode or
 theme in your development environment, you will probably want to use this
 option so you can review the graphviz output without straining your vision.
 
-```shell
+```sh
 $ rustc -Z instrument-coverage -Z dump-mir=InstrumentCoverage \
     -Z dump-mir-graphviz some_rust_source.rs
 ```
@@ -496,7 +496,7 @@ that can be used to assign coverage `Counter`s or `Expression`s, one-for-one.
 An visual, interactive representation of the final `CoverageSpan`s can be
 generated with the following `rustc` flags:
 
-```shell
+```sh
 $ rustc -Z instrument-coverage -Z dump-mir=InstrumentCoverage \
     -Z dump-mir-spanview some_rust_source.rs
 ```

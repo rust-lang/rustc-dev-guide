@@ -99,7 +99,7 @@ build and pass tests. This often helps reviewing.
 Some parts of the bootstrap process uses pinned, nightly versions of tools like
 rustfmt. To make things like `cargo fmt` work correctly in your repo, run
 
-```console
+```sh
 cd <path to rustc repo>
 rustup override set nightly
 ```

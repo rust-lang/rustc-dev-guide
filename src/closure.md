@@ -34,7 +34,7 @@ fn main() {
 Let's say the above is the content of a file called `immut.rs`. If we compile
 `immut.rs` using the following command. The [`-Z dump-mir=all`][dump-mir] flag will cause
 `rustc` to generate and dump the [MIR][mir] to a directory called `mir_dump`.
-```console
+```sh
 > rustc +stage1 immut.rs -Z dump-mir=all
 ```
 
@@ -145,7 +145,7 @@ Before we go any further, let's discuss how we can examine the flow of control t
 codebase. For closures specifically, set the `RUST_LOG` env variable as below and collect the
 output in a file:
 
-```console
+```sh
 > RUST_LOG=rustc_typeck::check::upvar rustc +stage1 -Z dump-mir=all \
     <.rs file to compile> 2> <file where the output will be dumped>
 ```

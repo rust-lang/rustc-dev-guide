@@ -108,7 +108,7 @@ personal	https://github.com/jyn514/rust (push)
 
 If you renamed your fork, you can change the URL like this:
 
-```console
+```sh
 git remote set-url personal <URL>
 ```
 
@@ -120,7 +120,7 @@ This is left over from the move to the `library/` directory.
 Unfortunately, `git rebase` does not follow renames for submodules, so you
 have to delete the directory yourself:
 
-```console
+```sh
 rm -r src/stdarch
 ```
 
@@ -130,7 +130,7 @@ You were probably in the middle of a rebase or merge conflict. See
 [Conflicts](#conflicts) for how to fix the conflict. If you don't care about the changes
 and just want to get a clean copy of the repository back, you can use `git reset`:
 
-```console
+```sh
 # WARNING: this throws out any local changes you've made! Consider resolving the conflicts instead.
 git reset --hard master
 ```
