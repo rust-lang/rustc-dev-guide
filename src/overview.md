@@ -46,7 +46,7 @@ copy of each distinct string value.
 
 The lexer has a small interface and doesn't depend directly on the
 diagnostic infrastructure in `rustc`. Instead it provides diagnostics as plain
-data which are emitted in `rustc_parse::lexer::mod` as real diagnostics.
+data which are emitted in `rustc_parse::lexer` as real diagnostics.
 The lexer preserves full fidelity information for both IDEs and proc macros.
 
 The *parser* [translates the token stream from the lexer into an Abstract Syntax
