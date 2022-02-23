@@ -15,7 +15,7 @@ some item, will compute the type of that item and return it to you.
 [`DefId`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_span/def_id/struct.DefId.html
 [hl]: ./compiler-src.md
 
-Query execution is *memoized*. The first time you invoke a
+Query execution is *memorized*. The first time you invoke a
 query, it will go do the computation, but the next time, the result is
 returned from a hashtable. Moreover, query execution fits nicely into
 *incremental computation*; the idea is roughly that, when you invoke a
