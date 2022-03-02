@@ -16,10 +16,10 @@ There are some important considerations about the usage of `ErrorGuaranteed`:
 
 * It does _not_ convey information about the _kind_ of error. For example, the
   error may be due (indirectly) to an ICE. Thus, you should not rely on
-  `ErrorGuaranteed` in deciding whether to emit an error or what kind of error
+  `ErrorGuaranteed` when deciding whether to emit an error, or what kind of error
   to emit.
 
-* `ErrorGuaranteed` should not be used to indicated that a compilation _will
+* `ErrorGuaranteed` should not be used to indicate that a compilation _will
   emit_ an error in the future. It should be used to indicate that an error
   _has already been_ emitted -- that is, the [`emit()`][emit] function has
   already been called.  For example, if we detect that a future part of the
