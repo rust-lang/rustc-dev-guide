@@ -106,9 +106,9 @@ the value of [the `src/version` file in `master`][src-version] when the PR is me
 
 It's worth checking [the version schedule on the Forge][forge-versions] to see whether
 changes are coming soon.  You'll usually use the version labelled "Nightly".
-That's two versions higher than the current stable release,
-as what's currently in beta will be the next stable release,
-and any change you're making now will be in the one after that.
+"Nightly" is two versions higher than the current stable release,
+since what's currently in beta will be the next stable release,
+and any changes you're making now will be in the one after that.
 
 No PR is merged instantly, so you'll want to be careful around release time.
 The version bump happens [the Friday before][forge-release-process] the stable release,
