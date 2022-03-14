@@ -2,72 +2,90 @@
 
 <!-- toc -->
 
+[Bootstrapping][boot] is the process of using a compiler to compiler a later version
+of itself.
 
-[*Bootstrapping*][boot] is the process of using a compiler to compile itself.
-More accurately, it means using an older compiler to compile a newer version
-of the same compiler.
+This raises a [chicken-or-the-egg
+paradox](https://en.wikipedia.org/wiki/Chicken_or_the_egg): what rust compiler
+was used to compile the very first rust compiler? The answer is that the first
+compiler was not written in rust. It was [written in OCaml][ocaml-compiler]. Of
+course, it has long been discarded and since then the only compiler that is
+able to compile some version of `rustc` is a slightly earlier version of
+`rustc`.
 
-This raises a chicken-and-egg paradox: where did the first compiler come from?
-It must have been written in a different language. In Rust's case it was
-[written in OCaml][ocaml-compiler]. However it was abandoned long ago and the
-only way to build a modern version of rustc is a slightly less modern
-version.
+For this purpose a python script `x.py` is provided at the root of the
+repository. `x.py` downloads a pre-compiled compiler—the stage 0 compiler—and
+with it compiles from the current source code a compiler—the stage 1 compiler.
+Additionaly, it may use the stage 1 compiler to compile from the current source
+code another compiler—the stage 2 compiler. Below describes this process in
+some detail, including the reason for a stage 2 compiler and more.
 
-This is exactly how `x.py` works: it downloads the current beta release of
-rustc, then uses it to compile the new compiler.
+## The stages of bootstrapping
 
-## Stages of bootstrapping
+Each stage involves:
+- An existing compiler and its set of dependencies.
+- Targets ([objects][objects]): `std` and `rustc`.
 
-Compiling `rustc` is done in stages.
+Note: the compiler of a stage—e.g. "the stage 1 compiler"—refers to the
+compiler that is compiled at that stage, not the one that already exists.
 
-### Stage 0
+In the first stage (stage 0) the compiler is usually obtained by downloading a
+pre-compiled one. In following stages the compiler is usually the one that was
+compiled in the previous stage.
 
-The stage0 compiler is usually the current _beta_ `rustc` compiler
-and its associated dynamic libraries,
-which `x.py` will download for you.
-(You can also configure `x.py` to use something else.)
+[objects]: https://en.wikipedia.org/wiki/Object_code
 
-The stage0 compiler is then used only to compile `rustbuild`, `std`, and `rustc`.
-When compiling `rustc`, the stage0 compiler uses the freshly compiled `std`.
-There are two concepts at play here:
-a compiler (with its set of dependencies)
-and its 'target' or 'object' libraries (`std` and `rustc`).
-Both are staged, but in a staggered manner.
+### The stages: how each compiler is obtained
 
-### Stage 1
+#### Stage 0: the pre-compiled compiler
 
-The rustc source code is then compiled with the stage0 compiler to produce the stage1 compiler.
+A pre-compiled compiler and its set of dependencies are downloaded. By default,
+it is the current beta release. This is the stage 0 compiler.
 
-### Stage 2
+#### Stage 1: from current code, by an earlier compiler
 
-We then rebuild our stage1 compiler with itself to produce the stage2 compiler.
+The stage 0 compiler compiles from current code `rustbuild` and `std` and uses
+them to compile from current code a compiler. This is the stage 1 compiler.
 
-In theory, the stage1 compiler is functionally identical to the stage2 compiler,
-but in practice there are subtle differences.
-In particular, the stage1 compiler itself was built by stage0
-and hence not by the source in your working directory.
-This means that the symbol names used in the compiler source
-may not match the symbol names that would have been made by the stage1 compiler,
-which can cause problems for dynamic libraries and tests.
+The stage 1 compiler is the first that is from current code. Yet, it is not
+entirely up-to-date, because the compiler that compiled it is of earlier code.
+More on this below.
 
-The `stage2` compiler is the one distributed with `rustup` and all other install methods.
-However, it takes a very long time to build
-because one must first build the new compiler with an older compiler
-and then use that to build the new compiler with itself.
-For development, you usually only want the `stage1` compiler,
-which you can build with `./x.py build library/std`.
+#### Stage 2: the truly current compiler
+
+By default, the stage 1 libraries are copied into stage 2, because they are
+expected to be identical.
+
+The stage 1 compiler is used to compile from current code a compiler. This is
+the stage 2 compiler.
+
+The stage 2 compiler is the first that is both from current code and compiled
+by a compiler that is of current code. The compilers and libraries obtained by
+`rustup` and other installation methods are all stage 2.
+
+For most purposes a stage 1 compiler would suffice: `x.py build library/std`.
 See [Building the Compiler](./how-to-build-and-run.html#building-the-compiler).
+Between the stage 2 and the stage 1 compiler are subtle differences:
 
-### Stage 3
+The symbol names used in the compiler source may not match the symbol names
+that would have been made by the stage1 compiler. This is important when using
+dynamic linking and due to the lack of ABI compatibility between versions. This
+primarily manifests when tests try to link with any of the `rustc_*` crates or
+use the (now deprecated) plugin infrastructure. These tests are marked with
+`ignore-stage1`.
 
-Stage 3 is optional. To sanity check our new compiler, we
-can build the libraries with the stage2 compiler. The result ought
-to be identical to before, unless something has broken.
+Also, the stage 2 compiler benefits from the compile-time optimizations
+generated by a compiler that is of the current code.
+
+#### Stage 3: the same-result test
+
+To verify that the stage 2 libraries that were copied from stage 1 are indeed
+identical to those which would otherwise have been compiled in stage 2, the
+stage 2 compiler is used to compile them and a comparison is made.
 
 ### Building the stages
 
-`x.py` tries to be helpful and pick the stage you most likely meant for each subcommand.
-These defaults are as follows:
+`x.py` provides a reasonable default stage for each subcommand:
 
 - `check`: `--stage 0`
 - `doc`: `--stage 0`
@@ -77,7 +95,7 @@ These defaults are as follows:
 - `install`: `--stage 2`
 - `bench`: `--stage 2`
 
-You can always override the stage by passing `--stage N` explicitly.
+Of course, these can be overridden by passing `--stage <number>`.
 
 For more information about stages, [see below](#understanding-stages-of-bootstrap).
 
