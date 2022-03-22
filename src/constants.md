@@ -37,7 +37,8 @@ For the compiler, `ANON_CONST_1` and `ANON_CONST_2` are completely different, so
 we have to somehow look into unevaluated constants to check whether they should
 unify.
 
-For this we use [InferCtxt::try_unify_abstract_consts](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_infer/infer/struct.InferCtxt.html#method.try_unify_abstract_consts). This builds a custom AST for the two inputs from their THIR. Thish is then used for
+For this we use [InferCtxt::try_unify_abstract_consts](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_infer/infer/struct.InferCtxt.html#method.try_unify_abstract_consts).
+This builds a custom AST for the two inputs from their THIR. This is then used for
 the actual comparison.
 
 ### Lazy normalization for constants
