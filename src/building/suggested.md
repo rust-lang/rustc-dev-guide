@@ -38,8 +38,9 @@ you can write: <!-- date: 2022-04 --><!-- the date comment is for the edition be
     ],
     "rust-analyzer.procMacro.enable": true,
     "rust-analyzer.cargo.buildScripts.enable": true,
+    "rust-analyzer.cargo.buildScripts.useRustcWrapper": true,
     "rust-analyzer.cargo.buildScripts.overrideCommand": [
-        "cargo",
+        "./build/$TARGET_TRIPLE/stage0/bin/cargo",
         "check",
         "-p",
         "rustc_driver",
@@ -56,10 +57,10 @@ you can write: <!-- date: 2022-04 --><!-- the date comment is for the edition be
 in your `.vscode/settings.json` file. This will ask `rust-analyzer` to use
 `./x.py check` to check the sources, and the stage 0 rustfmt to format them.
 
-> NOTE: Make sure to replace `TARGET_TRIPLE` in the `rust-analyzer.rustfmt.overrideCommand`
-> setting with the appropriate target triple for your machine. An example of such
-> a triple is `x86_64-unknown-linux-gnu`. An easy way to check your target triple
-> is to run `rustc -vV` and checking the `host` value of its output.
+> NOTE: Make sure to replace `TARGET_TRIPLE` with the appropriate target triple
+> for your machine. An example of such a triple is `x86_64-unknown-linux-gnu`.
+> An easy way to check your target triple is to run `rustc -vV` and checking the
+> `host` value of its output.
 
 If you have enough free disk space and you would like to be able to run `x.py` commands while
 rust-analyzer runs in the background, you can also add `--build-dir build-rust-analyzer` to the
@@ -69,6 +70,17 @@ If you're running `coc.nvim`, you can use `:CocLocalConfig` to create a
 `.vim/coc-settings.json` and enter the same settings as above, but replacing
 `editor.formatOnSave: true,` with
 `"coc.preferences.formatOnSaveFiletypes": ["rust"],`.
+
+> NOTE: The configuration once suggested disabling build scripts, but after
+> the version `2022-04-14` this was fixed by introducing an option for customizing
+> the command rust-analyzer uses to run build scripts. Please ensure that `rust-analyzer`
+> is up to date before enabling these options. If you do not wish to enable
+> `rust-analyzer.cargo.useRustcWrapperForBuildScripts`, the
+> `rust-analyzer.cargo.buildScripts.overrideCommand` option should be set as same as
+> `rust-analyzer.checkOnSave.overrideCommand` instead of the suggested value.
+>
+> If you are not developing for the compiler, you do not need to configure the build scripts
+> like in the configuration and you can disable proc macros and build scripts.
 
 If running `./x.py check` on save is inconvenient, in VS Code you can use a [Build
 Task] instead:
