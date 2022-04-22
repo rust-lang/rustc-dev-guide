@@ -15,7 +15,8 @@ error code path leads to a failure.
 There are some important considerations about the usage of `ErrorGuaranteed`:
 
 * It does _not_ convey information about the _kind_ of error. For example, the
-  error may be due (indirectly) to an ICE. Thus, you should not rely on
+  error may be due (indirectly) to a `delay_span_bug` or other compiler error.
+  Thus, you should not rely on
   `ErrorGuaranteed` when deciding whether to emit an error, or what kind of error
   to emit.
 
