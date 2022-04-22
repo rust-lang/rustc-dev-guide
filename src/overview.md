@@ -60,8 +60,8 @@ And the macro parser entry point is [`Parser::parse_nonterminal()`][parse_nonter
 Parsing is performed with a set of `Parser` utility methods including `bump`,
 `check`, `eat`, `expect`, `look_ahead`.
 
-Parsing is organized by the semantic construct that is being parsed. Separate
-`parse_*` methods can be found in [`rustc_parse` `parser`][rustc_parse_parser_dir]
+Parsing is organized by semantic construct. Separate
+`parse_*` methods can be found in the [`rustc_parse`][rustc_parse_parser_dir]
 directory. The source file name follows the construct name. For example, the
 following files are found in the parser:
 
