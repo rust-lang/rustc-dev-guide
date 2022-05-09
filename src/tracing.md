@@ -60,6 +60,25 @@ still get a short message per ignored `do_mir_borrowck`, but none of the things 
 calls. This helps you in looking through the calls that are happening and helps you adjust
 your regex if you mistyped it.
 
+## Query level filters
+
+Every [query](query.md) is automatically tagged with a logging span so that
+you can display all log messages during the execution of the query. For
+example, if you want to log everything during type checking:
+
+```
+RUSTC_LOG=[typeck]
+```
+
+The query key is included as a tracing field which means that you can filter
+on the debug display of the key. For example, the `typeck` query has a `DefId`
+of what is being checked. You can use a regex to match on that `DefId` to log
+type checking for a specific function:
+
+```
+RUSTC_LOG=[typeck{key=.*name_of_item.*}]
+```
+
 ## Broad module level filters
 
 You can also use filters similar to the `log` crate's filters, which will enable
