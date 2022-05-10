@@ -70,14 +70,19 @@ example, if you want to log everything during type checking:
 RUSTC_LOG=[typeck]
 ```
 
-The query key is included as a tracing field which means that you can filter
-on the debug display of the key. For example, the `typeck` query has a `DefId`
-of what is being checked. You can use a regex to match on that `DefId` to log
-type checking for a specific function:
+The query arguments are included as a tracing field which means that you can
+filter on the debug display of the arguments. For example, the `typeck` query
+has an argument `key: LocalDefId` of what is being checked. You can use a
+regex to match on that `LocalDefId` to log type checking for a specific
+function:
 
 ```
 RUSTC_LOG=[typeck{key=.*name_of_item.*}]
 ```
+
+Different queries have different arguments. You can find a list of queries and
+their arguments in
+[`rustc_middle/src/query/mod.rs`](https://github.com/rust-lang/rust/blob/master/compiler/rustc_middle/src/query/mod.rs#L18).
 
 ## Broad module level filters
 
