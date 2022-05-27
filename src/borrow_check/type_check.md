@@ -12,7 +12,7 @@ TODO -- elaborate further? Maybe? :)
 ## User types
 
 At the start of MIR type-check, we replace all regions in the body with new unconstrained regions.
-This would cause us to accept the following program however:
+However, this would cause us to accept the following program:
 ```rust
 fn foo<'a>(x: &'a u32) {
     let y: &'static u32 = x;
@@ -22,15 +22,15 @@ By erasing the lifetimes in the type of `y` we no longer know that it is suppose
 ignoring the intentions of the user.
 
 To deal with this we remember all places where the user explicitly mentioned a type during
-hir typeck as [`CanonicalUserTypeAnnotations`][annot].
+HIR type-check as [`CanonicalUserTypeAnnotations`][annot].
 
 There are two different annotations we care about:
 - explicit type ascriptions, e.g. `let y: &'static u32` results in `UserType::Ty(&'static u32)`.
 - explicit generic arguments, e.g. `x.foo<&'a u32, Vec<String>>`
 results in `UserType::TypeOf(foo_def_id, [&'a u32, Vec<String>])`.
 
-As we do not want the region inference from the hir typeck to influence MIR typeck,
-we store the user type right after lowering it from the hir.
+As we do not want the region inference from the HIR type-check to influence MIR typeck,
+we store the user type right after lowering it from the HIR.
 This means that it may still contain inference variables,
 which is why we are using **canonical** user type annotations.
 We replace all inference variables with existential bound variables instead.
@@ -51,11 +51,11 @@ Here `T_x` only has to be a subtype of the user type, so we instead use
 
 Note that we do not directly use the user type as the MIR typechecker
 doesn't really deal with type and const inference variables. We instead store the final
-[`inferred_type`][inf] by the HIR typechecker. During MIR typeck, we then replace its regions
+[`inferred_type`][inf] from the HIR type-checker. During MIR typeck, we then replace its regions
 with new nll inference vars and relate it with the actual `UserType` to get the correct region
 constraints again.
 
-After borrowch, all user type annotations get discarded, as they aren't needed anymore.
+After the MIR type-check, all user type annotations get discarded, as they aren't needed anymore.
 
 
 
