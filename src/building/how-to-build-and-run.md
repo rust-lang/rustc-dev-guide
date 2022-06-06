@@ -220,7 +220,8 @@ that toolchain/stage.
 **Note:** the toolchain we've built does not include `cargo`.  In this case, `rustup` will
 fall back to using `cargo` from the installed `nightly`, `beta`, or `stable` toolchain
 (in that order).  If you need to use unstable `cargo` flags, be sure to run
-`rustup install nightly` if you haven't already.
+`rustup install nightly` if you haven't already.  See the
+[rustup documentation on custom toolchains](https://rust-lang.github.io/rustup/concepts/toolchains.html#custom-toolchains).
 
 ## Other `x.py` commands
 
