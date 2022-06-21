@@ -280,7 +280,7 @@ There are two main ways to find where a given error is emitted:
   will treat the first error being emitted as an Internal Compiler Error, which
   allows you to get a
   stack trace at the point the error has been emitted. Change the `1` to
-  something else if you whish to trigger on a later error. One limitation
+  something else if you wish to trigger on a later error. One limitation
   with this approach is that some calls get elided from the stack trace because
   they get inlined in the compiled `rustc`.
   Another limitation is the same problem we faced with
