@@ -3,9 +3,10 @@ use std::{
     convert::TryInto as _,
     env, fmt, fs,
     path::{Path, PathBuf},
+    str::FromStr,
 };
 
-use chrono::{Datelike as _, TimeZone as _, Utc};
+use chrono::{Datelike as _, Month, TimeZone as _, Utc};
 use glob::glob;
 use regex::Regex;
 
@@ -36,16 +37,7 @@ impl fmt::Display for Date {
 }
 
 fn make_date_regex() -> Regex {
-    Regex::new(
-        r"(?x) # insignificant whitespace mode
-        <!--\s*
-        [dD]ate:\s*
-        (?P<y>\d{4}) # year
-        -
-        (?P<m>\d{2}) # month
-        \s*-->",
-    )
-    .unwrap()
+    Regex::new(r"[aA]s of (\w+) (\d{4})").unwrap()
 }
 
 fn collect_dates_from_file(date_regex: &Regex, text: &str) -> Vec<(usize, Date)> {
@@ -57,8 +49,8 @@ fn collect_dates_from_file(date_regex: &Regex, text: &str) -> Vec<(usize, Date)>
             (
                 cap.get(0).unwrap().range(),
                 Date {
-                    year: cap["y"].parse().unwrap(),
-                    month: cap["m"].parse().unwrap(),
+                    year: cap[2].parse().unwrap(),
+                    month: Month::from_str(&cap[1]).unwrap().number_from_month(),
                 },
             )
         })
@@ -183,20 +175,18 @@ mod tests {
     #[test]
     fn test_date_regex() {
         let regex = make_date_regex();
-        assert!(regex.is_match("foo <!-- date: 2021-01 --> bar"));
-    }
-
-    #[test]
-    fn test_date_regex_capitalized() {
-        let regex = make_date_regex();
-        assert!(regex.is_match("foo <!-- Date: 2021-08 --> bar"));
+        assert!(regex.is_match("As of July 2022"));
+        assert!(regex.is_match("As of Jul 2022"));
+        assert!(regex.is_match("As of july 2022"));
+        assert!(regex.is_match("As of jul 2022"));
+        assert!(regex.is_match("as of jul 2022"));
     }
 
     #[test]
     fn test_collect_dates_from_file() {
-        let text = "Test1\n<!-- date: 2021-01 -->\nTest2\nFoo<!-- date: 2021-02 \
-                    -->\nTest3\nTest4\nFoo<!-- date: 2021-03 -->Bar\n<!-- date: 2021-04 \
-                    -->\nTest5\nTest6\nTest7\n<!-- date: \n\n2021-05 -->\nTest8
+        let text = "Test1\nAs of Jan 2021\nTest2\nAs of Feb 2021 \
+                    \nTest3\nTest4\nAs of march 2021Bar\nas of apr 2021 \
+                    \nTest5\nTest6\nTest7\n\n\nas of may 2021\nTest8
         ";
         assert_eq!(
             collect_dates_from_file(&make_date_regex(), text),
