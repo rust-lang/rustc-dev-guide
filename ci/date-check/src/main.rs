@@ -44,7 +44,7 @@ fn collect_dates_from_file(date_regex: &Regex, text: &str) -> Vec<(usize, Date)>
     let mut line = 1;
     let mut end_of_last_cap = 0;
     date_regex
-        .captures_iter(&text)
+        .captures_iter(text)
         .map(|cap| {
             (
                 cap.get(0).unwrap().range(),
