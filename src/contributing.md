@@ -439,8 +439,8 @@ Just a few things to keep in mind:
   - The date the comment was added, e.g. instead of writing _"Currently, ..."_
     or _"As of now, ..."_, consider writing
     _"As of January 2021, ..."_.
-    We have CI action (in `"~/.github/workflows/date-check.yml"`)
-    that generates an issue if any of these are over 6 months old.
+    We have a CI action (in `~/.github/workflows/date-check.yml`)
+    that generates a monthly issue with any of these that are over 6 months old.
 
   - A link to a relevant WG, tracking issue, `rustc` rustdoc page, or similar, that may provide
     further explanation for the change process or a way to verify that the information is not
