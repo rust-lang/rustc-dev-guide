@@ -37,7 +37,7 @@ impl fmt::Display for Date {
 }
 
 fn make_date_regex() -> Regex {
-    Regex::new(r"[aA]s of (\w+) (\d{4})").unwrap()
+    Regex::new(r"[aA]s\s+of\s+(\w+)\s+(\d{4})").unwrap()
 }
 
 fn collect_dates_from_file(date_regex: &Regex, text: &str) -> Vec<(usize, Date)> {
