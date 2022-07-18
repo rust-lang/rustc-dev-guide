@@ -442,6 +442,12 @@ Just a few things to keep in mind:
     We have a CI action (in `~/.github/workflows/date-check.yml`)
     that generates a monthly issue with any of these that are over 6 months old.
 
+    The following formats are accepted:
+    - Jan 2021
+    - January 2021
+    - jan 2021
+    - january 2021
+
   - A link to a relevant WG, tracking issue, `rustc` rustdoc page, or similar, that may provide
     further explanation for the change process or a way to verify that the information is not
     outdated.
