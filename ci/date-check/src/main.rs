@@ -186,7 +186,7 @@ mod tests {
     fn test_collect_dates_from_file() {
         let text = "Test1\nAs of Jan 2021\nTest2\nAs of Feb 2021 \
                     \nTest3\nTest4\nAs of march 2021Bar\nas of apr 2021 \
-                    \nTest5\nTest6\nTest7\n\n\nas of may 2021\nTest8
+                    \nTest5\nTest6\nTest7\n\n\nas of\n\n may 2021\nTest8
         ";
         assert_eq!(
             collect_dates_from_file(&make_date_regex(), text),
@@ -220,7 +220,7 @@ mod tests {
                     }
                 ),
                 (
-                    14,
+                    16,
                     Date {
                         year: 2021,
                         month: 5,
