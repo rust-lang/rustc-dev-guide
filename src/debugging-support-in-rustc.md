@@ -116,7 +116,7 @@ LLDB has Rust-like value and type output.
 ### WinDbg/CDB
 
 Microsoft provides [Windows Debugging Tools] such as the Windows Debugger (WinDbg) and
-the Console Debgugger (CDB) which both support debugging programs written in Rust. These
+the Console Debugger (CDB) which both support debugging programs written in Rust. These
 debuggers parse the debug info for a binary from the `PDB`, if available, to construct a
 visualization to serve up in the debugger.
 
