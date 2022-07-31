@@ -36,52 +36,51 @@ impl fmt::Display for Date {
     }
 }
 
-fn make_date_regex() -> Vec<Regex> {
-    Vec::from([
-        Regex::new(r"<!--\s+date-check:\s+(\D+)\s+(\d{4})\s+-->").unwrap(),
-        Regex::new(r"<!--\s+date-check\s+-->\s+(\D+)\s+(\d{4})\b").unwrap(),
-    ])
+fn make_date_regex() -> Regex {
+    Regex::new(
+        r"(?x)
+        (?:<!--\s+date-check:\s+(\D+)\s+(\d{4})\s+-->)|
+        (?:<!--\s+date-check\s+-->\s+(\D+)\s+(\d{4})\b)
+    ",
+    )
+    .unwrap()
 }
 
-fn collect_dates_from_file(date_regexes: &[Regex], text: &str) -> Vec<(usize, Date)> {
-    let mut output = Vec::new();
-    for date_regex in date_regexes {
-        let mut line = 1;
-        let mut end_of_last_cap = 0;
-        let results: Vec<_> = date_regex
-            .captures_iter(text)
-            .filter_map(|cap| {
-                if let (Some(year), Some(month)) = (cap.get(2), cap.get(1)) {
-                    let year = year.as_str().parse().expect("year");
-                    let month = Month::from_str(month.as_str())
-                        .expect("month")
-                        .number_from_month();
-                    Some((cap.get(0).expect("all").range(), Date { year, month }))
-                } else {
-                    None
-                }
-            })
-            .map(|(byte_range, date)| {
-                line += text[end_of_last_cap..byte_range.end]
-                    .chars()
-                    .filter(|c| *c == '\n')
-                    .count();
-                end_of_last_cap = byte_range.end;
-                (line, date)
-            })
-            .collect();
-        output.extend(results);
-    }
-    output.sort_by_key(|a| a.0);
-    output
+fn collect_dates_from_file(date_regex: &Regex, text: &str) -> Vec<(usize, Date)> {
+    let mut line = 1;
+    let mut end_of_last_cap = 0;
+    date_regex
+        .captures_iter(text)
+        .filter_map(|cap| {
+            if let (Some(month), Some(year), None, None) | (None, None, Some(month), Some(year)) =
+                (cap.get(1), cap.get(2), cap.get(3), cap.get(4))
+            {
+                let year = year.as_str().parse().expect("year");
+                let month = Month::from_str(month.as_str())
+                    .expect("month")
+                    .number_from_month();
+                Some((cap.get(0).expect("all").range(), Date { year, month }))
+            } else {
+                None
+            }
+        })
+        .map(|(byte_range, date)| {
+            line += text[end_of_last_cap..byte_range.end]
+                .chars()
+                .filter(|c| *c == '\n')
+                .count();
+            end_of_last_cap = byte_range.end;
+            (line, date)
+        })
+        .collect()
 }
 
 fn collect_dates(paths: impl Iterator<Item = PathBuf>) -> BTreeMap<PathBuf, Vec<(usize, Date)>> {
-    let date_regexes = make_date_regex();
+    let date_regex = make_date_regex();
     let mut data = BTreeMap::new();
     for path in paths {
         let text = fs::read_to_string(&path).unwrap();
-        let dates = collect_dates_from_file(&date_regexes, &text);
+        let dates = collect_dates_from_file(&date_regex, &text);
         if !dates.is_empty() {
             data.insert(path, dates);
         }
@@ -185,29 +184,29 @@ mod tests {
 
     #[test]
     fn test_date_regex() {
-        let regexes = &make_date_regex();
-        assert!(regexes[0].is_match("<!-- date-check: jan 2021 -->"));
-        assert!(regexes[0].is_match("<!-- date-check: january 2021 -->"));
-        assert!(regexes[0].is_match("<!-- date-check: Jan 2021 -->"));
-        assert!(regexes[0].is_match("<!-- date-check: January 2021 -->"));
-        assert!(regexes[1].is_match("<!-- date-check --> jan 2021"));
-        assert!(regexes[1].is_match("<!-- date-check --> january 2021"));
-        assert!(regexes[1].is_match("<!-- date-check --> Jan 2021"));
-        assert!(regexes[1].is_match("<!-- date-check --> January 2021"));
+        let regex = &make_date_regex();
+        assert!(regex.is_match("<!-- date-check: jan 2021 -->"));
+        assert!(regex.is_match("<!-- date-check: january 2021 -->"));
+        assert!(regex.is_match("<!-- date-check: Jan 2021 -->"));
+        assert!(regex.is_match("<!-- date-check: January 2021 -->"));
+        assert!(regex.is_match("<!-- date-check --> jan 2021"));
+        assert!(regex.is_match("<!-- date-check --> january 2021"));
+        assert!(regex.is_match("<!-- date-check --> Jan 2021"));
+        assert!(regex.is_match("<!-- date-check --> January 2021"));
 
-        assert!(regexes[1].is_match("<!-- date-check --> jan 2021 "));
-        assert!(regexes[1].is_match("<!-- date-check --> jan 2021."));
+        assert!(regex.is_match("<!-- date-check --> jan 2021 "));
+        assert!(regex.is_match("<!-- date-check --> jan 2021."));
     }
 
     #[test]
     fn test_date_regex_fail() {
         let regexes = &make_date_regex();
-        assert!(!regexes[0].is_match("<!-- date-check: jan 221 -->"));
-        assert!(!regexes[0].is_match("<!-- date-check: jan 20221 -->"));
-        assert!(!regexes[0].is_match("<!-- date-check: 01 2021 -->"));
-        assert!(!regexes[1].is_match("<!-- date-check --> jan 221"));
-        assert!(!regexes[1].is_match("<!-- date-check --> jan 20222"));
-        assert!(!regexes[1].is_match("<!-- date-check --> 01 2021"));
+        assert!(!regexes.is_match("<!-- date-check: jan 221 -->"));
+        assert!(!regexes.is_match("<!-- date-check: jan 20221 -->"));
+        assert!(!regexes.is_match("<!-- date-check: 01 2021 -->"));
+        assert!(!regexes.is_match("<!-- date-check --> jan 221"));
+        assert!(!regexes.is_match("<!-- date-check --> jan 20222"));
+        assert!(!regexes.is_match("<!-- date-check --> 01 2021"));
     }
 
     #[test]
