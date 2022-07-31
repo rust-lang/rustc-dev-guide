@@ -39,7 +39,8 @@ impl fmt::Display for Date {
 fn make_date_regex() -> Regex {
     Regex::new(
         r"(?x)
-        (?:<!--\s+date-check:\s+(\D+)\s+(\d{4})\s+-->)|
+        (?:<!--\s+date-check:\s+(\D+)\s+(\d{4})\s+-->)
+        |
         (?:<!--\s+date-check\s+-->\s+(\D+)\s+(\d{4})\b)
     ",
     )
