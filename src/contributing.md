@@ -444,7 +444,7 @@ Just a few things to keep in mind:
     - jan 2021
     - january 2021
 
-    There is a CI action (in "~/.github/workflows/date-check.yml")
+    There is a CI action (in `~/.github/workflows/date-check.yml`)
     that generates a monthly issue with any of these that are over 6 months old.
 
     For the action to pick the date,
