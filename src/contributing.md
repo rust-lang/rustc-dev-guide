@@ -447,9 +447,10 @@ Just a few things to keep in mind:
     There is a CI action (in "~/.github/workflows/date-check.yml")
     that generates a monthly issue with any of these that are over 6 months old.
 
-    For the action to pick the date, add this annotation:
+    For the action to pick the date,
+    add a special annotation before specifying the date:
 
-        <!-- date-check -->
+        <!-- date-check --> Jul 2022
 
     Example:
 

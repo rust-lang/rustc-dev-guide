@@ -38,8 +38,8 @@ impl fmt::Display for Date {
 
 fn make_date_regex() -> Vec<Regex> {
     let patterns = [
-        r"<!--\s+date-check:\s+(\w+)\s+(\d+{4})\s+-->",
-        r"<!--\s+date-check\s+-->\s+(\w+)\s+(\d+{4})",
+        r"<!--\s+date-check:\s+(\D+)\s+(\d{4})\s+-->",
+        r"<!--\s+date-check\s+-->\s+(\D+)\s+(\d{4})\b",
     ];
     let set = RegexSet::new(&patterns).unwrap();
     set.patterns()
@@ -198,6 +198,20 @@ mod tests {
         assert!(regexes[1].is_match("<!-- date-check --> january 2021"));
         assert!(regexes[1].is_match("<!-- date-check --> Jan 2021"));
         assert!(regexes[1].is_match("<!-- date-check --> January 2021"));
+
+        assert!(regexes[1].is_match("<!-- date-check --> jan 2021 "));
+        assert!(regexes[1].is_match("<!-- date-check --> jan 2021."));
+    }
+
+    #[test]
+    fn test_date_regex_fail() {
+        let regexes = &make_date_regex();
+        assert!(!regexes[0].is_match("<!-- date-check: jan 221 -->"));
+        assert!(!regexes[0].is_match("<!-- date-check: jan 20221 -->"));
+        assert!(!regexes[0].is_match("<!-- date-check: 01 2021 -->"));
+        assert!(!regexes[1].is_match("<!-- date-check --> jan 221"));
+        assert!(!regexes[1].is_match("<!-- date-check --> jan 20222"));
+        assert!(!regexes[1].is_match("<!-- date-check --> 01 2021"));
     }
 
     #[test]
