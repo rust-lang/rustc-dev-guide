@@ -72,6 +72,7 @@ fn collect_dates_from_file(date_regexes: &[Regex], text: &str) -> Vec<(usize, Da
             .collect();
         output.extend(results);
     }
+    output.sort_by(|a, b| a.0.cmp(&b.0));
     output
 }
 
