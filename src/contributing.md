@@ -450,16 +450,22 @@ Just a few things to keep in mind:
     For the action to pick the date,
     add a special annotation before specifying the date:
 
-        <!-- date-check --> Jul 2022
+    ```md
+    <!-- date-check --> Jul 2022
+    ```
 
     Example:
 
-        As of <!-- date-check --> Jul 2022, the foo did the bar.
+    ```md
+    As of <!-- date-check --> Jul 2022, the foo did the bar.
+    ```
 
     For cases where the date should not be part of the visible rendered output,
     use the following instead:
 
-        <!-- date-check: Jul 2022 -->
+    ```md
+    <!-- date-check: Jul 2022 -->
+    ```
 
   - A link to a relevant WG, tracking issue, `rustc` rustdoc page, or similar, that may provide
     further explanation for the change process or a way to verify that the information is not
