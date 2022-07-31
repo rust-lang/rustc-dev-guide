@@ -8,7 +8,7 @@ use std::{
 
 use chrono::{Datelike as _, Month, TimeZone as _, Utc};
 use glob::glob;
-use regex::{Regex, RegexSet};
+use regex::Regex;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 struct Date {
@@ -37,15 +37,10 @@ impl fmt::Display for Date {
 }
 
 fn make_date_regex() -> Vec<Regex> {
-    let patterns = [
-        r"<!--\s+date-check:\s+(\D+)\s+(\d{4})\s+-->",
-        r"<!--\s+date-check\s+-->\s+(\D+)\s+(\d{4})\b",
-    ];
-    let set = RegexSet::new(&patterns).unwrap();
-    set.patterns()
-        .iter()
-        .map(|pattern| Regex::new(pattern).unwrap())
-        .collect()
+    Vec::from([
+        Regex::new(r"<!--\s+date-check:\s+(\D+)\s+(\d{4})\s+-->").unwrap(),
+        Regex::new(r"<!--\s+date-check\s+-->\s+(\D+)\s+(\d{4})\b").unwrap(),
+    ])
 }
 
 fn collect_dates_from_file(date_regexes: &[Regex], text: &str) -> Vec<(usize, Date)> {
