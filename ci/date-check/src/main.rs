@@ -254,7 +254,10 @@ Test7
 <!-- date-check
 
  --> may 2021
-Test8 \
+Test8
+ <!--
+   date-check
+ --> june 2021.
         ";
         assert_eq!(
             collect_dates_from_file(&make_date_regex(), text),
@@ -327,6 +330,13 @@ Test8 \
                     Date {
                         year: 2021,
                         month: 5,
+                    }
+                ),
+                (
+                    38,
+                    Date {
+                        year: 2021,
+                        month: 6,
                     }
                 ),
             ],
