@@ -61,9 +61,12 @@ fn collect_dates_from_file(date_regex: &Regex, text: &str) -> Vec<(usize, Date)>
     date_regex
         .captures_iter(text)
         .filter_map(|cap| {
-            if let (Some(month), Some(year), None, None) | (None, None, Some(month), Some(year)) =
-                (cap.get(1), cap.get(2), cap.get(3), cap.get(4))
-            {
+            if let (Some(month), Some(year), None, None) | (None, None, Some(month), Some(year)) = (
+                cap.name("m1"),
+                cap.name("y1"),
+                cap.name("m2"),
+                cap.name("y2"),
+            ) {
                 let year = year.as_str().parse().expect("year");
                 let month = Month::from_str(month.as_str())
                     .expect("month")
@@ -229,7 +232,7 @@ Foo<!-- date-check: february 2021
 Test3
 Test4
 Foo<!-- date-check: Mar 2021 -->Bar
-<!-- date-check: April 2021
+<!-- date-check:April 2021
 -->
 Test5
 Test6
