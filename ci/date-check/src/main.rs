@@ -38,10 +38,18 @@ impl fmt::Display for Date {
 
 fn make_date_regex() -> Regex {
     Regex::new(
-        r"(?x)
-        (?:<!--\s+date-check:\s+(\D+)\s+(\d{4})\s+-->)
+        r"(?x) # insignificant whitespace mode
+        (<!--\s*
+          date-check:\s*
+          (?P<m1>\D+)\s+
+          (?P<y1>\d{4})\s*-->
+        )
         |
-        (?:<!--\s+date-check\s+-->\s+(\D+)\s+(\d{4})\b)
+        (<!--\s*
+          date-check\s*-->\s+
+          (?P<m2>\D+)\s+
+          (?P<y2>\d{4})\b
+        )
     ",
     )
     .unwrap()
