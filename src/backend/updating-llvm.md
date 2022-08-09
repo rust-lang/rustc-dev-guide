@@ -167,7 +167,7 @@ section above is generally around branch naming. The sequence of events
 typically looks like:
 
 1. LLVM announces that its latest release version has branched. This will show
-   up as a branch in [llvm/llvm-project repository] typically named
+   up as a branch in the [llvm/llvm-project repository] typically named
    `release/$N.x` where `$N` is the version of LLVM that's being released.
 
 2. We then follow the "feature updates" section above to create a new branch of
