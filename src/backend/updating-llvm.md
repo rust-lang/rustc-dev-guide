@@ -52,11 +52,6 @@ the branch we're already using. The steps for this are:
    src/llvm-project` typically.
 10. Wait for PR to be merged
 
-In summary,
-we can cherry-pick bugfixes at any time and pull them back
-into the rust-lang/llvm-project branch that we're using,
-and getting them into the compiler is just updating the submodule via a PR.
-
 An example PR:
 [#59089](https://github.com/rust-lang/rust/pull/59089)
 
