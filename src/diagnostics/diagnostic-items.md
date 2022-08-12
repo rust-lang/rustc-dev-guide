@@ -52,9 +52,11 @@ A new diagnostic item can be added with these two steps:
    simply open the module file,
    and add the name (In this case `Cat`) at the correct point in the list.
 
-Now you can create a pull request with your changes. :tada: (Note that when
-using diagnostic items in other projects like Clippy, it might take some time
-until the repos get synchronized.)
+Now you can create a pull request with your changes. :tada:
+
+> NOTE:
+> When using diagnostic items in other projects like Clippy,
+> it might take some time until the repos get synchronized.
 
 ## Naming conventions
 Diagnostic items don't have a set in stone naming convention yet. These are
