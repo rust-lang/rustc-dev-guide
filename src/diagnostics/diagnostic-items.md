@@ -45,8 +45,9 @@ A new diagnostic item can be added with these two steps:
     For the naming conventions of diagnostic items, please refer to
     [*Naming Conventions*](#naming-conventions).
 
-2. As of <!-- date-check --> February 2022, diagnostic items in code are
-   accessed via symbols in [`rustc_span::symbol::sym`].
+2. <!-- date-check: Aug 2022 -->
+   Diagnostic items in code are accessed via symbols in
+   [`rustc_span::symbol::sym`].
    To add your newly-created diagnostic item,
    simply open the module file,
    and add the name (In this case `Cat`) at the correct point in the list.
