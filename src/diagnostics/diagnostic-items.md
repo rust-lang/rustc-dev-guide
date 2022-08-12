@@ -7,7 +7,7 @@ rustc has introduced diagnostic items that are used to identify types via
 [`Symbol`]s.
 
 ## Finding diagnostic items
-Diagnostic items are added to items inside `rustc`/`std`/`core` with the
+Diagnostic items are added to items inside `rustc`/`std`/`core`/`alloc` with the
 `rustc_diagnostic_item` attribute. The item for a specific type can be found by
 opening the source code in the documentation and looking for this attribute.
 Note that it's often added with the `cfg_attr` attribute to avoid compilation
