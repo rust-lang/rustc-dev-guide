@@ -46,9 +46,10 @@ A new diagnostic item can be added with these two steps:
     [*Naming Conventions*](#naming-conventions).
 
 2. As of <!-- date-check --> February 2022, diagnostic items in code are
-   accessed via symbols in [`rustc_span::symbol::sym`]. To add your newly
-   created diagnostic item simply open the module file and add the name (In
-   this case `Cat`) at the correct point in the list.
+   accessed via symbols in [`rustc_span::symbol::sym`].
+   To add your newly-created diagnostic item,
+   simply open the module file,
+   and add the name (In this case `Cat`) at the correct point in the list.
 
 Now you can create a pull request with your changes. :tada: (Note that when
 using diagnostic items in other projects like Clippy, it might take some time
