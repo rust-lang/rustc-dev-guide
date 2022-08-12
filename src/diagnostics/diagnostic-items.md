@@ -63,9 +63,9 @@ Now you can create a pull request with your changes. :tada:
 
 ## Naming conventions
 
-Diagnostic items don't have a set in stone naming convention yet. These are
-some guidelines that should be used for the future, but might differ from
-existing names:
+Diagnostic items don't have a naming convention yet.
+Following are some guidelines that should be used in future,
+but might differ from existing names:
 
 * Types, traits and enums are named using UpperCamelCase (Examples: `Iterator`,
 * `HashMap`, ...)
