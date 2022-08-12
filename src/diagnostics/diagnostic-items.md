@@ -92,8 +92,8 @@ using [`TyCtxt::get_diagnostic_item()`] or checked if they match a [`DefId`]
 using [`TyCtxt::is_diagnostic_item()`]. When mapping from a diagnostic item to
 a [`DefId`], the method will return a `Option<DefId>`. This can be `None` if
 either the symbol isn't a diagnostic item or the type is not registered, for
-instance when compiling with `#[no_std]`. All following examples are based on
-[`DefId`]s and their usage.
+instance when compiling with `#[no_std]`.
+All the following examples are based on [`DefId`]s and their usage.
 
 ### Example: Checking for a type
 
