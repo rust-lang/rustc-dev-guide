@@ -19,10 +19,12 @@ errors during tests. A definition often looks like this:
 struct Penguin;
 ```
 
-Diagnostic items are usually only added to traits, types and standalone
-functions. If the goal is to check for an associated type or method, please use
-the diagnostic item of the item and reference [*How To Use Diagnostic
-Items*](#how-to-use-diagnostic-items).
+Diagnostic items are usually only added to traits,
+types,
+and standalone functions.
+If the goal is to check for an associated type or method,
+please use the diagnostic item of the item and reference
+[*Using Diagnostic Items*](#using-diagnostic-items).
 
 ## Adding diagnostic items
 A new diagnostic item can be added with these two steps:
