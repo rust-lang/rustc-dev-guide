@@ -144,7 +144,7 @@ lints*][clippy-Common-tools-for-writing-lints].)
 
 ## Related issues
 
-This lists some related issues. These are probably only interesting to people
+These are probably only interesting to people
 who really want to take a deep dive into the topic :)
 
 * [rust#60966]: The Rust PR that introduced diagnostic items
