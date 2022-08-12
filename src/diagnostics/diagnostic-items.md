@@ -67,19 +67,22 @@ Diagnostic items don't have a naming convention yet.
 Following are some guidelines that should be used in future,
 but might differ from existing names:
 
-* Types, traits and enums are named using UpperCamelCase (Examples: `Iterator`,
-* `HashMap`, ...)
-* For type names that are used multiple times like `Writer` it's good to choose
-  a more precise name, maybe by adding the module to it. (Example: `IoWriter`)
-* Associated items should not get their own diagnostic items, but instead be
-  accessed indirectly by the diagnostic item of the type they're originating
-  from.
+* Types, traits, and enums are named using UpperCamelCase
+  (Examples: `Iterator` and `HashMap`)
+* For type names that are used multiple times,
+  like `Writer`,
+  it's good to choose a more precise name,
+  maybe by adding the module to it
+  (Example: `IoWriter`)
+* Associated items should not get their own diagnostic items,
+  but instead be accessed indirectly by the diagnostic item
+  of the type they're originating from.
 * Freestanding functions like `std::mem::swap()` should be named using
-  `snake_case` with one important (export) module as a prefix (Example:
-  `mem_swap`, `cmp_max`)
+  `snake_case` with one important (export) module as a prefix
+  (Examples: `mem_swap` and `cmp_max`)
 * Modules should usually not have a diagnostic item attached to them.
-  Diagnostic items were added to avoid the usage of paths, using them on
-  modules would therefore most likely to be counterproductive.
+  Diagnostic items were added to avoid the usage of paths,
+  and using them on modules would therefore most likely be counterproductive.
 
 ## Using diagnostic items
 
