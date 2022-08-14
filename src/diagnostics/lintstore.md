@@ -79,14 +79,16 @@ function which is called when constructing a new lint store inside
 
 ### Builtin Lints
 
-These are primarily described in two places: `rustc_session::lint::builtin` and
-`rustc_lint::builtin`. Often the first provides the definitions for the lints
-themselves, and the latter provides the lint pass definitions (and
-implementations), but this is not always true.
+These are primarily described in two places,
+`rustc_session::lint::builtin` and `rustc_lint::builtin`.
+Often the first provides the definitions for the lints themselves,
+and the latter provides the lint pass definitions (and implementations),
+but this is not always true.
 
-The builtin lint registration happens in the [`rustc_lint::register_builtins`]
-function. Just like with internal lints, this happens inside of
-[`rustc_lint::new_lint_store`].
+The builtin lint registration happens in
+the [`rustc_lint::register_builtins`] function.
+Just like with internal lints,
+this happens inside of [`rustc_lint::new_lint_store`].
 
 #### Plugin lints
 
