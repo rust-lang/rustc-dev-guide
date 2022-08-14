@@ -1,4 +1,5 @@
 # Lints
+
 This page documents some of the machinery around lint registration and how we
 run lints in the compiler.
 
@@ -8,6 +9,7 @@ everything rotates. It's not available during the early parts of compilation
 lints, which can only happen after plugin registration.
 
 ## Lints vs. lint passes
+
 There are two parts to the linting mechanism within the compiler: lints and
 lint passes. Unfortunately, a lot of the documentation we have refers to both
 of these as just "lints."
@@ -34,6 +36,7 @@ lints are emitted as part of other work (e.g., type checking, etc.).
 ## Registration
 
 ### High-level overview
+
 In [`rustc_interface::register_plugins`] the [`LintStore`] is created and all
 lints are registered.
 
@@ -61,6 +64,7 @@ then invoke the lint pass methods. The lint pass methods take `&mut self` so
 they can keep track of state internally.
 
 #### Internal lints
+
 These are lints used just by the compiler or plugins like `clippy`. They can be
 found in `rustc_lint::internal`.
 
@@ -73,6 +77,7 @@ function which is called when constructing a new lint store inside
 [`rustc_lint::new_lint_store`].
 
 ### Builtin Lints
+
 These are primarily described in two places: `rustc_session::lint::builtin` and
 `rustc_lint::builtin`. Often the first provides the definitions for the lints
 themselves, and the latter provides the lint pass definitions (and
@@ -83,6 +88,7 @@ function. Just like with internal lints, this happens inside of
 [`rustc_lint::new_lint_store`].
 
 #### Plugin lints
+
 This is one of the primary use cases remaining for plugins/drivers. Plugins are
 given access to the mutable `LintStore` during registration (which happens
 inside of [`rustc_interface::register_plugins`]) and they can call any
@@ -94,6 +100,7 @@ diagnostics and help text; otherwise plugin lints are mostly just as first
 class as rustc builtin lints.
 
 #### Driver lints
+
 These are the lints provided by drivers via the `rustc_interface::Config`
 [`register_lints`] field, which is a callback. Drivers should, if finding it
 already set, call the function currently set within the callback they add. The
@@ -102,6 +109,7 @@ best way for drivers to get access to this is by overriding the
 structure.
 
 ## Compiler lint passes are combined into one pass
+
 Within the compiler, for performance reasons, we usually do not register dozens
 of lint passes. Instead, we have a single lint pass of each variety (e.g.,
 `BuiltinCombinedModuleLateLintPass`) which will internally call all of the
