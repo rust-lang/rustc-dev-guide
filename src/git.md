@@ -158,7 +158,7 @@ These changes are not changes to files: they are changes to submodules (more on
 this [later](#git-submodules)). To get rid of those, run `git submodule update`
 (or run any `x.py` command, which will automatically update the submodules).
 Note that,
-as of <!-- date-check --> February 2022,
+as of <!-- date-check --> Aug 2022,
 there is a [bug][#77620] if you use worktrees,
 submodules, and `x.py` in a commit hook.
 If you run into an error like the following,
