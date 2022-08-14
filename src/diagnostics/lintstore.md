@@ -80,7 +80,7 @@ function which is called when constructing a new lint store inside
 ### Builtin Lints
 
 These are primarily described in two places,
-`rustc_session::lint::builtin` and `rustc_lint::builtin`.
+`rustc_lint_defs::builtin` and `rustc_lint::builtin`.
 Often the first provides the definitions for the lints themselves,
 and the latter provides the lint pass definitions (and implementations),
 but this is not always true.
