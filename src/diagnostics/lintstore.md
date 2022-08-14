@@ -37,8 +37,9 @@ lints are emitted as part of other work (e.g., type checking, etc.).
 
 ### High-level overview
 
-In [`rustc_interface::register_plugins`] the [`LintStore`] is created and all
-lints are registered.
+In [`rustc_interface::register_plugins`],
+the [`LintStore`] is created,
+and all lints are registered.
 
 There are four 'sources' of lints:
 
