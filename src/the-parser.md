@@ -35,9 +35,10 @@ The main entrypoint to the parser is via the various `parse_*` functions and oth
 the token stream, and then execute the parser to get a `Crate` (the root AST
 node).
 
-To minimise the amount of copying that is done, both the `StringReader` and
-`Parser` have lifetimes which bind them to the parent `ParseSess`. This contains
-all the information needed while parsing, as well as the `SourceMap` itself.
+To minimise the amount of copying that is done,
+both [`StringReader`] and [`Parser`] have lifetimes which bind them to the parent `ParseSess`.
+This contains all the information needed while parsing,
+as well as the [`SourceMap`] itself.
 
 Note that while parsing, we may encounter macro definitions or invocations. We
 set these aside to be expanded (see [this chapter](./macro-expansion.md)).
