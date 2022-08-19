@@ -17,7 +17,7 @@ of these as just "lints."
 First, we have the lint declarations themselves: this is where the name and
 default lint level and other metadata come from. These are normally defined by
 way of the [`declare_lint!`] macro, which boils down to a static with type
-`&rustc_lint::Lint`.
+[`&rustc_lint_defs::Lint`].
 
 As of <!-- date-check --> February 2022, we lint against direct declarations
 without the use of the macro today (although this may change in the future, as
@@ -132,3 +132,4 @@ approach, it is beneficial to do so for performance reasons.
 [`declare_lint!`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/macro.declare_lint.html
 [`declare_tool_lint!`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/macro.declare_tool_lint.html
 [`register_lints`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/struct.Config.html#structfield.register_lints
+[`&rustc_lint_defs::Lint`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint_defs/struct.Lint.html
