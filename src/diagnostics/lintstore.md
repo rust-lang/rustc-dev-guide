@@ -19,10 +19,16 @@ default lint level and other metadata come from. These are normally defined by
 way of the [`declare_lint!`] macro, which boils down to a static with type
 [`&rustc_lint_defs::Lint`].
 
+First, we have the lint declarations themselves,
+and this is where the name and default lint level and other metadata come from.
+These are normally defined by way of the [`declare_lint!`] macro,
+which boils down to a static with type [`&rustc_lint_defs::Lint`]
+(although this may change in the future,
+as the macro is somewhat unwieldy to add new fields to,
+like all macros).
+
 As of <!-- date-check --> Aug 2022,
 we lint against direct declarations without the use of the macro.
-(although this may change in the future,
-as the macro is somewhat unwieldy to add new fields to, like all macros).
 
 Lint declarations don't carry any "state" - they are merely global identifiers
 and descriptions of lints. We assert at runtime that they are not registered
