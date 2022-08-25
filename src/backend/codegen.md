@@ -9,7 +9,7 @@ It's worth noting, though, that in the Rust source code,
 many parts of the backend have `codegen` in their names
 (there are no hard boundaries).
 
-[Cranelift]: https://github.com/bytecodealliance/wasmtime/tree/HEAD/cranelift
+[Cranelift]: https://github.com/bytecodealliance/wasmtime/tree/main/cranelift
 [GCC]: https://github.com/rust-lang/rustc_codegen_gcc
 
 > NOTE: If you are looking for hints on how to debug code generation bugs,
