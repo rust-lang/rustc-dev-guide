@@ -13,7 +13,7 @@ will finally take the MIR and produce some executable machine code.
 
 > NOTE: This part of a compiler is often called the _backend_. The term is a bit
 > overloaded because in the compiler source, it usually refers to the "codegen
-> backend" (i.e. LLVM or Cranelift). Usually, when you see the word "backend"
+> backend" (i.e. LLVM, Cranelift, or GCC). Usually, when you see the word "backend"
 > in this part, we are referring to the "codegen backend".
 
 So what do we need to do?
@@ -26,7 +26,7 @@ So what do we need to do?
    collecting all the concrete types is called _monomorphization collection_.
 1. Next, we need to actually lower the MIR to a codegen IR
    (usually LLVM IR) for each concrete type we collected.
-2. Finally, we need to invoke LLVM or Cranelift, which runs a bunch of
+2. Finally, we need to invoke the codegen backend, which runs a bunch of
    optimization passes, generates executable code, and links together an
    executable binary.
 
@@ -34,16 +34,15 @@ So what do we need to do?
 
 The code for codegen is actually a bit complex due to a few factors:
 
-- Support for multiple codegen backends (LLVM and Cranelift). We try to share as much
+- Support for multiple codegen backends (LLVM, Cranelift, and GCC). We try to share as much
   backend code between them as possible, so a lot of it is generic over the
   codegen implementation. This means that there are often a lot of layers of
   abstraction.
 - Codegen happens asynchronously in another thread for performance.
-- The actual codegen is done by a third-party library (either LLVM or Cranelift).
+- The actual codegen is done by a third-party library (either of the 3 backends).
 
-Generally, the [`rustc_codegen_ssa`][ssa] crate contains backend-agnostic code
-(i.e. independent of LLVM or Cranelift), while the [`rustc_codegen_llvm`][llvm]
-crate contains code specific to LLVM codegen.
+Generally, the [`rustc_codegen_ssa`][ssa] crate contains backend-agnostic code,
+while the [`rustc_codegen_llvm`][llvm] crate contains code specific to LLVM codegen.
 
 [ssa]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_codegen_ssa/index.html
 [llvm]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_codegen_llvm/index.html
@@ -51,4 +50,3 @@ crate contains code specific to LLVM codegen.
 At a very high level, the entry point is
 [`rustc_codegen_ssa::base::codegen_crate`][codegen1]. This function starts the
 process discussed in the rest of this chapter.
-
