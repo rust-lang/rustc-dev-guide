@@ -9,6 +9,8 @@ modifying feature gates.
 See ["Stability in code"] for help with adding a new feature; this section just
 covers how to add the feature gate *declaration*.
 
+Add the feature name to `rustc_span/src/symbol.rs` in the `Symbols {...}` block.
+
 Add a feature gate declaration to `rustc_feature/src/active.rs` in the active
 `declare_features` block:
 
