@@ -66,8 +66,9 @@ level constants, as it is not clear how they should be represented, because thei
 is unknown. Similarly there is no way to represent raw pointers, as addresses are unknown at
 compile-time and thus we cannot make any assumptions about them. References on the other hand
 *can* be represented, as equality for references is defined as equality on their value, so we
-ignore their address and just look at the backing value. We must make sure that the pointer value
-of the references are not observable. We thus encode `&42` exactly like `42`. Any conversion from
+ignore their address and just look at the backing value. We must make sure that the pointer values
+of the references are not observable at compile time. We thus encode `&42` exactly like `42`.
+Any conversion from
 valtree back to codegen constants must reintroduce an actual indirection. At codegen time the
 addresses may be deduplicated between multiple uses or not, entirely depending on arbitrary
 optimization choices.
