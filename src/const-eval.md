@@ -63,7 +63,7 @@ Even though theoretically a `[u32; 2]` could be encoded in a `u64` and thus just
 
 These rules also mean that some values are not representable. There can be no `union`s in type
 level constants, as it is not clear how they should be represented, because their active variant
-is unknown. Similarly there is no way to represent pointers, as addresses are unknown at
+is unknown. Similarly there is no way to represent raw pointers, as addresses are unknown at
 compile-time and thus we cannot make any assumptions about them. References on the other hand
 *can* be represented, as equality for references is defined as equality on their value, so we
 ignore their address and just look at the backing value. We must make sure that the pointer value
