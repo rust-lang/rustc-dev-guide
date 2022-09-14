@@ -1,0 +1,49 @@
+# rust-lang/rust review checklist
+
+- Does it have tests?
+    - Are the tests clear?
+    - Is each test checking a single failure case?
+    - Have relevant edge cases been checked?
+- Do you find the PR confusing?
+    - Is the code confusing? Ask the author to leave more comments in the code or take a simpler approach.
+    - Is the change itself confusing? Ask the author to add more information to the PR description or commit message. for example:
+        - why are we making this change?
+        - is there an issue where we can read more about why the change is necessary?
+        - is the code changing a lot in a way that's not intuitive?
+        - are there unnecessary changes that don't look related to the PR title?
+- Does it introduce a lot of duplicate code?
+    - Ask the author if they can think of a way to avoid the duplication
+    - If it's strictly necessary for some reason, ask them to leave a comment justifying why
+    - If it's not necessary, ask them why they think the duplication is better than the alternative
+- Is the API hard to use?
+    - Is it hard to figure out when or how to call it? Suggest adding more documentation or examples.
+    - Does it require excessive boilerplate to use?
+        - If so, what benefits are we gaining?
+        - Can we make the common path more ergonomic?
+    - Is it easy to use it wrong by accident? Suggest making the correct way required by the type system (e.g. newtypes, typestate, callbacks)
+    - Does it use complex tuple types with more than two items?
+        - These should be avoided in favor of named structs for clarity and maintainability
+- Does it use `Option` and `Result` appropriately?
+    - Library code should never panic; return `Option` or `Result` instead
+    - Option should be used when it is expected that 
+    - Error types should implement `std::error::Error`
+- Are useful common traits implemented on structs?
+    - `Clone`, `Debug`, `IntoIterator` and `Display` are some of the most generally useful traits
+    - Are sensible conversions into related types defined using the `From` trait??
+- If this adds a new feature, has there been a discussion of whether we should add this feature or not?
+    - For language features, there should be an RFC
+    - For new compiler features (e.g. unstable flags), there should be an FCP (https://rustc-dev-guide.rust-lang.org/implementing_new_features.html#implementing-new-features)
+    - For library features, there should be an ACP (https://std-dev-guide.rust-lang.org/feature-lifecycle/summary.html)
+    - For internal-only functions and tools, use your best judgement; feel free to have a conversation with the PR author.
+- If this exposes a new API does it have documentation?
+    - Does the documentation link to other related methods, types and concepts?
+    - Are doc tests present to explain trickier or more elaborate methods?
+    - For library PRs, does it add or update examples?
+- If this PR is performance-critical (WHAT DOES THIS MEAN), have benchmarks been added or evaluated?
+    - For compiler or rustdoc PRs, use `@bors try @rust-timer queue` when in doubt; the perf team has worked hard on having the perf bot generate a good summary
+    - For library PRs, ask the author whether they've run benchmarks
+- Are methods marked `#[must_use]` where appropriate?
+- Does the code organization make sense?
+    - Are related methods and types grouped together within each file?
+    - Does this functionality feel like it could fit in better with other code?
+    - Is this functionality sufficiently distinct that it should be split out into its own module or fuile?

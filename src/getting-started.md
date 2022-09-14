@@ -192,6 +192,14 @@ sometimes be long. PRs are never merged by hand.
 [r+]: https://github.com/rust-lang/rust/pull/78133#issuecomment-712726339
 [bors]: https://bors.rust-lang.org/queue/rust
 
+### Reviewing PRs
+
+Another way to contribute to the project is by reviewing existing PRs. We have a [review checklist]
+you can use to get started. We suggest reviewing the PRs of existing contributors. Remember that
+reviews are meant just as much for you to learn about the codebase and the process as it is for authors to get feedback :)
+
+[review checklist]: ./reviewing.md
+
 ### Bug Fixes or "Normal" code changes
 
 For most PRs, no special procedures are needed. You can just open a PR, and it
