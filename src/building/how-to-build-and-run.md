@@ -227,7 +227,7 @@ custom toolchain for a project (e.g. via `rustup override set stage1`) you may
 want to build this component:
 
 ```bash
-x b proc-macro-srv-cli
+./x.py build proc-macro-srv-cli
 ```
 
 ## Building targets for cross-compilation
