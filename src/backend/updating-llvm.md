@@ -169,8 +169,8 @@ so let's go through each in detail.
    It is only then that the PR to update Rust to use that version is merged.
 
    The commit history of `rust-lang/llvm-project`
-   should look much cleaner as just a few
-   Rust-specific commits stacked on top of stock LLVM's release branch.
+   should look much cleaner as a `git rebase` is done,
+   where just a few Rust-specific commits are stacked on top of stock LLVM's release branch.
 
 ### Caveats and gotchas
 
