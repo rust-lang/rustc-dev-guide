@@ -1,17 +1,20 @@
-use std::{env, fs, process};
+use std::{fs, path::PathBuf};
 
 use anyhow::Result;
+use clap::Parser;
 use ignore::Walk;
 use regex::Regex;
 
+#[derive(Parser)]
+struct Cli {
+    root_dir: PathBuf,
+    #[arg(long)]
+    overwrite: bool,
+}
+
 fn main() -> Result<()> {
-    let mut args = env::args();
-    if args.len() == 1 {
-        eprintln!("error: expected root Markdown directory as CLI argument");
-        process::exit(1);
-    }
-    let root_dir = args.nth(1).unwrap();
-    for result in Walk::new(root_dir) {
+    let cli = Cli::parse();
+    for result in Walk::new(cli.root_dir) {
         let entry = result?;
         if entry.file_type().expect("no stdin").is_dir() {
             continue;
@@ -27,7 +30,15 @@ fn main() -> Result<()> {
         let old = fs::read_to_string(path)?;
         let new = comply(&old)?;
         if new != old {
-            fs::write(path, new)?;
+            if cli.overwrite {
+                fs::write(path, new)?;
+            } else {
+                println!("{}:", path.display());
+                println!("{new}");
+                println!();
+                println!("---");
+                println!();
+            }
         }
     }
     Ok(())

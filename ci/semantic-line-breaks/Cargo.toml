@@ -10,3 +10,7 @@ ignore = "0.4"
 [dependencies.regex]
 version = "1"
 features = ["pattern"]
+
+[dependencies.clap]
+version = "4"
+features = ["derive"]
