@@ -2,6 +2,7 @@
 
 ## Testing infrastructure
 
+<!-- date-check: oct 2022 -->
 When a Pull Request is opened on GitHub, [GitHub Actions] will automatically
 launch a build that will run all tests on some configurations
 (x86_64-gnu-llvm-13 linux, x86_64-gnu-tools linux, and mingw-check linux).
