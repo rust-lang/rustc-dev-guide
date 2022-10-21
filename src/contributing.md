@@ -320,29 +320,6 @@ Here are those same steps in detail:
 7. (optional) Help land your PR on the upstream repository now that your changes are in nightly.
 8. (optional) Send a PR to rust-lang/rust updating the submodule.
 
-#### Updating submodules
-
-(As of <!-- date-check --> Sept 2022 `miri` is no longer a submodule but a subtree. The following
-instructions are still broadly correct for updating submodules in general. For a more specific
-example you can also see the steps for [upgrading llvm][upgrading-llvm].)
-
-[upgrading-llvm]: https://rustc-dev-guide.rust-lang.org/backend/updating-llvm.html
-
-These instructions are specific to updating `miri`, however they may apply
-to the other submodules as well. Please help by improving these instructions
-if you find any discrepancies or special cases that need to be addressed.
-
-To update the `miri` submodule, start by running the appropriate
-[`git submodule` command](https://git-scm.com/book/en/v2/Git-Tools-Submodules).
-For example, to update to the latest commit on the remote master branch,
-you may want to run:
-```
-git submodule update --remote src/tools/miri
-```
-If you run `./x.py build` now, and you are lucky, it may just work.
-
-To add these changes to a commit, use `git add src/tools/miri` and commit the
-change. You can the push and open a PR.
 
 ## Writing Documentation
 
