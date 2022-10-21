@@ -176,7 +176,7 @@ There is a workaround in [the issue][#77620-workaround].
 [#77620]: https://github.com/rust-lang/rust/issues/77620
 [#77620-workaround]: https://github.com/rust-lang/rust/issues/77620#issuecomment-705228229
 
-(Note that as of <!-- date-check --> Sept 2022 `miri` is a subtree and not a submodule.)
+(Note that as of Sept 2022 `miri` is a subtree and not a submodule.)
 
 ## Rebasing and Conflicts
 
