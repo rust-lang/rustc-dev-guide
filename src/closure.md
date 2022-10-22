@@ -138,7 +138,7 @@ Most of the code related to the closure is in the
 [`compiler/rustc_hir_typeck/src/upvar.rs`][upvar] file and the data structures are
 declared in the file [`compiler/rustc_middle/src/ty/mod.rs`][ty].
 
-[upvar]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_analysis/upvar/index.html
+[upvar]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_typeck/upvar/index.html
 [ty]:https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/index.html
 
 Before we go any further, let's discuss how we can examine the flow of control through the rustc
