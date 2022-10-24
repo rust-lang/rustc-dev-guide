@@ -111,7 +111,7 @@ may lead to other errors downstream).
 
 ### Candidate assembly
 
-**TODO**: Talk about _why_ we have different candidates, and why it needs to happen in ap robe.
+**TODO**: Talk about _why_ we have different candidates, and why it needs to happen in a probe.
 
 Searches for impls/where-clauses/etc that might
 possibly be used to satisfy the obligation. Each of those is called
