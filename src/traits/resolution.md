@@ -132,7 +132,9 @@ Once this first pass is done, we can examine the set of candidates. If
 it is a singleton set, then we are done: this is the only impl in
 scope that could possibly apply. Otherwise, we can **winnow** down the set
 of candidates by using where clauses and other conditions. Winnowing uses
-`evaluate_candidate` to check whether the nested obligations may apply. If this still leaves more than 1 candidate, we use ` fn candidate_should_be_dropped_in_favor_of` to prefer some candidates over others. 
+`evaluate_candidate` to check whether the nested obligations may apply. 
+If this still leaves more than 1 candidate, we use ` fn candidate_should_be_dropped_in_favor_of` 
+to prefer some candidates over others. 
 
 
 If this reduced set yields a single, unambiguous entry, we're good to go,
@@ -240,12 +242,14 @@ confirmation is done based on (in this case) the `Target` type parameter.
 
 As mentioned above, during type checking, we do not store the results of trait
 selection. At codegen time, we repeat the trait selection to choose a particular
-impl for each method call. This is done using `fn codegen_select_candidate`. In this second selection, we do not consider any
-where-clauses to be in scope because we know that each resolution will resolve
-to a particular impl.
+impl for each method call. This is done using `fn codegen_select_candidate`. 
+In this second selection, we do not consider any where-clauses to be in scope 
+because we know that each resolution will resolve to a particular impl.
 
 One interesting twist has to do with nested obligations. In general, in codegen,
-we only to figure out which candidate applies, we do not care about nested obligations, as these are already assumed to be true. Nonetheless, we *do* currently do fulfill all of them. That is because it can sometimes inform the results of type inference.
+we only to figure out which candidate applies, we do not care about nested obligations,
+as these are already assumed to be true. Nonetheless, we *do* currently do fulfill all of them.
+That is because it can sometimes inform the results of type inference.
 That is, we do not have the full substitutions in terms of the type variables
 of the impl available to us, so we must run trait selection to figure
 everything out.
