@@ -49,7 +49,7 @@ this pass into the appropriate list of passes found in a query like
 should go into the `optimized_mir` list.)
 
 If you are writing a pass, there's a good chance that you are going to
-want to use an [MIR visitor]. MIR visitors are a handy way to walk all
+want to use a [MIR visitor]. MIR visitors are a handy way to walk all
 the parts of the MIR, either to search for something or to make small
 edits.
 
