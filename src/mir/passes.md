@@ -36,7 +36,7 @@ keep things efficient).
 A good example of a basic MIR pass is [`NoLandingPads`], which walks
 the MIR and removes all edges that are due to unwinding – this is
 used when configured with `panic=abort`, which never unwinds. As you
-can see from its source, a MIR pass is defined by first defining a
+can see from its source, an MIR pass is defined by first defining a
 dummy type, a struct with no fields, something like:
 
 ```rust
@@ -49,7 +49,7 @@ this pass into the appropriate list of passes found in a query like
 should go into the `optimized_mir` list.)
 
 If you are writing a pass, there's a good chance that you are going to
-want to use a [MIR visitor]. MIR visitors are a handy way to walk all
+want to use an [MIR visitor]. MIR visitors are a handy way to walk all
 the parts of the MIR, either to search for something or to make small
 edits.
 
