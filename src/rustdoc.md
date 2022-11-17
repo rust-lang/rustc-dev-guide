@@ -46,7 +46,7 @@ does is call the `main()` that's in this crate's `lib.rs`, though.)
 * Use `./x.py build` to make a usable
   rustdoc you can run on other projects.
   * Add `library/test` to be able to use `rustdoc --test`.
-  * Run `rustup toolchain link stage2 build/$TARGET/stage2` to add a
+  * Run `rustup toolchain link stage2 build/$TARGET/stage2-sysroot` to add a
     custom toolchain called `stage2` to your rustup environment. After
     running that, `cargo +stage2 doc` in any directory will build with
     your locally-compiled rustdoc.

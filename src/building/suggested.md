@@ -34,7 +34,7 @@ you can write: <!-- date-check: apr 2022 --><!-- the date comment is for the edi
         "--json-output"
     ],
     "rust-analyzer.rustfmt.overrideCommand": [
-        "./build/$TARGET_TRIPLE/stage0/bin/rustfmt",
+        "./build/$TARGET_TRIPLE/bootstrap-sysroot/bin/rustfmt",
         "--edition=2021"
     ],
     "rust-analyzer.procMacro.server": "./build/$TARGET_TRIPLE/stage0/libexec/rust-analyzer-proc-macro-srv",

@@ -20,7 +20,7 @@ Formatting is checked by the `tidy` script. It runs automatically when you do
 `./x.py test` and can be run in isolation with `./x.py fmt --check`.
 
 If you want to use format-on-save in your editor, the pinned version of
-`rustfmt` is built under `build/<target>/stage0/bin/rustfmt`. You'll have to
+`rustfmt` is built under `build/<target>/bootstrap-sysroot/bin/rustfmt`. You'll have to
 pass the <!-- date-check: April 2022 --> `--edition=2021` argument yourself when calling
 `rustfmt` directly.
 
