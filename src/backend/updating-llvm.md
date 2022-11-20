@@ -10,7 +10,7 @@ but a few guidelines are applied:
 * We try to support the last few versions of LLVM
   (and the number changes over time)
 * We allow moving to arbitrary commits during development
-* We Strongly prefer to upstream all patches to LLVM before including them in rustc
+* We strongly prefer to upstream all patches to LLVM before including them in rustc
 
 ## Why update LLVM?
 
