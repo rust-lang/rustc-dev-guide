@@ -7,7 +7,7 @@ There is no formal policy about when to update LLVM or what it can be updated to
 but a few guidelines are applied:
 
 * We try to always support the latest released version
-* We try to support the last few versions of LLVM
+* We try to support the last few versions
   (and the number changes over time)
 * We allow moving to arbitrary commits during development
 * We strongly prefer to upstream all patches to LLVM before including them in rustc
