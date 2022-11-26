@@ -179,7 +179,7 @@ fn try_mark_green(tcx, current_node) -> bool {
 
 > NOTE:
 > The actual implementation can be found in
-> [compiler/rustc_query_system/src/dep_graph/graph.rs][try_mark_green]
+> [`compiler/rustc_query_system/src/dep_graph/graph.rs`][try_mark_green]
 
 By using red-green marking we can avoid the devastating cumulative effect of
 having false positives during change detection. Whenever a query is executed
