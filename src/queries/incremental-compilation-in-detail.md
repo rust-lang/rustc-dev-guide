@@ -534,4 +534,4 @@ information.
 
 
 [query-model]: ./query-evaluation-model-in-detail.html
-[try_mark_green]: https://doc.rust-lang.org/nightly/nightly-rustc/src/rustc_query_system/dep_graph/graph.rs.html#574-599
+[try_mark_green]: https://doc.rust-lang.org/nightly/nightly-rustc/src/rustc_query_system/dep_graph/graph.rs.html
