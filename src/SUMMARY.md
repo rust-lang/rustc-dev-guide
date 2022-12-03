@@ -94,7 +94,7 @@
 - [The MIR (Mid-level IR)](./mir/index.md)
     - [MIR construction](./mir/construction.md)
     - [MIR visitor and traversal](./mir/visitor.md)
-    - [MIR passes: getting the MIR for a function](./mir/passes.md)
+    - [MIR queries and passes](./mir/passes.md)
 - [Identifiers in the Compiler](./identifiers.md)
 - [Closure expansion](./closure.md)
 - [Inline assembly](./asm.md)
