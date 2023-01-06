@@ -27,6 +27,44 @@ you to create a `.vscode/settings.json` file which will configure Visual Studio 
 This will ask `rust-analyzer` to use `./x.py check` to check the sources, and the
 stage 0 rustfmt to format them.
 
+
+For Neovim users there are several options for configuring for rustc. You can use the native LSP server and make your own logic for changing the rust-analyzer configuration to the above. You can also use [nlsp-settings](https://github.com/tamago324/nlsp-settings.nvim), which allows for project-local configuration files. This plugin allows for the above JSON to be directly put in to a file located at `rust/.nlsp-settings/rust_analyzer.json`. If you use [coc-rust-analyzer](https://github.com/fannheyward/coc-rust-analyzer) you can also use the above JSON, but placed in `rust/.vim/coc-settings.json`.
+
+Below is the Lua needed to configure the native Neovim LSP the same as the above VSCode configuration
+
+```lua
+{
+    ["rust-analyzer"] = {
+        checkOnSave = {
+            overrideCommand = {
+                {"python3", "x.py", "check", "--json-output"}
+            }
+        },
+        rustfmt = {
+            overrideCommand = {
+                {"./build/host/stage0/bin/rustfmt", "--edition=2021"}
+            }
+        },
+        procMacro = {
+            server = "./build/host/stage0/libexec/rust-analyzer-proc-macro-srv",
+            enable = true
+        },
+        cargo = {
+            buildScripts = {
+                enable = true,
+                invocationLocation = "root",
+                invocationStrategy = "once",
+                overrideCommand = {"python3", "x.py", "check", "--json-output"}
+            },
+            sysroot = "./build/host/stage0-sysroot"
+        },
+        rustc = {
+            source = "./Cargo.toml"
+        }
+    }
+}
+```
+
 If you have enough free disk space and you would like to be able to run `x.py` commands while
 rust-analyzer runs in the background, you can also add `--build-dir build-rust-analyzer` to the
 `overrideCommand` to avoid x.py locking.
