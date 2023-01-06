@@ -28,9 +28,16 @@ This will ask `rust-analyzer` to use `./x.py check` to check the sources, and th
 stage 0 rustfmt to format them.
 
 
-For Neovim users there are several options for configuring for rustc. You can use the native LSP server and make your own logic for changing the rust-analyzer configuration to the above. You can also use [nlsp-settings](https://github.com/tamago324/nlsp-settings.nvim), which allows for project-local configuration files. This plugin allows for the above JSON to be directly put in to a file located at `rust/.nlsp-settings/rust_analyzer.json`. If you use [coc-rust-analyzer](https://github.com/fannheyward/coc-rust-analyzer) you can also use the above JSON, but placed in `rust/.vim/coc-settings.json`.
+For Neovim users there are several options for configuring for rustc. You can use the native LSP 
+server and make your own logic for changing the rust-analyzer configuration to the above. You can 
+also use [nlsp-settings](https://github.com/tamago324/nlsp-settings.nvim), which allows for 
+project-local configuration files. This plugin allows for the above JSON to be directly put in to 
+a file located at `rust/.nlsp-settings/rust_analyzer.json`. If you use 
+[coc-rust-analyzer](https://github.com/fannheyward/coc-rust-analyzer) you can also use the above 
+JSON, but placed in `rust/.vim/coc-settings.json`.
 
-Below is the Lua needed to configure the native Neovim LSP the same as the above VSCode configuration
+Below is the Lua needed to configure the native Neovim LSP the same as the above VSCode 
+configuration
 
 ```lua
 {
