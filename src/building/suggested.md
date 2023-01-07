@@ -28,16 +28,14 @@ This will ask `rust-analyzer` to use `./x.py check` to check the sources, and th
 stage 0 rustfmt to format them.
 
 
-For Neovim users there are several options for configuring for rustc. You can use the native LSP 
-server and make your own logic for changing the rust-analyzer configuration to the above. You can 
-also use [nlsp-settings](https://github.com/tamago324/nlsp-settings.nvim), which allows for 
-project-local configuration files. This plugin allows for the above JSON to be directly put in to 
-a file located at `rust/.nlsp-settings/rust_analyzer.json`. If you use 
-[coc-rust-analyzer](https://github.com/fannheyward/coc-rust-analyzer) you can also use the above 
-JSON, but placed in `rust/.vim/coc-settings.json`.
+For Neovim users there are several options for configuring for rustc. The easiest way is by using 
+[nlsp-settings](https://github.com/tamago324/nlsp-settings.nvim), which allows for project-local
+configuration files with the native LSP. First install the plugin by however you manage your 
+plugins. Then run `:LspSettings local rust_analyzer` to create a JSON configuration file. Then 
+just paste the above JSON in.
 
-Below is the Lua needed to configure the native Neovim LSP the same as the above VSCode 
-configuration
+Another way is without a plugin, and creating your own logic in your configuration. The required 
+Lua for doing so is below.
 
 ```lua
 {
@@ -72,12 +70,12 @@ configuration
 }
 ```
 
+If you're running `coc.nvim`, you can use `:CocLocalConfig` to create a
+`.vim/coc-settings.json` and copy the settings from [this file](https://github.com/rust-lang/rust/blob/master/src/etc/vscode_settings.json).
+
 If you have enough free disk space and you would like to be able to run `x.py` commands while
 rust-analyzer runs in the background, you can also add `--build-dir build-rust-analyzer` to the
 `overrideCommand` to avoid x.py locking.
-
-If you're running `coc.nvim`, you can use `:CocLocalConfig` to create a
-`.vim/coc-settings.json` and copy the settings from [this file](https://github.com/rust-lang/rust/blob/master/src/etc/vscode_settings.json).
 
 If running `./x.py check` on save is inconvenient, in VS Code you can use a [Build
 Task] instead:
