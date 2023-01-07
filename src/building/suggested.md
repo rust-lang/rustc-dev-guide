@@ -30,9 +30,17 @@ stage 0 rustfmt to format them.
 
 For Neovim users there are several options for configuring for rustc. The easiest way is by using 
 [nlsp-settings](https://github.com/tamago324/nlsp-settings.nvim), which allows for project-local
-configuration files with the native LSP. First install the plugin by however you manage your 
-plugins. Then run `:LspSettings local rust_analyzer` to create a JSON configuration file. Then 
-just paste the above JSON in.
+configuration files with the native LSP. The steps for how to use it are below.
+
+1. First install the plugin
+2. Run `:LspSettings local rust_analyzer` while the rust repo is open.
+
+This will create and open a JSON file to put the above JSON in.
+
+3. Open a Rust buffer that causes Rust Analyzer to attach.
+4. Run `:LspSettings update rust_analyzer` 
+
+The final step must be repeated every time you open Neovim after you open a Rust buffer.
 
 Another way is without a plugin, and creating your own logic in your configuration. The required 
 Lua for doing so is below.
