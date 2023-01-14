@@ -64,7 +64,7 @@ fn main() {
 }
 "
             .into(),
-        },        
+        },
         crate_cfg: rustc_hash::FxHashSet::default(),
         crate_check_cfg: CheckCfg::default(),
         input_path: None,
