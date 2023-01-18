@@ -27,7 +27,7 @@ you can write: <!-- date-check: nov 2022 --><!-- the date comment is for the edi
 
 ```JSON
 {
-    "rust-analyzer.checkOnSave.overrideCommand": [
+    "rust-analyzer.check.overrideCommand": [
         "python3",
         "x.py",
         "check",
