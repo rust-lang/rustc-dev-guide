@@ -1,7 +1,7 @@
 [book]
-title = "Guide to Rustc Development"
+title = "Rust Compiler Development Guide"
 author = "Rustc developers"
-description = "A guide to developing rustc"
+description = "A guide to developing the Rust compiler (rustc)"
 
 [build]
 create-missing = false
