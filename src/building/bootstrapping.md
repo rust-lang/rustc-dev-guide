@@ -2,7 +2,6 @@
 
 <!-- toc -->
 
-
 [*Bootstrapping*][boot] is the process of using a compiler to compile itself.
 More accurately, it means using an older compiler to compile a newer version
 of the same compiler.
@@ -15,6 +14,11 @@ version.
 
 This is exactly how `x.py` works: it downloads the current beta release of
 rustc, then uses it to compile the new compiler.
+
+Note that this documentation mostly covers user-facing information. See
+[bootstrap/README.md][bootstrap-internals] to read about bootstrap internals.
+
+[bootstrap-internals]: https://github.com/rust-lang/rust/blob/master/src/bootstrap/README.md
 
 ## Stages of bootstrapping
 
@@ -389,7 +393,7 @@ variables.
 [cc-rs crate]: https://github.com/rust-lang/cc-rs
 [env-vars]: https://github.com/rust-lang/cc-rs#external-configuration-via-environment-variables
 
-### Clarification of build command's stdout
+## Clarification of build command's stdout
 
 In this part, we will investigate the build command's stdout in an action
 (similar, but more detailed and complete documentation compare to topic above).
@@ -408,17 +412,17 @@ Building stage1 tool rust-analyzer-proc-macro-srv (x86_64-unknown-linux-gnu)
 Building rustdoc for stage1 (x86_64-unknown-linux-gnu)
 ```
 
-#### Building stage0 {std,compiler} artifacts
+### Building stage0 {std,compiler} artifacts
 
 These steps use the provided (downloaded, usually) compiler to compile the
 local Rust source into libraries we can use.
 
-#### Copying stage0 {std,rustc}
+### Copying stage0 {std,rustc}
 
 This copies the library and compiler artifacts from Cargo into
 `stage0-sysroot/lib/rustlib/{target-triple}/lib`
 
-#### Assembling stage1 compiler
+### Assembling stage1 compiler
 
 This copies the libraries we built in "building stage0 ... artifacts" into
 the stage1 compiler's lib directory. These are the host libraries that the
