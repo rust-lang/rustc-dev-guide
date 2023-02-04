@@ -3,6 +3,7 @@
 // NOTE: For the example to compile, you will need to first run the following:
 //   rustup component add rustc-dev llvm-tools-preview
 
+// You need the below nightly version to compile:
 // version: rustc 1.68.0-nightly (935dc0721 2022-12-19)
 
 extern crate rustc_error_codes;

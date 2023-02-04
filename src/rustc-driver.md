@@ -16,6 +16,9 @@ configuration and passes it to the closure. Inside the closure, you can use the 
 to drive queries to compile a crate and get the results. This is what the `rustc_driver` does too.
 You can see a minimal example of how to use `rustc_interface` [here][example].
 
+> **Note**: As changes can be made to the rustc internal APIs at any time,
+> we expect you to compile the example with <!-- date-check: Jan 2023 --> `nightly-2022-12-19`.
+
 You can see what queries are currently available through the rustdocs for [`Compiler`].
 You can see an example of how to use them by looking at the `rustc_driver` implementation,
 specifically the [`rustc_driver::run_compiler` function][rd_rc] (not to be confused with

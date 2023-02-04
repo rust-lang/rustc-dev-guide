@@ -6,9 +6,11 @@
 
 To get diagnostics from the compiler,
 configure `rustc_interface::Config` to output diagnostic to a buffer,
-and run `TyCtxt.analysis`. The following was tested
-with <!-- date-check: Jan 2023 --> `nightly-2022-12-19` (See [here][example]
-for the complete example):
+and run `TyCtxt.analysis`.
+
+> **Note**: We expect you to compile the example
+> with <!-- date-check: Jan 2023 --> `nightly-2022-12-19` (See [here][example]
+> for the complete example)
 
 [example]: https://github.com/rust-lang/rustc-dev-guide/blob/master/examples/rustc-driver-getting-diagnostics.rs
 
@@ -24,7 +26,7 @@ let config = rustc_interface::Config {
             ),
         },
         /* other config */
-    },   
+    },
     /* other config */
 };
 rustc_interface::run_compiler(config, |compiler| {
