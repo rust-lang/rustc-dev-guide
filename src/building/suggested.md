@@ -78,6 +78,12 @@ must translate the JSON to Lua yourself. The translation is 1:1 and fairly strai
 must be put in the `["rust-analyzer"]` key of the setup table, which is 
 [shown here](https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md#rust_analyzer)
 
+If you would like to use the build task that is described above, you may either make your own 
+command in your config, or you can install a plugin such as 
+[overseer.nvim](https://github.com/stevearc/overseer.nvim) that can [read VSCode's `task.json` 
+files](https://github.com/stevearc/overseer.nvim/blob/master/doc/guides.md#vs-code-tasks), and 
+follow the same instructions as above.
+
 ## Check, check, and check again
 
 When doing simple refactorings, it can be useful to run `./x.py check`
