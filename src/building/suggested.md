@@ -65,49 +65,18 @@ Rust-Analyzer to already be configured with Neovim. Steps for this can be
 [found here](https://rust-analyzer.github.io/manual.html#nvim-lsp).
 
 1. First install the plugin. This can be done by following the steps in the README.
-2. Run `x.py setup`, which will have a prompt for it to create a `.vscode/settings.json` file. `neoconf`
-is able to read and update Rust-Analyzer settings automatically when the project is opened when this
-file is detected.
+2. Run `x.py setup`, which will have a prompt for it to create a `.vscode/settings.json` file. 
+`neoconf` is able to read and update Rust-Analyzer settings automatically when the project is 
+opened when this file is detected.
 
 If you're running `coc.nvim`, you can use `:CocLocalConfig` to create a
 `.vim/coc-settings.json` and copy the settings from 
 [this file](https://github.com/rust-lang/rust/blob/master/src/etc/vscode_settings.json).
 
-Another way is without a plugin, and creating your own logic in your configuration. The required 
-Lua for doing so is below.
-
-```lua
-{
-    ["rust-analyzer"] = {
-        checkOnSave = {
-            overrideCommand = {
-                {"python3", "x.py", "check", "--json-output"}
-            }
-        },
-        rustfmt = {
-            overrideCommand = {
-                {"./build/host/stage0/bin/rustfmt", "--edition=2021"}
-            }
-        },
-        procMacro = {
-            server = "./build/host/stage0/libexec/rust-analyzer-proc-macro-srv",
-            enable = true
-        },
-        cargo = {
-            buildScripts = {
-                enable = true,
-                invocationLocation = "root",
-                invocationStrategy = "once",
-                overrideCommand = {"python3", "x.py", "check", "--json-output"}
-            },
-            sysroot = "./build/host/stage0-sysroot"
-        },
-        rustc = {
-            source = "./Cargo.toml"
-        }
-    }
-}
-```
+Another way is without a plugin, and creating your own logic in your configuration. To do this you 
+must translate the JSON to Lua yourself. The translation is 1:1 and fairly straight-forward. It 
+must be put in the `["rust-analyzer"]` key of the setup table, which is 
+[shown here](https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md#rust_analyzer)
 
 ## Check, check, and check again
 
