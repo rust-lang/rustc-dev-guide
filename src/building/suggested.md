@@ -19,6 +19,8 @@ You can also install the hook as a step of running `./x.py setup`!
 
 ## Configuring `rust-analyzer` for `rustc`
 
+### Visual Studio Code
+
 `rust-analyzer` can help you check and format your code whenever you save
 a file. By default, `rust-analyzer` runs the `cargo check` and `rustfmt`
 commands, but you can override these commands to use more adapted versions
@@ -27,20 +29,49 @@ you to create a `.vscode/settings.json` file which will configure Visual Studio 
 This will ask `rust-analyzer` to use `./x.py check` to check the sources, and the
 stage 0 rustfmt to format them.
 
+If you have enough free disk space and you would like to be able to run `x.py` commands while
+rust-analyzer runs in the background, you can also add `--build-dir build-rust-analyzer` to the
+`overrideCommand` to avoid x.py locking.
+
+If running `./x.py check` on save is inconvenient, in VS Code you can use a [Build
+Task] instead:
+
+```JSON
+// .vscode/tasks.json
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "./x.py check",
+            "command": "./x.py check",
+            "type": "shell",
+            "problemMatcher": "$rustc",
+            "presentation": { "clear": true },
+            "group": { "kind": "build", "isDefault": true }
+        }
+    ]
+}
+```
+
+[Build Task]: https://code.visualstudio.com/docs/editor/tasks
+
+
+### Neovim
 
 For Neovim users there are several options for configuring for rustc. The easiest way is by using 
-[nlsp-settings](https://github.com/tamago324/nlsp-settings.nvim), which allows for project-local
-configuration files with the native LSP. The steps for how to use it are below.
+[neoconf.nvim](https://github.com/folke/neoconf.nvim/), which allows for project-local
+configuration files with the native LSP. The steps for how to use it are below. Note that requires 
+Rust-Analyzer to already be configured with Neovim. Steps for this can be 
+[found here](https://rust-analyzer.github.io/manual.html#nvim-lsp).
 
-1. First install the plugin
-2. Run `:LspSettings local rust_analyzer` while the rust repo is open.
+1. First install the plugin. This can be done by following the steps in the README.
+2. Run `x.py setup`, which will have a prompt for it to create a `.vscode/settings.json` file. `neoconf`
+is able to read and update Rust-Analyzer settings automatically when the project is opened when this
+file is detected.
 
-This will create and open a JSON file to put the above JSON in.
-
-3. Open a Rust buffer that causes Rust Analyzer to attach.
-4. Run `:LspSettings update rust_analyzer` 
-
-The final step must be repeated every time you open Neovim after you open a Rust buffer.
+If you're running `coc.nvim`, you can use `:CocLocalConfig` to create a
+`.vim/coc-settings.json` and copy the settings from 
+[this file](https://github.com/rust-lang/rust/blob/master/src/etc/vscode_settings.json).
 
 Another way is without a plugin, and creating your own logic in your configuration. The required 
 Lua for doing so is below.
@@ -77,35 +108,6 @@ Lua for doing so is below.
     }
 }
 ```
-
-If you're running `coc.nvim`, you can use `:CocLocalConfig` to create a
-`.vim/coc-settings.json` and copy the settings from [this file](https://github.com/rust-lang/rust/blob/master/src/etc/vscode_settings.json).
-
-If you have enough free disk space and you would like to be able to run `x.py` commands while
-rust-analyzer runs in the background, you can also add `--build-dir build-rust-analyzer` to the
-`overrideCommand` to avoid x.py locking.
-
-If running `./x.py check` on save is inconvenient, in VS Code you can use a [Build
-Task] instead:
-
-```JSON
-// .vscode/tasks.json
-{
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "./x.py check",
-            "command": "./x.py check",
-            "type": "shell",
-            "problemMatcher": "$rustc",
-            "presentation": { "clear": true },
-            "group": { "kind": "build", "isDefault": true }
-        }
-    ]
-}
-```
-
-[Build Task]: https://code.visualstudio.com/docs/editor/tasks
 
 ## Check, check, and check again
 
