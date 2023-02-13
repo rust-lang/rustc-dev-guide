@@ -30,8 +30,8 @@ We now call the canonical query with the canonical goal.
 
 ### Instantiating the canonical goal inside of the query
 
-To actually try to prove the canonical goal we start by instantiating existential variables with
-inference variables and universal variables without inference variables and placeholders again.
+To actually try to prove the canonical goal we start by instantiating the bound variables with
+inference variables and placeholders again.
 
 This happens inside of the query in a completely separate `InferCtxt`. Inside of the query we
 now have a goal `u32: Trait<?0>`. We also remember which value we've used to instantiate the bound
@@ -42,13 +42,12 @@ We now compute the goal `u32: Trait<?0>` and figure out that this holds, but we'
 
 ### Canonicalizing the query response
 
-The caller has to know both the result of the query and any inference constraints from inside
-of the query. The result is already context independent, so we can return that as is, we do have
-to canonicalize the inference constraints though.
+We have to return to the caller has to know whether the goal holds and the inference constraints
+from inside of the query.
 
-For this we canonicalize the mapping from bound variables to the instantiated values in the query.
-This means that the query response is `Certainty::Yes` and a mapping from `T` to
-`exists<U> Vec<U>`.
+To return the inference results to the caller we canonicalize the mapping from bound variables
+to the instantiated values in the query. This means that the query response is `Certainty::Yes`
+and a mapping from `T` to `exists<U> Vec<U>`.
 
 ### Instantiating the query response
 
@@ -65,9 +64,9 @@ Computing a trait goal may not only constrain inference variables, it can also a
 obligations, e.g. given a goal `(): AOutlivesB<'a, 'b>` we would like to return the fact that
 `'a: 'b` has to hold.
 
-This is done by not only returning the canonical `var_values` from the query but also extracting
-additional `ExternalConstraints` from the inference context while building the response. These
-constraints get canonicalized together with the `var_values`.
+This is done by not only returning the mapping from bound variables to the instantiated values
+from the query but also extracting additional `ExternalConstraints` from the `InferCtxt` context
+while building the response.
 
 ## How exactly does canonicalization work
 
