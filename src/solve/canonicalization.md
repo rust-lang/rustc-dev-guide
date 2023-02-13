@@ -1,6 +1,6 @@
 # Canonicalization
 
-Canonicalization is the process of *isolating* a value from its context and necessary
+Canonicalization is the process of *isolating* a value from its context and is necessary
 for global caching of goals which include inference variables.
 
 The idea is that given the goals `u32: Trait<?x>` and `u32: Trait<?y>`, where `?x` and `?y`
