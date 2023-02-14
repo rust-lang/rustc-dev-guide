@@ -76,7 +76,7 @@ TODO: link to code once the PR lands and elaborate
     considering universes
 - generic parameters in the input get treated as placeholders in the root universe
 - all regions in the input get all mapped to existentially bound vars and we "uniquify" them.
-    `T: Trait<'a, 'a>` gets canonicalized to `exists<'0, '1> T: Trait<'0, '1>`. We do not care
+    `&'a (): Trait<'a>` gets canonicalized to `exists<'0, '1> &'0 (): Trait<'1>`. We do not care
     about their universes and simply put all regions into the highest universe of the input.
 - once we collected all canonical vars we compress their universes, see comment in `finalize`.
 - in the output everything in a universe of the caller gets put into the root universe and only
