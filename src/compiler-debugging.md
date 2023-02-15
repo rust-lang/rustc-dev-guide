@@ -312,7 +312,7 @@ error: aborting due to previous error
 ## Configuring CodeLLDB for debugging `rustc`
 
 If you are using VSCode, and have edited your `config.toml` to request debugging
-level 1 or 2 for the parts of the code you're interested in, then you *should* be
+level 1 or 2 for the parts of the code you're interested in, then you should be
 able to use the [CodeLLDB] extension in VSCode to debug it.
 
 Here is a sample `launch.json` file, being used to run a stage 1 compiler direct
