@@ -223,9 +223,8 @@ details of the [_LLVM Coverage Mapping Format_][coverage-mapping-format]
 (Version 6).[^llvm-and-covmap-versions]
 
 [^llvm-and-covmap-versions]:
-The Rust compiler (as of <!-- date-check: --> Jan 2023) supports _LLVM Coverage Mapping Format_ 6.
-It was introduced in _LLVM 13_, which is, as of <!-- date-check: Jan 2023 --> this writing,
-the minimum supported LLVM version.
+The Rust compiler (as of <!-- date-check: --> Feb 2023) supports _LLVM Coverage Mapping Format_ 6.
+It was introduced in _LLVM 13_, which was the minimum supported LLVM version [until early 2023].
 The Rust compiler will automatically use the most up-to-date coverage mapping format
 version that is compatible with the compiler's built-in version of LLVM.
 
@@ -273,6 +272,7 @@ since it will not be called), and adds a new `FunctionCoverage`, with
 [mapgen-finalize]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_codegen_llvm/coverageinfo/mapgen/fn.finalize.html
 [coverage-mapping-format]: https://llvm.org/docs/CoverageMappingFormat.html
 [add-unused-functions]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_codegen_llvm/coverageinfo/mapgen/fn.add_unused_functions.html
+[until early 2023]: https://github.com/rust-lang/rust/pull/107573
 
 ## Testing LLVM Coverage
 
