@@ -13,8 +13,8 @@ how canonicalization works.
 
 ## A walkthrough of canonical queries
 
-We're going to use the goal `u32: Trait<?x>` as an example and assume that this only holds
-for `u32: Trait<Vec<?z>>` where `?z` is unconstrained.
+To make this a bit easier, let's use the trait goal `u32: Trait<?x>` as an example with the
+assumption that the only relevant impl is `impl<T> Trait<Vec<T>> for u32`.
 
 ### Canonicalizing the input
 
