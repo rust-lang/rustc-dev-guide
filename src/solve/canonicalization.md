@@ -42,7 +42,7 @@ We now compute the goal `u32: Trait<?0>` and figure out that this holds, but we'
 
 ### Canonicalizing the query response
 
-We have to return to the caller has to know whether the goal holds and the inference constraints
+We have to return to the caller both whether the goal holds, and the inference constraints
 from inside of the query.
 
 To return the inference results to the caller we canonicalize the mapping from bound variables
