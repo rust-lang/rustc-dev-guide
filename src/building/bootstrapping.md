@@ -371,9 +371,12 @@ a crate name and `=`, for example: `rustc_arena=llvm-ir,asm`.
 You can also substitute `*` for the crate name to apply it to all crates.
 You can combine multiple such specifiers by seperating them with semi-colons like
 `rustc_arena=llvm-ir,asm;rustc_span=asm;*=llvm-bc`.
-The emitted files will be stored inside the `emit` directory in the target specific build directory.
-`RUSTC_EMIT` will not cause `bootstrap` to rebuild any crates so you may need to modify the crates
-you're interested in.
+Currently `rustc` supports `asm`, `llvm-bc`, `llvm-ir`,
+`obj`, `metadata`, `link`, `dep-info`, and `mir` as `--emit` formats.
+The emitted files will be stored inside the `emit`
+directory in the target specific build directory.
+`RUSTC_EMIT` will not cause `bootstrap` to rebuild any crates so you may need to modify
+one of the source files of the crates you're interested in.
 
 `--test-args` will pass arguments through to the test runner. For `tests/ui`, this is
 compiletest; for unit tests and doctests this is the `libtest` runner. Most test runner accept
