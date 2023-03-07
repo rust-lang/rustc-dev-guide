@@ -22,9 +22,9 @@ For a single diagnostic, 3 files need to be modified:
 
 - One file where the diagnostic is emitted,
   typically by calling [Session::struct_span_err].
-- One file where the type representing the diagnostic,
-  typically a `struct`, would be added.
-  This would be in the `errors` module of the relevant rustc crate.
+- One file where the type representing the migrated diagnostic,
+  either a `struct` or an `enum`, will be added.
+  This is typically in a module named `errors` in the relevant compiler crate.
 - One file where the actual text of the diagnostic is located,
   located in a file named `locales/en-US.ftl`,
   relative to the root path of the relevant rustc crate.
