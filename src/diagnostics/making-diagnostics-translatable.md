@@ -39,7 +39,7 @@ Suppose you have the following code:
 ecx.struct_span_err(span, "proc-macro derive produced unparseable tokens").emit();
 ```
 
-> Note that `ecx.struct_span_err` is the [Session::struct_span_err].
+> Note that `ecx.struct_span_err` indirectly calls [Session::struct_span_err].
 
 Referring to the [general comments](#general-comments) section above,
 follow these changes:
@@ -154,7 +154,7 @@ if let Some(generics_where_clauses_span) = generics_where_clauses_span {
 diag.emit();
 ```
 
-> Note that `struct_span_err!` ultimately calls [Session::struct_span_err_with_code].
+> Note that `struct_span_err!` indirectly calls [Session::struct_span_err_with_code].
 
 - Replace the code above with this:
 
