@@ -455,11 +455,17 @@ appropriate labels to issues that haven't been triaged yet:
 
 * Dark blue, **beta-** labels track changes which need to be backported into
   the beta branches.
+  The similar **stable-** labels are for things that should be backported to
+  stable in anticipation of a point release.
 
 * Light purple, **C**-prefixed labels represent the **category** of an issue.
 
+* Mossy green, **D**-prefixed labels are for **diagnostics**.
+
 * Green, **E**-prefixed labels explain the level of **experience** necessary
   to fix the issue.
+
+* Peach, **F**-prefixed labels are for **nightly features**.
 
 * The dark blue **final-comment-period** label marks bugs that are using the
   RFC signoff functionality of [rfcbot] and are currently in the final
@@ -495,7 +501,12 @@ appropriate labels to issues that haven't been triaged yet:
 * Gray, **S**-prefixed labels are used for tracking the **status** of pull
   requests.
 
+* Steel blue, **S-tracking**-prefixed labels are for marking the status of a
+  tracking issue.
+
 * Blue, **T**-prefixed bugs denote which **team** the issue belongs to.
+
+* Green, **WG**-prefixed labels denote which **working group** the issue belongs to.
 
 If you're looking for somewhere to start, check out the [E-easy][eeasy] tag.
 
