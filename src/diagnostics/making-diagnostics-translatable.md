@@ -50,7 +50,7 @@ follow these changes:
   ecx.sess.emit_err(errors::ProcMacroDeriveTokens { span });
   ```
 
-- Create the above type, `errors::ProcMacroDeriveTokens`,
+- Create the type introduced above, `errors::ProcMacroDeriveTokens`,
   in `src/errors.rs` (relative to crate directory root):
 
   ```rust
@@ -106,7 +106,7 @@ err.emit()
   })
   ```
 
-- Create the above type, `errors::ProcMacroPanickedHelp`,
+- Create the type introduced above, `errors::ProcMacroPanickedHelp`,
   in `src/errors.rs` (relative to crate directory root):
 
   ```rust
@@ -165,7 +165,7 @@ diag.emit();
   });
   ```
 
-- Create the above type, `errors::WhereClauseOnMain`,
+- Create the type introduced above, `errors::WhereClauseOnMain`,
   in `src/errors.rs` (relative to crate directory root):
 
   ```rust
