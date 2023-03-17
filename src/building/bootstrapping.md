@@ -366,16 +366,16 @@ recompiling all dependencies.
 `CARGOFLAGS_NOT_BOOTSTRAP` work analogously to `RUSTFLAGS_BOOTSTRAP`.
 
 `RUSTC_EMIT` will cause `bootstrap` to pass `--emit` arguments on to `rustc`.
-You can specify which `--emit` formats which are used with a comma separated list prefixed with
+You can specify which `--emit` formats are used with a comma separated list prefixed with
 a crate name and `=`, for example: `rustc_arena=llvm-ir,asm`.
 You can also substitute `*` for the crate name to apply it to all crates.
 You can combine multiple such specifiers by seperating them with semi-colons like
 `rustc_arena=llvm-ir,asm;rustc_span=asm;*=llvm-bc`.
-Currently `rustc` supports `asm`, `llvm-bc`, `llvm-ir`,
+Currently, `rustc` supports `asm`, `llvm-bc`, `llvm-ir`,
 `obj`, `metadata`, `link`, `dep-info`, and `mir` as `--emit` formats.
 The emitted files will be stored inside the `emit`
-directory in the target specific build directory.
-`RUSTC_EMIT` will not cause `bootstrap` to rebuild any crates so you may need to modify
+directory in the target-specific build directory.
+`RUSTC_EMIT` will not cause `bootstrap` to rebuild any crates, so you may need to modify
 one of the source files of the crates you're interested in.
 
 `--test-args` will pass arguments through to the test runner. For `tests/ui`, this is
