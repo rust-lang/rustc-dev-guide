@@ -18,7 +18,7 @@ is conceptually like a `&'tcx [GenericArgKind<'tcx>]` slice (but it is actually 
 [list]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.List.html
 [`GenericArg`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/subst/struct.GenericArg.html
 [`GenericArgKind`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/subst/enum.GenericArgKind.html
-[SubstsRef]: https://doc.rust-lang.org/stable/nightly-rustc/rustc_middle/ty/subst/type.SubstsRef.html
+[SubstsRef]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/subst/type.SubstsRef.html
 
 So why do we use this `List` type instead of making it really a slice? It has the length "inline",
 so `&List` is only 32 bits. As a consequence, it cannot be "subsliced" (that only works if the
