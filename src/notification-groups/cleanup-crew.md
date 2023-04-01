@@ -77,11 +77,13 @@ various builds of rustc. For recent regressions, it is even able to
 use the builds from our CI to track down the regression to a specific
 PR; for older regressions, it will simply identify a nightly.
 
-To learn to use [cargo-bisect-rustc], check out [this blog
-post][learn], which gives a quick introduction to how it works. You
-can also ask questions at the Zulip stream
-[`#t-compiler/cargo-bisect-rustc`][zcbr], or help in improving the tool.
+To learn to use [cargo-bisect-rustc], check out [this blog post][learn], which
+gives a quick introduction to how it works. Additionally, there is a [Guide]
+which goes into more detail on how to use it. You can also ask questions at
+the Zulip stream [`#t-compiler/cargo-bisect-rustc`][zcbr], or help in
+improving the tool.
 
 [cargo-bisect-rustc]: https://github.com/rust-lang/cargo-bisect-rustc/
 [learn]: https://blog.rust-lang.org/inside-rust/2019/12/18/bisecting-rust-compiler.html
 [zcbr]: https://rust-lang.zulipchat.com/#narrow/stream/217417-t-compiler.2Fcargo-bisect-rustc
+[Guide]: https://rust-lang.github.io/cargo-bisect-rustc/
