@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Check files for lines that are too long.
+
 if [ "$1" == "--help" ]; then
   echo 'Usage:' "[MAX_LINE_LENGTH=n] $0 [file ...]"
   exit 1
