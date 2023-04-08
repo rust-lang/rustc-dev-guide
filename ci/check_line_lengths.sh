@@ -21,7 +21,6 @@ echo "Offending files and lines:"
 (( bad_lines = 0 ))
 (( inside_block = 0 ))
 for file in "${files[@]}"; do
-  echo "$file"
   (( line_no = 0 ))
   while IFS="" read -r line || [[ -n "$line" ]] ; do
     (( line_no++ ))
@@ -33,7 +32,7 @@ for file in "${files[@]}"; do
         && ! [[ "$line" =~ " | "|"-|-"|"://"|"]:"|\[\^[^\ ]+\]: ]] \
         && (( "${#line}" > $MAX_LINE_LENGTH )) ; then
       (( bad_lines++ ))
-      echo -e "\t$line_no : $line"
+      echo -e "\t$file:$line_no : $line"
     fi
   done < "$file"
 done
