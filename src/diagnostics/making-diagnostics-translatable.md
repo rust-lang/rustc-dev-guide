@@ -26,8 +26,8 @@ For a single diagnostic, 3 files need to be modified:
   either a `struct` or an `enum`, will be added.
   This is typically in a module named `errors` in the relevant compiler crate.
 - One file where the actual text of the diagnostic is located,
-  located in a file named `locales/en-US.ftl`,
-  relative to the root path of the relevant rustc crate.
+  located in a file named `messages.ftl`,
+  at the root of the relevant rustc crate.
 
 ## Simple example
 
@@ -62,8 +62,7 @@ follow these changes:
   }
   ```
 
-- Create the actual text of the diagnostic in `locales/en-US.ftl`
-  (also relative to crate directory root):
+- Create the actual text of the diagnostic in `compiler/rustc_expand/messages.ftl`:
 
   ```fluent
   expand_proc_macro_derive_tokens =
@@ -126,8 +125,8 @@ err.emit()
   }
   ```
 
-- Create the actual text of the diagnostic in `locales/en-US.ftl`
-  (also relative to crate directory root):
+- Create the actual text of the diagnostic in `messages.ftl`
+  (also at crate directory root):
 
   ```fluent
   expand_proc_macro_panicked =
@@ -179,8 +178,7 @@ diag.emit();
   }
   ```
 
-- Create the actual text of the diagnostic in `locales/en-US.ftl`
-  (also relative to crate directory root):
+- Create the actual text of the diagnostic in `messages.ftl`:
 
   ```fluent
   hir_analysis_where_clause_on_main =
