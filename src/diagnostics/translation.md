@@ -1,8 +1,10 @@
 # Translation
+
 rustc's diagnostic infrastructure supports translatable diagnostics using
 [Fluent].
 
 ## Writing translatable diagnostics
+
 There are two ways of writing translatable diagnostics:
 
 1. For simple diagnostics, using a diagnostic (or subdiagnostic) derive
@@ -19,6 +21,7 @@ each crate which defines translatable diagnostics has its own Fluent resource,
 such as `parser.ftl` or `typeck.ftl`.
 
 ## Fluent
+
 Fluent is built around the idea of "asymmetric localization", which aims to
 decouple the expressiveness of translations from the grammar of the source
 language (English in rustc's case). Prior to translation, rustc's diagnostics
@@ -68,6 +71,7 @@ You can consult the [Fluent] documentation for other usage examples of Fluent
 and its syntax.
 
 ### Guideline for message naming
+
 Usually, fluent uses `-` for separating words inside a message name. However,
 `_` is accepted by fluent as well. As `_` fits Rust's use cases better, due to
 the identifiers on the Rust side using `_` as well, inside rustc, `-` is not
@@ -75,6 +79,7 @@ allowed for separating words, and instead `_` is recommended. The only exception
 is for leading `-`s, for message names like `-passes_see_issue`.
 
 ### Guidelines for writing translatable messages
+
 For a message to be translatable into different languages, all of the
 information required by any language must be provided to the diagnostic as an
 argument (not just the information required in the English message).
@@ -86,6 +91,7 @@ excellent examples of translating messages into different locales and the
 information that needs to be provided by the code to do so.
 
 ### Compile-time validation and typed identifiers
+
 Currently, each crate which defines translatable diagnostics has its own
 Fluent resource in a file named `messages.ftl`, such as
 [`compiler/rustc_borrowck/messages.ftl`] and
@@ -150,10 +156,12 @@ err.emit();
 When emitting a diagnostic, these constants can be used like shown above.
 
 ## Internals
+
 Various parts of rustc's diagnostic internals are modified in order to support
 translation.
 
 ### Messages
+
 All of rustc's traditional diagnostic APIs (e.g. `struct_span_err` or `note`)
 take any message that can be converted into a `DiagnosticMessage` (or
 `SubdiagnosticMessage`).
@@ -182,6 +190,7 @@ non-translatable diagnostics - this keeps all existing diagnostic calls
 working.
 
 ### Arguments
+
 Additional context for Fluent messages which are interpolated into message
 contents needs to be provided to translatable diagnostics.
 
@@ -198,6 +207,7 @@ have such implementations.
 added manually when using diagnostic builder APIs.
 
 ### Loading
+
 rustc makes a distinction between the "fallback bundle" for `en-US` that is used
 by default and when another locale is missing a message; and the primary fluent
 bundle which is requested by the user.
