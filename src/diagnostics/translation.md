@@ -150,7 +150,7 @@ additional context to a diagnostic.
 Arguments have both a name (e.g. "what" in the earlier example) and a value.
 Argument values are represented using the `DiagnosticArgValue` type, which is
 just a string or a number. rustc types can implement `IntoDiagnosticArg` with
-conversion into a string or a number, common types like `Ty<'tcx>` already
+conversion into a string or a number, and common types like `Ty<'tcx>` already
 have such implementations.
 
 `set_arg` calls are handled transparently by diagnostic derives but need to be
