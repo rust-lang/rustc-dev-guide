@@ -105,55 +105,6 @@ from Fluent resources while building the compiler, preventing invalid Fluent
 resources from causing panics in the compiler. Compile-time validation also
 emits an error if multiple Fluent messages have the same identifier.
 
-In `rustc_error_messages`, `fluent_messages` also generates a constant for each
-Fluent message which can be used to refer to messages when emitting
-diagnostics and guarantee that the message exists.
-
-```rust
-fluent_messages! {
-    typeck => "../locales/en-US/typeck.ftl",
-}
-```
-
-For example, given the following Fluent...
-
-```fluent
-typeck_field_multiply_specified_in_initializer =
-    field `{$ident}` specified more than once
-    .label = used more than once
-    .label_previous_use = first use of `{$ident}`
-```
-
-...then the `fluent_messages` macro will generate:
-
-```rust
-pub static DEFAULT_LOCALE_RESOURCES: &'static [&'static str] = &[
-    include_str!("../locales/en-US/typeck.ftl"),
-];
-
-mod fluent_generated {
-    pub const typeck_field_multiply_specified_in_initializer: DiagnosticMessage =
-        DiagnosticMessage::new("typeck_field_multiply_specified_in_initializer");
-    pub const label: SubdiagnosticMessage =
-        SubdiagnosticMessage::attr("label");
-    pub const label_previous_use: SubdiagnosticMessage =
-        SubdiagnosticMessage::attr("previous_use_label");
-}
-```
-
-`rustc_error_messages::fluent_generated` is re-exported and primarily used as
-`rustc_errors::fluent`.
-
-```rust
-use rustc_errors::fluent;
-let mut err = sess.struct_span_err(span, fluent::typeck_field_multiply_specified_in_initializer);
-err.span_label(span, fluent::label);
-err.span_label(previous_use_span, fluent::previous_use_label);
-err.emit();
-```
-
-When emitting a diagnostic, these constants can be used like shown above.
-
 ## Internals
 
 Various parts of rustc's diagnostic internals are modified in order to support
