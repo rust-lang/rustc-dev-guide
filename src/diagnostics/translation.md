@@ -96,11 +96,6 @@ information that needs to be provided by the code to do so.
 
 ### Compile-time validation and typed identifiers
 
-Currently, each crate which defines translatable diagnostics has its own
-Fluent resource in a file named `messages.ftl`, such as
-[`compiler/rustc_borrowck/messages.ftl`] and
-[`compiler/rustc_parse/messages.ftl`].
-
 rustc's `fluent_messages` macro performs compile-time validation of Fluent
 resources and generates code to make it easier to refer to Fluent messages in
 diagnostics.
