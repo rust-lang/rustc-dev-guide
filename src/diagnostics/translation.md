@@ -15,10 +15,14 @@ There are two ways of writing translatable diagnostics:
 2. Using typed identifiers with `DiagnosticBuilder` APIs (in
    `Diagnostic` implementations).
 
-When adding or changing a translatable diagnostic, you don't need to worry
-about the translations, only updating the original English message. Currently,
+When adding or changing a translatable diagnostic,
+you don't need to worry about the translations.
+Only updating the original English message is required.
+Currently,
 each crate which defines translatable diagnostics has its own Fluent resource,
-such as `parser.ftl` or `typeck.ftl`.
+which is a file named `messages.ftl`,
+located in the root of the crate
+(such as`compiler/rustc_expand/messages.ftl`).
 
 ## Fluent
 
