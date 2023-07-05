@@ -92,7 +92,7 @@ few years into [gradually improving it][perfdash].
 [perfdash]: https://perf.rust-lang.org/dashboard.html
 
 If you suspect that your change may cause a performance regression (or
-improvement), you can request a "perf run" (your reviewer may also request one
+improvement), you can request a "perf run" (and your reviewer may also request one
 before approving). This is yet another bot that will compile a collection of
 benchmarks on a compiler with your changes. The numbers are reported
 [here][perf], and you can see a comparison of your changes against the latest
