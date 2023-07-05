@@ -2,7 +2,7 @@
 
 <!-- toc -->
 
-## Bug Reports
+## Bug reports
 
 While bugs are unfortunate, they're a reality in software. We can't fix what we
 don't know about, so please report liberally. If you're not sure if something
@@ -32,7 +32,7 @@ Opening an issue is as easy as following [this
 link](https://github.com/rust-lang/rust/issues/new/choose) and filling out the fields
 in the appropriate provided template.
 
-## Bug Fixes or "Normal" code changes
+## Bug fixes or "normal" code changes
 
 For most PRs, no special procedures are needed. You can just [open a PR], and it
 will be reviewed, approved, and merged. This includes most bug fixes,
@@ -47,7 +47,7 @@ the CI to build and test their PR (e.g. when developing on a slow machine).
 [open a PR]: #pull-requests
 [Draft PRs]: https://github.blog/2019-02-14-introducing-draft-pull-requests/
 
-## New Features
+## New features
 
 Rust has strong backwards-compatibility guarantees. Thus, new features can't
 just be implemented directly in stable Rust. Instead, we have 3 release
@@ -62,11 +62,11 @@ channels: stable, beta, and nightly.
 See [this chapter on implementing new features](./implementing_new_features.md) for more
 information.
 
-### Breaking Changes
+### Breaking changes
 
 Breaking changes have a [dedicated section][Breaking Changes] in the dev-guide.
 
-### Major Changes
+### Major changes
 
 The compiler team has a special process for large changes, whether or not they
 cause breakage. This process is called a Major Change Proposal (MCP). MCP is a
@@ -104,7 +104,7 @@ master.
 [perf]: https://perf.rust-lang.org
 [The Rust Performance Book]: https://nnethercote.github.io/perf-book/
 
-## Pull Requests
+## Pull requests
 
 Pull requests (or PRs for short) are the primary mechanism we use to change Rust.
 GitHub itself has some [great documentation][about-pull-requests] on using the
@@ -262,11 +262,11 @@ the issue in question.
 [labeling]: ./rustbot.md#issue-relabeling
 [closing-keywords]: https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue
 
-## External Dependencies
+## External dependencies
 
 This section has moved to ["Using External Repositories"](./external-repos.md).
 
-## Writing Documentation
+## Writing documentation
 
 Documentation improvements are very welcome. The source of `doc.rust-lang.org`
 is located in [`src/doc`] in the tree, and standard API documentation is generated
@@ -349,7 +349,7 @@ Just a few things to keep in mind:
   subsections) it might benefit from having a Table of Contents at the beginning, which you can
   auto-generate by including the `<!-- toc -->` marker.
 
-## Issue Triage
+## Issue triage
 
 Sometimes, an issue will stay open, even though the bug has been fixed.
 And sometimes, the original bug may go stale because something has changed in the meantime.
@@ -453,7 +453,7 @@ This is used for [RFCs], issues, and pull requests.
 [rfcbot]: https://github.com/anp/rfcbot-rs/
 [RFCs]: https://github.com/rust-lang/rfcs
 
-## Helpful Links and Information
+## Helpful links and information
 
 This section has moved to the ["About this guide"][more-links] chapter.
 
