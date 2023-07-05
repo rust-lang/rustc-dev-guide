@@ -42,7 +42,7 @@ about exceptions to this rule.
 Also, note that it is perfectly acceptable to open WIP PRs or GitHub [Draft PRs].
 Some people prefer to do this so they can get feedback along the
 way or share their code with a collaborator. Others do this so they can utilize
-the CI to build and test their PR (e.g. if you are developing on a laptop).
+the CI to build and test their PR (e.g. when developing on a slow machine).
 
 [open a PR]: #pull-requests
 [Draft PRs]: https://github.blog/2019-02-14-introducing-draft-pull-requests/
