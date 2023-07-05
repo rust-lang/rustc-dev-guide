@@ -174,13 +174,13 @@ Zulip ([#t-release/triage]). They have knowledge of when to ping, who might be
 on vacation, etc.
 
 The reviewer may request some changes using the GitHub code review interface.
-They may also request special procedures (such as a [crater] run; [see
-below][break]) for some PRs.
+They may also request special procedures for some PRs.
+See [Crater] and [Breaking Changes] chapters for some examples of such procedures.
 
 [r?]: https://github.com/rust-lang/rust/pull/78133#issuecomment-712692371
 [#t-release/triage]: https://rust-lang.zulipchat.com/#narrow/stream/242269-t-release.2Ftriage
-[break]: #breaking-changes
-[crater]: tests/crater.md
+[Breaking Changes]: bug-fix-procedure.md
+[Crater]: tests/crater.md
 
 ### CI
 
