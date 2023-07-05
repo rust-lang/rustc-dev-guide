@@ -64,9 +64,7 @@ information.
 
 ### Breaking Changes
 
-Breaking changes have a [dedicated section][breaking-changes] in the dev-guide.
-
-[breaking-changes]: ./bug-fix-procedure.md
+Breaking changes have a [dedicated section][Breaking Changes] in the dev-guide.
 
 ### Major Changes
 
@@ -179,7 +177,6 @@ See [Crater] and [Breaking Changes] chapters for some examples of such procedure
 
 [r?]: https://github.com/rust-lang/rust/pull/78133#issuecomment-712692371
 [#t-release/triage]: https://rust-lang.zulipchat.com/#narrow/stream/242269-t-release.2Ftriage
-[Breaking Changes]: bug-fix-procedure.md
 [Crater]: tests/crater.md
 
 ### CI
@@ -474,3 +471,4 @@ This section has moved to the ["About this guide"][more-links] chapter.
 [more-links]: ./about-this-guide.md#other-places-to-find-information
 
 [search existing issues]: https://github.com/rust-lang/rust/issues?q=is%3Aissue
+[Breaking Changes]: bug-fix-procedure.md
