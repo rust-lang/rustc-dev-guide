@@ -132,8 +132,9 @@ to the end of the pull request description, and [@rustbot] will assign
 them instead of a random person. This is entirely optional.
 
 You can also assign a random reviewer from a specific team by writing `r? rust-lang/groupname`.
-So if you were making a diagnostics change, then you could get a reviewer from the diagnostics
-team by adding:
+As an example,
+if you were making a diagnostics change,
+then you could get a reviewer from the diagnostics team by adding:
 
     r? rust-lang/diagnostics
 
