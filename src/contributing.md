@@ -228,9 +228,8 @@ Be patient; this can take a while and the queue can sometimes be long. PRs are n
 You are now ready to file a pull request? Great! Here are a few points you
 should be aware of.
 
-All pull requests should be filed against the `master` branch, except in very
-particular scenarios. Unless you know for sure that you should target another
-branch, `master` will be the right choice (it's also the default).
+All pull requests should be filed against the `master` branch,
+unless you know for sure that you should target a different branch.
 
 Make sure your pull request is in compliance with Rust's style guidelines by running
 
