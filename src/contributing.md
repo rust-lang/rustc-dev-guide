@@ -181,7 +181,7 @@ See [Crater] and [Breaking Changes] chapters for some examples of such procedure
 
 ### CI
 
-In addition to being reviewed by a human, pull requests are automatically tested
+In addition to being reviewed by a human, pull requests are automatically tested,
 thanks to continuous integration (CI). Basically, every time you open and update
 a pull request, CI builds the compiler and tests it against the
 [compiler test suite][rctd], and also performs other tests such as checking that
