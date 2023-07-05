@@ -455,10 +455,9 @@ This is used for [RFCs], issues, and pull requests.
 
 ## Helpful links and information
 
-This section has moved to the ["About this guide"][more-links] chapter.
+This section has moved to the ["About this guide"] chapter.
 
-[more-links]: ./about-this-guide.md#other-places-to-find-information
-
+["About this guide"]: about-this-guide.md#other-places-to-find-information
 [search existing issues]: https://github.com/rust-lang/rust/issues?q=is%3Aissue
 [Breaking Changes]: bug-fix-procedure.md
 [triagebot.toml config file]: https://github.com/rust-lang/rust/blob/HEAD/triagebot.toml
