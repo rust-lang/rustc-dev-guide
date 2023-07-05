@@ -236,7 +236,7 @@ Make sure your pull request is in compliance with Rust's style guidelines by run
     $ ./x test tidy --bless
 
 We recommend to make this check before every pull request (and every new commit
-in a pull request); you can add [git hooks](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks)
+in a pull request); you can add [git hooks]
 before every push to make sure you never forget to make this check. The
 CI will also run tidy and will fail if tidy fails.
 
@@ -472,3 +472,4 @@ This section has moved to the ["About this guide"][more-links] chapter.
 [rust-lang teams database]: https://github.com/rust-lang/team/tree/HEAD/teams
 [compiler test suite]: tests/intro.md
 [merge queue]: https://bors.rust-lang.org/queue/rust
+[git hooks]: https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks
