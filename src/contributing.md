@@ -184,10 +184,8 @@ See [Crater] and [Breaking Changes] chapters for some examples of such procedure
 In addition to being reviewed by a human, pull requests are automatically tested,
 thanks to continuous integration (CI). Basically, every time you open and update
 a pull request, CI builds the compiler and tests it against the
-[compiler test suite][rctd], and also performs other tests such as checking that
+[compiler test suite], and also performs other tests such as checking that
 your pull request is in compliance with Rust's style guidelines.
-
-[rctd]: tests/intro.md
 
 Running continuous integration tests allows PR authors to catch mistakes early
 without going through a first review cycle, and also helps reviewers stay aware
@@ -207,7 +205,7 @@ on the pull request with an `r+`. It will look something like this:
     @bors r+
 
 This tells [@bors], our lovable integration bot, that your pull request has
-been approved. The PR then enters the [merge queue][merge-queue], where [@bors]
+been approved. The PR then enters the [merge queue], where [@bors]
 will run *all* the tests on *every* platform we support. If it all works out,
 [@bors] will merge your code into `master` and close the pull request.
 
@@ -224,7 +222,6 @@ Be patient; this can take a while and the queue can sometimes be long. PRs are n
 
 [@rustbot]: https://github.com/rustbot
 [@bors]: https://github.com/bors
-[merge-queue]: https://bors.rust-lang.org/queue/rust
 
 ### Opening a PR
 
@@ -474,3 +471,5 @@ This section has moved to the ["About this guide"][more-links] chapter.
 [Breaking Changes]: bug-fix-procedure.md
 [triagebot.toml config file]: https://github.com/rust-lang/rust/blob/HEAD/triagebot.toml
 [rust-lang teams database]: https://github.com/rust-lang/team/tree/HEAD/teams
+[compiler test suite]: tests/intro.md
+[merge queue]: https://bors.rust-lang.org/queue/rust
