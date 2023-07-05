@@ -98,8 +98,8 @@ benchmarks on a compiler with your changes. The numbers are reported
 [here][perf], and you can see a comparison of your changes against the latest
 master.
 
-For an introduction to the performance of Rust code in general
-which would also be useful in rustc development, see [The Rust Performance Book].
+> For an introduction to the performance of Rust code in general
+> which would also be useful in rustc development, see [The Rust Performance Book].
 
 [perf]: https://perf.rust-lang.org
 [The Rust Performance Book]: https://nnethercote.github.io/perf-book/
