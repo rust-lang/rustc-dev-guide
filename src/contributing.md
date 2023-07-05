@@ -276,13 +276,9 @@ function in the same way as other pull requests.
 [`src/doc`]: https://github.com/rust-lang/rust/tree/master/src/doc
 [std-root]: https://github.com/rust-lang/rust/blob/master/library/std/src/lib.rs#L1
 
-To find documentation-related issues, sort by the [A-docs label][adocs].
+To find documentation-related issues, sort by the [A-docs label].
 
-[adocs]: https://github.com/rust-lang/rust/issues?q=is%3Aopen%20is%3Aissue%20label%3AA-docs
-
-You can find documentation style guidelines in [RFC 1574][rfc1574].
-
-[rfc1574]: https://github.com/rust-lang/rfcs/blob/master/text/1574-more-api-documentation-conventions.md#appendix-a-full-conventions-text
+You can find documentation style guidelines in [RFC 1574].
 
 To build the standard library documentation, use `x doc --stage 0 library --open`.
 To build the documentation for a book (e.g. the unstable book), use `x doc src/doc/unstable-book.`
@@ -296,22 +292,23 @@ The CSS might be messed up, but you can verify that the HTML is right.
 
 ### Contributing to rustc-dev-guide
 
-Contributions to the [rustc-dev-guide][rdg] are always welcome, and can be made directly at
+Contributions to the [rustc-dev-guide] are always welcome, and can be made directly at
 [the rust-lang/rustc-dev-guide repo][rdgrepo].
 The issue tracker in that repo is also a great way to find things that need doing.
 There are issues for beginners and advanced compiler devs alike!
 
 Just a few things to keep in mind:
 
-- Please limit line length to 100 characters. This is enforced by CI, and you can run the checks
-  locally with `ci/lengthcheck.sh`.
+- Please limit line length to 100 characters.
+  This is enforced by CI,
+  and you can run the checks locally with `ci/lengthcheck.sh`.
 
 - When contributing text to the guide, please contextualize the information with some time period
   and/or a reason so that the reader knows how much to trust or mistrust the information.
   Aim to provide a reasonable amount of context, possibly including but not limited to:
 
-  - A reason for why the data may be out of date other than "change", as change is a constant across
-    the project.
+  - A reason for why the data may be out of date other than "change",
+    as change is a constant across the project.
 
   - The date the comment was added, e.g. instead of writing _"Currently, ..."_
     or _"As of now, ..."_,
@@ -351,9 +348,6 @@ Just a few things to keep in mind:
 - If a text grows rather long (more than a few page scrolls) or complicated (more than four
   subsections) it might benefit from having a Table of Contents at the beginning, which you can
   auto-generate by including the `<!-- toc -->` marker.
-
-[rdg]: https://rustc-dev-guide.rust-lang.org/
-[rdgrepo]: https://github.com/rust-lang/rustc-dev-guide
 
 ## Issue Triage
 
@@ -473,3 +467,7 @@ This section has moved to the ["About this guide"][more-links] chapter.
 [compiler test suite]: tests/intro.md
 [merge queue]: https://bors.rust-lang.org/queue/rust
 [git hooks]: https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks
+[A-docs label]: https://github.com/rust-lang/rust/issues?q=is%3Aopen%20is%3Aissue%20label%3AA-docs
+[RFC 1574]: https://github.com/rust-lang/rfcs/blob/master/text/1574-more-api-documentation-conventions.md#appendix-a-full-conventions-text
+[rustc-dev-guide]: https://rustc-dev-guide.rust-lang.org/
+[rdgrepo]: https://github.com/rust-lang/rustc-dev-guide
