@@ -119,6 +119,24 @@ when contributing to Rust under [the git section](./git.md).
 [about-pull-requests]: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests
 [development-models]: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/getting-started/about-collaborative-development-models#fork-and-pull-model
 
+### Separate your changes and commit guidelines
+
+A PR might include various commits. For example, if your change includes both bug-fixes and
+performance enhancements for a single module. Please separate those changes into two or more
+individual commits.
+
+On the other hand, if your change encompasses numerous files, include those files in your commit.
+**A single logical change is contained within a single patch**. The commit message should describe
+what you are changing (e.g. `Binary` trait bug-fixes in the `fmt` module). Even if another commit
+in the same PR already says it. **Each commit message should be its own unit of information.**
+
+The point here is that each commit should as individual as possible (although a commit may depend
+on another, and that's OK), and easily understood by other people (e.g. reviewers).
+
+Please, don't include as a commit in your larger PR minimal formatting changes (e.g. documentation
+formatting issues) or commits that don't serve any "big purpose". Squash those very small commits
+into a single one (each PR should be as small as possible).
+
 ### r?
 
 All pull requests are reviewed by another person. We have a bot,
