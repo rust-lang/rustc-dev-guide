@@ -77,12 +77,12 @@ Example of things that might require MCPs include major refactorings, changes
 to important types, or important changes to how the compiler does something, or
 smaller user-facing changes.
 
-**When in doubt, ask on [zulip][z]. It would be a shame to put a lot of work
+**When in doubt, ask on [zulip]. It would be a shame to put a lot of work
 into a PR that ends up not getting merged!** [See this document][mcpinfo] for
 more info on MCPs.
 
 [mcpinfo]: https://forge.rust-lang.org/compiler/mcp.html
-[z]: https://rust-lang.zulipchat.com/#narrow/stream/131828-t-compiler
+[zulip]: https://rust-lang.zulipchat.com/#narrow/stream/131828-t-compiler
 
 ### Performance
 
