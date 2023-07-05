@@ -16,8 +16,7 @@ please follow our [instructions for reporting security vulnerabilities][vuln]**.
 If you're using the nightly channel, please check if the bug exists in the
 latest toolchain before filing your bug. It might be fixed already.
 
-If you have the chance, before reporting a bug, please [search existing
-issues](https://github.com/rust-lang/rust/issues?q=is%3Aissue),
+If you have the chance, before reporting a bug, please [search existing issues],
 as it's possible that someone else has already reported your error. This doesn't
 always work, and sometimes it's hard to know what to search for, so consider this
 extra credit. We won't mind if you accidentally file a duplicate report.
@@ -473,3 +472,5 @@ This is used for [RFCs], issues, and pull requests.
 This section has moved to the ["About this guide"][more-links] chapter.
 
 [more-links]: ./about-this-guide.md#other-places-to-find-information
+
+[search existing issues]: https://github.com/rust-lang/rust/issues?q=is%3Aissue
