@@ -34,18 +34,18 @@ in the appropriate provided template.
 
 ## Bug Fixes or "Normal" code changes
 
-For most PRs, no special procedures are needed. You can just [open a PR][prs], and it
+For most PRs, no special procedures are needed. You can just [open a PR], and it
 will be reviewed, approved, and merged. This includes most bug fixes,
 refactorings, and other user-invisible changes. The next few sections talk
 about exceptions to this rule.
 
-Also, note that it is perfectly acceptable to open WIP PRs or GitHub [Draft
-PRs][draft]. Some people prefer to do this so they can get feedback along the
+Also, note that it is perfectly acceptable to open WIP PRs or GitHub [Draft PRs].
+Some people prefer to do this so they can get feedback along the
 way or share their code with a collaborator. Others do this so they can utilize
 the CI to build and test their PR (e.g. if you are developing on a laptop).
 
-[prs]: #pull-requests
-[draft]: https://github.blog/2019-02-14-introducing-draft-pull-requests/
+[open a PR]: #pull-requests
+[Draft PRs]: https://github.blog/2019-02-14-introducing-draft-pull-requests/
 
 ## New Features
 
