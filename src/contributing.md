@@ -139,10 +139,8 @@ then you could get a reviewer from the diagnostics team by adding:
     r? rust-lang/diagnostics
 
 For a full list of possible `groupname`s,
-check the `adhoc_groups` section at the
-[triagebot.toml config file](https://github.com/rust-lang/rust/blob/master/triagebot.toml)
-or the list of teams in the [rust-lang teams
-database](https://github.com/rust-lang/team/tree/master/teams).
+check the `adhoc_groups` section at the [triagebot.toml config file],
+or the list of teams in the [rust-lang teams database].
 
 ### Waiting for reviews
 
@@ -474,3 +472,5 @@ This section has moved to the ["About this guide"][more-links] chapter.
 
 [search existing issues]: https://github.com/rust-lang/rust/issues?q=is%3Aissue
 [Breaking Changes]: bug-fix-procedure.md
+[triagebot.toml config file]: https://github.com/rust-lang/rust/blob/HEAD/triagebot.toml
+[rust-lang teams database]: https://github.com/rust-lang/team/tree/HEAD/teams
