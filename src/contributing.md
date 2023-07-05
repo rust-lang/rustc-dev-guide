@@ -138,7 +138,8 @@ then you could get a reviewer from the diagnostics team by adding:
 
     r? rust-lang/diagnostics
 
-For a full list of possible `groupname` check the `adhoc_groups` section at the
+For a full list of possible `groupname`s,
+check the `adhoc_groups` section at the
 [triagebot.toml config file](https://github.com/rust-lang/rust/blob/master/triagebot.toml)
 or the list of teams in the [rust-lang teams
 database](https://github.com/rust-lang/team/tree/master/teams).
