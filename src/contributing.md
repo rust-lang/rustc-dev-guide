@@ -351,14 +351,13 @@ Just a few things to keep in mind:
 
 ## Issue Triage
 
-Sometimes, an issue will stay open, even though the bug has been fixed. And
-sometimes, the original bug may go stale because something has changed in the
-meantime.
+Sometimes, an issue will stay open, even though the bug has been fixed.
+And sometimes, the original bug may go stale because something has changed in the meantime.
 
-It can be helpful to go through older bug reports and make sure that they are
-still valid. Load up an older issue, double check that it's still true, and
-leave a comment letting us know if it is or is not. The [least recently
-updated sort][lru] is good for finding issues like this.
+It can be helpful to go through older bug reports and make sure that they are still valid.
+Load up an older issue, double check that it's still true,
+and leave a comment letting us know if it is or is not.
+The [least recently updated sort][lru] is good for finding issues like this.
 
 [Thanks to `@rustbot`][rustbot], anyone can help triage issues by adding
 appropriate labels to issues that haven't been triaged yet:
