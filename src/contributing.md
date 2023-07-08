@@ -127,15 +127,14 @@ individual commits.
 
 On the other hand, if your change encompasses numerous files, include those files in your commit.
 **A single logical change is contained within a single patch**. The commit message should describe
-what you are changing (e.g. `Binary` trait bug-fixes in the `fmt` module). Even if another commit
+what you are changing (e.g. "Binary trait bug-fixes in the `fmt` module"). Even if another commit
 in the same PR already says it. **Each commit message should be its own unit of information.**
 
-The point here is that each commit should as individual as possible (although a commit may depend
+The point here is that each commit should be as standalone as possible (although a commit may depend
 on another, and that's OK), and easily understood by other people (e.g. reviewers).
 
-Please, don't include as a commit in your larger PR minimal formatting changes (e.g. documentation
-formatting issues) or commits that don't serve any "big purpose". Squash those very small commits
-into a single one (each PR should be as small as possible).
+Please, Squash very small commits (such as formatting changes) into a single one just before
+merging (each PR should be as small as possible).
 
 ### r?
 
