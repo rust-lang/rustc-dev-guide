@@ -53,7 +53,7 @@ For example:
 mod tests;
 ```
 
-If it wasn't done this way, 
+If it wasn't done this way,
 and you were working on something like `core`,
 that would require recompiling the entire standard library, and the entirety of `rustc`.
 
