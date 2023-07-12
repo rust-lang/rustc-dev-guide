@@ -246,11 +246,6 @@ Some submodules are not actually needed; for example, `src/llvm-project` doesn't
 out if you're using `download-ci-llvm`.  To avoid having to keep fetching its history, you can use
 `git submodule deinit -f src/llvm-project`, which will also avoid it showing as modified again.
 
-There is a workaround in [the issue][#77620-workaround].
-
-[#77620]: https://github.com/rust-lang/rust/issues/77620
-[#77620-workaround]: https://github.com/rust-lang/rust/issues/77620#issuecomment-705228229
-
 ## Rebasing and Conflicts
 
 When you edit your code locally, you are making changes to the version of
