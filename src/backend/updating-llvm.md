@@ -2,7 +2,7 @@
 
 <!-- toc -->
 
-<!-- date-check: Feb 2023 -->
+<!-- date-check: Jul 2023 -->
 There is no formal policy about when to update LLVM or what it can be updated to,
 but a few guidelines are applied:
 
@@ -52,7 +52,7 @@ An example PR:
 
 ## New LLVM Release Updates
 
-<!-- date-check: Aug 2022 -->
+<!-- date-check: Jul 2023 -->
 
 Unlike bugfixes,
 updating to a new release of LLVM typically requires a lot more work.
