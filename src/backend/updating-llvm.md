@@ -139,6 +139,7 @@ so let's go through each in detail.
    > - [LLVM 13](https://github.com/rust-lang/rust/pull/87570)
    > - [LLVM 14](https://github.com/rust-lang/rust/pull/93577)
    > - [LLVM 15](https://github.com/rust-lang/rust/pull/99464)
+   > - [LLVM 16](https://github.com/rust-lang/rust/pull/109474)
 
    Note that sometimes it's easiest to land [`llvm-wrapper`] compatibility as a PR
    before actually updating `src/llvm-project`.
