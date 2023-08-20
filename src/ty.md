@@ -143,7 +143,7 @@ These have names
 that correspond mostly to the various kinds of types. For example:
 
 ```rust,ignore
-let array_ty = Ty::new_array_with_const_len(tcx, ty, count)
+let array_ty = Ty::new_array_with_const_len(tcx, ty, count);
 ```
 
 These methods all return a `Ty<'tcx>` – note that the lifetime you get back is the lifetime of the
