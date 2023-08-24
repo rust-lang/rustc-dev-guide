@@ -58,7 +58,7 @@ statically links coverage-instrumented binaries with LLVM runtime code
 
 In the `rustc` source tree, `library/profiler_builtins` bundles the LLVM
 `compiler-rt` code into a Rust library crate. (When building `rustc`, the
-`profiler_builtins` library is only included when `profiler = true` is set
+`profiler_builtins` library is only included when `build.profiler = true` is set
 in `rustc`'s `config.toml`.)
 
 When compiling with `-C instrument-coverage`,
