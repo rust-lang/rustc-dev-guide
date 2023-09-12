@@ -36,8 +36,6 @@ If you have enough free disk space and you would like to be able to run `x` comm
 rust-analyzer runs in the background, you can also add `--build-dir build-rust-analyzer` to the
 `overrideCommand` to avoid x locking.
 
-[`src/etc/rust_analyzer_settings.json`]: https://github.com/rust-lang/rust/blob/master/src/etc/rust_analyzer_settings.json
-
 If running `./x check` on save is inconvenient, in VS Code you can use a [Build
 Task] instead:
 
@@ -74,9 +72,9 @@ Rust-Analyzer to already be configured with Neovim. Steps for this can be
    `neoconf` is able to read and update Rust-Analyzer settings automatically when the project is
    opened when this file is detected.
 
-If you're running `coc.nvim`, you can use `:CocLocalConfig` to create a
-`.vim/coc-settings.json` and copy the settings from 
-[this file](https://github.com/rust-lang/rust/blob/master/src/etc/rust_analyzer_settings.json).
+If you're running `coc.nvim`,
+you can use `:CocLocalConfig` to create a `.vim/coc-settings.json`,
+and copy the settings from [`src/etc/rust_analyzer_settings.json`].
 
 Another way is without a plugin, and creating your own logic in your configuration. To do this you 
 must translate the JSON to Lua yourself. The translation is 1:1 and fairly straight-forward. It 
@@ -155,7 +153,7 @@ lets you use `cargo fmt`.
 Sometimes just checking
 whether the compiler builds is not enough. A common example is that
 you need to add a `debug!` statement to inspect the value of some
-state or better understand the problem. In that case, you really need
+state or better understand the problem. In that case, you don't really need
 a full build. By bypassing bootstrap's cache invalidation, you can often get
 these builds to complete very fast (e.g., around 30 seconds). The only
 catch is this requires a bit of fudging and may produce compilers that
@@ -282,6 +280,7 @@ let
     changelog-seen = 2
 
     [build]
+    patch-binaries-for-nix = true
     # The path to (or name of) the GDB executable to use. This is only used for
     # executing the debuginfo test suite.
     gdb = "${pkgs.gdb}/bin/gdb"
@@ -346,3 +345,5 @@ You can use `source ./src/etc/completions/x.py.<extension>`
 to load completions for your shell of choice,
 or `source .\src\etc\completions\x.py.ps1` for PowerShell.
 Adding this to your shell's startup script (e.g. `.bashrc`) will automatically load this completion.
+
+[`src/etc/rust_analyzer_settings.json`]: https://github.com/rust-lang/rust/blob/master/src/etc/rust_analyzer_settings.json
