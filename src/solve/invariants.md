@@ -23,13 +23,17 @@ well-formed after normalizing said aliases. We rely on this as
 otherwise we would have to re-check for well-formedness for these
 types.
 
-This is invariantunfortunately broken for `<fndef as FnOnce<..>>::Output` due to implied bounds, resulting in [#114936].
+This is unfortunately broken for `<fndef as FnOnce<..>>::Output` due to implied bounds,
+resulting in [#114936].
 
 ### applying inference results from a goal does not change its result ❌
 
-TODO: this invariant is formulated in a weird way and needs to be elaborated. Pretty much: I would like this check to only fail if there's a solver bug: https://github.com/rust-lang/rust/blob/2ffeb4636b4ae376f716dc4378a7efb37632dc2d/compiler/rustc_trait_selection/src/solve/eval_ctxt.rs#L391-L407
+TODO: this invariant is formulated in a weird way and needs to be elaborated.
+Pretty much: I would like this check to only fail if there's a solver bug:
+https://github.com/rust-lang/rust/blob/2ffeb4636b4ae376f716dc4378a7efb37632dc2d/compiler/rustc_trait_selection/src/solve/eval_ctxt.rs#L391-L407
 
-If we prove some goal/equate types/whatever, apply the resulting inference constraints, and then redo the original action, the result should be the same.
+If we prove some goal/equate types/whatever, apply the resulting inference constraints,
+and then redo the original action, the result should be the same.
 
 This unfortunately does not hold - at least in the new solver - due to a few annoying reasons.
 
@@ -124,7 +128,8 @@ as `exists<'0, '1> u32: Trait<'0, '1>`, to make it harder to rely on this proper
 
 ### Removing ambiguity makes strictly more things compile ❌
 
-Ideally we *should* not rely on ambiguity for things to compile. Not doing that will cause future improvements to be breaking changes.
+Ideally we *should* not rely on ambiguity for things to compile.
+Not doing that will cause future improvements to be breaking changes.
 
 Due to *incompleteness* this is not the case and improving inference can result in inference
 changes, breaking existing projects.

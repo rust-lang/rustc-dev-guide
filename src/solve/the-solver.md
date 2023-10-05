@@ -35,8 +35,9 @@ goals together in either `EvalCtxt::try_evaluate_added_goals` or
 `EvalCtxt::evaluate_added_goals_and_make_canonical_response`. This allows us to handle
 inference constraints from later goals.
 
-E.g. if we have both `?x: Debug` and `(): ConstrainToU8<?x>` as nested goals, then proving `?x: Debug` is initially ambiguous, but after proving `(): ConstrainToU8<?x>` we constrain
-`?x` to `u8` and proving `u8: Debug` succeeds.
+E.g. if we have both `?x: Debug` and `(): ConstrainToU8<?x>` as nested goals,
+then proving `?x: Debug` is initially ambiguous, but after proving `(): ConstrainToU8<?x>`
+we constrain `?x` to `u8` and proving `u8: Debug` succeeds.
 
 ### Matching on `TyKind`
 
@@ -49,7 +50,8 @@ associated types, we separately assemble candidates depending on whether they st
 match the self type. Candidates which match on the self type are handled in
 `EvalCtxt::assemble_candidates_via_self_ty` which recurses via
 `EvalCtxt::assemble_candidates_after_normalizing_self_ty`, which normalizes the self type
-by one level. In all other cases we have to match on a `TyKind` we first use `EvalCtxt::try_normalize_ty` to normalize the type as much as possible.
+by one level. In all other cases we have to match on a `TyKind` we first use
+`EvalCtxt::try_normalize_ty` to normalize the type as much as possible.
 
 ### Higher ranked goals
 
