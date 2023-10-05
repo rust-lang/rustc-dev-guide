@@ -49,7 +49,7 @@ during implicit negative overlap check in coherence, this invariant is broken th
 relies on *completeness* of the trait solver, it is not able to use the current region constraints
 check - `InferCtxt::resolve_regions` - as its handling of type outlives goals is incomplete.
 
-### Normalization of semantically equal aliases empty environments results in a unique type ✅
+### Normalization of semantically equal aliases in empty environments results in a unique type ✅
 
 Normalization for alias types/consts has to have a unique result. Otherwise we can easily 
 implement transmute in safe code. Given the following function, we have to make sure that
@@ -73,7 +73,7 @@ Pretty much: If we successfully typecheck a generic function concrete instantiat
 of that function should also typeck. We should not get errors post-monomorphization.
 We can however get overflow errors at that point.
 
-TODO: example for overflow error post-monomorpghization
+TODO: example for overflow error post-monomorphization
 
 This invariant is relied on to allow the normalization of generic aliases. Breaking
 it can easily result in unsoundness, e.g. [#57893](https://github.com/rust-lang/rust/issues/57893)
