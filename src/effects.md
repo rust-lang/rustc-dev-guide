@@ -1,7 +1,7 @@
 # Effects and effect checking
 
 Note: all of this describes the implementation of the unstable `effects` and
-`const_trait` features. None of this implementation is usable or visible from
+`const_trait_impl` features. None of this implementation is usable or visible from
 stable Rust.
 
 The implementation of const traits and `~const` bounds is a limited effect system.
@@ -30,7 +30,7 @@ All `const fn` have a `#[rustc_host] const host: bool` generic parameter that is
 hidden from users. Any `~const Trait` bounds in the generics list or `where` bounds
 of a `const fn` get converted to `Trait<host> + Trait<true>` bounds. The `Trait<true>`
 exists so that associated types of the generic param can be used from projections
-like `<T as Trait>::Assoc`, because there are no `<T as ~Trait>` projections for now.
+like `<T as Trait>::Assoc`, because there are no `<T as ~const Trait>` projections for now.
 
 ## `#[const_trait] trait`s
 
@@ -45,14 +45,20 @@ no `<Self as ~const SuperTrait>` syntax.
 ## `typeck` performing method and function call checks.
 
 When generic parameters are instantiated for any items, the `host` generic parameter
-is always instantiated as an inference variable. These variables fall back to `true` at
-the end of typeck to ensure that `let _ = some_fn_item_name;` will keep compiling.
+is always instantiated as an inference variable. This is a special kind of inference var
+that is not part of the type or const inference variables, similar to how we have
+special inference variables for type variables that we know to be an integer, but not
+yet which one. These separate inference variables fall back to `true` at
+the end of typeck (in `fallback_effects`) to ensure that `let _ = some_fn_item_name;`
+will keep compiling.
 
 All actually used (in function calls, casts, or anywhere else) function items, will
 have the `enforce_context_effects` method invoked.
 It trivially returns if the function being called has no `host` generic parameter.
 
-TODO: how do we bail out if a non-const function is called in a const context?
+In order to error if a non-const function is called in a const context, we have not
+yet disabled the const-check logic that happens on MIR, because
+`enforce_context_effects` does not yet perform this check.
 
 The function call's `host` parameter is then equated to the context's `host` value,
 which almost always trivially succeeds, as it was an inference var. If the inference
