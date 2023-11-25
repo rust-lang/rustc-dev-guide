@@ -1,5 +1,9 @@
 # Canonicalization
 
+> **NOTE**: FIXME: The content of this chapter has some overlap with
+> [Next-gen trait solving Canonicalization chapter](../solve/canonicalization.html). 
+> It is suggested to reorganize these contents in the future.
+
 Canonicalization is the process of **isolating** an inference value
 from its context. It is a key part of implementing
 [canonical queries][cq], and you may wish to read the parent chapter
