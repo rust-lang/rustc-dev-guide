@@ -187,7 +187,7 @@ request that reviewer by leaving a comment on the thread with `r?
 don't request anyone; the bot will assign someone automatically based on which files you changed.
 
 The reviewer may request changes before they approve your PR, they may mark the PR with label 
-"S-waiting-on-author" after leaving comments, this means that the PR is blocked on you to making 
+"S-waiting-on-author" after leaving comments, this means that the PR is blocked on you to make 
 some requested changes. When you finished iterating on the changes, you can mark the PR as 
 `S-waiting-on-review` again by leaving a comment with `@rustbot ready`, this will remove the 
 `S-waiting-on-author` label and add the `S-waiting-on-review` label.
@@ -196,7 +196,8 @@ Feel free to ask questions or discuss things you don't understand or disagree wi
 recognize that the PR won't be merged unless someone on the Rust team approves
 it. If a reviewer leave a comment like `r=me after fixing ...`, that means they approve the PR and 
 you can merge it with comment with `@bors r=reviwer-github-id`(e.g. `@bors r=eddyb`) to merge it 
-after fixing lefted trivial issues.
+after fixing lefted trivial issues. `r=someone` requires permission and the reviwer use
+delegate command gives it to you in this way.
 
 When your reviewer approves the PR, it will go into a queue for yet another bot
 called `@bors`. `@bors` manages the CI build/merge queue. When your PR reaches
