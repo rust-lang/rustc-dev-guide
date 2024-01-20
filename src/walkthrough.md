@@ -196,8 +196,9 @@ Feel free to ask questions or discuss things you don't understand or disagree wi
 recognize that the PR won't be merged unless someone on the Rust team approves
 it. If a reviewer leave a comment like `r=me after fixing ...`, that means they approve the PR and 
 you can merge it with comment with `@bors r=reviwer-github-id`(e.g. `@bors r=eddyb`) to merge it 
-after fixing lefted trivial issues. `r=someone` requires permission and the reviwer use
-delegate command gives it to you in this way.
+after fixing trivial issues. Note that `r=someone` requires permission and bors could say 
+something like "🔑 Insufficient privileges..." when commenting `r=someone`. In that case, 
+you have to ask the reviewer to revisit your PR.
 
 When your reviewer approves the PR, it will go into a queue for yet another bot
 called `@bors`. `@bors` manages the CI build/merge queue. When your PR reaches
