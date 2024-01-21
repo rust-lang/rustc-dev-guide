@@ -10,13 +10,13 @@ extern crate rustc_session;
 extern crate rustc_span;
 
 use rustc_errors::registry;
-use rustc_session::config::{self, CheckCfg};
-use rustc_span::source_map;
+use rustc_session::config;
 use std::io;
 use std::path;
 use std::process;
 use std::str;
 use std::sync;
+use std::sync::Arc;
 
 // Buffer diagnostics in a Vec<u8>.
 #[derive(Clone)]
@@ -53,7 +53,7 @@ fn main() {
         },
         // This program contains a type error.
         input: config::Input::Str {
-            name: source_map::FileName::Custom("main.rs".into()),
+            name: rustc_span::FileName::Custom("main.rs".into()),
             input: "
 fn main() {
     let x: &str = 1;
@@ -61,8 +61,8 @@ fn main() {
 "
             .into(),
         },
-        crate_cfg: rustc_hash::FxHashSet::default(),
-        crate_check_cfg: CheckCfg::default(),
+        crate_cfg: Vec::new(),
+        crate_check_cfg: Vec::new(),
         output_dir: None,
         output_file: None,
         file_loader: None,
@@ -71,10 +71,12 @@ fn main() {
         parse_sess_created: None,
         register_lints: None,
         override_queries: None,
-        registry: registry::Registry::new(&rustc_error_codes::DIAGNOSTICS),
+        registry: registry::Registry::new(rustc_error_codes::DIAGNOSTICS),
         make_codegen_backend: None,
         expanded_args: Vec::new(),
         ice_file: None,
+        hash_untracked_state: None,
+        using_internal_features: Arc::default(),
     };
     rustc_interface::run_compiler(config, |compiler| {
         compiler.enter(|queries| {
