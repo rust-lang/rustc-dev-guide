@@ -11,25 +11,10 @@ extern crate rustc_span;
 
 use rustc_errors::registry;
 use rustc_session::config;
-use std::io;
 use std::path;
 use std::process;
 use std::str;
 use std::sync;
-use std::sync::Arc;
-
-// Buffer diagnostics in a Vec<u8>.
-#[derive(Clone)]
-pub struct DiagnosticSink(sync::Arc<sync::Mutex<Vec<u8>>>);
-
-impl io::Write for DiagnosticSink {
-    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-        self.0.lock().unwrap().write(buf)
-    }
-    fn flush(&mut self) -> io::Result<()> {
-        self.0.lock().unwrap().flush()
-    }
-}
 
 fn main() {
     let out = process::Command::new("rustc")
@@ -76,7 +61,7 @@ fn main() {
         expanded_args: Vec::new(),
         ice_file: None,
         hash_untracked_state: None,
-        using_internal_features: Arc::default(),
+        using_internal_features: sync::Arc::default(),
     };
     rustc_interface::run_compiler(config, |compiler| {
         compiler.enter(|queries| {
