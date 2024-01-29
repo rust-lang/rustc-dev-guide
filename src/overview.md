@@ -254,7 +254,7 @@ sure that identical values (e.g. types in your program) are only allocated once
 and can be compared cheaply by comparing pointers. Many of the intermediate
 representations are interned.
 
-[arena]: https://en.wikipedia.org/w/index.php?title=Arena_allocation
+[arena]: https://en.wikipedia.org/wiki/Region-based_memory_management
 
 ### Queries
 
