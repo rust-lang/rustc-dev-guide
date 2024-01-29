@@ -6,7 +6,7 @@ it will take a lot of time and space to do so.
 
 One of the main way the compiler manages this is using [arena]s and [interning].
 
-[arena]: (https://en.wikipedia.org/w/index.php?title=Arena_allocation)
+[arena]: https://en.wikipedia.org/wiki/Region-based_memory_management
 [interning]: https://en.wikipedia.org/wiki/String_interning
 
 ## Arenas and  Interning
