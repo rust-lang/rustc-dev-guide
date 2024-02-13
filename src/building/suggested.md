@@ -273,7 +273,10 @@ If you're using nix, you can use the following nix-shell to work on Rust:
 pkgs.mkShell {
   name = "rustc";
   nativeBuildInputs = with pkgs; [
-    gcc_multi binutils cmake ninja openssl pkg-config python39 git curl cacert patchelf nix
+    binutils cmake ninja pkg-config python3 git curl cacert patchelf nix
+  ];
+  buildInputs = [
+    openssl glibc.out glibc.static
   ];
   # Avoid creating text files for ICEs.
   RUSTC_ICE = "0";
