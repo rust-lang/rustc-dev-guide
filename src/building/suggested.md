@@ -280,6 +280,23 @@ pkgs.mkShell {
 }
 ```
 
+Note that when using nix on a not-NixOS distribution, it may be necessary to set **`patch-binaries-for-nix = true` in `config.toml`**.
+Bootstrap tries to detect whether it's running in nix and enable patching automatically, but this detection can have false negatives.
+
+You can also use your nix shell to manage `config.toml`:
+
+```nix
+let
+  config = pkgs.writeText "rustc-config" ''
+    # Your config.toml content goes here
+  ''
+pkgs.mkShell {
+  /* ... */
+  # This environment varaible tells bootstrap where our config.toml is.
+  RUST_BOOTSTRAP_CONFIG = config;
+}
+```
+
 ## Shell Completions
 
 If you use Bash, Fish or PowerShell, you can find automatically-generated shell completion scripts for `x.py` in [`src/etc/completions`](https://github.com/rust-lang/rust/tree/master/src/etc/completions).
