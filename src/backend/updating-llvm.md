@@ -66,21 +66,21 @@ so let's go through each in detail.
    typically named `release/$N.x`,
    where `$N` is the version of LLVM that's being released.
 
-1. Create a new branch in the [rust-lang/llvm-project repository]
+2. Create a new branch in the [rust-lang/llvm-project repository]
    from this `release/$N.x` branch,
    and name it `rustc/a.b-yyyy-mm-dd`,
    where `a.b` is the current version number of LLVM in-tree
    at the time of the branch,
    and the remaining part is the current date.
 
-2. Apply Rust-specific patches to the llvm-project repository.
+3. Apply Rust-specific patches to the llvm-project repository.
    All features and bugfixes are upstream,
    but there's often some weird build-related patches
    that don't make sense to upstream.
    These patches are typically the latest patches in the
    rust-lang/llvm-project branch that rustc is currently using.
 
-3. Build the new LLVM in the `rust` repository.
+4. Build the new LLVM in the `rust` repository.
    To do this,
    you'll want to update the `src/llvm-project` repository to your branch,
    and the revision you've created.
@@ -91,6 +91,7 @@ so let's go through each in detail.
    Some commands you should execute are:
 
    * `./x build src/llvm-project` - test that LLVM still builds
+   * `./x build src/llvm-project/lld` - same for LLD
    * `./x build` - build the rest of rustc
 
    You'll likely need to update [`llvm-wrapper/*.cpp`][`llvm-wrapper`]
@@ -108,7 +109,7 @@ so let's go through each in detail.
    download-ci-llvm = false
    ```
 
-4. Test for regressions across other platforms. LLVM often has at least one bug
+5. Test for regressions across other platforms. LLVM often has at least one bug
    for non-tier-1 architectures, so it's good to do some more testing before
    sending this to bors! If you're low on resources you can send the PR as-is
    now to bors, though, and it'll get tested anyway.
@@ -147,7 +148,7 @@ so let's go through each in detail.
    others interested in trying out the new LLVM can benefit from work you've done
    to update the C++ bindings.
 
-3. Over the next few months,
+7. Over the next few months,
    LLVM will continually push commits to its `release/a.b` branch.
    We will often want to have those bug fixes as well.
    The merge process for that is to use `git merge` itself to merge LLVM's
@@ -155,9 +156,9 @@ so let's go through each in detail.
    This is typically
    done multiple times when necessary while LLVM's release branch is baking.
 
-4. LLVM then announces the release of version `a.b`.
+8. LLVM then announces the release of version `a.b`.
 
-5. After LLVM's official release,
+9. After LLVM's official release,
    we follow the process of creating a new branch on the
    rust-lang/llvm-project repository again,
    this time with a new date.
