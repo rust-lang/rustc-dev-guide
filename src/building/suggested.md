@@ -283,8 +283,10 @@ pkgs.mkShell {
 }
 ```
 
-Note that when using nix on a not-NixOS distribution, it may be necessary to set **`patch-binaries-for-nix = true` in `config.toml`**.
-Bootstrap tries to detect whether it's running in nix and enable patching automatically, but this detection can have false negatives.
+Note that when using nix on a not-NixOS distribution, it may be necessary to set
+**`patch-binaries-for-nix = true` in `config.toml`**.
+Bootstrap tries to detect whether it's running in nix and enable patching automatically,
+but this detection can have false negatives.
 
 You can also use your nix shell to manage `config.toml`:
 
