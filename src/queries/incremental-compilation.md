@@ -38,10 +38,9 @@ There are two key insights here:
 - Second, even if some inputs to a query changes, it may be that it
   **still** produces the same result as the previous compilation. In
   particular, the query may only use part of its input.
-  - Therefore, after executing a query, we always check whether it
-    produced the same result as the previous time. **If it did,** we
-    can still mark the query as green, and hence avoid re-executing
-    dependent queries.
+  - Therefore, after executing a query, we always check whether it produced the
+    same result as the previous time. **If it did,** we can still mark the
+    query result as green, and hence avoid re-executing dependent queries.
 
 ### The try-mark-green algorithm
 
@@ -54,7 +53,7 @@ can conclude that Q must be green without re-executing it or inspecting
 its value at all. In the compiler, this allows us to avoid
 deserializing the result from disk when we don't need it, and in fact
 enables us to sometimes skip *serializing* the result as well
-(see the refinements section below).
+(see the [refinements](#improvements-to-the-basic-algorithm) section below).
 
 Try-mark-green works as follows:
 
