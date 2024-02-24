@@ -21,10 +21,10 @@ is pre-filled with on creation.
 
 A query thus consists of the following things:
 
- - A name that identifies the query
- - A "key" that specifies what we want to look up
- - A result type that specifies what kind of result it yields
- - A "provider" which is a function that specifies how the result is to be
+ - A name that identifies the query,
+ - a "key" that specifies what we want to look up,
+ - a result type that specifies what kind of result it yields, and,
+ - a "provider" which is a function that specifies how the result is to be
    computed if it isn't already present in the database.
 
 As an example, the name of the `type_of` query is `type_of`, its query key is a
@@ -46,7 +46,7 @@ this to be sound:
 The database is built up lazily by invoking queries. The query providers will
 invoke other queries, for which the result is either already cached or computed
 by calling another query provider. These query provider invocations
-conceptually form a directed acyclic graph (DAG) at the leaves of which are
+conceptually form a Directed Acyclic Graph (DAG) at the leaves of which are
 input values that are already known when the query context is created.
 
 
@@ -74,12 +74,12 @@ not memoize the result.
 When the query context is created, it is still empty: No queries have been
 executed, no results are cached. But the context already provides access to
 "input" data, i.e. pieces of immutable data that were computed before the
-context was created and that queries can access to do their computations.
+context was created and which queries can access to do their computations.
 
 As of <!-- date-check --> January 2021, this input data consists mainly of
-the HIR map, upstream crate metadata, and the command-line options the compiler
+the `HIR` map, upstream crate metadata, and the command-line options the compiler
 was invoked with; but in the future inputs will just consist of command-line
-options and a list of source files -- the HIR map will itself be provided by a
+options and a list of source files -- the `HIR` map will itself be provided by a
 query which processes these source files.
 
 Without inputs, queries would live in a void without anything to compute their
@@ -178,9 +178,9 @@ a check for cyclic invocations and, because cycles are an irrecoverable error,
 will abort execution with a "cycle error" messages that tries to be human
 readable.
 
-At some point the compiler had a notion of "cycle recovery", that is, one could
-"try" to execute a query and if it ended up causing a cycle, proceed in some
-other fashion. However, this was later removed because it is not entirely
+At some point the compiler had a notion of "cycle recovery", which is where one
+could "try" to execute a query and if it ended up causing a cycle, proceed in
+some other fashion. However, this was later removed because it is not entirely
 clear what the theoretical consequences of this are, especially regarding
 incremental compilation.
 
@@ -193,7 +193,7 @@ to be "stolen" out of the cache at some point, meaning some other part of the
 program is taking ownership of it and the result cannot be accessed anymore.
 
 This stealing mechanism exists purely as a performance optimization because some
-result values are too costly to clone (e.g. the MIR of a function). It seems
+result values are too costly to clone (e.g. the `MIR` of a function). It seems
 like result stealing would violate the condition that query results must be
 immutable (after all we are moving the result value out of the cache) but it is
 OK as long as the mutation is not observable. This is achieved by two things:
