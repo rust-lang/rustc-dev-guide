@@ -5,11 +5,11 @@
 As described in [the high-level overview of the compiler][hl], the Rust compiler
 is still (as of <!-- date-check --> July 2021) transitioning from a
 traditional "pass-based" setup to a "demand-driven" system. The compiler query
-system is the key to rustc's demand-driven organization.
-The idea is pretty simple. Instead of entirely independent passes
+system is the key to `rustc`'s demand-driven organization.
+The idea is that instead of entirely independent passes
 (parsing, type-checking, etc.), a set of function-like *queries*
 compute information about the input source. For example,
-there is a query called `type_of` that, given the [`DefId`] of
+there is a query called `type_of` which, given the [`DefId`] of
 some item, will compute the type of that item and return it to you.
 
 [`DefId`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_span/def_id/struct.DefId.html
@@ -31,13 +31,12 @@ will in turn demand information about that crate, starting from the
 - The `compile` query might demand to get a list of codegen-units
   (i.e. modules that need to be compiled by LLVM).
 - But computing the list of codegen-units would invoke some subquery
-  that returns the list of all modules defined in the Rust source.
-- That query in turn would invoke something asking for the HIR.
-- This keeps going further and further back until we wind up doing the
-  actual parsing.
+  which returns the list of all modules defined in the Rust source.
+- That query in turn would invoke something asking for the `HIR`.
+- This chain proceeds until we wind up doing the actual parsing.
 
 Although this vision is not fully realized, large sections of the
-compiler (for example, generating [MIR](./mir/index.md)) currently work exactly like this.
+compiler (for example, generating [MIR](./mir/index.md)) do currently work exactly like this.
 
 [^incr-comp-detail]: The ["Incremental Compilation in Detail](queries/incremental-compilation-in-detail.md) chapter gives a more
 in-depth description of what queries are and how they work.
@@ -60,31 +59,33 @@ let ty = tcx.type_of(some_def_id);
 So you may be wondering what happens when you invoke a query
 method. The answer is that, for each query, the compiler maintains a
 cache – if your query has already been executed, then, the answer is
-simple: we clone the return value out of the cache and return it
+simple: we clone the return value out of cache and return it
 (therefore, you should try to ensure that the return types of queries
 are cheaply cloneable; insert an `Rc` if necessary).
 
 ### Providers
 
-If, however, the query is *not* in the cache, then the compiler will
-try to find a suitable **provider**. A provider is a function that has
+If, however, the query is *not* in cache, then the compiler will
+try to find a suitable **provider**. A provider is a function which has
 been defined and linked into the compiler somewhere that contains the
 code to compute the result of the query.
 
-**Providers are defined per-crate.** The compiler maintains,
-internally, a table of providers for every crate, at least
-conceptually. Right now, there are really two sets: the providers for
-queries about the **local crate** (that is, the one being compiled)
-and providers for queries about **external crates** (that is,
-dependencies of the local crate). Note that what determines the crate
-that a query is targeting is not the *kind* of query, but the *key*.
-For example, when you invoke `tcx.type_of(def_id)`, that could be a
-local query or an external query, depending on what crate the `def_id`
-is referring to (see the [`self::keys::Key`][Key] trait for more
+**Providers are defined per-crate.** The compiler maintains a table of
+providers for every crate, at least conceptually. Right now, there are really
+two sets: 
+  1. Providers for queries about the **local crate** (that is, the one
+    being compiled), and,
+  2. providers for queries about **external crates** (that is, dependencies of
+    the local crate). 
+
+Note that what determines the crate that a query is targeting is not the *kind*
+of query, but the *key*. For example, when you invoke `tcx.type_of(def_id)`,
+that could be a local query or an external query, depending on what crate the
+`def_id` is referring to (see the [`self::keys::Key`][Key] trait for more
 information on how that works).
 
-Providers always have the same signature:
-
+Providers always have the same signature, taking two arguments: a `tcx` and a
+`key`, and returning the result of the query:
 ```rust,ignore
 fn provider<'tcx>(
     tcx: TyCtxt<'tcx>,
@@ -94,17 +95,13 @@ fn provider<'tcx>(
 }
 ```
 
-Providers take two arguments: the `tcx` and the query key.
-They return the result of the query.
-
 ###  How providers are setup
 
-When the tcx is created, it is given the providers by its creator using
+When the `tcx` is created, it is given the providers by its creator using
 the [`Providers`][providers_struct] struct. This struct is generated by
 the macros here, but it is basically a big list of function pointers:
 
 [providers_struct]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/query/struct.Providers.html
-
 ```rust,ignore
 struct Providers {
     type_of: for<'tcx> fn(TyCtxt<'tcx>, DefId) -> Ty<'tcx>,
@@ -112,18 +109,16 @@ struct Providers {
 }
 ```
 
-At present, we have one copy of the struct for local crates, and one
-for external crates, though the plan is that we may eventually have
-one per crate.
+At present, we have one copy of the struct for local crates, and one for
+external crates, though eventually there may be one copy per crate!
 
 These `Providers` structs are ultimately created and populated by
-`rustc_driver`, but it does this by distributing the work
+`rustc_driver` which does this by distributing the work
 throughout the other `rustc_*` crates. This is done by invoking
 various [`provide`][provide_fn] functions. These functions tend to look
 something like this:
 
 [provide_fn]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/hir/fn.provide.html
-
 ```rust,ignore
 pub fn provide(providers: &mut Providers) {
     *providers = Providers {
@@ -133,14 +128,12 @@ pub fn provide(providers: &mut Providers) {
 }
 ```
 
-That is, they take an `&mut Providers` and mutate it in place. Usually
-we use the formulation above just because it looks nice, but you could
-as well do `providers.type_of = type_of`, which would be equivalent.
-(Here, `type_of` would be a top-level function, defined as we saw
-before.) So, if we want to add a provider for some other query,
-let's call it `fubar`, into the crate above, we might modify the `provide()`
-function like so:
-
+That is, they take an `&mut Providers` and mutate it in place. Usually we use
+the formulation above as sugar, but it could be expressed as `providers.type_of = type_of`
+which is equivalent, and so `type_of` would be a top-level function
+defined as we saw before. Furthermore, if adding a provider for some other
+query, let's call it `fubar`, into the crate above, we can modify the
+`provide()` function like so:
 ```rust,ignore
 pub fn provide(providers: &mut Providers) {
     *providers = Providers {
@@ -166,35 +159,30 @@ they define both a `provide` and a `provide_extern` function, through
 
 ## Adding a new query
 
-How do you add a new query?
 Defining a query takes place in two steps:
 
 1. Declare the query name, its arguments and description.
 2. Supply query providers where needed.
 
-To declare the query name and arguments, you simply add an entry to
+To declare the query name and arguments simply add an entry to
 the big macro invocation in [`compiler/rustc_middle/src/query/mod.rs`][query-mod].
-Then you need to add a documentation comment to it with some _internal_ description.
-Then, provide the `desc` attribute which contains a _user-facing_ description of the query.
-The `desc` attribute is shown to the user in query cycles.
-
-This looks something like:
-
-[query-mod]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/query/index.html
-
+Then add a documentation comment with some _internal_ description.
+Finally, provide the `desc` attribute which contains a _user-facing_ description of the query.
+The `desc` attribute is shown to the user in query cycles:
 ```rust,ignore
 rustc_queries! {
-    /// Records the type of every item.
+  /// Records the type of every item.
     query type_of(key: DefId) -> Ty<'tcx> {
-        cache_on_disk_if { key.is_local() }
+      cache_on_disk_if { key.is_local() }
         desc { |tcx| "computing the type of `{}`", tcx.def_path_str(key) }
     }
     ...
 }
 ```
 
-A query definition has the following form:
+[query-mod]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/query/index.html
 
+A query definition has the following form:
 ```rust,ignore
 query type_of(key: DefId) -> Ty<'tcx> { ... }
 ^^^^^ ^^^^^^^      ^^^^^     ^^^^^^^^   ^^^
@@ -233,7 +221,7 @@ So, to add a query:
   or add a new one if needed and ensure that `rustc_driver` is invoking it.
 
 [^steal]: The one exception to those rules is the `ty::steal::Steal` type,
-which is used to cheaply modify MIR in place. See the definition
+which is used to cheaply modify `MIR` in place. See the definition
 of `Steal` for more details. New uses of `Steal` should **not** be
 added without alerting `@rust-lang/compiler`.
 
@@ -255,4 +243,3 @@ More discussion and issues:
 [GitHub issue #42633]: https://github.com/rust-lang/rust/issues/42633
 [Incremental Compilation Beta]: https://internals.rust-lang.org/t/incremental-compilation-beta/4721
 [Incremental Compilation Announcement]: https://blog.rust-lang.org/2016/09/08/incremental.html
-
