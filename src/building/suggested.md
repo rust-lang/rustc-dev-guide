@@ -275,7 +275,7 @@ pkgs.mkShell {
   nativeBuildInputs = with pkgs; [
     binutils cmake ninja pkg-config python3 git curl cacert patchelf nix
   ];
-  buildInputs = [
+  buildInputs = with pkgs; [
     openssl glibc.out glibc.static
   ];
   # Avoid creating text files for ICEs.
