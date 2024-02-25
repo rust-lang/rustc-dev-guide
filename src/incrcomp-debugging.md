@@ -4,11 +4,11 @@
 
 There are various ways to write tests against the dependency graph.  The
 simplest mechanisms are the `#[rustc_if_this_changed]` and
-`#[rustc_then_this_would_need]` annotations. These are used in [ui] tests to test
+`#[rustc_then_this_would_need]` annotations. These are used in [`ui`] tests to test
 whether the expected set of paths exist in the dependency graph.
 
 [`tests/ui/dep-graph/dep-graph-caller-callee.rs`]: https://github.com/rust-lang/rust/blob/master/tests/ui/dep-graph/dep-graph-caller-callee.rs
-[ui]: tests/ui.html
+[`ui`]: tests/ui.html
 
 As an example, see [`tests/ui/dep-graph/dep-graph-caller-callee.rs`], or the
 tests below.
@@ -22,21 +22,21 @@ fn bar() { foo(); }
 ```
 
 This should be read as
-> If this (`foo`) is changed, then this (i.e. `bar`)'s TypeckTables would need to be changed.
+> If this (`foo`) is changed, then this (i.e. `bar`)'s `TypeckTables` would need to be changed.
 
-Technically, what occurs is that the test is expected to emit the string "OK" on
-stderr, associated to this line.
+Technically, what occurs is that the test is expected to emit the string "`OK`" on
+`stderr`, associated to this line.
 
-You could also add the lines
+You could also add the lines:
 
 ```rust,ignore
 #[rustc_then_this_would_need(TypeckTables)] //~ ERROR no path
 fn baz() { }
 ```
 
-Whose meaning is
-> If `foo` is changed, then `baz`'s TypeckTables does not need to be changed.
-> The macro must emit an error, and the error message must contains "no path".
+Whose meaning is:
+> If `foo` is changed, then `baz`'s `TypeckTables` does not need to be changed.
+> The macro must emit an error, and the error message must contains "`no path`".
 
 Recall that the `//~ ERROR OK` is a comment from the point of view of the Rust
 code we test, but is meaningful from the point of view of the test itself.
@@ -51,7 +51,7 @@ graph will be dumped to `dep_graph.{txt,dot}` in the current
 directory.  You can override the filename with the `RUST_DEP_GRAPH`
 environment variable.
 
-Frequently, though, the full dep graph is quite overwhelming and not
+Frequently, though, the full dep-graph is quite overwhelming and not
 particularly helpful. Therefore, the compiler also allows you to filter
 the graph. You can filter in three ways:
 
@@ -77,7 +77,7 @@ RUST_DEP_GRAPH_FILTER='-> TypeckTables'
 ```
 
 would select the predecessors of all `TypeckTables` nodes. Usually though you
-want the `TypeckTables` node for some particular fn, so you might write:
+want the `TypeckTables` node for some particular `fn`, so you might write:
 
 ```text
 RUST_DEP_GRAPH_FILTER='-> TypeckTables & bar'
@@ -107,14 +107,13 @@ environment variable to a filter. Every edge created in the dep-graph
 will be tested against that filter – if it matches, a `bug!` is
 reported, so you can easily see the backtrace (`RUST_BACKTRACE=1`).
 
-The syntax for these filters is the same as described in the previous
-section. However, note that this filter is applied to every **edge**
-and doesn't handle longer paths in the graph, unlike the previous
-section.
+The syntax for these filters is the same as described in the previous section.
+However, note that this filter is applied to every **edge** and doesn't handle
+longer paths in the dep-graph, unlike the previous section.
 
 Example:
 
-You find that there is a path from the `Hir` of `foo` to the type
+You find that there is a path from the `Hir()` of `foo` to the type
 check of `bar` and you don't think there should be. You dump the
 dep-graph as described in the previous section and open `dep-graph.txt`
 to see something like:
