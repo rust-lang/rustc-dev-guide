@@ -9,9 +9,9 @@ handled... well... implicitly.
 
 ## explicit implied bounds
 
-The explicit implied bounds are computed in [`fn inferred_outlives_of`]. Only ADTs have
-explicit implied bounds which are computed via a fixpoint algorithm in the
-[`fn inferred_outlives_crate`] query.
+The explicit implied bounds are computed in [`fn inferred_outlives_of`]. Only ADTs and
+lazy type aliases have explicit implied bounds which are computed via a fixpoint algorithm
+in the [`fn inferred_outlives_crate`] query.
 
 We use [`fn insert_required_predicates_to_be_wf`] on all fields of all ADTs in the crate.
 This function computes the outlives bounds for each component of the field using a
