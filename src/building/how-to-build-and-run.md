@@ -13,7 +13,9 @@ and a bunch of tools (e.g. `rustdoc`, the bootstrapping infrastructure, etc).
 
 [repo]: https://github.com/rust-lang/rust
 
-The very first step to work on `rustc` is to clone the repository:
+The very first step to work on `rustc` is to clone the repository.
+However, you might consider to fork it first.
+See [this chapter on git](../git.md) for more information.
 
 ```bash
 git clone https://github.com/rust-lang/rust.git
@@ -39,7 +41,7 @@ cd rust
 > **NOTE**: A shallow clone limits which `git` commands can be run.
 > If you intend to work on and contribute to the compiler, it is
 > generally recommended to fully clone the repository [as shown above](#get-the-source-code).
-> 
+>
 > For example, `git bisect` and `git blame` require access to the commit history,
 > so they don't work if the repository was cloned with `--depth 1`.
 
@@ -131,7 +133,7 @@ You can install it with `cargo install --path src/tools/x`.
 
 To clarify that this is another global installed binary util, which is
 similar to the one declared in section [What is `x.py`](#what-is-xpy), but
-it works as an independent process to execute the `x.py` rather than calling the 
+it works as an independent process to execute the `x.py` rather than calling the
 shell to run the platform related scripts.
 
 ## Create a `config.toml`
