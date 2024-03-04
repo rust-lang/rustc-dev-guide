@@ -124,11 +124,12 @@ code for. This is called _monomorphization collection_ and it happens at the
 We then begin what is simply called _code generation_ or _codegen_. The [code
 generation stage][codegen] is when higher-level representations of source are
 turned into an executable binary. Since `rustc` uses LLVM for code generation,
-the first step is to convert the `MIR` to `LLVM-IR`. This is where the `MIR` is actually monomorphized. The `LLVM-IR` is
-passed to LLVM, which does a lot more optimizations on it, emitting machine
-code which is basically assembly code with additional low-level types and
-annotations added (e.g. an ELF object or `WASM`). The different
-libraries/binaries are then linked together to produce the final binary.
+the first step is to convert the `MIR` to `LLVM-IR`. This is where the `MIR` is
+actually monomorphized. The `LLVM-IR` is passed to LLVM, which does a lot more
+optimizations on it, emitting machine code which is basically assembly code
+with additional low-level types and annotations added (e.g. an ELF object or
+`WASM`). The different libraries/binaries are then linked together to produce
+the final binary.
 
 [*trait solving*]: traits/resolution.md
 [*type checking*]: type-checking.md
