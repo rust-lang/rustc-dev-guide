@@ -9,17 +9,16 @@ and then describe some possible improvements.
 
 ## The basic algorithm
 
-The basic algorithm is
-called the **red-green** algorithm[^salsa]. The high-level idea is
-that, after each run of the compiler, we will save the results of all
-the queries that we do, as well as the **query DAG**. The
-**query DAG** is a [DAG] that indexes which queries executed which
-other queries. So, for example, there would be an [edge] from a query Q1
-to another query Q2 if computing Q1 required computing Q2 (note that
-because queries cannot depend on themselves, this results in a DAG and
-not a general graph).
+The basic algorithm is called the **red-green** algorithm[^salsa]. The
+high-level idea is that, after each run of the compiler, we will save the
+results of all the queries that we do, as well as a Directed Acyclic Graph
+([`DAG`]) called the **query DAG**. The **query DAG** indexes which queries
+executed which other queries. So, for example, there would be an [edge] from a
+query Q1 to another query Q2 if computing Q1 required computing Q2 (note that
+because queries cannot depend on themselves, this results in a `DAG` and not a
+general graph).
 
-[DAG]: https://en.wikipedia.org/wiki/Directed_acyclic_graph
+[`DAG`]: https://en.wikipedia.org/wiki/Directed_acyclic_graph
 
 On the next run of the compiler, then, we can sometimes reuse these
 query results to avoid re-executing a query. We do this by assigning
@@ -32,8 +31,8 @@ every query a **color**:
 
 There are two key insights here:
 
-- First, if all the inputs to query Q are colored green, then the
-  query Q **must** result in the same value as last time and hence
+- First, if all the inputs to query `Q` are colored green, then the
+  query `Q` **must** result in the same value as last time and hence
   need not be re-executed (or else the compiler is not deterministic).
 - Second, even if some inputs to a query changes, it may be that it
   **still** produces the same result as the previous compilation. In
@@ -46,10 +45,10 @@ There are two key insights here:
 
 At the core of incremental compilation is an algorithm called
 "try-mark-green". It has the job of determining the color of a given
-query Q (which must not have yet been executed). In cases where Q has
-red inputs, determining Q's color may involve re-executing Q so that
-we can compare its output, but if all of Q's inputs are green, then we
-can conclude that Q must be green without re-executing it or inspecting
+query `Q` (which must not have yet been executed). In cases where `Q` has
+red inputs, determining `Q`'s color may involve re-executing `Q` so that
+we can compare its output, but if all of `Q`'s inputs are green, then we
+can conclude that `Q` must be green without re-executing it or inspecting
 its value at all. In the compiler, this allows us to avoid
 deserializing the result from disk when we don't need it, and in fact
 enables us to sometimes skip *serializing* the result as well
@@ -57,39 +56,39 @@ enables us to sometimes skip *serializing* the result as well
 
 Try-mark-green works as follows:
 
-- First check if the query Q was executed during the previous compilation.
+- First check if the query `Q` was executed during the previous compilation.
   - If not, we can just re-execute the query as normal, and assign it the
     color of red.
-- If yes, then load the 'dependent queries' of Q.
+- If yes, then load the 'dependent queries' of `Q`.
 - If there is a saved result, then we load the `reads(Q)` vector from the
-  query DAG. The "reads" is the set of queries that Q executed during
+  query DAG. The "reads" is the set of queries that `Q` executed during
   its execution.
   - For each query R in `reads(Q)`, we recursively demand the color
     of R using try-mark-green.
     - Note: it is important that we visit each node in `reads(Q)` in same order
       as they occurred in the original compilation. See [the section on the
       query DAG below](#dag).
-    - If **any** of the nodes in `reads(Q)` wind up colored **red**, then Q is
+    - If **any** of the nodes in `reads(Q)` wind up colored **red**, then `Q` is
       dirty.
-      - We re-execute Q and compare the hash of its result to the hash of the
+      - We re-execute `Q` and compare the hash of its result to the hash of the
         result from the previous compilation.
-      - If the hash has not changed, we can mark Q as **green** and return.
+      - If the hash has not changed, we can mark `Q` as **green** and return.
     - Otherwise, **all** of the nodes in `reads(Q)` must be **green**. In that
-      case, we can color Q as **green** and return.
+      case, we can color `Q` as **green** and return.
 
 <a name="dag"></a>
 
-### The query DAG
+### The query `DAG`
 
-The query DAG code is stored in
-[`compiler/rustc_middle/src/dep_graph`][dep_graph]. Construction of the DAG is done
+The query `DAG` code is stored in
+[`compiler/rustc_middle/src/dep_graph`][dep_graph]. Construction of the `DAG` is done
 by instrumenting the query execution.
 
-One key point is that the query DAG also tracks ordering; that is, for
-each query Q, we not only track the queries that Q reads, we track the
+One key point is that the query `DAG` also tracks ordering; that is, for
+each query `Q`, we not only track the queries that `Q` reads, we track the
 **order** in which they were read.  This allows try-mark-green to walk
 those queries back in the same order. This is important because once a
-subquery comes back as red, we can no longer be sure that Q will continue
+subquery comes back as red, we can no longer be sure that `Q` will continue
 along the same path as before. That is, imagine a query like this:
 
 ```rust,ignore
@@ -131,10 +130,10 @@ This is why the incremental algorithm separates computing the
 computing the **result** of a node. Computing the result is done via a simple
 algorithm like so:
 
-- Check if a saved result for Q is available. If so, compute the color of Q.
-  If Q is green, deserialize and return the saved result.
-- Otherwise, execute Q.
-  - We can then compare the hash of the result and color Q as green if
+- Check if a saved result for `Q` is available. If so, compute the color of `Q`.
+  If `Q` is green, deserialize and return the saved result.
+- Otherwise, execute `Q`.
+  - We can then compare the hash of the result and color `Q` as green if
     it did not change.
 
 ## Resources
