@@ -2,51 +2,57 @@
 
 <!-- toc -->
 
-As described in [the high-level overview of the compiler][hl], the Rust compiler
-is still (as of <!-- date-check --> July 2021) transitioning from a
+As described in [the high-level overview of the compiler][hl], the Rust
+compiler is still (as of <!-- date-check --> July 2021) transitioning from a
 traditional "pass-based" setup to a "demand-driven" system. The compiler query
-system is the key to `rustc`'s demand-driven organization.
-The idea is that instead of entirely independent passes
-(parsing, type-checking, etc.), a set of function-like *queries*
-compute information about the input source. For example,
-there is a query called `type_of` which, given the [`DefId`] of
-some item, will compute the type of that item and return it to you.
+system is the key to `rustc`'s demand-driven organization. The idea is that
+instead of entirely independent passes ([parsing][parser],
+[type-checking](./type-checking.md), etc.), a set of function-like *queries*
+compute information about the input source. For example, there is a query
+called `type_of` which, given the [`DefId`] of some item, will compute the type
+of that item and return it to you.
 
 [`DefId`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_span/def_id/struct.DefId.html
 [hl]: ./compiler-src.md
+[parser]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_parse/index.html
 
-Query execution is *memoized*. The first time you invoke a
-query, it will go do the computation, but the next time, the result is
-returned from a hashtable. Moreover, query execution fits nicely into
-*incremental computation*; the idea is roughly that, when you invoke a
-query, the result *may* be returned to you by loading stored data
-from disk.[^incr-comp-detail]
+Query execution is *memoized*. The first time you invoke a query, it will go do
+the computation, but the next time, the result is returned from a hashtable.
+Moreover, query execution fits nicely into *incremental computation*; the idea
+is roughly that, when you invoke a query, the result *may* be returned to you
+by loading stored data from disk.[^incr-comp-detail]
 
-Eventually, we want the entire compiler
-control-flow to be query driven. There will effectively be one
-top-level query (`compile`) that will run compilation on a crate; this
-will in turn demand information about that crate, starting from the
-*end*.  For example:
+Eventually, we want the entire compiler control-flow to be query driven. There
+will effectively be one top-level query (`compile`) that will run compilation
+on a crate; this will in turn demand information about that crate, starting
+from the *end*.  For example:
 
-- The `compile` query might demand to get a list of codegen-units
-  (i.e. modules that need to be compiled by LLVM).
-- But computing the list of codegen-units would invoke some subquery
-  which returns the list of all modules defined in the Rust source.
-- That query in turn would invoke something asking for the `HIR`.
+- The `compile` query might demand to get a list of 
+  [code generation (`codegen`)][codegen] units (i.e. modules that need to be
+  compiled by LLVM).
+- Computing the list of `codegen` units invokes a subquery which returns the
+  list of all modules defined in the Rust source.
+- That query in turn invokes something asking for the 
+[High-Level Intermediate Representation (`HIR`)][hir].
 - This chain proceeds until we wind up doing the actual parsing.
 
-Although this vision is not fully realized, large sections of the
-compiler (for example, generating [MIR](./mir/index.md)) do currently work exactly like this.
+Although this vision is not fully realized, large sections of the compiler (for
+example, generating [Mid-level Intermediate Representation (`MIR`)](./mir/index.md)) 
+do currently work exactly like this.
 
-[^incr-comp-detail]: The ["Incremental Compilation in Detail](queries/incremental-compilation-in-detail.md) chapter gives a more
-in-depth description of what queries are and how they work.
-If you intend to write a query of your own, this is a good read.
+[^incr-comp-detail]: The chapter
+["Incremental Compilation in Detail"](queries/incremental-compilation-in-detail.md)
+gives a more in-depth description of what queries are and how they
+work. If you intend to write a query of your own, this is a good read.
+
+[codegen]: ./backend/codegen.md
+[hir]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/index.html
 
 ## Invoking queries
 
-Invoking a query is simple. The [`TyCtxt`] ("type context") struct offers a method
-for each defined query. For example, to invoke the `type_of`
-query, you would just do this:
+Invoking a query is simple. The [`TyCtxt`] ("type context") `struct` offers a
+method for each defined query. For example, to invoke the `type_of` query, you
+would just do this:
 
 ```rust,ignore
 let ty = tcx.type_of(some_def_id);
@@ -56,12 +62,13 @@ let ty = tcx.type_of(some_def_id);
 
 ## How the compiler executes a query
 
-So you may be wondering what happens when you invoke a query
-method. The answer is that, for each query, the compiler maintains a
-cache – if your query has already been executed, then, the answer is
-simple: we clone the return value out of cache and return it
-(therefore, you should try to ensure that the return types of queries
-are cheaply cloneable; insert an `Rc` if necessary).
+So you may be wondering what happens when you invoke a query method. The answer
+is that, for each query, the compiler maintains a cache – if your query has
+already been executed, then, the answer is simple: we clone the return value
+out of cache and return it (therefore, you should try to ensure that the return
+types of queries are cheaply cloneable; insert an [`Rc`] if necessary).
+
+[`Rc`]: https://doc.rust-lang.org/std/rc/index.html
 
 ### Providers
 
@@ -79,12 +86,12 @@ two sets:
     the local crate). 
 
 Note that what determines the crate that a query is targeting is not the *kind*
-of query, but the *key*. For example, when you invoke `tcx.type_of(def_id)`,
+of query, but the *key*. For example, when you invoke [`tcx.type_of(def_id)`],
 that could be a local query or an external query, depending on what crate the
-`def_id` is referring to (see the [`self::keys::Key`][Key] trait for more
+[`def_id`] is referring to (see the [`self::keys::Key`][Key] trait for more
 information on how that works).
 
-Providers always have the same signature, taking two arguments: a `tcx` and a
+`Provider` always has the same signature, taking two arguments: a `tcx` and a
 `key`, and returning the result of the query:
 ```rust,ignore
 fn provider<'tcx>(
@@ -94,12 +101,14 @@ fn provider<'tcx>(
     ...
 }
 ```
+[`def_id`]: https://doc.rust-lang.org/beta/nightly-rustc/rustc_span/def_id/struct.DefId.html
+[`tcx.type_of(def_id)`]: https://doc.rust-lang.org/beta/nightly-rustc/rustc_middle/ty/context/struct.TyCtxt.html#method.type_of
 
 ###  How providers are setup
 
 When the `tcx` is created, it is given the providers by its creator using
-the [`Providers`][providers_struct] struct. This struct is generated by
-the macros here, but it is basically a big list of function pointers:
+the [`Providers`][providers_struct] `struct`. This `struct` is generated by
+a `macro` here, but it is basically a big list of function pointers:
 
 [providers_struct]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/query/struct.Providers.html
 ```rust,ignore
@@ -109,16 +118,14 @@ struct Providers {
 }
 ```
 
-At present, we have one copy of the struct for local crates, and one for
+At present, we have one copy of the `struct` for local crates, and one for
 external crates, though eventually there may be one copy per crate!
 
-These `Providers` structs are ultimately created and populated by
-`rustc_driver` which does this by distributing the work
-throughout the other `rustc_*` crates. This is done by invoking
-various [`provide`][provide_fn] functions. These functions tend to look
-something like this:
+A `Provider` `struct` instance is ultimately created and populated by
+[`rustc_driver`] which does this by distributing the work throughout the other
+`rustc_*` crates. This is done by invoking various [`provide`][provide_fn]
+functions. These functions tend to look something like this:
 
-[provide_fn]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/hir/fn.provide.html
 ```rust,ignore
 pub fn provide(providers: &mut Providers) {
     *providers = Providers {
@@ -146,14 +153,17 @@ pub fn provide(providers: &mut Providers) {
 fn fubar<'tcx>(tcx: TyCtxt<'tcx>, key: DefId) -> Fubar<'tcx> { ... }
 ```
 
-N.B. Most of the `rustc_*` crates only provide **local
-providers**. Almost all **extern providers** wind up going through the
-[`rustc_metadata` crate][rustc_metadata], which loads the information
-from the crate metadata. But in some cases there are crates that
-provide queries for *both* local and external crates, in which case
-they define both a `provide` and a `provide_extern` function, through
-[`wasm_import_module_map`][wasm_import_module_map], that `rustc_driver` can invoke.
+Note that most of the `rustc_*` crates only provide **local providers**. Almost
+all **extern providers** wind up going through the 
+[`rustc_metadata` crate][rustc_metadata], which loads the information from the
+crate metadata. But in some cases there are crates that provide queries for
+*both* local and external crates, in which case they define both a `provide`
+and a `provide_extern` function, through
+[`wasm_import_module_map`][wasm_import_module_map], that [`rustc_driver`] can
+invoke.
 
+[provide_fn]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/hir/fn.provide.html
+[`rustc_driver`]: ./rustc-driver.md
 [rustc_metadata]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_metadata/index.html
 [wasm_import_module_map]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_codegen_ssa/back/symbol_export/fn.wasm_import_module_map.html
 
@@ -165,7 +175,7 @@ Defining a query takes place in two steps:
 2. Supply query providers where needed.
 
 To declare the query name and arguments simply add an entry to
-the big macro invocation in [`compiler/rustc_middle/src/query/mod.rs`][query-mod].
+the big `macro` invocation in [`compiler/rustc_middle/src/query/mod.rs`][query-mod].
 Then add a documentation comment with some _internal_ description.
 Finally, provide the `desc` attribute which contains a _user-facing_ description of the query.
 The `desc` attribute is shown to the user in query cycles:
@@ -198,19 +208,21 @@ Let's go over these elements one by one:
 
 - **Query keyword:** indicates a start of a query definition.
 - **Name of query:** the name of the query method
-  (`tcx.type_of(..)`). Also used as the name of a struct
+  (`tcx.type_of(..)`). Also used as the name of a `struct`
   (`ty::queries::type_of`) that will be generated to represent
   this query.
 - **Query key type:** the type of the argument to this query.
   This type must implement the [`ty::query::keys::Key`][Key] trait, which
   defines (for example) how to map it to a crate, and so forth.
 - **Result type of query:** the type produced by this query. This type
-  should (a) not use `RefCell` or other interior mutability and (b) be
-  cheaply cloneable. Interning or using `Rc` or `Arc` is recommended for
+  should (a) not use [`RefCell`] or other interior mutability and (b) be
+  cheaply cloneable. Interning or using [`Rc`] or [`Arc`] is recommended for
   non-trivial data types.[^steal]
 - **Query modifiers:** various flags and options that customize how the
   query is processed (mostly with respect to [incremental compilation][incrcomp]).
 
+[`RefCell`]: https://doc.rust-lang.org/std/cell/struct.RefCell.html
+[`Arc`]: https://doc.rust-lang.org/std/sync/struct.Arc.html
 [Key]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/query/keys/trait.Key.html
 [incrcomp]: queries/incremental-compilation-in-detail.html#query-modifiers
 
@@ -218,12 +230,14 @@ So, to add a query:
 
 - Add an entry to `rustc_queries!` using the format above.
 - Link the provider by modifying the appropriate `provide` method;
-  or add a new one if needed and ensure that `rustc_driver` is invoking it.
+  or add a new one if needed and ensure that [`rustc_driver`] is invoking it.
 
 [^steal]: The one exception to those rules is the `ty::steal::Steal` type,
 which is used to cheaply modify `MIR` in place. See the definition
-of `Steal` for more details. New uses of `Steal` should **not** be
+of [`Steal`] for more details. New uses of [`Steal`] should **not** be
 added without alerting `@rust-lang/compiler`.
+
+[`Steal`]: https://doc.rust-lang.org/stable/nightly-rustc/rustc_data_structures/steal/struct.Steal.html
 
 ## External links
 
