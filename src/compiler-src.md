@@ -2,34 +2,36 @@
 
 <!-- toc -->
 
-Now that we have [seen what the compiler does](./overview.md), let's take a
+Now that we have [seen what the compiler does][orgch], let's take a
 look at the structure of the [`rust-lang/rust`] repository, where the rustc
 source code lives.
 
 [`rust-lang/rust`]: https://github.com/rust-lang/rust
 
-> You may find it helpful to read the ["Overview of the compiler"](./overview.md)
+> You may find it helpful to read the ["Overview of the compiler"][orgch]
 > chapter, which introduces how the compiler works, before this one.
+
+[orgch]: ./overview.md
 
 ## Workspace structure
 
 The [`rust-lang/rust`] repository consists of a single large cargo workspace
 containing the compiler, the standard libraries ([`core`], [`alloc`],[ `std`],
-[`proc_macro`], [`etc`]), and [`rustdoc`], along with the build system and a bunch of
-tools and submodules for building a full Rust distribution.
+[`proc_macro`], [`etc`]), and [`rustdoc`], along with the build system and a
+bunch of tools and submodules for building a full Rust distribution.
 
 The repository consists of three main directories:
 
 - [`compiler/`] contains the source code for `rustc`. It consists of many crates
   that together make up the compiler.
   
-- [`library/`] contains the standard libraries (`core`, `alloc`, `std`,
-  `proc_macro`, [`test`]), as well as the Rust runtime ([`backtrace`], [`rtstartup`],
+- [`library/`] contains the standard libraries ([`core`], [`alloc`], [`std`],
+  [`proc_macro`], [`test`]), as well as the Rust runtime ([`backtrace`], [`rtstartup`],
   [`lang_start`]).
   
 - [`tests/`] contains the compiler tests.
   
-- [`src/`] contains the source code for `rustdoc`, [`clippy`], [`cargo`], the build system,
+- [`src/`] contains the source code for [`rustdoc`], [`clippy`], [`cargo`], the build system,
   language docs, etc.
 
 [`alloc`]: https://github.com/rust-lang/rust/tree/master/library/alloc
@@ -85,7 +87,7 @@ something like this:
 [`Span`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_span/struct.Span.html
 [main]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_driver/fn.main.html
 
-You can see the exact dependencies by reading the `Cargo.toml` for the various
+You can see the exact dependencies by reading the [`Cargo.toml`] for the various
 crates, just like a normal Rust crate.
 
 One final thing: [`src/llvm-project`] is a submodule for our fork of LLVM.
@@ -98,42 +100,40 @@ explanation of these crates here.
 
 [`compiler/rustc_llvm`]: https://github.com/rust-lang/rust/tree/master/compiler/rustc_llvm
 [`src/llvm-project`]: https://github.com/rust-lang/rust/tree/master/src/
+[`Cargo.toml`]: https://github.com/rust-lang/rust/blob/master/Cargo.toml
 
 ### Big picture
 
-The dependency structure is influenced by two main factors:
+The dependency structure of Rust is influenced by two main factors:
 
 1. Organization. The compiler is a _huge_ codebase; it would be an impossibly
    large crate. In part, the dependency structure reflects the code structure
-   of the compiler.
-2. Compile time. By breaking the compiler into multiple crates, we can take
+   of the compiler. Restructuring `rust-lang/rust` as a monorepo is an ongoing
+   debate with convincing technical and qualitative arguments for and against. 
+2. Compile-time. By breaking the compiler into multiple crates, we can take
    better advantage of incremental/parallel compilation using cargo. In
    particular, we try to have as few dependencies between crates as possible so
    that we don't have to rebuild as many crates if you change one.
 
 At the very bottom of the dependency tree are a handful of crates that are used
 by the whole compiler (e.g. [`rustc_span`]). The very early parts of the
-compilation process (e.g. parsing and the AST) depend on only these.
+compilation process (e.g. [parsing and the Abstract Syntax Tree (`AST`)][parser]) 
+depend on only these.
 
-After the AST is constructed and other early analysis is done, the compiler's [query system][query]
-gets set up. The query system is set up in a clever way using function
-pointers. This allows us to break dependencies between crates, allowing more
-parallel compilation.
-The query system is defined in [`rustc_middle`], so nearly all
-subsequent parts of the compiler depend on this crate. It is a really large
-crate, leading to long compile times. Some efforts have been made to move stuff
-out of it with varying success. Another side effect is that sometimes
-related functionality gets scattered across different crates. For example,
-linting functionality is found across earlier parts of the crate,
-[`rustc_lint`], [`rustc_middle`], and other places.
+After the `AST` is constructed and other early analysis is done, the compiler's
+[query system][query] gets set up. The query system is set up in a clever way
+using function pointers. This allows us to break dependencies between crates,
+allowing more parallel compilation. The query system is defined in
+[`rustc_middle`], so nearly all subsequent parts of the compiler depend on this
+crate. It is a really large crate, leading to long compile times. Some efforts
+have been made to move stuff out of it with varying success. Another side-effect is that sometimes related functionality gets scattered across different
+crates. For example, linting functionality is found across earlier parts of the
+crate, [`rustc_lint`], [`rustc_middle`], and other places.
 
-[`rustc_lint`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/index.html
-
-Ideally there would be fewer, more
-cohesive crates, with incremental and parallel compilation making sure compile
-times stay reasonable. However, incremental and parallel compilation haven't
-gotten good enough for that yet, so breaking things into separate crates has
-been our solution so far.
+Ideally there would be fewer, more cohesive crates, with incremental and
+parallel compilation making sure compile times stay reasonable. However,
+incremental and parallel compilation haven't gotten good enough for that yet,
+so breaking things into separate crates has been our solution so far.
 
 At the top of the dependency tree is [`rustc_driver`] and [`rustc_interface`]
 which is an unstable wrapper around the query system helping drive various
@@ -142,7 +142,8 @@ in different ways (e.g. `rustdoc` or maybe eventually `rust-analyzer`). The
 [`rustc_driver`] crate first parses command line arguments and then uses
 [`rustc_interface`] to drive the compilation to completion.
 
-[orgch]: ./overview.md
+[parser]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_parse/index.html
+[`rustc_lint`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/index.html
 [query]: ./query.md
 
 ## rustdoc
@@ -150,7 +151,7 @@ in different ways (e.g. `rustdoc` or maybe eventually `rust-analyzer`). The
 The bulk of `rustdoc` is in [`librustdoc`]. However, the `rustdoc` binary
 itself is [`src/tools/rustdoc`], which does nothing except call [`rustdoc::main`].
 
-There is also JavaScript and CSS for the docs in [`src/tools/rustdoc-js`]
+There is also `JavaScript` and `CSS` for the docs in [`src/tools/rustdoc-js`]
 and [`src/tools/rustdoc-themes`].
 
 You can read more about `rustdoc` in [this chapter][rustdocch].
@@ -193,8 +194,8 @@ from [`src/tools/`], such as [`tidy`] or [`compiletest`].
 
 The standard library crates are all in `library/`. They have intuitive names
 like `std`, `core`, `alloc`, etc.  There is also `proc_macro`, `test`, and
-other runtime libraries. The standard library is sometimes referred to
-formally as `libstd`.
+other runtime libraries. The standard library is sometimes referred to as
+`libstd`.
 
 This code is fairly similar to most other Rust crates except that it must be
 built in a special way because it can use unstable (`nightly`) features.
@@ -202,8 +203,7 @@ built in a special way because it can use unstable (`nightly`) features.
 ## Other
 
 There are a lot of other things in the `rust-lang/rust` repo that are related
-to building a full Rust distribution. Most of the time you don't need to worry
-about them.
+to building a full Rust distribution. Most of the time you don't need to worry about them.
 
 These include:
 - [`src/ci`]: The CI configuration. This actually quite extensive because we
