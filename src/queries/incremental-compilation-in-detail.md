@@ -16,7 +16,7 @@ incremental and then goes on to discuss version implementation issues.
 ## A Basic Algorithm For Incremental Query Evaluation
 
 As explained in the [query evaluation model primer][query-model], query
-invocations form a Directed-Acyclic Graph (DAG). Here's the example from the
+invocations form a Directed-Acyclic Graph (`DAG`). Here's the example from the
 previous chapter again:
 
 ```ignore
@@ -32,23 +32,23 @@ previous chapter again:
 ```
 
 Since every access from one query to another has to go through the query
-context, we can record these accesses build this dependency DAG in memory.
+context, we can record these accesses build this dependency `DAG` in memory.
 With dependency tracking enabled, when compilation is done, we know which
-queries were invoked (the nodes of the DAG), and for each invocation, which
+queries were invoked (the nodes of the `DAG`), and for each invocation, which
 other queries or inputs had gone into computing the query's result (the edges of
-the DAG).
+the `DAG`).
 
 Suppose we changed the source code of our program so that 
-[High-Level Intermediate Representation (HIR)] of `bar` looks different than
+[High-Level Intermediate Representation (HIR)][hir] of `bar` looks different than
 before. Our goal is to recompute only those queries that are affected by the
 change while re-using cached results of all the other queries. Given the
-dependency DAG we can do exactly that. For a given query invocation, the DAG
+dependency `DAG` we can do exactly that. For a given query invocation, the `DAG`
 tells us exactly what data has gone into computing its results, we just have to
 follow the edges until we reach something that has changed. If we don't
 encounter anything that has changed then we know that the query would again
-evaluate to a result we already have in cache.
+evaluate to a result we already have cached.
 
-[High-Level Intermediate Representation (HIR)]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/index.html
+[hir]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/index.html
 
 Using the `type_of(foo)` invocation from above as an example, we can check
 whether a cached result is still valid by following the edges to its inputs.
@@ -59,13 +59,12 @@ The story is a bit different for `type_check_item(foo)`: Again we walk the
 edges and already know `type_of(foo)` is fine. Then we get to `type_of(bar)`
 which we have not checked yet, so we walk the edges of `type_of(bar)` and
 encounter `Hir(bar)` which *has* changed. Consequently, since the result of
-`type_of(bar)` might yield a different result than what we have in cache and,
+`type_of(bar)` might yield a different result than what we have cached and,
 transitively, since the result of `type_check_item(foo)` might have changed
 too, we will re-run `type_check_item(foo)`. This will in turn re-run
 `type_of(bar)`, which will yield an up-to-date result because it reads the
 up-to-date version of `Hir(bar)`. Also, we re-run `type_check_item(bar)`
 because the result of `type_of(bar)` might have changed.
-
 
 ## The Problem With The Basic Algorithm: False Positives
 
@@ -96,12 +95,12 @@ by adding complexity.
 ## Improving Accuracy: The red-green Algorithm
 
 The "false positives" problem can be solved by interleaving change detection
-and query re-evaluation. Instead of walking a DAG all the way to the inputs
+and query re-evaluation. Instead of walking a `DAG` all the way to the inputs
 when trying to find out if some cached result is valid, we check if a result
 has *actually* changed after re-evaluating it.
 
 We call this algorithm the "red-green" algorithm because nodes in the dependency
-DAG are assigned the color green if its cached result is still valid and the
+`DAG` are assigned the color green if its cached result is still valid and the
 color red if the result turned out to be different after re-evaluating it.
 
 Red-green change tracking is implemented in the "try-mark-green" algorithm, which,
@@ -176,8 +175,7 @@ fn try_mark_green(tcx, current_node) -> bool {
 }
 ```
 
-> NOTE:
-> The actual implementation can be found in
+> The full implementation can be found in
 > [`compiler/rustc_query_system/src/dep_graph/graph.rs`][try_mark_green]
 
 Using red-green marking we can avoid the devastating cumulative effect of
@@ -185,7 +183,6 @@ having false positives during change detection. Whenever a query is executed in
 incremental mode, we first check if its already green. If not, we run
 `try_mark_green()` on it. If it still isn't green after that, then we finally
 invoke the query provider to re-compute the result.
-
 
 ## The Real World: How Persistence Makes Everything Complicated
 
@@ -198,10 +195,10 @@ it. This comes with a set of implementation challenges:
 - The query result cache is stored to disk, so they are not readily available
   for change comparison.
 - A subsequent compilation session will start off with new version of the code
-  that has arbitrary changes applied to it. All kinds of IDs and indices that
+  that has arbitrary changes applied to it. All kinds of `ID`s and indices that
   are generated from a global, sequential counter (e.g. `NodeId`, `DefId`, etc)
   might have shifted, making the persisted results on disk not immediately
-  usable anymore because the same numeric IDs and indices might refer to
+  usable anymore because the same numeric `ID`s and indices might refer to
   completely new things in the new compilation session.
 - Persisting things to disk comes at a cost, so not every tiny piece of
   information should be actually cached in between compilation sessions.
@@ -212,12 +209,12 @@ The following sections describe how the compiler solves these issues.
 
 ### A Question Of Stability: Bridging The Gap Between Compilation Sessions
 
-As noted before, various IDs (like `DefId`) are generated by the compiler in a
-way that depends on the contents of the source code being compiled. ID assignment
+As noted before, various `ID`s (like `DefId`) are generated by the compiler in a
+way that depends on the contents of the source code being compiled. `ID` assignment
 is usually deterministic, that is, if the exact same code is compiled twice,
-the same things will end up with the same IDs. However, if something
+the same things will end up with the same `ID`s. However, if something
 changes, e.g. a function is added in the middle of a file, there is no
-guarantee that anything will have the same ID as it had before.
+guarantee that anything will have the same `ID` as it had before.
 
 Consequently we cannot represent the data in our on-disk cache the same
 way it's represented in memory. For example, if we just stored a piece
@@ -225,12 +222,12 @@ of type information like `TyKind::FnDef(DefId, &'tcx Substs<'tcx>)` (as we do
 in memory) and then the contained `DefId` points to a different function in
 a new compilation session we'd be in trouble.
 
-A solution to this problem is to find "stable" forms for IDs which remain
+A solution to this problem is to find "stable" forms for `ID`s which remain
 valid in-between compilation sessions. For the most important case, `DefId`s,
 these are the so-called `DefPath`s. Each `DefId` has a
-corresponding `DefPath` but in place of a numeric ID, a `DefPath` is based on
+corresponding `DefPath` but in place of a numeric `ID`, a `DefPath` is based on
 the path to the identified item, e.g. `std::collections::HashMap`. The
-advantage of an ID like this is that it's not affected by unrelated changes.
+advantage of an `ID` like this is that it's not affected by unrelated changes.
 For example, one can add a new function to `std::collections` but
 `std::collections::HashMap` would still be `std::collections::HashMap`. A
 `DefPath` is "stable" across changes made to the source code while a `DefId`
@@ -247,12 +244,10 @@ the `DefPathHash` and when we deserialize something from the cache, we map the
 (which is just a hash-table lookup).
 
 The `HirId`, used for identifying `HIR` components that don't have their own
-`DefId`, is another such stable ID. It is (conceptually) a pair of a `DefPath`
+`DefId`, is another such stable `ID`. It is (conceptually) a pair of a `DefPath`
 and a `LocalId`, where the `LocalId` identifies something (e.g. a `hir::Expr`)
 locally within its "owner" (e.g. a `hir::Item`). If the owner is moved around,
 the `LocalId`s within it are still the same.
-
-
 
 ### Checking Query Results For Changes: HashStable And Fingerprints
 
@@ -278,9 +273,9 @@ sessions (e.g. a `DefId`), we instead hash its stable equivalent
 infrastructure is for. This way `Fingerprint`s computed in two
 different compilation sessions are still comparable.
 
-The next step is to store the `Fingerprint`s along with the dependency DAG.
+The next step is to store the `Fingerprint`s along with the dependency `DAG`.
 This is cheap since it's just bytes to be copied. It's also cheap to
-load the entire set of `Fingerprint`s together with the dependency DAG.
+load the entire set of `Fingerprint`s together with the dependency `DAG`.
 
 Now, when red-green-marking reaches the point where it needs to check if a
 result has changed, it can just compare the (already loaded) previous
@@ -301,44 +296,42 @@ This approach works rather well but it's not without flaws:
   use a expensive hash-function and we have to map things to their stable
   equivalents while doing the hashing.
 
-
 ### A Tale Of Two DepGraphs: The Old And The New
 
 The initial description of dependency tracking glosses over a few details
 which quickly become a head-scratcher when actually trying to implement things.
 In particular it's easy to overlook that we are actually dealing with *two*
-dependency DAGs: The one we built during the previous compilation session, and
+dependency `DAG`s: The one we built during the previous compilation session, and
 the one that we are building for the current compilation session.
 
 When a compilation session starts, the compiler loads the previous dependency
-DAG into memory as an immutable piece of data. Then, when a query is invoked,
-it will first try to mark the corresponding node in the DAG as green. This
+`DAG` into memory as an immutable piece of data. Then, when a query is invoked,
+it will first try to mark the corresponding node in the `DAG` as green. This
 means really that we are trying to mark the node in the *previous* dependency
-DAG as green that corresponds to the query key in the *current* session. How do
+`DAG` as green that corresponds to the query key in the *current* session. How do
 we do this mapping between current query key and previous `DepNode`? The answer
-is that nodes in the dependency DAG are identified by a `Fingerprint` of the
+is that nodes in the dependency `DAG` are identified by a `Fingerprint` of the
 query key. Since `Fingerprint`s are stable across compilation sessions,
 computing one in the current session allows us to find a node in the dependency
-DAG from the previous session. If we don't find a node with the given
+`DAG` from the previous session. If we don't find a node with the given
 `Fingerprint`, it means that the query key refers to something that did not
 exist in a previous session.
 
-So, having found the dep-node in the previous dependency DAG, we can look up
-its dependencies (i.e. also dep-nodes in the previous DAG) and continue with
+So, having found the dep-node in the previous dependency `DAG`, we can look up
+its dependencies (i.e. also dep-nodes in the previous `DAG`) and continue with
 the rest of the try-mark-green algorithm. The next interesting thing happens
 when we successfully marked the node as green. At that point we copy the node
-and the edges to its dependencies from the old DAG into a new DAG. We have to
-do this because the new dependency DAG cannot acquire the node and edges via
+and the edges to its dependencies from the old `DAG` into a new `DAG`. We have to
+do this because the new dependency `DAG` cannot acquire the node and edges via
 regular dependency tracking. The tracking system can only record edges while
 actually running a query -- but running the query, although we have the result
 already cached, is exactly what we wanted to avoid!
 
 Once the compilation session has finished all the unchanged parts have been
 copied over along with the changed parts which have been added to the new
-dependency DAG by the tracking system. At this point, the new DAG is serialized
+dependency `DAG` by the tracking system. At this point, the new `DAG` is serialized
 out to disk, alongside the query result cache, and can act as the previous
-dependency DAG in a subsequent compilation session.
-
+dependency `DAG` in a subsequent compilation session.
 
 ### Didn't You Forget Something?: Cache Promotion
 
@@ -368,24 +361,22 @@ In order to prevent this from happening, the compiler does something called
 dep-nodes and make sure that their query result is loaded into memory. That way
 the result cache doesn't unnecessarily shrink again.
 
-
-
 # Incremental Compilation and the Compiler Backend
 
 Rust's compiler backend, the part involving LLVM, uses the query system but
 it's not implemented in terms of queries. As a consequence there's no automatic
 dependency tracking. However, bespoke integration with the tracking system is
 straight-forward. Rust's compiler simply tracks which queries get invoked when
-generating the initial LLVM version of each codegen unit, which results in a
-dep-node for each of them. In subsequent compilation sessions it tries to mark
-the dep-node for a CGU as green. If it succeeds, it knows the corresponding
-object and bitcode files on disk are still valid, if not then entire codegen
-unit is recompiled.
+generating the initial LLVM version of each [code generation unit][codegen]
+(`CGU`), which results in a dep-node for each of them. In subsequent
+compilation sessions it tries to mark the dep-node for a `CGU` as green. If it
+succeeds, it knows the corresponding object and bitcode files on disk are still
+valid, if not then entire `CGU` unit is recompiled.
 
 This is the same approach used for regular queries. The main differences are:
 
  - We cannot easily compute a fingerprint for LLVM modules (because
-   they are opaque `C++` objects),
+   they are opaque C++ objects),
 
  - the logic for dealing with cached values is different from regular queries
    since we have bitcode and object files instead of serialized Rust values in
@@ -398,7 +389,7 @@ This is the same approach used for regular queries. The main differences are:
 The query system could probably be extended with general purpose mechanisms to
 deal with all of the above but had not been so extended to date.
 
-
+[codegen]: ../backend/codegen.md
 
 ## Query Modifiers
 
@@ -459,13 +450,12 @@ incremental compilation:
 
  - `anon` - this attribute makes the system use "anonymous" dep-nodes for the
    given query. An anonymous dep-node is not identified by the corresponding
-   query key, instead its ID is computed from the IDs of its dependencies. This
+   query key, instead its ID is computed from the `ID`s of its dependencies. This
    allows the red-green system to do its change detection even if there is no
    query key available for a given dep-node -- something which is needed for
    handling trait selection because it is not based on queries.
 
-[mod]: ../query.html#adding-a-new-kind-of-query
-
+[mod]: ../query.md#adding-a-new-kind-of-query
 
 ## The Projection Query Pattern
 
@@ -510,26 +500,27 @@ cost. Analogously it always makes sense to mark the monolithic query as
 `no_hash` because we have the projections to take care of keeping things green
 as much as possible.
 
-
 # Shortcomings of the Current System
 
-There are many things that still can be improved. See discussions on the Rust
-Zulip or internals Discourse.
+There are many things that still can be improved. See discussions on the [Rust Zulip] 
+or [Internals Discourse].
+
+[Rust Zulip]: https://rust-lang.zulipchat.com
+[Internals Discourse]: https://internals.rust-lang.org
 
 ## Incrementality of On-Disk Data Structures
 
-The current system does not update on-disk caches and the dependency DAG
+The current system does not update on-disk caches and the dependency `DAG`
 in-place. Instead it rewrites each file entirely in each compilation session.
 The overhead of doing so is a few percent of total compilation time.
 
 ## Unnecessary Data Dependencies
 
 Data structures used as query results could be factored in a way that removes
-edges from the dependency DAG. Especially "span" information is very volatile,
+edges from the dependency `DAG`. Especially "`span`" information is very volatile,
 so including it in a query result increases the chance that a result won't be
 reusable. See <https://github.com/rust-lang/rust/issues/47389> for more
 information.
-
 
 [query-model]: ./query-evaluation-model-in-detail.html
 [try_mark_green]: https://doc.rust-lang.org/nightly/nightly-rustc/src/rustc_query_system/dep_graph/graph.rs.html
