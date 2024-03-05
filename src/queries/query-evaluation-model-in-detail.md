@@ -22,40 +22,38 @@ is pre-filled with on creation.
 A query thus consists of the following things:
 
  - A name that identifies the query,
- - a "key" that specifies what we want to look up,
+ - a "`key`" that specifies what we want to look up,
  - a result type that specifies what kind of result it yields, and,
  - a "provider" which is a function that specifies how the result is to be
    computed if it isn't already present in the database.
 
-As an example, the name of the `type_of` query is `type_of`, its query key is a
+As an example, the name of the `type_of` query is `type_of`, its query `key` is a
 `DefId` identifying the item we want to know the type of, the result type is
-`Ty<'tcx>`, and the provider is a function that, given the query key and access
+`Ty<'tcx>`, and the provider is a function that, given the query `key` and access
 to the rest of the database, can compute the type of the item identified by the
-key.
+`key`.
 
-So in some sense a query is just a function that maps the query key to the
+So in some sense a query is just a function that maps the query `key` to the
 corresponding result. However, we have to apply some restrictions in order for
 this to be sound:
 
- - The key and result must be immutable values.
+ - The `key` and result must be immutable values.
  - The provider function must be a pure function in the sense that for the same
-   key it must always yield the same result.
- - The only parameters a provider function takes are the key and a reference to
+   `key` it must always yield the same result.
+ - The only parameters a provider function takes are the `key` and a reference to
    the "query context" (which provides access to the rest of the "database").
 
 The database is built up lazily by invoking queries. The query providers will
 invoke other queries, for which the result is either already cached or computed
 by calling another query provider. These query provider invocations
-conceptually form a Directed Acyclic Graph (DAG) at the leaves of which are
+conceptually form a Directed Acyclic Graph (`DAG`) at the leaves of which are
 input values that are already known when the query context is created.
-
-
 
 ## Caching/Memoization
 
 Results of query invocations are "memoized" which means that the query context
 will cache the result in an internal table and, when the query is invoked with
-the same query key again, will return the result from the cache instead of
+the same query `key` again, will return the result from the cache instead of
 running the provider again.
 
 This caching is crucial for making the query engine efficient. Without
@@ -66,8 +64,6 @@ Memoization is one of the main reasons why query providers have to be pure
 functions. If calling a provider function could yield different results for
 each invocation (because it accesses some global mutable state) then we could
 not memoize the result.
-
-
 
 ## Input data
 
@@ -87,15 +83,13 @@ result from (remember, query providers only have access to other queries and
 the context but not any other outside state or information).
 
 For a query provider, input data and results of other queries look exactly the
-same: It just tells the context "give me the value of X". Because input data
+same: It just tells the context "give me the value of `X`". Because input data
 is immutable, the provider can rely on it being the same across
 different query invocations, just as is the case for query results.
 
-
-
 ## An example execution trace of some queries
 
-How does this DAG of query invocations come into existence? At some point
+How does this `DAG` of query invocations come into existence? At some point
 the compiler driver will create the, as yet empty, query context. It will then,
 from outside of the query system, invoke the queries it needs to perform its
 task. This looks something like the following:
@@ -113,7 +107,7 @@ fn compile_crate() {
 }
 ```
 
-The `type_check_crate` query provider would look something like the following:
+A `type_check_crate` query provider would look something like the following:
 
 ```rust,ignore
 fn type_check_crate_provider(tcx, _key: ()) {
@@ -125,11 +119,11 @@ fn type_check_crate_provider(tcx, _key: ()) {
 }
 ```
 
-We see that the `type_check_crate` query accesses input data
+We see that a `type_check_crate` query accesses input data
 (`tcx.hir_map.list_of_items()`) and invokes other queries
-(`type_check_item`). The `type_check_item`
-invocations will themselves access input data and/or invoke other queries,
-so that in the end the DAG of query invocations will be built up backwards
+(`type_check_item`). A `type_check_item`
+invocations will access input data and/or invoke other queries,
+so that in the end the `DAG` of query invocations will be built up backwards
 from the node that was initially executed:
 
 ```ignore
@@ -147,19 +141,17 @@ from the node that was initially executed:
 // (x) denotes invocation order
 ```
 
-We also see that often a query result can be read from the cache:
-`type_of(bar)` was computed for `type_check_item(foo)` so when
-`type_check_item(bar)` needs it, it is already in the cache.
+We also see that often a query result can be read from cache: `type_of(bar)`
+was computed for `type_check_item(foo)` so when `type_check_item(bar)` needs
+it, it is already in cache.
 
 Query results stay cached in the query context as long as the context lives.
 So if the compiler driver invoked another query later on, the above graph
 would still exist and already executed queries would not have to be re-done.
 
-
-
 ## Cycles
 
-Earlier we stated that query invocations form a DAG. However, it would be easy
+Earlier we stated that query invocations form a `DAG`. However, it would be easy
 to form a cyclic graph by, for example, having a query provider like the
 following:
 
@@ -187,13 +179,14 @@ incremental compilation.
 
 ## "Steal" Queries
 
-Some queries have their result wrapped in a `Steal<T>` struct. These queries
+Some queries have their result wrapped in a `Steal<T>` `struct`. These queries
 behave exactly the same as regular with one exception: Their result is expected
-to be "stolen" out of the cache at some point, meaning some other part of the
+to be "stolen" out of cache at some point, meaning some other part of the
 program is taking ownership of it and the result cannot be accessed anymore.
 
 This stealing mechanism exists purely as a performance optimization because some
-result values are too costly to clone (e.g. the `MIR` of a function). It seems
+result values are too costly to clone (e.g. the 
+[Mid-level Intermediate Representation](./mir/index.md) of a function). It seems
 like result stealing would violate the condition that query results must be
 immutable (after all we are moving the result value out of the cache) but it is
 OK as long as the mutation is not observable. This is achieved by two things:
@@ -201,8 +194,8 @@ OK as long as the mutation is not observable. This is achieved by two things:
 - Before a result is stolen, we make sure to eagerly run all queries that
   might ever need to read that result. This has to be done manually by calling
   those queries.
-- Whenever a query tries to access a stolen result, we make an ICE
-  (Internal Compiler Error) so that such a condition cannot go unnoticed.
+- Whenever a query tries to access a stolen result, we make an Internal
+  Compiler Error (`ICE`) so that such a condition cannot go unnoticed.
 
 This is not an ideal setup because of the manual intervention needed, so it
 should be used sparingly and only when it is well known which queries might
