@@ -126,9 +126,10 @@ using function pointers. This allows us to break dependencies between crates,
 allowing more parallel compilation. The query system is defined in
 [`rustc_middle`], so nearly all subsequent parts of the compiler depend on this
 crate. It is a really large crate, leading to long compile times. Some efforts
-have been made to move stuff out of it with varying success. Another side-effect is that sometimes related functionality gets scattered across different
-crates. For example, linting functionality is found across earlier parts of the
-crate, [`rustc_lint`], [`rustc_middle`], and other places.
+have been made to move stuff out of it with varying success. Another
+side-effect is that sometimes related functionality gets scattered across
+different crates. For example, linting functionality is found across earlier
+parts of the crate, [`rustc_lint`], [`rustc_middle`], and other places.
 
 Ideally there would be fewer, more cohesive crates, with incremental and
 parallel compilation making sure compile times stay reasonable. However,
