@@ -4,11 +4,12 @@
 
 There are various ways to write tests against the dependency graph.  The
 simplest mechanisms are the `#[rustc_if_this_changed]` and
-`#[rustc_then_this_would_need]` annotations. These are used in [`ui`] tests to test
-whether the expected set of paths exist in the dependency graph.
+`#[rustc_then_this_would_need]` annotations. These are used in [`tests/ui`]
+tests to confirm whether the expected set of paths exist in the dependency
+graph.
 
 [`tests/ui/dep-graph/dep-graph-caller-callee.rs`]: https://github.com/rust-lang/rust/blob/master/tests/ui/dep-graph/dep-graph-caller-callee.rs
-[`ui`]: tests/ui.html
+[`tests/ui`]: tests/ui.html
 
 As an example, see [`tests/ui/dep-graph/dep-graph-caller-callee.rs`], or the
 tests below.
@@ -21,7 +22,8 @@ fn foo() { }
 fn bar() { foo(); }
 ```
 
-This should be read as
+This should be read as:
+
 > If this (`foo`) is changed, then this (i.e. `bar`)'s `TypeckTables` would need to be changed.
 
 Technically, what occurs is that the test is expected to emit the string "`OK`" on
@@ -35,6 +37,7 @@ fn baz() { }
 ```
 
 Whose meaning is:
+
 > If `foo` is changed, then `baz`'s `TypeckTables` does not need to be changed.
 > The macro must emit an error, and the error message must contains "`no path`".
 
@@ -68,16 +71,17 @@ source_filter     // nodes originating from source_filter
 source_filter -> target_filter // nodes in between source_filter and target_filter
 ```
 
-`source_filter` and `target_filter` are a `&`-separated list of strings.
-A node is considered to match a filter if all of those strings appear in its
-label. So, for example:
+Both `source_filter` and `target_filter` are a `&`-separated list of strings. A node
+is considered to match a filter if all of those strings appear in its label.
+So, for example, selecting the predecessors of all `TypeckTables` nodes you would
+write:
 
 ```text
 RUST_DEP_GRAPH_FILTER='-> TypeckTables'
 ```
 
-would select the predecessors of all `TypeckTables` nodes. Usually though you
-want the `TypeckTables` node for some particular `fn`, so you might write:
+Usually though you want the `TypeckTables` node for some particular `fn`, so
+you might write:
 
 ```text
 RUST_DEP_GRAPH_FILTER='-> TypeckTables & bar'

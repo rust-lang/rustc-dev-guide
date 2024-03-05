@@ -68,7 +68,7 @@
     - [The Query Evaluation Model in Detail](./queries/query-evaluation-model-in-detail.md)
     - [Incremental compilation](./queries/incremental-compilation.md)
     - [Incremental compilation In Detail](./queries/incremental-compilation-in-detail.md)
-    - [Debugging and Testing](./incrcomp-debugging.md)
+    - [Debugging and Testing](./queries/incremental-compilation-debugging.md)
     - [Salsa](./salsa.md)
 - [Memory Management in Rustc](./memory.md)
 - [Serialization in Rustc](./serialization.md)
