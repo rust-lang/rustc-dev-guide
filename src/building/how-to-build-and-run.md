@@ -120,6 +120,16 @@ You can avoid this error by allowing powershell to run local scripts:
 ```
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
+## Other `x` commands
+
+Here are serveral non-comprehensive examples and explainations for various
+`x.py` commands:
+
+- `./x.py clean` - invalidates the build config cache (but not LLVM cache also)
+- `./x.py check --all-targets` - does cross-compilation for a lot of different targets
+- `./x.py test --stage 1 --keep-stage-std 1` - use a cached version of the compiler
+- `./x.py test --bless src/test/mir_opt - automatically generates `MIR` dumps
+- `./x.py test --stage 1 --compare-mode chalk` - sets compare-mode to `chalk` 
 
 #### Running `x.py` slightly more conveniently
 
