@@ -122,7 +122,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
 ## Other `x` commands
 
-Here are serveral non-comprehensive examples and explainations for various
+Here are serveral non-comprehensive examples and explanations for various
 `x.py` commands:
 
 - `./x.py clean` - invalidates the build config cache (but not LLVM cache also)
