@@ -48,7 +48,10 @@ iteration, this represents a compile error.  Here is the [algorithm][original]:
 [fef]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_expand/expand/struct.MacroExpander.html#method.fully_expand_fragment
 [original]: https://github.com/rust-lang/rust/pull/53778#issuecomment-419224049
 
-1. Initialize a `queue` of unresolved macros.
+1. Traverse the partially built AST, and create a `queue` of all unresolved macros.
+   The traversal does not enter unresolved macros. That is, the queue does not
+   contains unresolved macros that appears as part of arguments of other
+   unresolved (non-eager) macros. The case of eager macros is discussed below.
 2. Repeat until `queue` is empty (or we make no progress, which is an error):
    1. [Resolve](./name-resolution.md) imports in our partially built crate as
       much as possible.
@@ -128,19 +131,31 @@ chapter](./name-resolution.md).
 
 _Eager expansion_ means that we expand the arguments of a macro invocation
 before the macro invocation itself. This is implemented only for a few special
-built-in macros that expect literals; expanding arguments first for some of
-these macro results in a smoother user experience.  As an example, consider the
-following:
+built-in macros that expect literals. For example, `cfg` must be eager. Indeed,
+consider the following example:
 
 ```rust,ignore
-macro bar($i: ident) { $i }
-macro foo($i: ident) { $i }
+macro expected_target() { "linux" }
 
-foo!(bar!(baz));
+[cfg(not(target_os = !expected_target()))]
+compile_error!("Not the expected target.");
 ```
 
-A lazy expansion would expand `foo!` first. An eager expansion would expand
-`bar!` first.
+It is expanded first as:
+
+```rust, ignore
+[cfg(not(target_os = "linux"))]
+compile_error!("Not the expected target.");
+```
+
+and then, either as an empty AST (if the target is linux), or otherwise as :
+
+```rust, ignore
+compile_error!("Not the expected target.");
+```
+
+The macro had to be eager, as there would be no way to expand `cfg` until the
+expected target was determined.
 
 Eager expansion is not a generally available feature of Rust.  Implementing
 eager expansion more generally would be challenging, but we implement it for a
