@@ -3,7 +3,7 @@
 <!-- toc -->
 
 Now that we have [seen what the compiler does][orgch], let's take a
-look at the structure of the [`rust-lang/rust`] repository, where the rustc
+look at the structure of the [`rust-lang/rust`] repository, where the `rustc`
 source code lives.
 
 [`rust-lang/rust`]: https://github.com/rust-lang/rust
@@ -54,8 +54,8 @@ The repository consists of three main directories:
 
 ## Compiler
 
-The compiler is implemented in the various `compiler/` crates.
-The `compiler/` crates all have names starting with `rustc_*`. These are a
+The compiler is implemented in the various [`compiler/`] crates.
+The [`compiler/`] crates all have names starting with `rustc_*`. These are a
 collection of around 50 interdependent crates ranging in size from tiny to
 huge. There is also the `rustc` crate which is the actual binary (i.e. the
 `main` function); it doesn't actually do anything besides calling the
@@ -120,13 +120,13 @@ by the whole compiler (e.g. [`rustc_span`]). The very early parts of the
 compilation process (e.g. [parsing and the Abstract Syntax Tree (`AST`)][parser]) 
 depend on only these.
 
-After the `AST` is constructed and other early analysis is done, the compiler's
-[query system][query] gets set up. The query system is set up in a clever way
-using function pointers. This allows us to break dependencies between crates,
-allowing more parallel compilation. The query system is defined in
-[`rustc_middle`], so nearly all subsequent parts of the compiler depend on this
-crate. It is a really large crate, leading to long compile times. Some efforts
-have been made to move stuff out of it with varying success. Another
+After the [`AST`][parser] is constructed and other early analysis is done, the
+compiler's [query system][query] gets set up. The query system is set up in a
+clever way using function pointers. This allows us to break dependencies
+between crates, allowing more parallel compilation. The query system is defined
+in [`rustc_middle`], so nearly all subsequent parts of the compiler depend on
+this crate. It is a really large crate, leading to long compile times. Some
+efforts have been made to move stuff out of it with varying success. Another
 side-effect is that sometimes related functionality gets scattered across
 different crates. For example, linting functionality is found across earlier
 parts of the crate, [`rustc_lint`], [`rustc_middle`], and other places.
@@ -139,7 +139,7 @@ so breaking things into separate crates has been our solution so far.
 At the top of the dependency tree is [`rustc_driver`] and [`rustc_interface`]
 which is an unstable wrapper around the query system helping drive various
 stages of compilation. Other consumers of the compiler may use this interface
-in different ways (e.g. `rustdoc` or maybe eventually `rust-analyzer`). The
+in different ways (e.g. [`rustdoc`] or maybe eventually `rust-analyzer`). The
 [`rustc_driver`] crate first parses command line arguments and then uses
 [`rustc_interface`] to drive the compilation to completion.
 
@@ -149,57 +149,56 @@ in different ways (e.g. `rustdoc` or maybe eventually `rust-analyzer`). The
 
 ## rustdoc
 
-The bulk of `rustdoc` is in [`librustdoc`]. However, the `rustdoc` binary
+The bulk of [`rustdoc`] is in [`librustdoc`]. However, the [`rustdoc`] binary
 itself is [`src/tools/rustdoc`], which does nothing except call [`rustdoc::main`].
 
 There is also `JavaScript` and `CSS` for the docs in [`src/tools/rustdoc-js`]
 and [`src/tools/rustdoc-themes`].
 
-You can read more about `rustdoc` in [this chapter][rustdocch].
+You can read more about [`rustdoc`] in [this chapter][`rustdoc`].
 
 [`librustdoc`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustdoc/index.html
 [`rustdoc::main`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustdoc/fn.main.html
 [`src/tools/rustdoc-js`]: https://github.com/rust-lang/rust/tree/master/src/tools/rustdoc-js
 [`src/tools/rustdoc-themes`]: https://github.com/rust-lang/rust/tree/master/src/tools/rustdoc-themes
 [`src/tools/rustdoc`]:  https://github.com/rust-lang/rust/tree/master/src/tools/rustdoc
-[rustdocch]: ./rustdoc.md
+[`rustdoc`]: ./rustdoc.md
 
 ## Tests
 
 The test suite for all of the above is in [`tests/`]. You can read more
 about the test suite [in this chapter][testsch].
 
-The test harness is in [`src/tools/compiletest`].
+The test harness is in [`src/tools/compiletest/`][`compiletest/`].
 
-[`src/tools/compiletest`]: https://github.com/rust-lang/rust/tree/master/src/tools/compiletest
 [`tests/`]: https://github.com/rust-lang/rust/tree/master/tests
 [testsch]: ./tests/intro.md
 
 ## Build System
 
 There are a number of tools in the repository just for building the compiler,
-standard library, `rustdoc`, etc, along with testing, building a full Rust
+standard library, [`rustdoc`], etc, along with testing, building a full Rust
 distribution, etc.
 
-One of the primary tools is [`src/bootstrap`]. You can read more about
+One of the primary tools is [`src/bootstrap/`]. You can read more about
 bootstrapping [in this chapter][bootstch]. The process may also use other tools
-from [`src/tools/`], such as [`tidy`] or [`compiletest`].
+from [`src/tools/`], such as [`tidy/`] or [`compiletest/`].
 
-[`compiletest`]: https://github.com/rust-lang/rust/tree/master/src/tools/compiletest
-[`src/bootstrap`]: https://github.com/rust-lang/rust/tree/master/src/bootstrap
+[`compiletest/`]: https://github.com/rust-lang/rust/tree/master/src/tools/compiletest
+[`src/bootstrap/`]: https://github.com/rust-lang/rust/tree/master/src/bootstrap
 [`src/tools/`]: https://github.com/rust-lang/rust/tree/master/src/tools
-[`tidy`]: https://github.com/rust-lang/rust/tree/master/src/tools/tidy
+[`tidy/`]: https://github.com/rust-lang/rust/tree/master/src/tools/tidy
 [bootstch]: ./building/bootstrapping.md
 
-## Standard library (`libstd`)
-
-The standard library crates are all in `library/`. They have intuitive names
-like `std`, `core`, `alloc`, etc.  There is also `proc_macro`, `test`, and
-other runtime libraries. The standard library is sometimes referred to as
-`libstd`.
+## Standard library (`std`)
 
 This code is fairly similar to most other Rust crates except that it must be
-built in a special way because it can use unstable (`nightly`) features.
+built in a special way because it can use unstable ([`nightly`]) features. The
+standard library is sometimes referred to as [`libstd or the "standard
+facade"`].
+
+[`libstd or the "standard facade"`]: https://rust-lang.github.io/rfcs/0040-libstd-facade.html
+[`nightly`]: https://doc.rust-lang.org/nightly/nightly-rustc/
 
 ## Other
 
