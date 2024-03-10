@@ -29,7 +29,7 @@ drives the compilation to completion.
 
 Finally [`rustc_driver::run_compiler()`][rd_rc] also takes a [`Callbacks`][cb],
 which is a `trait` that allows for custom compiler configuration, as well as
-allowing some custom code run after different phases of the compilation.
+allowing custom code to run after different phases of the compilation.
 
 > **Warning:** By its very nature, the internal compiler APIs are always going
 > to be unstable. That said, we do try not to break things unnecessarily.
