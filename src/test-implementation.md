@@ -146,7 +146,7 @@ test runner via the harness generated in Step 2.
 ## Inspecting the generated code
 
 On `nightly` `rustc`, there's an unstable flag called `unpretty` that you can use
-to print out the module source after `macro` expansion:
+to print out the module source after [`macro`] expansion:
 
 ```bash
 $ rustc my_mod.rs -Z unpretty=hir
