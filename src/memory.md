@@ -86,7 +86,7 @@ the arenas, anyhow).
 ### A Note On Lifetimes
 
 The Rust compiler is a fairly large program containing lots of big data
-structures (e.g. the Abstract Syntax Tree (`AST`), [High-Level Intermediate
+structures (e.g. the [Abstract Syntax Tree (`AST`)][ast], [High-Level Intermediate
 Representation (`HIR`)][hir], and the type system) and as such, arenas and
 references are heavily relied upon to minimize unnecessary memory use. This
 manifests itself in the way people can plug into the compiler (i.e. the
@@ -98,5 +98,6 @@ duplication while also preventing a lot of the ergonomic issues due to many
 pervasive lifetimes. The [`rustc_middle::ty::tls`][tls] module is used to access these
 thread-locals, although you should rarely need to touch it.
 
+[ast]: ./ast-validation.md
 [hir]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/index.html
 [tls]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/tls/index.html
