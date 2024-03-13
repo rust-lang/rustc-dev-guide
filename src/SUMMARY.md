@@ -62,7 +62,6 @@
 - [Prologue](./building/bootstrapping/intro.md)
 - [What Bootstrapping does](./building/bootstrapping/what-bootstrapping-does.md)
 - [How Bootstrap does it](./building/bootstrapping/how-bootstrap-does-it.md)
-- [Common Bootstrap commands](./building/bootstrapping/common-commands.md)
 
 # High-level Compiler Architecture
 

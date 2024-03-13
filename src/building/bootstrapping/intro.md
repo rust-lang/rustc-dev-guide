@@ -15,9 +15,7 @@ rustc, then uses it to compile the new compiler.
 
 In this section, we give a high-level overview of
 [what Bootstrap does](./what-bootstrapping-does.md), followed by a high-level
-introduction to [how Bootstrap does it](./how-bootstrap-does-it.md). A
-[listing of common bootstrap commands](./common-commands.md) is also provided
-for convenience.
+introduction to [how Bootstrap does it](./how-bootstrap-does-it.md).
 
 [boot]: https://en.wikipedia.org/wiki/Bootstrapping_(compilers)
 [ocaml-compiler]: https://github.com/rust-lang/rust/tree/ef75860a0a72f79f97216f8aaa5b388d98da6480/src/boot
