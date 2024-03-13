@@ -39,7 +39,7 @@ pub trait Step: 'static + Clone + Debug + PartialEq + Eq + Hash {
 
 There's a couple of preliminary steps before core Bootstrap code is reached:
 
-1. Shell script: [`./x`](https://github.com/rust-lang/rust/blob/master/x) or [`./x.ps1`](https://github.com/rust-lang/rust/blob/master/x.ps1)
+1. Shell script or `make`: [`./x`](https://github.com/rust-lang/rust/blob/master/x) or [`./x.ps1`](https://github.com/rust-lang/rust/blob/master/x.ps1) or `make`
 2. Convenience wrapper script: [`x.py`](https://github.com/rust-lang/rust/blob/master/x.py)
 3. [`src/bootstrap/bootstrap.py`](https://github.com/rust-lang/rust/blob/master/src/bootstrap/bootstrap.py)
 4. [`src/bootstrap/src/bin/main.rs`](https://github.com/rust-lang/rust/blob/master/src/bootstrap/src/bin/main.rs)
