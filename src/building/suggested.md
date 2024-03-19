@@ -282,10 +282,14 @@ pkgs.mkShell {
     binutils cmake ninja pkg-config python3 git curl cacert patchelf nix
   ];
   buildInputs = with pkgs; [
-    openssl glibc.out glibc.static
+    openssl glibc.out glibc.static zlib
   ];
   # Avoid creating text files for ICEs.
   RUSTC_ICE = "0";
+
+  shellHook = ''
+    export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath buildInputs}:$LD_LIBRARY_PATH"
+  '';
 }
 ```
 
