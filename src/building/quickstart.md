@@ -11,7 +11,7 @@ cd rust
 ```
 
 When building the compiler, we don't use `cargo` directly, instead we use a wrapper called "x".
-On Unix-like platforms, use `./x`. On Windows, use `.\x.ps1`. This guide will use `./x`.
+It is invoked with `./x`.
 
 We need to create a configuration for the build. Use `./x setup` to create a good default.
 
@@ -40,21 +40,25 @@ rustup toolchain link stage1 build/host/stage1
 Now you have a toolchain called `stage1` linked to your build. You can use it to test the compiler.
 
 ```sh
-rustc +stage testfile.rs
+rustc +stage1 testfile.rs
 ```
 
 After doing a change, you can run the compiler test suite with `./x test`.
 
 `./x test` runs the full test suite, which is slow and rarely what you want.
 Usually, `./x test tests/ui` is what you want after a comiler change,
-testing all "UI" tests that invoke the compiler on a specific test file and check the output.
+testing all [UI tests](../tests/ui.md) that invoke the compiler on a specific test file and check the output.
 
 ```sh
 ./x test tests/ui
 ```
+
+Use `--bless` if you've made a change and want to update the `.stderr` files with the new output.
 
 > `./x suggest` can also be helpful for suggesting which tests to run after a change.
 
 Congrats, you are now ready to make a change to the compiler! If you have more questions,
 [the full chapter](./how-to-build-and-run.md) might contain the answers, and if it doesn't,
 feel free to ask for help on [Zulip](https://rust-lang.zulipchat.com/#narrow/stream/182449-t-compiler.2Fhelp).
+
+If you use VSCode, `./x setup` will ask you if you want to set up the config. For other editors, check out [suggested workflows](./suggested.md).
