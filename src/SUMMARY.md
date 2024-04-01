@@ -67,7 +67,8 @@
 # High-level Compiler Architecture
 
 - [Prologue](./part-2-intro.md)
-- [Overview of the compiler](./overview.md)
+- [Overview of the compiler](./overview/overview.md)
+    - [Compiling a Program: A Walkthrough](./overview/walkthrough.md)
 - [The compiler source code](./compiler-src.md)
 - [Queries: demand-driven compilation](./query.md)
     - [The Query Evaluation Model in Detail](./queries/query-evaluation-model-in-detail.md)
