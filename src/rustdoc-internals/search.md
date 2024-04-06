@@ -24,11 +24,12 @@ Naturally, it's also written without newlines or spaces.
         "d": ["This function gets the name of an integer with Data", "The data struct"],
         "q": [[0, "crate_name"]],
         "i": [2, 0],
-        "p": [[1, "i32"], [1, "str"], [5, "crate_name::Data"]],
+        "p": [[1, "i32"], [1, "str"], [5, "Data", 0]],
         "f": "{{gb}{d}}`",
         "b": [],
         "c": [],
         "a": [["get_name", 0]],
+        "r": [],
     }]
 ]
 ```
@@ -242,3 +243,71 @@ The unification filter ensures that:
 The bloom filter checks none of these things,
 and, on top of that, can have false positives.
 But it's fast and uses very little memory, so the bloom filter helps.
+
+## Re-exports
+
+[Re-export inlining] allows the same item to be found by multiple names.
+Search supports this by giving the same item multiple entries and tracking a canonical path
+for any items where that differs from the given path.
+
+For example, this sample index has a single struct exported from two paths:
+
+```json
+[
+    [ "crate_name", {
+        "doc": "Documentation",
+        "n": ["Data", "Data"],
+        "t": "FF",
+        "d": ["The data struct", "The data struct"],
+        "q": [[0, "crate_name"], [1, "crate_name::submodule"]],
+        "i": [0, 0],
+        "p": [],
+        "f": "``",
+        "b": [],
+        "c": [],
+        "a": [],
+        "r": [[0, 1]],
+    }]
+]
+```
+
+The important part of this example is the `r` array,
+which indicates that path entry 1 in the `q` array is
+the canonical path for item 0.
+That is, `crate_name::Data` has a canonical path of `crate_name::submodule::Data`.
+
+This might sound a strange design, since it has the duplicate data.
+It's done that way because inlining can happen across crates,
+which are compiled separately and might not all be present in the docs.
+
+```json
+[
+  [ "crate_name", ... ],
+  [ "crate_name_2", { "q": [[0, "crate_name::submodule"], [5, "core::option"]], ... }]
+]
+```
+
+In the above example, a canonical path actually comes from a dependency,
+and another one comes from an inlined standard library item:
+the canonical path isn't even in the index!
+The canonical path might also be private.
+In either case, it's never shown to the user, and is only used for deduplication.
+
+Associated types, like methods, store them differently.
+These types are connected with an entry in `p` (their "parent")
+and each one has an optional third tuple element:
+
+    "p": [[5, "Data", 0, 1]]
+
+That's:
+
+- 5: It's a struct
+- "Data": Its name
+- 0: Its display path, "crate_name"
+- 1: Its canonical path, "crate_name::submodule"
+
+In both cases, the canonical path might not be public at all,
+or it might be from another crate that isn't in the docs,
+so it's never shown to the user, but is used for deduplication.
+
+[Re-export inlining]: https://doc.rust-lang.org/nightly/rustdoc/write-documentation/re-exports.html
