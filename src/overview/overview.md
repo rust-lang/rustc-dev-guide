@@ -160,7 +160,11 @@ We will explain each area in more detail in the next section.
 
 ### The Compiler Driver and the Interface
 
-> **TODO** write about this
+The compiler driver (`rustc_driver`) is responsible for exercising the unstable
+interface exposed by the compiler interface `rustc_interface` to orchestrate the
+compilation phases and queries in the correct order. Splitting the driver and
+the interface allows third parties to use rustc's internals as a library (such
+as `rustdoc`) through the interface.
 
 ### Non-Querified Areas
 
