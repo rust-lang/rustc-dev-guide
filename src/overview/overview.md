@@ -35,8 +35,7 @@ information.
 Ideally, the entire compiler would be organized as queries. However, as of the
 time of writing (March 2024), `rustc` still has several areas which are not yet
 querified and work like conventional passes. The following diagram illustrates
-this distinction as well as the information dependency between areas. We will
-explain each area in more detail in the next section.
+this distinction as well as the information dependency between areas.
 
 > **FIXME** What do we want the arrows to **actually** mean?
 
@@ -132,14 +131,7 @@ digraph rustc_areas {
 ```
 -->
 
-## Brief Summaries of the Areas
-
-> **UNDER CONSTRUCTION** This section lacks exhaustive list of areas and their
-> summaries. This should ideally be ordered based on a BFS traversal related to
-> the information dependency presented in the previous section.
-
-We now summarize areas following the order of their information dependency. To
-produce the final executable, we take one of the several code generation
+To produce the final executable, we take one of the several code generation
 pathways. For example, to produce an executable following the LLVM pathway, we
 rely on the synthesis of LLVM IR from SSA code generation. Code generation in
 turn relies on information produced by Monomorphization Collection, and so on.
@@ -147,8 +139,7 @@ We keep following the dependencies for the querified areas until we reach HIR
 Lowering, which depends on information from non-querified areas of the compiler.
 At that boundary, we make a distinction between the pull-based information
 dependency of querified areas versus push-based information dependency of the
-non-querified areas. We flip our direction, and trace from the source code until
-Late Name Resolution.
+non-querified areas.
 
 To pass information between areas, the compiler uses various _Intermediate
 Representations_ (IRs), which provide common interfaces to allow areas to
@@ -163,9 +154,15 @@ These various IRs gradually transform surface Rust syntax by simplications of
 language constructs and enriches the information available to lower-level areas
 by many analyses.
 
-### Non-Querified Areas
+We will explain each area in more detail in the next section.
 
-We now flip our direction of traversal, and start from Source Code.
+## Brief Summaries of the Areas
+
+### The Compiler Driver and the Interface
+
+> **TODO** write about this
+
+### Non-Querified Areas
 
 #### Tokenization
 
@@ -265,7 +262,7 @@ example:
 - For an algebraic data type (struct/enum/union) to be WF, its generics need to
   satisfy the `where` clauses on the ADT.
 
-The notion of well-formedness can be inductively extended for entities that
+The notion of type well-formedness can be inductively extended for entities that
 contain types, such as trait predicates. A trait predicate `T0: Trait<P1, ...>`
 is well-formed if `T0` and `P1, ...` are well-formed in addition to `Trait`'s
 `where` clauses being satisfied.
@@ -280,8 +277,18 @@ before further type-checking and inference, for two purposes:
    having to check if a tuple's fields are `Sized` when type checking a
    `tuple.0` expression.
 
-Note that HIR WF checking are not the only place where WF checks take place:
-there are further WF checks in THIR/MIR to complement HIR WF checks.
+The HIR is _well-formed_ (WF) when it satisfies a set of requirements that
+include but are not limited to:
+
+- well-formedness of types in type signatures
+- object safety is respected
+- function call ABI requirements (e.g. for "rust-call") are satisfied
+- receiver type can be used as a self type
+- variances are compatible
+- and many more
+
+Note that HIR WF checking are also not the only place where WF checks take
+place: there are further WF checks in THIR/MIR to complement HIR WF checks.
 
 #### HIR Body Type-checking
 
@@ -465,6 +472,10 @@ See
 [Monomorphization](https://rustc-dev-guide.rust-lang.org/backend/monomorph.html)
 for more details.
 
+#### The Trait System
+
+> 🚧 **TODO** 🚧 I don't know how to describe the Trait System at all here.
+
 #### Static-Single Assignment (SSA) Code Generation
 
 Static Single Assignment (SSA) code generation is responsible for lowering
@@ -483,9 +494,9 @@ See [Code
 Generation](https://rustc-dev-guide.rust-lang.org/backend/codegen.html) for more
 details.
 
-#### The Trait System
+#### Codegen backends: LLVM, GCC and Cranelift
 
-> 🚧 **TODO** 🚧 I don't know how to describe the Trait System at all here.
+> 🚧 **TODO** 🚧 need more information.
 
 ## Additional References and Resources
 
@@ -503,6 +514,8 @@ details.
 > **UNDER CONSTRUCTION** This should retain _key entry points_ from the previous
 > overview version. Can be very useful. We should expand it a bit. This section
 > lacks additional references.
+>
+> **FIXME**: audit these references and links, they are likely very outdated
 
 - Command line parsing
 
