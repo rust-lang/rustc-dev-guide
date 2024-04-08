@@ -519,7 +519,7 @@ details.
 
 - Command line parsing
 
-  - Guide: [The Rustc Driver and Interface](rustc-driver.md)
+  - Guide: [The Rustc Driver and Interface](../rustc-driver.md)
   - Driver definition:
     [`rustc_driver`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_driver/)
   - Main entry point:
@@ -527,7 +527,7 @@ details.
 
 - Lexical Analysis: Lex the user program to a stream of tokens
 
-  - Guide: [Lexing and Parsing](the-parser.md)
+  - Guide: [Lexing and Parsing](../the-parser.md)
   - Lexer definition:
     [`rustc_lexer`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lexer/index.html)
   - Main entry point:
@@ -535,9 +535,9 @@ details.
 
 - Parsing: Parse the stream of tokens to an Abstract Syntax Tree (AST)
 
-  - Guide: [Lexing and Parsing](the-parser.md)
-  - Guide: [Macro Expansion](macro-expansion.md)
-  - Guide: [Name Resolution](name-resolution.md)
+  - Guide: [Lexing and Parsing](../the-parser.md)
+  - Guide: [Macro Expansion](../macro-expansion.md)
+  - Guide: [Name Resolution](../name-resolution.md)
   - Parser definition:
     [`rustc_parse`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_parse/index.html)
   - Main entry points:
@@ -555,10 +555,10 @@ details.
 
 - The High Level Intermediate Representation (HIR)
 
-  - Guide: [The HIR](hir.md)
-  - Guide: [Identifiers in the HIR](hir.md#identifiers-in-the-hir)
-  - Guide: [The `HIR` Map](hir.md#the-hir-map)
-  - Guide: [Lowering `AST` to `HIR`](ast-lowering.md)
+  - Guide: [The HIR](../hir.md)
+  - Guide: [Identifiers in the HIR](../hir.md#identifiers-in-the-hir)
+  - Guide: [The `HIR` Map](../hir.md#the-hir-map)
+  - Guide: [Lowering `AST` to `HIR`](../ast-lowering.md)
   - How to view `HIR` representation for your code `cargo rustc -- -Z
     unpretty=hir-tree`
   - Rustc `HIR` definition:
@@ -568,8 +568,8 @@ details.
 
 - Type Inference
 
-  - Guide: [Type Inference](type-inference.md)
-  - Guide: [The ty Module: Representing Types](ty.md) (semantics)
+  - Guide: [Type Inference](../type-inference.md)
+  - Guide: [The ty Module: Representing Types](../ty.md) (semantics)
   - Main entry point (type inference):
     [`InferCtxtBuilder::enter`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_infer/infer/struct.InferCtxtBuilder.html#method.enter)
   - Main entry point (type checking bodies): [the `typeck`
@@ -579,7 +579,7 @@ details.
 
 - The Mid Level Intermediate Representation (MIR)
 
-  - Guide: [The `MIR` (Mid level IR)](mir/index.md)
+  - Guide: [The `MIR` (Mid level IR)](../mir/index.md)
   - Definition:
     [`rustc_middle/src/mir`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/index.html)
   - Definition of sources that manipulates the MIR:
@@ -589,7 +589,7 @@ details.
 
 - The Borrow Checker
 
-  - Guide: [MIR Borrow Check](borrow_check.md)
+  - Guide: [MIR Borrow Check](../borrow_check.md)
   - Definition:
     [`rustc_borrowck`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_borrowck/index.html)
   - Main entry point: [`mir_borrowck`
@@ -597,7 +597,7 @@ details.
 
 - `MIR` Optimizations
 
-  - Guide: [MIR Optimizations](mir/optimizations.md)
+  - Guide: [MIR Optimizations](../mir/optimizations.md)
   - Definition:
     [`rustc_mir_transform`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_transform/index.html)
   - Main entry point: [`optimized_mir`

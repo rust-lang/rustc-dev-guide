@@ -129,9 +129,9 @@ with additional low-level types and annotations added (e.g. an ELF object or
 `WASM`). The different libraries/binaries are then linked together to produce
 the final binary.
 
-[*trait solving*]: traits/resolution.md
-[*type checking*]: type-checking.md
-[*type inference*]: type-inference.md
+[*trait solving*]: ../traits/resolution.md
+[*type checking*]: ../type-checking.md
+[*type inference*]: ../type-inference.md
 [`bump`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_parse/parser/struct.Parser.html#method.bump
 [`check`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_parse/parser/struct.Parser.html#method.check
 [`Crate`]: https://doc.rust-lang.org/beta/nightly-rustc/rustc_ast/ast/struct.Crate.html
@@ -144,7 +144,7 @@ the final binary.
 [`Parser`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_parse/parser/struct.Parser.html
 [`Pat`]: https://doc.rust-lang.org/beta/nightly-rustc/rustc_ast/ast/struct.Pat.html
 [`rustc_ast::ast`]: https://doc.rust-lang.org/beta/nightly-rustc/rustc_ast/index.html
-[`rustc_driver`]: rustc-driver.md
+[`rustc_driver`]: ../rustc-driver.md
 [`rustc_interface::Config`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/struct.Config.html
 [`rustc_lexer`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lexer/index.html
 [`rustc_parse::lexer`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_parse/lexer/index.html
@@ -153,12 +153,12 @@ the final binary.
 [`simplify_try`]: https://github.com/rust-lang/rust/pull/66282
 [`StringReader`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_parse/lexer/struct.StringReader.html
 [`Ty<'tcx>`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.Ty.html
-[borrow checking]: borrow_check.md
-[codegen]: backend/codegen.md
+[borrow checking]: ../borrow_check.md
+[codegen]: ../backend/codegen.md
 [hir]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/index.html
-[lex]: the-parser.md
-[mir-opt]: mir/optimizations.md
-[mir]: mir/index.md
+[lex]: ../the-parser.md
+[mir-opt]: ../mir/optimizations.md
+[mir]: ../mir/index.md
 [parse_crate_mod]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_parse/parser/struct.Parser.html#method.parse_crate_mod
 [parse_external_mod]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_expand/module/fn.parse_external_mod.html
 [parse_mod]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_parse/parser/struct.Parser.html#method.parse_mod
@@ -368,7 +368,7 @@ For more details on bootstrapping, see
 [the bootstrapping section of the guide][rustc-bootstrap].
 
 [_bootstrapping_]: https://en.wikipedia.org/wiki/Bootstrapping_(compilers)
-[rustc-bootstrap]: building/bootstrapping/intro.md
+[rustc-bootstrap]: ../building/bootstrapping/intro.md
 
 <!--
 # Unresolved Questions
