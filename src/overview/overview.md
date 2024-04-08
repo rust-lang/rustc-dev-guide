@@ -1,36 +1,14 @@
-> Thank you to everyone who contributed to this overview!
-
-> **NOTES ON THE OVERALL CHAPTER STRUCTURE**
->
-> We _embrace_ the query architecture and talk about areas _backwards_ compared
-> to traditional compiler texts. Since information dependence of the various
-> `rustc` areas form a Direct Acyclic Graph (DAG) at the query view (not acyclic
-> at the areas view), it makes sense to start at the root -- the final
-> executable -- and traverse the graph in a breadth-first traversal, all the way
-> until we get to name resolution. At that point, we can zoom out and talk about
-> the non-querified areas (in either reverse order like the querified areas, or
-> forwards order like traditional passes-based compilers, depending on which
-> order feels more natural).
-
-> We also want to contextualize each area and _why_ they exist -- what problems
-> do they solve?
+# Overview of the compiler
 
 In this chapter, we aim to describe `rustc` at a very high-level to show how the
 various areas work together. We introduce the _demand-driven architecture_ and
 the organization of `rustc` areas by their information dependency into a graph.
 For each area, we describe their purpose and motivation, and provide a small
-summary with links to chapters that go into more detail. We explain the
-distinction between early lints and late lints. We also briefly explore the
-compiler's error handling and reporting.
-
-# Overview of the compiler
+summary with links to chapters that go into more detail.
 
 > **UNDER CONSTRUCTION**
-
+>
 > - This section lacks motivation and reasoning for the query architecture.
-
-> **FIXME** Trait solving isn't correct here as it's a bit of a cross-cutting
-> concern between multiple areas.
 >
 > **UNRESOLVED QUESTIONS** How do we describe the relationship between trait
 > solving and the areas that it intertwines with? How do we describe error
@@ -62,6 +40,9 @@ explain each area in more detail in the next section.
 
 > **FIXME** What do we want the arrows to **actually** mean?
 
+![High-level overview](./img/high-level-overview.svg)
+
+<!-- graphviz source kept here to help reproduce the diagram
 ```graphviz
 digraph rustc_areas {
     graph [pad="0.5", nodesep="0.5", ranksep="0.3", compound=true];
@@ -149,13 +130,7 @@ digraph rustc_areas {
   }
 }
 ```
-
-> **UNDER CONSTRUCTION** Actually explain the graph. Motivate why we are
-> describing areas backwards compared to the order of how passes are described
-> in conventional compilers, so the next section actually makes sense in terms
-> of its ordering. One benefit of doing ordering this way is that it kinda
-> forces you to have to talk about the inputs and outputs of each area, and also
-> kinda have to motivate _why_ each area exists -- what purpose do they serve?
+-->
 
 ## Brief Summaries of the Areas
 
@@ -188,74 +163,179 @@ These various IRs gradually transform surface Rust syntax by simplications of
 language constructs and enriches the information available to lower-level areas
 by many analyses.
 
-### Querified Areas
+### Non-Querified Areas
 
-> 🚧 **XXX DO NOT KEEP: EXAMPLE AREA SUMMARY** 🚧
+We now flip our direction of traversal, and start from Source Code.
 
-> - A succinct summary of the responsibility of the area.
-> - Introduce the inputs. Briefly motivate why the inputs are why they are.
-> - Motivate the area's existence -- what does it do to / with the inputs? Why?
-> - Introduce the outputs. Briefly motivate why the outputs are what they are.
-> - Want to know more? Link to details chapter here. Link to "Additional
->   References" section below.
+#### Tokenization
 
-> :warning: **Where does trait system come in?** / **Where do we describe the
-> trait system here?** AFAIK, it's both dependent and and provides information
-> to multiple areas. Link: <https://github.com/rust-lang/rust/pull/121848>
+The compiler takes the input, a stream of Unicode characters, and transforms it
+into a sequence of
+[`Token`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_ast/token/index.html)s
+called a
+[`TokenStream`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_ast/tokenstream/struct.TokenStream.html).
+This has multiple benefits:
 
-#### Static-Single Assignment (SSA) Code Generation
+- Separation of concerns: the lexer can be concerned with lower-level details
+  such as interning identifiers, collecting numeric literals, identifying
+  keywords and operators, associating source locations with the token, and
+  generate useful error reports for these cases. This simplifies the job of the
+  parser as it can then work with tokens, which is a higher level construct than
+  Unicode characters.
+- Simplifying the grammar: with a separate lexer, the parser can focus on
+  accepting a valid program according to a grammar defined in terms of _tokens_
+  instead of individual Unicode characters.
 
-Static Single Assignment (SSA) code generation is responsible for lowering
-Mid-Level Intermediate Representation (MIR) into SSA form (another kind of IR)
-which has the property that each variable is assigned to exactly once and is
-defined before use. Lowering into SSA form simplifies and enables more
-optimizations since it simplifies the properties of variables. It also makes it
-easier for code generation backends to handle. This area abstracts the common
-code generation logic and interfaces which code generation backends will need to
-implement.
+See [Lexing and Parsing](https://rustc-dev-guide.rust-lang.org/the-parser.html)
+for more details.
 
-In order to lower MIR to SSA, we depend on Monomohprization Collection to
-collect _Mono Items_ such as functions, methods and closures which contribute to
-code generation.
+#### Parsing
 
-See [Code
-Generation](https://rustc-dev-guide.rust-lang.org/backend/codegen.html) for more
+Given a token stream, the compiler builds a Abstract Syntax Tree (AST) that has
+a tree structure to enable tree-based reasoning and effectively represent the
+syntactical structure of the program. Rust has a macro system, which means that
+macros will need to be expanded in order to construct the full AST. Initially, a
+pre-expansion AST is constructed with placeholders for macros that are pending
+expansion.
+
+See [Lexing and Parsing](https://rustc-dev-guide.rust-lang.org/the-parser.html)
+for more details.
+
+#### Macro Expansion, Metadata Loading, Early Name Resolution and Late Name Resolution
+
+> **TODO**: this section needs a lot of work because I don't understand this
+> area too well so far
+
+After the pre-expansion AST is constructed, the compiler tries to build the full
+AST for a crate which has all macros expanded and all modules inlined.
+Unresolved macros are iteratively expanded, which requires resolving imports and
+macro names early (i.e. Early Name Resolution), but not other names yet.
+
+For import suggestions, the compiler may try to perform speculative crate
+loading via reading crate metadata that does not produce diagnostics for the
+speculatively loaded crate for import suggestion candidates.
+
+See [Macro
+Expansion](https://rustc-dev-guide.rust-lang.org/macro-expansion.html) and [Name
+Resolution](https://rustc-dev-guide.rust-lang.org/name-resolution.html) for more
 details.
 
-#### Monomorphization Collection
+#### AST Validation
 
-Monomorphization collection is the area responsible for collecting _Mono Items_
-which contribute to code generation: functions, methods, closures, statics, drop
-glue, constants, VTables and object shims. Functions need to be _monomorphized_
--- they might have generic type parameters, in which case the compiler has to
-instantiate the functions with the provided type arguments.
+Some basic sanity checks are performed on the AST, such as not having more than
+`u16::MAX` parameters, to catch some obvious user errors as well as errors in
+AST construction / macro expansion.
 
-See
-[Monomorphization](https://rustc-dev-guide.rust-lang.org/backend/monomorph.html)
+See [AST Validation](https://rustc-dev-guide.rust-lang.org/ast-validation.html)
 for more details.
 
-#### Metadata Encoding
+### Querified Areas
 
-Rust libraries are compiled to archives which consists of object code and
-_metadata_. Metadata is used by downstream crates to understand the interface of
-upstream crates: including (but are not limited to) exported items, function
-signatures, type definitions and MIR for generic functions[^proc-macro]. In this
-sense, metadata can be compared to precompiled C headers. Metadata Encoding is
-the area responsible for serializing this information into a common binary
-format that can be understood by both upstream and downstream crates.
+#### HIR Building
 
-Metadata is serialized via types which implement [`Encodable`], some of which
-are derived while others are hand-written implementations. Symmetrically,
-metadata can be read back by [`Decodable`] derives and manual deserialization
-implementations.
+High-level Intermediate Representation (HIR) is a lower-level IR than AST. When
+compared to AST, HIR has desugared constructs (such as desugaring `for` loops
+into `loop`s) to make analysis easier. When compared to MIR, HIR resembles the
+surface Rust syntax more closely. 
 
-[^proc-macro]: proc macro metadata has a trimmed down version which _only_
-    contains the exported macros without anything else defined inside the proc
-    macro.
+HIR building is the lowering from Abstract Syntax Tree (AST) into HIR. HIR is
+further desugared from AST to simplify analysis. There are sanity checks on the
+lowered HIR to catch obvious lowering mistakes.
 
-See [Libraries and
-Metadata](https://rustc-dev-guide.rust-lang.org/backend/libs-and-metadata.html)
+See [AST Lowering](https://rustc-dev-guide.rust-lang.org/ast-lowering.html) for
+more details.
+
+#### HIR Type Lowering
+
+HIR Type Lowering converts the more surface-syntax-like HIR type system entities
+(types, lifetimes/regions, constants in type positions) into
+[`rustc_middle::ty`](https://rustc-dev-guide.rust-lang.org/ty.html)
+representations to express the semantics of the type.
+
+See the [The `ty` module: representing
+types](https://rustc-dev-guide.rust-lang.org/ty.html) for more information.
+
+#### HIR Well-formedness Checking
+
+A type is _well-formed_ (WF) when it satisfies a set of requirements which are
+fundamental to the type's validity. The requirements are type-specific, for
+example:
+
+- For a tuple to be WF, all elements except for the last needs to be `Sized`.
+- For an algebraic data type (struct/enum/union) to be WF, its generics need to
+  satisfy the `where` clauses on the ADT.
+
+The notion of well-formedness can be inductively extended for entities that
+contain types, such as trait predicates. A trait predicate `T0: Trait<P1, ...>`
+is well-formed if `T0` and `P1, ...` are well-formed in addition to `Trait`'s
+`where` clauses being satisfied.
+
+HIR well-formedness checking is an early collection of checks on mostly surface
+Rust syntax (such as parameters, local variables and return types) which are run
+before further type-checking and inference, for two purposes:
+
+1. For better error-reporting: a program which is not WF is more likely to give
+   hard-to-understand or spurious errors.
+2. To enable making simplifying assumptions in later HIR typeck: such as not
+   having to check if a tuple's fields are `Sized` when type checking a
+   `tuple.0` expression.
+
+Note that HIR WF checking are not the only place where WF checks take place:
+there are further WF checks in THIR/MIR to complement HIR WF checks.
+
+#### HIR Body Type-checking
+
+> 🚧 **TODO** 🚧 (remove the cat meme when complete with draft)
+
+<img src="./img/cat-meme.jpg" width=30%></img>
+
+The goal of HIR body typechecking is to catch mistakes that violate the rules of
+the type system, and infer types and other information necessary for THIR/MIR
+building. HIR body type-checking recursively walks and checks each expression.
+This process produces information such as the type of each expression. During
+the process, type inference, implicit cocercions, trait bound checking and
+method resolution is performed. Notably,
+
+- Method resolution is not performed in (early/late) Name Resolution because
+  type information is required.
+- Type inference is performed on HIR and not MIR because HIR maps closer to the
+  surface Rust syntax (and retains the tree-based structure), which enables more
+  descriptive errors and suggestions to be produced.
+- MIR building requires method resolution information from HIR type-checking to
+  guide the lowering.
+
+When compared to MIR typeck where all types are specified, HIR typeck has to
+infer types. HIR typeck also checks all closures together with their parent body
+while MIR typeck/borrowck checks them separately.
+
+See [Type checking](https://rustc-dev-guide.rust-lang.org/type-checking.html)
 for more details.
+
+#### Typed High-level Intermediate Representation (THIR) Building and Analysis
+
+Typed High-level Intermediate Representation (THIR) is a further desugared
+version of High-level Intermediate Representation (HIR) with full type
+information embedded. THIR is the last IR where lexical structure is meaningful
+for analysis in the chain of lowering from HIR to THIR to MIR and beyond, where
+lower-level IRs transition from being lexically-aware to being dataflow-aware.
+For example, unsafeck is performed on THIR and not MIR because we care about the
+lexical structure -- whether something exists inside an `unsafe` block
+lexically. To further simplify tree-based reasoning, THIR has several
+simplifications over HIR:
+
+- Explicit auto-deref/auto-ref and coercions.
+- Method calls are desugared into regular function calls.
+- Overloaded operators like `+` are lowered into function calls or builtin
+  operations.
+- Match ergonomics are desugared.
+
+With the aforementioned properties, the construction of THIR synthesizes enough
+information for MIR building, and makes lowering to MIR easier and less
+error-prone than if HIR was attempted to be directly lowered to MIR.
+
+See [The Typed High-level Intermediate
+Representation](https://rustc-dev-guide.rust-lang.org/thir.html) for more
+details.
 
 #### Mid-level Intermediate Representation (MIR) Building, Transformations and Analysis
 
@@ -282,6 +362,9 @@ desirable properties suitable for each of them. Some of the analyses include
 borrow-checking, drop elaboration, coroutine transformations, const promotion,
 further well-formedness checking and some late type-checking.
 
+![MIR Dialects and Phases](./img/mir-dialects-phases.svg)
+
+<!-- graphviz source kept here to help reproduce the diagram
 ```graphviz
 digraph mir_transformations {
     graph [pad="0.5", nodesep="0.5", ranksep="0.3"]
@@ -333,6 +416,7 @@ digraph mir_transformations {
     label="Mid-level Intermediate Representation (MIR) Dialects and Phases"
 }
 ```
+-->
 
 MIR optimizations generally are opportunistic: because we're before
 monomorphization, there are e.g. constants related to generic parameters whose
@@ -346,177 +430,62 @@ See [Mid-level Intermediate
 Representation](https://rustc-dev-guide.rust-lang.org/mir/index.html) for more
 details.
 
-#### Typed High-level Intermediate Representation (THIR) Building and Analysis
+#### Metadata Encoding
 
-Typed High-level Intermediate Representation (THIR) is a further desugared
-version of High-level Intermediate Representation (HIR) with full type
-information embedded. THIR is the last IR where lexical structure is meaningful
-for analysis in the chain of lowering from HIR to THIR to MIR and beyond, where
-lower-level IRs transition from being lexically-aware to being dataflow-aware.
-For example, unsafeck is performed on THIR and not MIR because we care about the
-lexical structure -- whether something exists inside an `unsafe` block
-lexically. To further simplify tree-based reasoning, THIR has several
-simplifications over HIR:
+Rust libraries are compiled to archives which consists of object code and
+_metadata_. Metadata is used by downstream crates to understand the interface of
+upstream crates: including (but are not limited to) exported items, function
+signatures, type definitions and MIR for generic functions[^proc-macro]. In this
+sense, metadata can be compared to precompiled C headers. Metadata Encoding is
+the area responsible for serializing this information into a common binary
+format that can be understood by both upstream and downstream crates.
 
-- Explicit auto-deref/auto-ref and coercions.
-- Method calls are desugared into regular function calls.
-- Overloaded operators like `+` are lowered into function calls or builtin
-  operations.
-- Match ergonomics are desugared.
+Metadata is serialized via types which implement [`Encodable`], some of which
+are derived while others are hand-written implementations. Symmetrically,
+metadata can be read back by [`Decodable`] derives and manual deserialization
+implementations.
 
-With the aforementioned properties, the construction of THIR synthesizes enough
-information for MIR building, and makes lowering to MIR easier and less
-error-prone than if HIR was attempted to be directly lowered to MIR.
+[^proc-macro]: proc macro metadata has a trimmed down version which _only_
+    contains the exported macros without anything else defined inside the proc
+    macro.
 
-See [The Typed High-level Intermediate
-Representation](https://rustc-dev-guide.rust-lang.org/thir.html) for more
-details.
-
-#### HIR Body Type-checking
-
-> 🚧 **TODO** 🚧 (Remove the cat meme when complete with draft)
-
-![](https://hackmd.io/_uploads/ry2CM6gAa.jpg)
-
-High-level Intermediate Representation (HIR) is a higher-level IR than THIR.
-When compared to MIR, HIR resembles the surface Rust syntax more closely. When
-compared to AST, HIR has desugared constructs (such as desugaring `for` loops
-into `loop`s) to make analysis easier.
-
-The goal of HIR body typechecking is to infer types and other information
-necessary for THIR/MIR building. HIR body type-checking recursively walks and
-checks each expression. This process produces information such as the type of
-each expression. During the process, type inference, implicit cocercions, trait
-bound checking and method resolution is performed. Notably,
-
-- Method resolution is not performed in (early/late) Name Resolution because
-  type information is required.
-- Type inference is performed on HIR and not MIR because HIR maps closer to the
-  surface Rust syntax (and retains the tree-based structure), which enables more
-  descriptive errors and suggestions to be produced.
-- MIR building requires method resolution information from HIR type-checking to
-  guide the lowering.
-
-When compared to MIR typeck where all types are specified, HIR typeck has to
-infer types. HIR typeck also checks all closures together with their parent body
-while MIR typeck/borrowck checks them separately.
-
-See [Type checking](https://rustc-dev-guide.rust-lang.org/type-checking.html)
+See [Libraries and
+Metadata](https://rustc-dev-guide.rust-lang.org/backend/libs-and-metadata.html)
 for more details.
 
-#### HIR Well-formedness Checking
+#### Monomorphization Collection
 
-A type is _well-formed_ (WF) when it satisfies a set of requirements which are
-fundamental to the type's validity. The requirements are type-specific, for
-example:
+Monomorphization collection is the area responsible for collecting _Mono Items_
+which contribute to code generation: functions, methods, closures, statics, drop
+glue, constants, VTables and object shims. Functions need to be _monomorphized_
+-- they might have generic type parameters, in which case the compiler has to
+instantiate the functions with the provided type arguments.
 
-- For a tuple to be WF, all elements except for the last needs to be `Sized`.
-- For an algebraic data type (struct/enum/union) to be WF, its generics need to
-  satisfy the `where` clauses on the ADT.
+See
+[Monomorphization](https://rustc-dev-guide.rust-lang.org/backend/monomorph.html)
+for more details.
 
-The notion of well-formedness can be inductively extended for entities that
-contain types, such as trait predicates. A trait predicate `T0: Trait<P1, ...>`
-is well-formed if `T0` and `P1, ...` are well-formed in addition to `Trait`'s
-`where` clauses being satisfied.
+#### Static-Single Assignment (SSA) Code Generation
 
-HIR well-formedness checking is an early collection of checks on mostly surface
-Rust syntax (such as parameters, local variables and return types) which are run
-before further type-checking and inference, for two purposes:
+Static Single Assignment (SSA) code generation is responsible for lowering
+Mid-Level Intermediate Representation (MIR) into SSA form (another kind of IR)
+which has the property that each variable is assigned to exactly once and is
+defined before use. Lowering into SSA form enables more optimizations since it
+simplifies the properties of variables. It also makes it easier for code
+generation backends to handle. This area abstracts the common code generation
+logic and interfaces which code generation backends will need to implement.
 
-1. For better error-reporting: a program which is not WF is more likely to give
-   hard-to-understand or spurious errors.
-2. To enable making simplifying assumptions in later HIR typeck: such as not
-   having to check if a tuple's fields are `Sized` when type checking a
-   `tuple.0` expression.
+In order to lower MIR to SSA, we depend on Monomohprization Collection to
+collect _Mono Items_ such as functions, methods and closures which contribute to
+code generation.
 
-Note that HIR WF checking are not the only place where WF checks take place:
-there are further WF checks in THIR/MIR to complement HIR WF checks.
+See [Code
+Generation](https://rustc-dev-guide.rust-lang.org/backend/codegen.html) for more
+details.
 
 #### The Trait System
 
 > 🚧 **TODO** 🚧 I don't know how to describe the Trait System at all here.
-
-#### HIR Type Lowering
-
-HIR Type Lowering converts the more surface-syntax-like HIR type system entities
-(types, lifetimes/regions, constants in type positions) into
-[`rustc_middle::ty`](https://rustc-dev-guide.rust-lang.org/ty.html)
-representations to express the semantics of the type.
-
-See the [The `ty` module: representing
-types](https://rustc-dev-guide.rust-lang.org/ty.html) for more information.
-
-#### HIR Building
-
-HIR building is the lowering from Abstract Syntax Tree (AST) into HIR. HIR is
-further desugared from AST to simplify analysis. There are sanity checks on the
-lowered HIR to catch obvious lowering mistakes.
-
-See [AST Lowering](https://rustc-dev-guide.rust-lang.org/ast-lowering.html) for
-more details.
-
-### Non-Querified Areas
-
-We now flip our direction of traversal, and start from Source Code.
-
-#### Tokenization
-
-The compiler takes the input, a stream of Unicode characters, and transforms it
-into a sequence of
-[`Token`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_ast/token/index.html)s
-called a
-[`TokenStream`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_ast/tokenstream/struct.TokenStream.html).
-This has multiple benefits:
-
-- Separation of concerns: the lexer can be concerned with lower-level details
-  such as interning identifiers, collecting numeric literals, identifying
-  keywords and operators, associating source locations with the token, and
-  generate useful error reports for these cases. This simplifies the job of the
-  parser as it can then work with tokens, which is a higher level construct than
-  Unicode characters.
-- Simplifying the grammar: with a separate lexer, the parser can focus on
-  accepting a valid program according to a grammar defined in terms of _tokens_
-  instead of individual Unicode characters.
-
-See [Lexing and Parsing](https://rustc-dev-guide.rust-lang.org/the-parser.html)
-for more details.
-
-#### Parsing
-
-Given a token stream, the compiler builds a Abstract Syntax Tree (AST) that has
-a tree structure to enable tree-based reasoning and effectively represent the
-syntactical structure of the program. Rust has a macro system, which means that
-macros will need to be expanded in order to construct the full AST. Initially, a
-pre-expansion AST is constructed with placeholders for macros that are pending
-expansion.
-
-See [Lexing and Parsing](https://rustc-dev-guide.rust-lang.org/the-parser.html)
-for more details.
-
-#### Macro Expansion, Metadata Loading, Early Name Resolution and Late Name Resolution
-
-After the pre-expansion AST is constructed, the compiler tries to build the full
-AST for a crate which has all macros expanded and all modules inlined.
-Unresolved macros are iteratively expanded, which requires resolving imports and
-macro names early (i.e. Early Name Resolution), but not other names yet.
-
-For import suggestions, the compiler may try to perform speculative crate
-loading via reading crate metadata that does not produce diagnostics for the
-speculatively loaded crate for import suggestion candidates.
-
-See [Macro
-Expansion](https://rustc-dev-guide.rust-lang.org/macro-expansion.html) and [Name
-Resolution](https://rustc-dev-guide.rust-lang.org/name-resolution.html) for more
-details.
-
-#### Abstract Syntax Tree (AST) Validation
-
-Some basic sanity checks are performed on the AST, such as not having more than
-`u16::MAX` parameters, to catch some obvious user errors as well as errors in
-AST construction / macro expansion.
-
-See [AST Validation](https://rustc-dev-guide.rust-lang.org/ast-validation.html)
-for more details.
 
 ## Additional References and Resources
 
@@ -635,9 +604,9 @@ for more details.
       and
       [`rustc_codegen_ssa::base::codegen_instance`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_codegen_ssa/base/fn.codegen_instance.html)
 
-[`decodable`]:
+[`Decodable`]:
     https://doc.rust-lang.org/nightly/nightly-rustc/rustc_serialize/trait.Decodable.html
-[`encodable`]:
+[`Encodable`]:
     https://doc.rust-lang.org/nightly/nightly-rustc/rustc_serialize/trait.Encodable.html
-[`switchint`]:
+[`SwitchInt`]:
     https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/enum.TerminatorKind.html#variant.SwitchInt
