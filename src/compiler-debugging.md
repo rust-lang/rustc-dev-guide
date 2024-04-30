@@ -244,6 +244,18 @@ $ dot -T pdf maybe_init_suffix.dot > maybe_init_suffix.pdf
 $ firefox maybe_init_suffix.pdf # Or your favorite pdf viewer
 ```
 
+Graphviz also comes with a preprocessor program, 
+[`unflatten`](https://graphviz.org/docs/cli/unflatten/), that
+sometimes helps making the outputs look less oddly spread out. It reads
+a dot file and outputs another dot file, so you can use it in a pipe,
+e.g:
+```
+$ unflatten mir_dump/*.foo.-------.nll.0.regioncx.all.dot | dot -Tpdf  -o foo-outlives.pdf
+```
+
+This is particularly useful for complicated region outlives graphs from 
+[MIR Dataflow](mir/dataflow.md#graphviz-diagrams).
+
 ## Narrowing (Bisecting) Regressions
 
 The [cargo-bisect-rustc][bisect] tool can be used as a quick and easy way to
