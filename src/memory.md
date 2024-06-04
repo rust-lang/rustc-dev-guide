@@ -52,7 +52,7 @@ represented as a slice `&'tcx [tcx.types.i32, tcx.types.u32]`).
   defined and discussed in depth in the `AdtDef and DefId` section.
 - [`Predicate`] defines something the trait system has to prove (see `traits` module).
 
-[`GenericArgs`]: ./ty_module/generic_arguments.html#the-genericargs-type
+[`GenericArgs`]: ./ty_module/generic_arguments.md#the-genericargs-type
 [`TraitRef`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/type.TraitRef.html
 [`Predicate`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.Predicate.html
 
