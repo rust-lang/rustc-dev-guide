@@ -63,6 +63,8 @@ found in [`header.rs`] from the compiletest source.
 * [Building auxiliary crates](compiletest.md#building-auxiliary-crates)
     * `aux-build`
     * `aux-crate`
+    * `aux-bin`
+    * `aux-codegen-backend`
 * [Pretty-printer](compiletest.md#pretty-printer-tests) headers
     * `pretty-compare-only`
     * `pretty-expanded`
