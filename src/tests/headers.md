@@ -283,6 +283,11 @@ described below:
 - `{{build-base}}`: The base directory where the test's output goes. This is
   equivalent to `$TEST_BUILD_DIR` for [output normalization].
   - Example: `/path/to/rust/build/x86_64-unknown-linux-gnu/test/ui`
+- `{{sysroot-base}}`: Path of the sysroot directory used to build the test.
+  - Mainly intended for `ui-fulldeps` tests that run the compiler via API.
+- `{{target-linker}}`: Linker that would be passed to `-Clinker` for this test,
+  or blank if no linker override is active.
+  - Mainly intended for `ui-fulldeps` tests that run the compiler via API.
 - `{{target}}`: The target the test is compiling for
   - Example: `x86_64-unknown-linux-gnu`
 
