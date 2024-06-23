@@ -1,6 +1,6 @@
 # Attributes
 
-Attributes come in two types - 'builtin'/'inert' attributes, and 'non-builtin'/'active' attributes:
+Attributes come in two types: *inert* (or *built-in*) and *active* (*non-builtin*).
 
 ## 'Builtin'/'inert' attributes
 
