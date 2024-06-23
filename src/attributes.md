@@ -16,9 +16,9 @@ These attributes have several important characteristics:
 * They cannot be renamed. For example, `use allow as foo` will compile, but writing `#[foo]` will
   produce an error.
 * They are 'inert', meaning they are left as-is by the macro expansion code.
-  As a result, any behavior comes as a result of the compiler explicitly checking for their presence
-  (for example, lint-related code explicitly checks for `#[allow]`, `#[warn]`, `#[deny]`, and
-`#[forbid]`)
+  As a result, any behavior comes as a result of the compiler explicitly checking for their presence.
+  For example, lint-related code explicitly checks for `#[allow]`, `#[warn]`, `#[deny]`, and
+  `#[forbid]`, rather than the behavior coming from the expansion of the attributes themselves.
 
 ## 'Non-builtin'/'active' attributes
 
