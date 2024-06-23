@@ -23,6 +23,7 @@ These attributes have several important characteristics:
 ## 'Non-builtin'/'active' attributes
 
 These attributes are defined by a crate - either the standard library, or a proc-macro crate.
+
 **Important**: Many non-builtin attributes, such as `#[derive]`, are still considered part of the
 core Rust language. However, they are **not** called 'builtin attributes', since they have a
 corresponding definition in the standard library.
