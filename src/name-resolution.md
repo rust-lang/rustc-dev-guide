@@ -45,7 +45,7 @@ namespaces and therefore can co-exist.
 The name resolution in Rust is a two-phase process. In the first phase, which runs
 during macro expansion, we build a tree of modules and resolve imports. Macro
 expansion and name resolution communicate with each other via the
-[`ResolverAstLowering`] trait.
+[`ResolverAstLoweringExt`] trait.
 
 The input to the second phase is the syntax tree, produced by parsing input
 files and expanding macros. This phase produces links from all the names in the
@@ -61,7 +61,7 @@ The name resolution lives in the `rustc_resolve` crate, with the meat in
 `lib.rs` and some helpers or symbol-type specific logic in the other modules.
 
 [`Resolver::resolve_crate`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_resolve/struct.Resolver.html#method.resolve_crate
-[`ResolverAstLowering`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_ast_lowering/trait.ResolverAstLowering.html
+[`ResolverAstLoweringExt`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_ast_lowering/trait.ResolverAstLoweringExt.html
 
 ## Namespaces
 
@@ -91,8 +91,8 @@ part of another, it doesn't mean the name visible in the outer one is also
 visible in the inner one, or that it refers to the same thing.
 
 To cope with that, the compiler introduces the concept of Ribs. This is
-abstraction of a scope. Every time the set of visible names potentially changes,
-a new rib is pushed onto a stack. The places where this can happen includes for
+an abstraction of a scope. Every time the set of visible names potentially changes,
+a new rib is pushed onto a stack. The places where this can happen include for
 example:
 
 * The obvious places ‒ curly braces enclosing a block, function boundaries,
@@ -103,8 +103,8 @@ example:
 
 When searching for a name, the stack of ribs is traversed from the innermost
 outwards. This helps to find the closest meaning of the name (the one not
-shadowed by anything else). The transition to outer rib may also change the
-rules what names are usable ‒ if there are nested functions (not closures),
+shadowed by anything else). The transition to outer rib may also affect
+what names are usable ‒ if there are nested functions (not closures),
 the inner one can't access parameters and local bindings of the outer one,
 even though they should be visible by ordinary scoping rules. An example:
 
@@ -117,7 +117,7 @@ fn do_something<T: Default>(val: T) { // <- New rib in both types and values (1)
     }; // End of (3)
     // `val` is accessible, `helper` variable shadows `helper` function
     fn helper() { // <- New rib in both types and values (4)
-        // `val` is not accessible here, (4) is not transparent for locals)
+        // `val` is not accessible here, (4) is not transparent for locals
         // `T` is not accessible here
     } // End of (4)
     let val = T::default(); // New rib (5)
@@ -164,7 +164,7 @@ To tell the difference between speculative loads and loads initiated by the
 user, resolve passes around a `record_used` parameter, which is `false` when
 the load is speculative.
 
-## TODO:
+## TODO: [#16](https://github.com/rust-lang/rustc-dev-guide/issues/16)
 
 This is a result of the first pass of learning the code. It is definitely
 incomplete and not detailed enough. It also might be inaccurate in places.
@@ -174,7 +174,7 @@ Still, it probably provides useful first guidepost to what happens in there.
   following stages of compilation?
 * Who calls it and how it is actually used.
 * Is it a pass and then the result is only used, or can it be computed
-  incrementally (e.g. for RLS)?
+  incrementally?
 * The overall strategy description is a bit vague.
 * Where does the name `Rib` come from?
 * Does this thing have its own tests, or is it tested only as part of some e2e

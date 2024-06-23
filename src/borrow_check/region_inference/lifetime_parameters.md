@@ -31,20 +31,20 @@ relationships to one another. So if you have e.g. `where 'a: 'b`, then
 the [`UniversalRegionRelations`] struct would track that `'a: 'b` is
 known to hold (which could be tested with the [`outlives`] function.
 
-[`UniversalRegions`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/borrow_check/universal_regions/struct.UniversalRegions.html
-[`UniversalRegionRelations`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/borrow_check/type_check/free_region_relations/struct.UniversalRegionRelations.html
-[`outlives`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/borrow_check/type_check/free_region_relations/struct.UniversalRegionRelations.html#method.outlives
+[`UniversalRegions`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_borrowck/universal_regions/struct.UniversalRegions.html
+[`UniversalRegionRelations`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_borrowck/type_check/free_region_relations/struct.UniversalRegionRelations.html
+[`outlives`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_borrowck/type_check/free_region_relations/struct.UniversalRegionRelations.html#method.outlives
 
 ## Everything is a region variable
 
 One important aspect of how NLL region inference works is that **all
 lifetimes** are represented as numbered variables. This means that the
-only variant of [`ty::RegionKind`] that we use is the [`ReVar`]
+only variant of [`region_kind::RegionKind`] that we use is the [`ReVar`]
 variant. These region variables are broken into two major categories,
 based on their index:
 
-[`ty::RegionKind`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/enum.RegionKind.html
-[`ReVar`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/enum.RegionKind.html#variant.ReVar
+[`region_kind::RegionKind`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_type_ir/region_kind/enum.RegionKind.html
+[`ReVar`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_type_ir/region_kind/enum.RegionKind.html#variant.ReVar
 
 - 0..N: universal regions -- the ones we are discussing here. In this
   case, the code must be correct with respect to any value of those
@@ -58,7 +58,7 @@ type). These subdivisions are not important for the topics discussed
 here, but become important when we consider [closure constraint
 propagation](./closure_constraints.html), so we discuss them there.
 
-[`RegionClassification`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/borrow_check/universal_regions/enum.RegionClassification.html#variant.Local
+[`RegionClassification`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_borrowck/universal_regions/enum.RegionClassification.html#variant.Local
 
 ## Universal lifetimes as the elements of a region's value
 
@@ -88,7 +88,7 @@ liveness constraint (i.e., `'a` must extend until the end of
 itself). In the code, these liveness constraints are setup in
 [`init_free_and_bound_regions`].
 
-[`init_free_and_bound_regions`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/borrow_check/region_infer/struct.RegionInferenceContext.html#method.init_free_and_bound_regions
+[`init_free_and_bound_regions`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_borrowck/region_infer/struct.RegionInferenceContext.html#method.init_free_and_bound_regions
 
 ## Propagating outlives constraints for universal regions
 
@@ -124,4 +124,4 @@ not, as in our example, that is an error. This check is done in the
 universal regions, inspects their final value, and tests against the
 declared [`UniversalRegionRelations`].
 
-[`check_universal_regions`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/borrow_check/region_infer/struct.RegionInferenceContext.html#method.check_universal_regions
+[`check_universal_regions`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_borrowck/region_infer/struct.RegionInferenceContext.html#method.check_universal_regions

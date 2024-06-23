@@ -14,16 +14,18 @@ Of course, you don't have to wait for new issues to be tagged! If you
 prefer, you can use the Github label for a notification group to
 search for existing issues that haven't been claimed yet.
 
-[claim the issue]: https://github.com/rust-lang/triagebot/wiki/Assignment
+[claim the issue]: https://forge.rust-lang.org/triagebot/issue-assignment.html
 
 ## List of notification groups
 
 Here's the list of the notification groups:
+- [Apple](./apple.md)
 - [ARM](./arm.md)
 - [Cleanup Crew](./cleanup-crew.md)
 - [LLVM](./llvm.md)
 - [RISC-V](./risc-v.md)
 - [Windows](./windows.md)
+- [Rust for Linux](./rust-for-linux.md)
 
 ## What issues are a good fit for notification groups?
 
@@ -42,7 +44,7 @@ particularly those of **middle priority**:
 
 ## Joining a notification group
 
-To join an notification group, you just have to open a PR adding your
+To join a notification group, you just have to open a PR adding your
 Github username to the appropriate file in the Rust team repository.
 See the "example PRs" below to get a precise idea and to identify the
 file to edit.
@@ -57,6 +59,7 @@ cargo run add-person $your_user_name
 
 Example PRs:
 
+* [Example of adding yourself to the Apple group.](https://github.com/rust-lang/team/pull/1434)
 * [Example of adding yourself to the ARM group.](https://github.com/rust-lang/team/pull/358)
 * [Example of adding yourself to the Cleanup Crew.](https://github.com/rust-lang/team/pull/221)
 * [Example of adding yourself to the LLVM group.](https://github.com/rust-lang/team/pull/140)
@@ -70,6 +73,7 @@ To tag an issue as appropriate for a notification group, you give
 group. For example:
 
 ```text
+@rustbot ping apple
 @rustbot ping llvm
 @rustbot ping cleanup-crew
 @rustbot ping windows
@@ -95,5 +99,5 @@ or contributors, and is typically done as part of compiler team
 triage.**
 
 [rustbot]: https://github.com/rust-lang/triagebot/
-[`ping`]: https://github.com/rust-lang/triagebot/wiki/Pinging
+[`ping`]: https://forge.rust-lang.org/triagebot/pinging.html
 [`triagebot.toml`]: https://github.com/rust-lang/rust/blob/master/triagebot.toml

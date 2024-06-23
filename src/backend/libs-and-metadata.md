@@ -72,8 +72,8 @@ Here are a few highlights of things it contains:
   from any other version.
 * The [Strict Version Hash](#strict-version-hash) (SVH). This helps ensure the
   correct dependency is loaded.
-* The [Crate Disambiguator](#crate-disambiguator). This is a hash used
-  to disambiguate between different crates of the same name.
+* The [Stable Crate Id](#stable-crate-id). This is a hash used
+  to identify crates.
 * Information about all the source files in the library. This can be used for
   a variety of things, such as diagnostics pointing to sources in a
   dependency.
@@ -103,32 +103,31 @@ The hash includes a variety of elements:
 * Hashes of the HIR nodes.
 * All of the upstream crate hashes.
 * All of the source filenames.
-* Hashes of certain command-line flags (like `-C metadata` via the [Crate
-  Disambiguator](#crate-disambiguator), and all CLI options marked with
-  `[TRACKED]`).
+* Hashes of certain command-line flags (like `-C metadata` via the [Stable
+  Crate Id](#stable-crate-id), and all CLI options marked with `[TRACKED]`).
 
-See [`finalize_and_compute_crate_hash`] for where the hash is actually
-computed.
+See [`compute_hir_hash`] for where the hash is actually computed.
 
 [SVH]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_data_structures/svh/struct.Svh.html
 [incremental compilation]: ../queries/incremental-compilation.md
-[`finalize_and_compute_crate_hash`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/hir/map/collector/struct.NodeCollector.html#method.finalize_and_compute_crate_hash
+[`compute_hir_hash`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_ast_lowering/struct.LoweringContext.html#method.compute_hir_hash
 
-### Crate Disambiguator
+### Stable Crate Id
 
-The [`CrateDisambiguator`] is a 128-bit hash used to distinguish between
-different crates of the same name. It is a hash of all the [`-C metadata`] CLI
-options computed in [`compute_crate_disambiguator`]. It is used in a variety
-of places, such as symbol name mangling, crate loading, and much more.
+The [`StableCrateId`] is a 64-bit hash used to identify different crates with
+potentially the same name. It is a hash of the crate name and all the
+[`-C metadata`] CLI options computed in [`StableCrateId::new`]. It is
+used in a variety of places, such as symbol name mangling, crate loading, and
+much more.
 
-By default, all Rust symbols are mangled and incorporate the disambiguator
-hash. This allows multiple versions of the same crate to be included together.
-Cargo automatically generates `-C metadata` hashes based on a variety of
-factors, like the package version, source, and the target kind (a lib and bin
-can have the same crate name, so they need to be disambiguated).
+By default, all Rust symbols are mangled and incorporate the stable crate id.
+This allows multiple versions of the same crate to be included together. Cargo
+automatically generates `-C metadata` hashes based on a variety of factors,
+like the package version, source, and the target kind (a lib and test can have
+the same crate name, so they need to be disambiguated).
 
-[`CrateDisambiguator`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_ast/crate_disambiguator/struct.CrateDisambiguator.html
-[`compute_crate_disambiguator`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/util/fn.compute_crate_disambiguator.html
+[`StableCrateId`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_span/def_id/struct.StableCrateId.html
+[`StableCrateId::new`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_span/def_id/struct.StableCrateId.html#method.new
 [`-C metadata`]: https://doc.rust-lang.org/rustc/codegen-options/index.html#metadata
 
 ## Crate loading
@@ -165,7 +164,7 @@ compilation.
 [`CStore`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_metadata/creader/struct.CStore.html
 [`CrateMetadata`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_metadata/rmeta/decoder/struct.CrateMetadata.html
 [`GlobalCtxt`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.GlobalCtxt.html
-[sysroot]: ../building/bootstrapping.md#what-is-a-sysroot
+[sysroot]: ../building/bootstrapping/what-bootstrapping-does.md#what-is-a-sysroot
 
 ## Pipelining
 

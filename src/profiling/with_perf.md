@@ -10,7 +10,7 @@ This is a guide for how to profile rustc with [perf](https://perf.wiki.kernel.or
   - `debuginfo-level = 1` - enables line debuginfo
   - `jemalloc = false` - lets you do memory use profiling with valgrind
   - leave everything else the defaults
-- Run `./x.py build` to get a full build
+- Run `./x build` to get a full build
 - Make a rustup toolchain pointing to that result
   - see [the "build and run" section for instructions][b-a-r]
 
@@ -90,14 +90,15 @@ You can also use that same command to use cachegrind or other profiling tools.
 
 If you prefer to run things manually, that is also possible. You first
 need to find the source for the test you want. Sources for the tests
-are found in [the `collector/benchmarks` directory][dir]. So let's go
-into the directory of a specific test; we'll use `clap-rs` as an
-example:
+are found in [the `collector/compile-benchmarks` directory][compile-time dir]
+and [the `collector/runtime-benchmarks` directory][runtime dir]. So let's
+go into the directory of a specific test; we'll use `clap-rs` as an example:
 
-[dir]: https://github.com/rust-lang/rustc-perf/tree/master/collector/benchmarks
+[compile-time dir]: https://github.com/rust-lang/rustc-perf/tree/master/collector/compile-benchmarks
+[runtime dir]: https://github.com/rust-lang/rustc-perf/tree/master/collector/runtime-benchmarks
 
 ```bash
-cd collector/benchmarks/clap-rs
+cd collector/compile-benchmarks/clap-3.1.6
 ```
 
 In this case, let's say we want to profile the `cargo check`
@@ -253,7 +254,7 @@ the regular expression matched.
 
 ### Example: Where does MIR borrowck spend its time?
 
-Often we want to do a more "explorational" queries. Like, we know that
+Often we want to do more "explorational" queries. Like, we know that
 MIR borrowck is 29% of the time, but where does that time get spent?
 For that, the `--tree-callees` option is often the best tool. You
 usually also want to give `--tree-min-percent` or
@@ -268,20 +269,20 @@ Percentage : 43%
 
 Tree
 | matched `{do_mir_borrowck}` (43% total, 0% self)
-: | rustc_mir::borrow_check::nll::compute_regions (20% total, 0% self)
-: : | rustc_mir::borrow_check::nll::type_check::type_check_internal (13% total, 0% self)
+: | rustc_borrowck::nll::compute_regions (20% total, 0% self)
+: : | rustc_borrowck::nll::type_check::type_check_internal (13% total, 0% self)
 : : : | core::ops::function::FnOnce::call_once (5% total, 0% self)
-: : : : | rustc_mir::borrow_check::nll::type_check::liveness::generate (5% total, 3% self)
-: : : | <rustc_mir::borrow_check::nll::type_check::TypeVerifier<'a, 'b, 'tcx> as rustc::mir::visit::Visitor<'tcx>>::visit_mir (3% total, 0% self)
+: : : : | rustc_borrowck::nll::type_check::liveness::generate (5% total, 3% self)
+: : : | <rustc_borrowck::nll::type_check::TypeVerifier<'a, 'b, 'tcx> as rustc::mir::visit::Visitor<'tcx>>::visit_mir (3% total, 0% self)
 : | rustc::mir::visit::Visitor::visit_mir (8% total, 6% self)
-: | <rustc_mir::borrow_check::MirBorrowckCtxt<'cx, 'tcx> as rustc_mir::dataflow::DataflowResultsConsumer<'cx, 'tcx>>::visit_statement_entry (5% total, 0% self)
-: | rustc_mir::dataflow::do_dataflow (3% total, 0% self)
+: | <rustc_borrowck::MirBorrowckCtxt<'cx, 'tcx> as rustc_mir_dataflow::DataflowResultsConsumer<'cx, 'tcx>>::visit_statement_entry (5% total, 0% self)
+: | rustc_mir_dataflow::do_dataflow (3% total, 0% self)
 ```
 
 What happens with `--tree-callees` is that
 
 - we find each sample matching the regular expression
-- we look at the code that is occurs *after* the regex match and try
+- we look at the code that occurs *after* the regex match and try
   to build up a call tree
 
 The `--tree-min-percent 3` option says "only show me things that take
@@ -319,10 +320,10 @@ Percentage : 100%
 
 Tree
 | matched `{do_mir_borrowck}` (100% total, 0% self)
-: | rustc_mir::borrow_check::nll::compute_regions (47% total, 0% self) [...]
+: | rustc_borrowck::nll::compute_regions (47% total, 0% self) [...]
 : | rustc::mir::visit::Visitor::visit_mir (19% total, 15% self) [...]
-: | <rustc_mir::borrow_check::MirBorrowckCtxt<'cx, 'tcx> as rustc_mir::dataflow::DataflowResultsConsumer<'cx, 'tcx>>::visit_statement_entry (13% total, 0% self) [...]
-: | rustc_mir::dataflow::do_dataflow (8% total, 1% self) [...]
+: | <rustc_borrowck::MirBorrowckCtxt<'cx, 'tcx> as rustc_mir_dataflow::DataflowResultsConsumer<'cx, 'tcx>>::visit_statement_entry (13% total, 0% self) [...]
+: | rustc_mir_dataflow::do_dataflow (8% total, 1% self) [...]
 ```
 
 Here you see that `compute_regions` came up as "47% total" — that

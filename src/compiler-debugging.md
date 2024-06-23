@@ -1,5 +1,4 @@
 # Debugging the compiler
-[debugging]: #debugging
 
 <!-- toc -->
 
@@ -16,9 +15,42 @@ set `debug = true` in your config.toml.
 
 Setting `debug = true` turns on many different debug options (e.g., `debug-assertions`,
 `debug-logging`, etc.) which can be individually tweaked if you want to, but many people
-simply set `debug = true`. Check out the comments in config.toml.example for more info.
+simply set `debug = true`.
 
-You will need to rebuild the compiler once you've changed any configuration options.
+If you want to use GDB to debug rustc, please set `config.toml` with options:
+
+```toml
+[rust]
+debug = true
+debuginfo-level = 2
+```
+
+> NOTE:
+> This will use a lot of disk space
+> (upwards of <!-- date-check Aug 2022 --> 35GB),
+> and will take a lot more compile time.
+> With `debuginfo-level = 1` (the default when `debug = true`),
+> you will be able to track the execution path,
+> but will lose the symbol information for debugging.
+
+The default configuration will enable `symbol-mangling-version` v0.
+This requires at least GDB v10.2,
+otherwise you need to disable new symbol-mangling-version in `config.toml`.
+
+```toml
+[rust]
+new-symbol-mangling = false
+```
+
+> See the comments in `config.example.toml` for more info.
+
+You will need to rebuild the compiler after changing any configuration option.
+
+## Suppressing the ICE file
+
+By default, if rustc encounters an Internal Compiler Error (ICE) it will dump the ICE contents to an
+ICE file within the current working directory named `rustc-ice-<timestamp>-<pid>.txt`. If this is
+not desirable, you can prevent the ICE file from being created with `RUSTC_ICE=0`.
 
 ## `-Z` flags
 
@@ -26,8 +58,8 @@ The compiler has a bunch of `-Z` flags. These are unstable flags that are only
 enabled on nightly. Many of them are useful for debugging. To get a full listing
 of `-Z` flags, use `-Z help`.
 
-One useful flag is `-Z verbose`, which generally enables printing more info that
-could be useful for debugging.
+One useful flag is `-Z verbose-internals`, which generally enables printing more
+info that could be useful for debugging.
 
 ## Getting a backtrace
 [getting-a-backtrace]: #getting-a-backtrace
@@ -82,12 +114,8 @@ stack backtrace:
 
 If you want to get a backtrace to the point where the compiler emits an
 error message, you can pass the `-Z treat-err-as-bug=n`, which will make
-the compiler panic on the `nth` error on `delay_span_bug`. If you leave
-off `=n`, the compiler will assume `1` for `n` and thus panic on the
-first error it encounters.
-
-This can also help when debugging `delay_span_bug` calls - it will make
-the first `delay_span_bug` call panic, which will give you a useful backtrace.
+the compiler panic on the `nth` error. If you leave off `=n`, the compiler will
+assume `1` for `n` and thus panic on the first error it encounters.
 
 For example:
 
@@ -101,7 +129,7 @@ fn main() {
 }
 ```
 
-```bash
+```
 $ rustc +stage1 error.rs
 error[E0277]: cannot add `()` to `{integer}`
  --> error.rs:2:7
@@ -116,7 +144,7 @@ error: aborting due to previous error
 
 Now, where does the error above come from?
 
-```bash
+```
 $ RUST_BACKTRACE=1 rustc +stage1 error.rs -Z treat-err-as-bug
 error[E0277]: the trait bound `{integer}: std::ops::Add<()>` is not satisfied
  --> error.rs:2:7
@@ -158,146 +186,54 @@ stack backtrace:
 
 Cool, now I have a backtrace for the error!
 
+## Debugging delayed bugs
+
+The `-Z eagerly-emit-delayed-bugs` option makes it easy to debug delayed bugs.
+It turns them into normal errors, i.e. makes them visible. This can be used in
+combination with `-Z treat-err-as-bug` to stop at a particular delayed bug and
+get a backtrace.
+
+## Getting the error creation location
+
+`-Z track-diagnostics` can help figure out where errors are emitted. It uses `#[track_caller]`
+for this and prints its location alongside the error:
+
+```
+$ RUST_BACKTRACE=1 rustc +stage1 error.rs -Z track-diagnostics
+error[E0277]: cannot add `()` to `{integer}`
+ --> src\error.rs:2:7
+  |
+2 |     1 + ();
+  |       ^ no implementation for `{integer} + ()`
+-Ztrack-diagnostics: created at compiler/rustc_trait_selection/src/traits/error_reporting/mod.rs:638:39
+  |
+  = help: the trait `Add<()>` is not implemented for `{integer}`
+  = help: the following other types implement trait `Add<Rhs>`:
+            <&'a f32 as Add<f32>>
+            <&'a f64 as Add<f64>>
+            <&'a i128 as Add<i128>>
+            <&'a i16 as Add<i16>>
+            <&'a i32 as Add<i32>>
+            <&'a i64 as Add<i64>>
+            <&'a i8 as Add<i8>>
+            <&'a isize as Add<isize>>
+          and 48 others
+
+For more information about this error, try `rustc --explain E0277`.
+```
+
+This is similar but different to `-Z treat-err-as-bug`:
+- it will print the locations for all errors emitted
+- it does not require a compiler built with debug symbols
+- you don't have to read through a big stack trace.
+
 ## Getting logging output
-[getting-logging-output]: #getting-logging-output
 
 The compiler uses the [`tracing`] crate for logging.
 
 [`tracing`]: https://docs.rs/tracing
 
-The compiler has a lot of [`debug!`] calls, which print out logging information
-at many points. These are very useful to at least narrow down the location of
-a bug if not to find it entirely, or just to orient yourself as to why the
-compiler is doing a particular thing.
-
-[`debug!`]: https://docs.rs/tracing/0.1/tracing/macro.debug.html
-
-To see the logs, you need to set the `RUSTC_LOG` environment variable to your
-log filter. Your log filter can be just `debug` to get all `debug!` output and
-higher (e.g., it will also include `info!`), or `path::to::module` to get *all*
-output (which will include `trace!`) from a particular module, or
-`path::to::module=debug` to get `debug!` output and higher from a particular
-module.
-
-For example, to get the `debug!` output and higher for a specific module, you
-can run the compiler with `RUSTC_LOG=path::to::module=debug rustc my-file.rs`.
-All `debug!` output will then appear in standard error.
-
-Note that you can use a partial path and the filter will still work. For
-example, if you want to see `info!` output from only
-`rustdoc::passes::collect_intra_doc_links`, you could use
-`RUSTDOC_LOG=rustdoc::passes::collect_intra_doc_links=info` *or* you could use
-`RUSTDOC_LOG=rustdoc::passes::collect_intra=info`.
-
-If you are developing rustdoc, use `RUSTDOC_LOG` instead. If you are developing
-Miri, use `MIRI_LOG` instead. You get the idea :)
-
-See the [`tracing`] crate's docs, and specifically the docs for [`debug!`] to
-see the full syntax you can use. (Note: unlike the compiler, the [`tracing`]
-crate and its examples use the `RUST_LOG` environment variable. rustc, rustdoc,
-and other tools set custom environment variables.)
-
-**Note that unless you use a very strict filter, the logger will emit a lot of
-output, so use the most specific module(s) you can (comma-separated if
-multiple)**. It's typically a good idea to pipe standard error to a file and
-look at the log output with a text editor.
-
-So, to put it together:
-
-```bash
-# This puts the output of all debug calls in `rustc_middle/src/traits` into
-# standard error, which might fill your console backscroll.
-$ RUSTC_LOG=rustc_middle::traits=debug rustc +stage1 my-file.rs
-
-# This puts the output of all debug calls in `rustc_middle/src/traits` in
-# `traits-log`, so you can then see it with a text editor.
-$ RUSTC_LOG=rustc_middle::traits=debug rustc +stage1 my-file.rs 2>traits-log
-
-# Not recommended! This will show the output of all `debug!` calls
-# in the Rust compiler, and there are a *lot* of them, so it will be
-# hard to find anything.
-$ RUSTC_LOG=debug rustc +stage1 my-file.rs 2>all-log
-
-# This will show the output of all `info!` calls in `rustc_codegen_ssa`.
-#
-# There's an `info!` statement in `codegen_instance` that outputs
-# every function that is codegen'd. This is useful to find out
-# which function triggers an LLVM assertion, and this is an `info!`
-# log rather than a `debug!` log so it will work on the official
-# compilers.
-$ RUSTC_LOG=rustc_codegen_ssa=info rustc +stage1 my-file.rs
-
-# This will show the output of all `info!` calls made by rustdoc
-# or any rustc library it calls.
-$ RUSTDOC_LOG=info rustdoc +stage1 my-file.rs
-
-# This will only show `debug!` calls made by rustdoc directly,
-# not any `rustc*` crate.
-$ RUSTDOC_LOG=rustdoc=debug rustdoc +stage1 my-file.rs
-```
-
-### Log colors
-
-By default, rustc (and other tools, like rustdoc and Miri) will be smart about
-when to use ANSI colors in the log output. If they are outputting to a terminal,
-they will use colors, and if they are outputting to a file or being piped
-somewhere else, they will not. However, it's hard to read log output in your
-terminal unless you have a very strict filter, so you may want to pipe the
-output to a pager like `less`. But then there won't be any colors, which makes
-it hard to pick out what you're looking for!
-
-You can override whether to have colors in log output with the `RUSTC_LOG_COLOR`
-environment variable (or `RUSTDOC_LOG_COLOR` for rustdoc, or `MIRI_LOG_COLOR`
-for Miri, etc.). There are three options: `auto` (the default), `always`, and
-`never`. So, if you want to enable colors when piping to `less`, use something
-similar to this command:
-
-```bash
-# The `-R` switch tells less to print ANSI colors without escaping them.
-$ RUSTC_LOG=debug RUSTC_LOG_COLOR=always rustc +stage1 ... | less -R
-```
-
-Note that `MIRI_LOG_COLOR` will only color logs that come from Miri, not logs
-from rustc functions that Miri calls. Use `RUSTC_LOG_COLOR` to color logs from
-rustc.
-
-### How to keep or remove `debug!` and `trace!` calls from the resulting binary
-
-While calls to `error!`, `warn!` and `info!` are included in every build of the compiler,
-calls to `debug!` and `trace!` are only included in the program if
-`debug-logging=true` is turned on in config.toml (it is
-turned off by default), so if you don't see `DEBUG` logs, especially
-if you run the compiler with `RUSTC_LOG=rustc rustc some.rs` and only see
-`INFO` logs, make sure that `debug-logging=true` is turned on in your
-config.toml.
-
-### Logging etiquette and conventions
-
-Because calls to `debug!` are removed by default, in most cases, don't worry
-about adding "unnecessary" calls to `debug!` and leaving them in code you
-commit - they won't slow down the performance of what we ship, and if they
-helped you pinning down a bug, they will probably help someone else with a
-different one.
-
-A loosely followed convention is to use `debug!("foo(...)")` at the _start_ of
-a function `foo` and `debug!("foo: ...")` _within_ the function. Another
-loosely followed convention is to use the `{:?}` format specifier for debug
-logs.
-
-One thing to be **careful** of is **expensive** operations in logs.
-
-If in the module `rustc::foo` you have a statement
-
-```Rust
-debug!("{:?}", random_operation(tcx));
-```
-
-Then if someone runs a debug `rustc` with `RUSTC_LOG=rustc::bar`, then
-`random_operation()` will run.
-
-This means that you should not put anything too expensive or likely to crash
-there - that would annoy anyone who wants to use logging for their own module.
-No-one will know it until someone tries to use logging to find *another* bug.
+For details see [the guide section on tracing](./tracing.md)
 
 ## Formatting Graphviz output (.dot files)
 [formatting-graphviz-output]: #formatting-graphviz-output
@@ -314,24 +250,6 @@ $ dot -T pdf maybe_init_suffix.dot > maybe_init_suffix.pdf
 $ firefox maybe_init_suffix.pdf # Or your favorite pdf viewer
 ```
 
-## Viewing Spanview output (.html files)
-[viewing-spanview-output]: #viewing-spanview-output
-
-In addition to [graphviz output](#formatting-graphviz-output-dot-files), MIR debugging
-flags include an option to generate a MIR representation called `Spanview` that
-uses HTML to highlight code regions in the original source code and display
-compiler metadata associated with each region.
-[`-Z dump-mir-spanview`](./mir/debugging.md), for example, highlights spans
-associated with each MIR `Statement`, `Terminator`, and/or `BasicBlock`.
-
-These `.html` files use CSS features to dynamically expand spans obscured by
-overlapping spans, and native tooltips (based on the HTML `title` attribute) to
-reveal the actual MIR elements, as text.
-
-To view these files, simply use a modern browser, or a CSS-capable HTML preview
-feature in a modern IDE. (The default HTML preview pane in *VS Code* is known to
-work, for instance.)
-
 ## Narrowing (Bisecting) Regressions
 
 The [cargo-bisect-rustc][bisect] tool can be used as a quick and easy way to
@@ -342,7 +260,7 @@ on *why* it was changed.  See [this tutorial][bisect-tutorial] on how to use
 it.
 
 [bisect]: https://github.com/rust-lang/cargo-bisect-rustc
-[bisect-tutorial]: https://github.com/rust-lang/cargo-bisect-rustc/blob/master/TUTORIAL.md
+[bisect-tutorial]: https://rust-lang.github.io/cargo-bisect-rustc/tutorial.html
 
 ## Downloading Artifacts from Rust's CI
 
@@ -413,3 +331,37 @@ error: aborting due to previous error
 ```
 
 [`Layout`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_target/abi/struct.Layout.html
+
+
+## Configuring CodeLLDB for debugging `rustc`
+
+If you are using VSCode, and have edited your `config.toml` to request debugging
+level 1 or 2 for the parts of the code you're interested in, then you should be
+able to use the [CodeLLDB] extension in VSCode to debug it.
+
+Here is a sample `launch.json` file, being used to run a stage 1 compiler direct
+from the directory where it is built (does not have to be "installed"):
+
+```javascript
+// .vscode/launch.json
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "lldb",
+        "request": "launch",
+        "name": "Launch",
+        "args": [],  // array of string command-line arguments to pass to compiler
+        "program": "${workspaceFolder}/build/host/stage1/bin/rustc",
+        "windows": {  // applicable if using windows
+            "program": "${workspaceFolder}/build/host/stage1/bin/rustc.exe"
+        },
+        "cwd": "${workspaceFolder}",  // current working directory at program start
+        "stopOnEntry": false,
+        "sourceLanguages": ["rust"]
+      }
+    ]
+  }
+```
+
+[CodeLLDB]: https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb

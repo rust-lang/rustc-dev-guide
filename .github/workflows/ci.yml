@@ -11,46 +11,42 @@ on:
 
 jobs:
   ci:
+    if: github.repository == 'rust-lang/rustc-dev-guide'
     runs-on: ubuntu-latest
     env:
-      MDBOOK_VERSION: 0.4.7
-      MDBOOK_LINKCHECK_VERSION: 0.7.2
-      MDBOOK_TOC_VERSION: 0.6.1
+      MDBOOK_VERSION: 0.4.21
+      MDBOOK_LINKCHECK_VERSION: 0.7.6
+      MDBOOK_MERMAID_VERSION: 0.12.6
+      MDBOOK_TOC_VERSION: 0.11.2
       DEPLOY_DIR: book/html
       BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           # linkcheck needs the base commit.
           fetch-depth: 0
 
       - name: Cache binaries
         id: mdbook-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/bin
-          key: ${{ runner.os }}-${{ env.MDBOOK_VERSION }}--${{ env.MDBOOK_LINKCHECK_VERSION }}--${{ env.MDBOOK_TOC_VERSION }}
+          key: ${{ runner.os }}-${{ env.MDBOOK_VERSION }}--${{ env.MDBOOK_LINKCHECK_VERSION }}--${{ env.MDBOOK_TOC_VERSION }}--${{ env.MDBOOK_MERMAID_VERSION }}
 
       - name: Cache linkcheck
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             ~/book/linkcheck
           key: ${{ runner.os }}-${{ hashFiles('./book/linkcheck') }}
 
-      - name: Check line lengths
-        if: github.event_name != 'push'
-        run: |
-          shopt -s globstar
-          MAX_LINE_LENGTH=100 bash ci/check_line_lengths.sh src/**/*.md
-
       - name: Install latest nightly Rust toolchain
         if: steps.mdbook-cache.outputs.cache-hit != 'true'
-        uses: actions-rs/toolchain@v1
-        with:
-            toolchain: nightly
-            override: true
+        run: |
+          rustup update nightly
+          rustup override set nightly
 
       - name: Install Dependencies
         if: steps.mdbook-cache.outputs.cache-hit != 'true'
@@ -58,12 +54,13 @@ jobs:
           cargo install mdbook --version ${{ env.MDBOOK_VERSION }}
           cargo install mdbook-linkcheck --version ${{ env.MDBOOK_LINKCHECK_VERSION }}
           cargo install mdbook-toc --version ${{ env.MDBOOK_TOC_VERSION }}
+          cargo install mdbook-mermaid --version ${{ env.MDBOOK_MERMAID_VERSION }}
 
       - name: Check build
         run: mdbook build
 
       - name: Deploy to gh-pages
-        if: github.event_name == 'push' && github.repository == 'rust-lang/rustc-dev-guide'
+        if: github.event_name == 'push'
         run: |
           touch "${{ env.DEPLOY_DIR }}/.nojekyll"
           cp CNAME "${{ env.DEPLOY_DIR }}"

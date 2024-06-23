@@ -1,4 +1,4 @@
-[![Travis CI badge](https://api.travis-ci.com/rust-lang/rustc-dev-guide.svg?branch=master)](https://travis-ci.com/github/rust-lang/rustc-dev-guide)
+[![CI](https://github.com/rust-lang/rustc-dev-guide/actions/workflows/ci.yml/badge.svg)](https://github.com/rust-lang/rustc-dev-guide/actions/workflows/ci.yml)
 
 
 This is a collaborative effort to build a guide that explains how rustc
@@ -13,6 +13,9 @@ Note that these are not intended as a guide; it's recommended that you search
 for the docs you're looking for instead of reading them top to bottom.
 
 [rustdocs]: https://doc.rust-lang.org/nightly/nightly-rustc
+
+For documentation on developing the standard library, see
+[`std-dev-guide`](https://std-dev-guide.rust-lang.org/).
 
 ### Contributing to the guide
 
@@ -40,16 +43,16 @@ rustdocs][rustdocs].
 To build a local static HTML site, install [`mdbook`](https://github.com/rust-lang/mdBook) with:
 
 ```
-> cargo install mdbook mdbook-linkcheck mdbook-toc
+> cargo install mdbook mdbook-linkcheck mdbook-toc mdbook-mermaid
 ```
 
 and execute the following command in the root of the repository:
 
 ```
-> mdbook build
+> mdbook build --open
 ```
 
-The build files are found in the `book` directory.
+The build files are found in the `book/html` directory.
 
 ### Link Validations
 
@@ -60,25 +63,6 @@ We use `mdbook-linkcheck` to validate URLs included in our documentation.
 
 We use `mdbook-toc` to auto-generate TOCs for long sections. You can invoke the preprocessor by
 including the `<!-- toc -->` marker at the place where you want the TOC.
-
-### Pre-commit script
-
-We also test that line lengths are less than 100 columns. To test this locally,
-you can run `ci/check_line_lengths.sh`.
-
-You can also set this to run automatically.
-
-On Linux:
-
-```bash
-ln -s ../../ci/check_line_lengths.sh .git/hooks/pre-commit
-```
-
-On Windows:
-
-```powershell
-New-Item -Path .git/hooks/pre-commit -ItemType HardLink -Value <absolute_path/to/check_line_lengths.sh>
-```
 
 ## How to fix toolstate failures
 
@@ -115,7 +99,7 @@ git submodule update --remote src/doc/rustc-dev-guide
 git add -u
 git commit -m "Update rustc-dev-guide"
 # Note that you can use -i, which is short for --incremental, in the following command
-./x.py test --incremental src/doc/rustc-dev-guide # This is optional and should succeed anyway
+./x test --incremental src/doc/rustc-dev-guide # This is optional and should succeed anyway
 # Open a PR in rust-lang/rust
 ```
 

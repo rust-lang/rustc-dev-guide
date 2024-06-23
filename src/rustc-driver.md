@@ -1,4 +1,4 @@
-# The Rustc Driver and Interface
+# `rustc_driver` and `rustc_interface`
 
 The [`rustc_driver`] is essentially `rustc`'s `main()` function. It acts as
 the glue for running the various phases of the compiler in the correct order,
@@ -7,7 +7,7 @@ using the interface defined in the [`rustc_interface`] crate.
 The `rustc_interface` crate provides external users with an (unstable) API
 for running code at particular times during the compilation process, allowing
 third parties to effectively use `rustc`'s internals as a library for
-analysing a crate or emulating the compiler in-process (e.g. the RLS or rustdoc).
+analyzing a crate or emulating the compiler in-process (e.g. rustdoc).
 
 For those using `rustc` as a library, the [`rustc_interface::run_compiler()`][i_rc]
 function is the main entrypoint to the compiler. It takes a configuration for the compiler
@@ -32,7 +32,7 @@ as well as allowing some custom code run after different phases of the compilati
 
 
 [cb]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_driver/trait.Callbacks.html
-[rd_rc]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_driver/fn.run_compiler.html
+[rd_rc]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_driver_impl/fn.run_compiler.html
 [i_rc]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/fn.run_compiler.html
 [example]: https://github.com/rust-lang/rustc-dev-guide/blob/master/examples/rustc-driver-example.rs
 [`rustc_interface`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/index.html

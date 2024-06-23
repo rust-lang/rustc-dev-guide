@@ -1,55 +1,51 @@
-# Documenting rustc
+# Building documentation
 
-You might want to build documentation of the various components
-available like the standard library. There’s two ways to go about this.
-You can run rustdoc directly on the file to make sure the HTML is
-correct, which is fast. Alternatively, you can build the documentation
-as part of the build process through x.py. Both are viable methods
-since documentation is more about the content.
+This chapter describes how to build documentation of toolchain components,
+like the standard library (std) or the compiler (rustc).
 
-## Document everything
+- Document everything
 
-This uses the beta rustdoc, which usually but not always has the same output
-as stage 1 rustdoc.
+  This uses `rustdoc` from the beta toolchain,
+  so will produce (slightly) different output to stage 1 rustdoc,
+  as rustdoc is under active development:
 
-```bash
-./x.py doc
-```
+  ```bash
+  ./x doc
+  ```
 
-## If you want to be sure that the links behave the same as on CI
+  If you want to be sure the documentation looks the same as on CI:
 
-```bash
-./x.py doc --stage 1
-```
+  ```bash
+  ./x doc --stage 1
+  ```
 
-First the compiler and rustdoc get built to make sure everything is okay
-and then it documents the files.
+  This ensures that (current) rustdoc gets built,
+  then that is used to document the components.
 
-## Document specific components
+- Much like running individual tests or building specific components,
+  you can build just the documentation you want:
 
-```bash
-./x.py doc src/doc/book
-./x.py doc src/doc/nomicon
-./x.py doc src/doc/book library/std
-```
+  ```bash
+  ./x doc src/doc/book
+  ./x doc src/doc/nomicon
+  ./x doc compiler library
+  ```
 
-Much like individual tests or building certain components you can build only
- the documentation you want.
+  See [the nightly docs index page](https://doc.rust-lang.org/nightly/) for a full list of books.
 
-## Document internal rustc items
+- Document internal rustc items
 
-Compiler documentation is not built by default. To enable it, modify config.toml:
+  Compiler documentation is not built by default.
+  To create it by default with `x doc`, modify `config.toml`:
 
-```toml
-[build]
-compiler-docs = true
-```
+  ```toml
+  [build]
+  compiler-docs = true
+  ```
 
-Note that when enabled,
-documentation for internal compiler items will also be built.
+  Note that when enabled,
+  documentation for internal compiler items will also be built.
 
-### Compiler Documentation
+  NOTE: The documentation for the compiler is found at [this link].
 
-The documentation for the rust components are found at [rustc doc].
-
-[rustc doc]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/
+[this link]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/

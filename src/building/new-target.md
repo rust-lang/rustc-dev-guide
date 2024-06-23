@@ -4,11 +4,13 @@ These are a set of steps to add support for a new target. There are
 numerous end states and paths to get there, so not all sections may be
 relevant to your desired goal.
 
+<!-- toc -->
+
 ## Specifying a new LLVM
 
 For very new targets, you may need to use a different fork of LLVM
 than what is currently shipped with Rust. In that case, navigate to
-the `src/llvm-project` git submodule (you might need to run `x.py
+the `src/llvm-project` git submodule (you might need to run `./x
 check` at least once so the submodule is updated), check out the
 appropriate commit for your fork, then commit that new submodule
 reference in the main Rust repository.
@@ -20,15 +22,15 @@ cd src/llvm-project
 git remote add my-target-llvm some-llvm-repository
 git checkout my-target-llvm/my-branch
 cd ..
-git add llvm_target
+git add llvm-project
 git commit -m 'Use my custom LLVM'
 ```
 
 ### Using pre-built LLVM
 
 If you have a local LLVM checkout that is already built, you may be
-able to configure Rust to treat your build as the [system LLVM][sysllvm]
-to avoid redundant builds.
+able to configure Rust to treat your build as the system LLVM to avoid
+redundant builds.
 
 You can tell Rust to use a pre-built version of LLVM using the `target` section
 of `config.toml`:
@@ -74,7 +76,34 @@ You will need to add a line to the big table inside of the
 will then add a corresponding file for your new target containing a
 `target` function.
 
-Look for existing targets to use as examples
+Look for existing targets to use as examples.
+
+After adding your target to the `rustc_target` crate you may want to add
+`core`, `std`, ... with support for your new target. In that case you will
+probably need access to some `target_*` cfg. Unfortunately when building with
+stage0 (the beta compiler), you'll get an error that the target cfg is
+unexpected because stage0 doesn't know about the new target specification and
+we pass `--check-cfg` in order to tell it to check.
+
+To fix the errors you will need to manually add the unexpected value to the
+`EXTRA_CHECK_CFGS` list in `src/bootstrap/src/lib.rs`. Here is an example for
+adding `NEW_TARGET_OS` as `target_os`:
+```diff
+- (Some(Mode::Std), "target_os", Some(&["watchos"])),
++ // #[cfg(bootstrap)] NEW_TARGET_OS
++ (Some(Mode::Std), "target_os", Some(&["watchos", "NEW_TARGET_OS"])),
+```
+
+To use this target in bootstrap, we need to explicitly add the target triple to the `STAGE0_MISSING_TARGETS`
+list in `src/bootstrap/src/core/sanity.rs`. This is necessary because the default compiler bootstrap uses does
+not recognize the new target we just added. Therefore, it should be added to `STAGE0_MISSING_TARGETS` so that the
+bootstrap is aware that this target is not yet supported by the stage0 compiler.
+
+```diff
+const STAGE0_MISSING_TARGETS: &[&str] = &[
++   "NEW_TARGET_TRIPLE"
+];
+```
 
 ## Patching crates
 
@@ -86,15 +115,11 @@ unreleased version of `libc`, you can add it to the top-level
 
 ```diff
 diff --git a/Cargo.toml b/Cargo.toml
-index be15e50e2bc..4fb1248ba99 100644
+index 1e83f05e0ca..4d0172071c1 100644
 --- a/Cargo.toml
 +++ b/Cargo.toml
-@@ -66,10 +66,11 @@ cargo = { path = "src/tools/cargo" }
+@@ -113,6 +113,8 @@ cargo-util = { path = "src/tools/cargo/crates/cargo-util" }
  [patch.crates-io]
- # Similar to Cargo above we want the RLS to use a vendored version of `rustfmt`
- # that we're shipping as well (to ensure that the rustfmt in RLS and the
- # `rustfmt` executable are the same exact version).
- rustfmt-nightly = { path = "src/tools/rustfmt" }
 +libc = { git = "https://github.com/rust-lang/libc", rev = "0bf7ce340699dcbacabdf5f16a242d2219a49ee0" }
 
  # See comments in `src/tools/rustc-workspace-hack/README.md` for what's going on
@@ -103,6 +128,12 @@ index be15e50e2bc..4fb1248ba99 100644
 ```
 
 After this, run `cargo update -p libc` to update the lockfiles.
+
+Beware that if you patch to a local `path` dependency, this will enable
+warnings for that dependency. Some dependencies are not warning-free, and due
+to the `deny-warnings` setting in `config.toml`, the build may suddenly start
+to fail. To work around the warnings, you may want to disable `deny-warnings`
+in the config, or modify the dependency to remove the warnings.
 
 [`libc`]: https://crates.io/crates/libc
 [`cc`]: https://crates.io/crates/cc
@@ -115,7 +146,7 @@ cross-compile `rustc`:
 
 ```
 DESTDIR=/path/to/install/in \
-./x.py install -i --stage 1 --host aarch64-apple-darwin.json --target aarch64-apple-darwin \
+./x install -i --stage 1 --host aarch64-apple-darwin.json --target aarch64-apple-darwin \
 compiler/rustc library/std
 ```
 
@@ -125,8 +156,10 @@ compiler, you can use it instead of the JSON file for both arguments.
 ## Promoting a target from tier 2 (target) to tier 2 (host)
 
 There are two levels of tier 2 targets:
-a) Targets that are only cross-compiled (`rustup target add`)
-b) Targets that have a native toolchain (`rustup toolchain install`)
+  a) Targets that are only cross-compiled (`rustup target add`)
+  b) Targets that [have a native toolchain][tier2-native] (`rustup toolchain install`)
+
+[tier2-native]: https://doc.rust-lang.org/nightly/rustc/target-tier-policy.html#tier-2-with-host-tools
 
 For an example of promoting a target from cross-compiled to native,
 see [#75914](https://github.com/rust-lang/rust/pull/75914).

@@ -2,17 +2,14 @@
 
 <!-- toc -->
 
-> **NOTE**: The structure of the repository is going through a lot of
-> transitions. In particular, we want to get to a point eventually where the
-> top-level directory has separate directories for the compiler, build-system,
-> std libs, etc, rather than one huge `src/` directory.
->
-> As of <!-- date: 2021-01 --> January 2021, the standard libraries have been
-> moved to `library/` and the crates that make up the `rustc` compiler itself
-> have been moved to `compiler/`.
-
 Now that we have [seen what the compiler does](./overview.md), let's take a
-look at the structure of the contents of the rust-lang/rust repo.
+look at the structure of the [`rust-lang/rust`] repository, where the rustc
+source code lives.
+
+[`rust-lang/rust`]: https://github.com/rust-lang/rust
+
+> You may find it helpful to read the ["Overview of the compiler"](./overview.md)
+> chapter, which introduces how the compiler works, before this one.
 
 ## Workspace structure
 
@@ -25,29 +22,19 @@ The repository consists of three main directories:
 
 - `compiler/` contains the source code for `rustc`. It consists of many crates
   that together make up the compiler.
-
+  
 - `library/` contains the standard libraries (`core`, `alloc`, `std`,
   `proc_macro`, `test`), as well as the Rust runtime (`backtrace`, `rtstartup`,
   `lang_start`).
-
+  
+- `tests/` contains the compiler tests.
+  
 - `src/` contains the source code for rustdoc, clippy, cargo, the build system,
   language docs, etc.
 
-## Standard library
-
-The standard library crates are all in `library/`. They have intuitive names
-like `std`, `core`, `alloc`, etc.  There is also `proc_macro`, `test`, and
-other runtime libraries.
-
-This code is fairly similar to most other Rust crates except that it must be
-built in a special way because it can use unstable features.
-
 ## Compiler
 
-> You may find it helpful to read [The Overview Chapter](./overview.md) first,
-> which gives an overview of how the compiler works. The crates mentioned in
-> this section implement the compiler, and are underneath `compiler/`
-
+The compiler is implemented in the various `compiler/` crates.
 The `compiler/` crates all have names starting with `rustc_*`. These are a
 collection of around 50 interdependent crates ranging in size from tiny to
 huge. There is also the `rustc` crate which is the actual binary (i.e. the
@@ -85,7 +72,7 @@ crates, just like a normal Rust crate.
 
 One final thing: [`src/llvm-project`] is a submodule for our fork of LLVM.
 During bootstrapping, LLVM is built and the [`compiler/rustc_llvm`] crate
-contains rust wrappers around LLVM (which is written in C++), so that the
+contains Rust wrappers around LLVM (which is written in C++), so that the
 compiler can interface with it.
 
 Most of this book is about the compiler, so we won't have any further
@@ -96,7 +83,7 @@ explanation of these crates here.
 
 ### Big picture
 
-The dependency structure is influenced strongly by two main factors:
+The dependency structure is influenced by two main factors:
 
 1. Organization. The compiler is a _huge_ codebase; it would be an impossibly
    large crate. In part, the dependency structure reflects the code structure
@@ -110,12 +97,11 @@ At the very bottom of the dependency tree are a handful of crates that are used
 by the whole compiler (e.g. [`rustc_span`]). The very early parts of the
 compilation process (e.g. parsing and the AST) depend on only these.
 
-Pretty soon after the AST is constructed, the compiler's [query system][query]
-gets set up.  The query system is set up in a clever way using function
+After the AST is constructed and other early analysis is done, the compiler's [query system][query]
+gets set up. The query system is set up in a clever way using function
 pointers. This allows us to break dependencies between crates, allowing more
 parallel compilation.
-
-However, since the query system is defined in [`rustc_middle`], nearly all
+The query system is defined in [`rustc_middle`], so nearly all
 subsequent parts of the compiler depend on this crate. It is a really large
 crate, leading to long compile times. Some efforts have been made to move stuff
 out of it with limited success. Another unfortunate side effect is that sometimes
@@ -125,7 +111,7 @@ linting functionality is scattered across earlier parts of the crate,
 
 [`rustc_lint`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/index.html
 
-More generally, in an ideal world, it seems like there would be fewer, more
+Ideally there would be fewer, more
 cohesive crates, with incremental and parallel compilation making sure compile
 times stay reasonable. However, our incremental and parallel compilation haven't
 gotten good enough for that yet, so breaking things into separate crates has
@@ -163,14 +149,14 @@ You can read more about rustdoc in [this chapter][rustdocch].
 
 ## Tests
 
-The test suite for all of the above is in [`src/test/`]. You can read more
+The test suite for all of the above is in [`tests/`]. You can read more
 about the test suite [in this chapter][testsch].
 
 The test harness itself is in [`src/tools/compiletest`].
 
 [testsch]: ./tests/intro.md
 
-[`src/test/`]: https://github.com/rust-lang/rust/tree/master/src/test
+[`tests/`]: https://github.com/rust-lang/rust/tree/master/tests
 [`src/tools/compiletest`]: https://github.com/rust-lang/rust/tree/master/src/tools/compiletest
 
 ## Build System
@@ -187,12 +173,21 @@ from `src/tools/`, such as [`tidy`] or [`compiletest`].
 [`tidy`]: https://github.com/rust-lang/rust/tree/master/src/tools/tidy
 [`compiletest`]: https://github.com/rust-lang/rust/tree/master/src/tools/compiletest
 
-[bootstch]: ./building/bootstrapping.md
+[bootstch]: ./building/bootstrapping/intro.md
+
+## Standard library
+
+The standard library crates are all in `library/`. They have intuitive names
+like `std`, `core`, `alloc`, etc.  There is also `proc_macro`, `test`, and
+other runtime libraries.
+
+This code is fairly similar to most other Rust crates except that it must be
+built in a special way because it can use unstable features.
 
 ## Other
 
 There are a lot of other things in the `rust-lang/rust` repo that are related
-to building a full rust distribution. Most of the time you don't need to worry
+to building a full Rust distribution. Most of the time you don't need to worry
 about them.
 
 These include:
@@ -200,11 +195,8 @@ These include:
   run a lot of tests on a lot of platforms.
 - [`src/doc`]: Various documentation, including submodules for a few books.
 - [`src/etc`]: Miscellaneous utilities.
-- [`src/tools/rustc-workspace-hack`], and others: Various workarounds to make
-  cargo work with bootstrapping.
 - And more...
 
 [`src/ci`]: https://github.com/rust-lang/rust/tree/master/src/ci
 [`src/doc`]: https://github.com/rust-lang/rust/tree/master/src/doc
 [`src/etc`]: https://github.com/rust-lang/rust/tree/master/src/etc
-[`src/tools/rustc-workspace-hack`]: https://github.com/rust-lang/rust/tree/master/src/tools/rustc-workspace-hack

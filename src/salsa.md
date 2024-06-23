@@ -9,10 +9,16 @@ want to watch [Salsa In More
 Depth](https://www.youtube.com/watch?v=i_IhACacPRY), also by Niko
 Matsakis.
 
-> As of <!-- date: 2021-01 --> January 2021, although Salsa is inspired by
+> As of <!-- date-check --> November 2022, although Salsa is inspired by
 > (among other things) rustc's query system, it is not used directly in rustc.
-> It _is_ used in chalk and extensively in `rust-analyzer`, but there are no
-> medium or long-term concrete plans to integrate it into the compiler.
+> It _is_ used in [chalk], an implementation of  Rust's trait system, and extensively in
+> [`rust-analyzer`], the official implementation of the language server protocol for Rust, but
+> there are no  medium or long-term concrete plans to integrate it into the
+> compiler.
+
+
+[`rust-analyzer`]: https://rust-analyzer.github.io/
+[chalk]: https://rust-lang.github.io/chalk/book/what_is_chalk.html
 
 ## What is Salsa?
 
@@ -44,7 +50,7 @@ something that the library produces, but, for each derived value there's a
 "pure" function that computes the derived value.
 
 For example, there might be a function `ast(x: Path) -> AST`. The produced
-`AST` isn't a final value, it's an intermidiate value that the library would
+`AST` isn't a final value, it's an intermediate value that the library would
 use for the computation.
 
 This means that when you try to compute with the library, Salsa is going to
@@ -60,7 +66,7 @@ is going to be checked, which could be costly. Salsa only needs to check each
 downstream computation until it finds one that isn't changed. At that point, it
 won't check other derived computations since they wouldn't need to change.
 
-It's is helpful to think about this as a graph with nodes. Each derived value
+It's helpful to think about this as a graph with nodes. Each derived value
 has a dependency on other values, which could themselves be either base or
 derived. Base values don't have a dependency.
 
@@ -71,12 +77,12 @@ J <- B <--+
 ```
 
 When an input `I` changes, the derived value `A` could change. The derived
-value `B` , which does not depend on `I`, `A`, or any value derived from `A` or
+value `B`, which does not depend on `I`, `A`, or any value derived from `A` or
 `I`, is not subject to change.  Therefore, Salsa can reuse the computation done
 for `B` in the past, without having to compute it again.
 
 The computation could also terminate early. Keeping the same graph as before,
-say that input `I` has changed in some way (and input `J` hasn't) but, when
+say that input `I` has changed in some way (and input `J` hasn't), but when
 computing `A` again, it's found that `A` hasn't changed from the previous
 computation. This leads to an "early termination", because there's no need to
 check if `C` needs to change, since both `C` direct inputs, `A` and `B`,
@@ -126,7 +132,7 @@ Example input query group:
 
 ```rust,ignore
 /// This attribute will process this tree, produce this tree as output, and produce
-/// a bunch of intermidiate stuff that Salsa also uses.  One of these things is a
+/// a bunch of intermediate stuff that Salsa also uses.  One of these things is a
 /// "StorageStruct", whose name we have specified in the attribute.
 ///
 /// This query group is a bunch of **input** queries, that do not rely on any
@@ -148,9 +154,9 @@ this one depends on by specifying them as supertraits, as seen in the following
 example:
 
 ```rust,ignore
-/// This query group is going to contain queries that depend on derived values a
+/// This query group is going to contain queries that depend on derived values. A
 /// query group can access another query group's queries by specifying the
-/// dependency as a super trait query groups can be stacked as much as needed using
+/// dependency as a super trait. Query groups can be stacked as much as needed using
 /// that pattern.
 #[salsa::query_group(ParserStorage)]
 pub trait Parser: Inputs {
@@ -168,7 +174,7 @@ belongs to, in addition to the other keys.
 ```rust,ignore
 ///This is going to be the definition of the `ast` query in the `Parser` trait.
 ///So, when the query `ast` is invoked, and it needs to be recomputed, Salsa is going to call this function
-///and it's is going to give it the database as `impl Parser`.
+///and it's going to give it the database as `impl Parser`.
 ///The function doesn't need to be aware of all the queries of all the query groups
 fn ast(db: &impl Parser, name: String) -> String {
     //! Note, `impl Parser` is used here but `dyn Parser` works just as well
@@ -196,7 +202,7 @@ struct MyDatabase {
     runtime : salsa::Runtime<MyDatabase>,
 }
 ///And this trait has to be implemented
-impl salsa::Databse for MyDatabase {
+impl salsa::Database for MyDatabase {
     fn salsa_runtime(&self) -> &salsa::Runtime<MyDatabase> {
         &self.runtime
     }

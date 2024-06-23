@@ -58,11 +58,12 @@ The story is a bit different for `type_check_item(foo)`: We again walk the
 edges and already know that `type_of(foo)` is fine. Then we get to
 `type_of(bar)` which we have not checked yet, so we walk the edges of
 `type_of(bar)` and encounter `Hir(bar)` which *has* changed. Consequently
-the result of `type_of(bar)` might yield a different same result than what we
+the result of `type_of(bar)` might yield a different result than what we
 have in the cache and, transitively, the result of `type_check_item(foo)`
 might have changed too. We thus re-run `type_check_item(foo)`, which in
 turn will re-run `type_of(bar)`, which will yield an up-to-date result
-because it reads the up-to-date version of `Hir(bar)`.
+because it reads the up-to-date version of `Hir(bar)`. Also, we re-run
+`type_check_item(bar)` because result of `type_of(bar)` might have changed.
 
 
 ## The Problem With The Basic Algorithm: False Positives
@@ -175,17 +176,17 @@ fn try_mark_green(tcx, current_node) -> bool {
 
     true
 }
-
-// Note: The actual implementation can be found in
-//       compiler/rustc_middle/src/dep_graph/graph.rs
 ```
+
+> NOTE:
+> The actual implementation can be found in
+> [`compiler/rustc_query_system/src/dep_graph/graph.rs`][try_mark_green]
 
 By using red-green marking we can avoid the devastating cumulative effect of
 having false positives during change detection. Whenever a query is executed
 in incremental mode, we first check if its already green. If not, we run
 `try_mark_green()` on it. If it still isn't green after that, then we actually
 invoke the query provider to re-compute the result.
-
 
 
 ## The Real World: How Persistence Makes Everything Complicated
@@ -329,7 +330,7 @@ up its dependencies (i.e. also dep-nodes in the previous graph) and continue wit
 the rest of the try-mark-green algorithm. The next interesting thing happens
 when we successfully marked the node as green. At that point we copy the node
 and the edges to its dependencies from the old graph into the new graph. We
-have to do this because the new dep-graph cannot not acquire the
+have to do this because the new dep-graph cannot acquire the
 node and edges via the regular dependency tracking. The tracking system can
 only record edges while actually running a query -- but running the query,
 although we have the result already cached, is exactly what we want to avoid.
@@ -433,6 +434,26 @@ respect to incremental compilation:
       the result of the query has changed. As a consequence anything depending
       on a `no_hash` query will always be re-executed.
 
+   Using `no_hash` for a query can make sense in two circumstances:
+
+    - If the result of the query is very likely to change whenever one of its
+      inputs changes, e.g. a function like `|a, b, c| -> (a * b * c)`. In such
+      a case recomputing the query will always yield a red node if one of the
+      inputs is red so we can spare us the trouble and default to red immediately.
+      A counter example would be a function like `|a| -> (a == 42)` where the
+      result does not change for most changes of `a`.
+
+    - If the result of a query is a big, monolithic collection (e.g. `index_hir`)
+      and there are "projection queries" reading from that collection
+      (e.g. `hir_owner`). In such a case the big collection will likely fulfill the
+      condition above (any changed input means recomputing the whole collection)
+      and the results of the projection queries will be hashed anyway. If we also
+      hashed the collection query it would mean that we effectively hash the same
+      data twice: once when hashing the collection and another time when hashing all
+      the projection query results. `no_hash` allows us to avoid that redundancy
+      and the projection queries act as a "firewall", shielding their dependents
+      from the unconditionally red `no_hash` node.
+
  - `cache_on_disk_if` - This attribute is what determines which query results
    are persisted in the incremental compilation query result cache. The
    attribute takes an expression that allows per query invocation
@@ -513,5 +534,5 @@ be reusable. See <https://github.com/rust-lang/rust/issues/47389> for more
 information.
 
 
-
 [query-model]: ./query-evaluation-model-in-detail.html
+[try_mark_green]: https://doc.rust-lang.org/nightly/nightly-rustc/src/rustc_query_system/dep_graph/graph.rs.html

@@ -3,11 +3,13 @@
 <!-- toc -->
 
 This document explains the state of debugging tools support in the Rust compiler (rustc).
-The document gives an overview of debugging tools like GDB, LLDB etc. and infrastructure
-around Rust compiler to debug Rust code. If you want to learn how to debug the Rust compiler
-itself, then you must see [Debugging the Compiler] page.
+It gives an overview of GDB, LLDB, WinDbg/CDB,
+as well as infrastructure around Rust compiler to debug Rust code.
+If you want to learn how to debug the Rust compiler itself,
+see [Debugging the Compiler].
 
-The material is gathered from YouTube video [Tom Tromey discusses debugging support in rustc].
+The material is gathered from the video,
+[Tom Tromey discusses debugging support in rustc].
 
 ## Preliminaries
 
@@ -40,21 +42,28 @@ Debugging Information Entry (DIE) which stores the information as "tags" to deno
 variables etc., e.g., `DW_TAG_variable`, `DW_TAG_pointer_type`, `DW_TAG_subprogram` etc.
 You can also invent your own tags and attributes.
 
+### CodeView/PDB
+
+[PDB] (Program Database) is a file format created by Microsoft that contains debug information.
+PDBs can be consumed by debuggers such as WinDbg/CDB and other tools to display debug information.
+A PDB contains multiple streams that describe debug information about a specific binary such
+as types, symbols, and source files used to compile the given binary. CodeView is another
+format which defines the structure of [symbol records] and [type records] that appear within
+PDB streams.
+
 ## Supported debuggers
 
 ### GDB
 
-We have our own fork of GDB - [https://github.com/rust-dev-tools/gdb]
-
 #### Rust expression parser
 
-To be able to show debug output we need an expression parser.
-This (GDB) expression parser is written in [Bison] and is only a subset of Rust expressions.
-This means that this parser can parse only a subset of Rust expressions.
-GDB parser was written from scratch and has no relation to any other parser.
-For example, this parser is not related to Rustc's parser.
+To be able to show debug output, we need an expression parser.
+This (GDB) expression parser is written in [Bison],
+and can parse only a subset of Rust expressions.
+GDB parser was written from scratch and has no relation to any other parser,
+including that of rustc.
 
-GDB has Rust like value and type output. It can print values and types in a way
+GDB has Rust-like value and type output. It can print values and types in a way
 that look like Rust syntax in the output. Or when you print a type as [ptype] in GDB,
 it also looks like Rust source code. Checkout the documentation in the [manual for GDB/Rust].
 
@@ -64,17 +73,19 @@ Expression parser has a couple of extensions in it to facilitate features that y
 with Rust. Some limitations are listed in the [manual for GDB/Rust]. There is some special
 code in the DWARF reader in GDB to support the extensions.
 
-A couple of examples of DWARF reader support needed are as follows -
+A couple of examples of DWARF reader support needed are as follows:
 
-1. Enum: Needed for support for enum types. The Rustc writes the information about enum into
-DWARF and GDB reads the DWARF to understand where is the tag field or is there a tag
-field or is the tag slot shared with non-zero optimization etc.
+1. Enum: Needed for support for enum types.
+   The Rust compiler writes the information about enum into DWARF,
+   and GDB reads the DWARF to understand where is the tag field,
+   or if there is a tag field,
+   or if the tag slot is shared with non-zero optimization etc.
 
 2. Dissect trait objects: DWARF extension where the trait object's description in the DWARF
-also points to a stub description of the corresponding vtable which in turn points to the
-concrete type for which this trait object exists. This means that you can do a `print *object`
-for that trait object, and GDB will understand how to find the correct type of the payload in
-the trait object.
+   also points to a stub description of the corresponding vtable which in turn points to the
+   concrete type for which this trait object exists. This means that you can do a `print *object`
+   for that trait object, and GDB will understand how to find the correct type of the payload in
+   the trait object.
 
 **TODO**: Figure out if the following should be mentioned in the GDB-Rust document rather than
 this guide page so there is no duplication. This is regarding the following comments:
@@ -89,49 +100,50 @@ implements the gdb @ extension.
 > @tromey do you think we should mention this part in the GDB-Rust document rather than this
 document so there is no duplication etc.?
 
-#### Developer notes
-
-* This work is now upstream. Bugs can be reported in [GDB Bugzilla].
-
 ### LLDB
-
-Fork of LLVM project - [https://github.com/rust-lang/llvm-project]
-
-LLDB currently only works on macOS because of a dependency issue. This issue was easier to
-solve for macOS as compared to Linux. However, Tom has a possible solution which can enable
-us to ship LLDB everywhere.
 
 #### Rust expression parser
 
 This expression parser is written in C++. It is a type of [Recursive Descent parser].
-Implements slightly less of the Rust language than GDB. LLDB has Rust like value and type output.
-
-#### Parser extensions
-
-There is some special code in the DWARF reader in LLDB to support the extensions.
-A couple of examples of DWARF reader support needed are as follows -
-
-1. Enum: Needed for support for enum types. The Rustc writes the information about
-enum into DWARF and LLDB reads the DWARF to understand where is the tag field or
-is there a tag field or is the tag slot shared with non-zero optimization etc.
-In other words, it has enum support as well.
+It implements slightly less of the Rust language than GDB.
+LLDB has Rust-like value and type output.
 
 #### Developer notes
 
-* None of the LLDB work is upstream. This [rust-lang/lldb wiki page] explains a few details.
-* The reason for forking LLDB is that LLDB recently removed all the other language plugins
-due to lack of maintenance.
 * LLDB has a plugin architecture but that does not work for language support.
-* LLDB is available via Rust build (`rustup`).
 * GDB generally works better on Linux.
 
-## DWARF and Rustc
+### WinDbg/CDB
+
+Microsoft provides [Windows Debugging Tools] such as the Windows Debugger (WinDbg) and
+the Console Debugger (CDB) which both support debugging programs written in Rust. These
+debuggers parse the debug info for a binary from the `PDB`, if available, to construct a
+visualization to serve up in the debugger.
+
+#### Natvis
+
+Both WinDbg and CDB support defining and viewing custom visualizations for any given type
+within the debugger using the Natvis framework. The Rust compiler defines a set of Natvis
+files that define custom visualizations for a subset of types in the standard libraries such
+as, `std`, `core`, and `alloc`. These Natvis files are embedded into `PDBs` generated by the
+`*-pc-windows-msvc` target triples to automatically enable these custom visualizations when
+debugging. This default can be overridden by setting the `strip` rustc flag to either `debuginfo`
+or `symbols`.
+
+Rust has support for embedding Natvis files for crates outside of the standard libraries by
+using the `#[debugger_visualizer]` attribute.
+For more details on how to embed debugger visualizers,
+please refer to the section on the [`debugger_visualizer` attribute].
+
+## DWARF and `rustc`
 
 [DWARF] is the standard way compilers generate debugging information that debuggers read.
-It is _the_ debugging format on macOS and Linux. It is a multi-language, extensible format
-and is mostly good enough for Rust's purposes. Hence, the current implementation reuses DWARF's
-concepts. This is true even if some of the concepts in DWARF do not align with Rust
-semantically because generally there can be some kind of mapping between the two.
+It is _the_ debugging format on macOS and Linux.
+It is a multi-language and extensible format,
+and is mostly good enough for Rust's purposes.
+Hence, the current implementation reuses DWARF's concepts.
+This is true even if some of the concepts in DWARF do not align with Rust semantically because,
+generally, there can be some kind of mapping between the two.
 
 We have some DWARF extensions that the Rust compiler emits and the debuggers understand that
 are _not_ in the DWARF standard.
@@ -168,26 +180,6 @@ Rust does not do that all the time.
 This section is from the talk about certain aspects of development.
 
 ## What is missing
-
-### Shipping GDB in Rustup
-
-Tracking issue: [https://github.com/rust-lang/rust/issues/34457]
-
-Shipping GDB requires change to Rustup delivery system. To manage Rustup build size and
-times we need to build GDB separately, on its own and somehow provide the artifacts produced
-to be included in the final build. However, if we can ship GDB with rustup, it will simplify
-the development process by having compiler emit new debug info which can be readily consumed.
-
-Main issue in achieving this is setting up dependencies. One such dependency is Python. That
-is why we have our own fork of GDB because one of the drivers is patched on Rust's side to
-check the correct version of Python (Python 2.7 in this case. *Note: Python3 is not chosen
-for this purpose because Python's stable ABI is limited and is not sufficient for GDB's needs.
-See [https://docs.python.org/3/c-api/stable.html]*).
-
-This is to keep updates to debugger as fast as possible as we make changes to the debugging symbols.
-In essence, to ship the debugger as soon as new debugging info is added. GDB only releases
-every six months or so. However, the changes that are
-not related to Rust itself should ideally be first merged to upstream eventually.
 
 ### Code signing for LLDB debug server on macOS
 
@@ -235,7 +227,7 @@ This is why we need to change LLVM first because that is emitted first and not D
 This is a kind of metadata that you construct and hand-off to LLVM. For the Rustc/LLVM hand-off
 some LLVM DI builder methods are called to construct representation of a type.
 
-The steps of this process are as follows -
+The steps of this process are as follows:
 
 1. LLVM needs changing.
 
@@ -314,8 +306,7 @@ Clang always embeds an MD5 checksum, though this does not appear in documentatio
 * New demangler in `libiberty` (gcc source tree).
 * New demangler in LLVM or LLDB.
 
-**TODO**: Check the location of the demangler source.
-[Question on Github](https://github.com/rust-lang/rustc-dev-guide/pull/316#discussion_r283062536).
+**TODO**: Check the location of the demangler source. [#1157](https://github.com/rust-lang/rustc-dev-guide/issues/1157)
 
 #### Reuse Rust compiler for expressions
 
@@ -330,9 +321,11 @@ debugger because the debugger alone has access to the memory. Both GDB (gcc) and
 have this feature. LLDB uses Clang to compile code to JIT and GDB can do the same with GCC.
 
 Both debuggers expression evaluation implement both a superset and a subset of Rust.
-They implement just the expression language but they also add some extensions like GDB has
-convenience variables. Therefore, if you are taking this route then you not only need
-to do this bridge but may have to add some mode to let the compiler understand some extensions.
+They implement just the expression language,
+but they also add some extensions like GDB has convenience variables.
+Therefore, if you are taking this route,
+then you not only need to do this bridge,
+but may have to add some mode to let the compiler understand some extensions.
 
 [Tom Tromey discusses debugging support in rustc]: https://www.youtube.com/watch?v=elBxMRSNYr4
 [Debugging the Compiler]: compiler-debugging.md
@@ -354,3 +347,8 @@ to do this bridge but may have to add some mode to let the compiler understand s
 [Apple developer documentation for System Integrity Protection]: https://developer.apple.com/library/archive/releasenotes/MacOSX/WhatsNewInOSX/Articles/MacOSX10_11.html#//apple_ref/doc/uid/TP40016227-SW11
 [https://github.com/rust-lang/lldb]: https://github.com/rust-lang/lldb
 [https://github.com/rust-lang/llvm-project]: https://github.com/rust-lang/llvm-project
+[PDB]: https://llvm.org/docs/PDB/index.html
+[symbol records]: https://llvm.org/docs/PDB/CodeViewSymbols.html
+[type records]: https://llvm.org/docs/PDB/CodeViewTypes.html
+[Windows Debugging Tools]: https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/
+[`debugger_visualizer` attribute]: https://doc.rust-lang.org/nightly/reference/attributes/debugger.html#the-debugger_visualizer-attribute

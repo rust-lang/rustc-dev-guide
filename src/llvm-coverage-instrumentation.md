@@ -3,7 +3,7 @@
 <!-- toc -->
 
 `rustc` supports detailed source-based code and test coverage analysis
-with a command line option (`-Z instrument-coverage`) that instruments Rust
+with a command line option (`-C instrument-coverage`) that instruments Rust
 libraries and binaries with additional instructions and data, at compile time.
 
 The coverage instrumentation injects calls to the LLVM intrinsic instruction
@@ -28,16 +28,42 @@ them), and generate various reports for analysis, for example:
 <br/>
 
 Detailed instructions and examples are documented in the
-[Rust Unstable Book (under _source-based-code-coverage_)][unstable-book-sbcc].
+[rustc book][rustc-book-instrument-coverage].
 
 [llvm-instrprof-increment]: https://llvm.org/docs/LangRef.html#llvm-instrprof-increment-intrinsic
-[Coverage Map]: https://llvm.org/docs/CoverageMappingFormat.html
-[unstable-book-sbcc]: https://doc.rust-lang.org/nightly/unstable-book/compiler-flags/source-based-code-coverage.html
+[coverage map]: https://llvm.org/docs/CoverageMappingFormat.html
+[rustc-book-instrument-coverage]: https://doc.rust-lang.org/nightly/rustc/instrument-coverage.html
+
+## Recommended `config.toml` settings
+
+When working on the coverage instrumentation code, it is usually necessary to
+**enable the profiler runtime** by setting `profiler = true` in `[build]`.
+This allows the compiler to produce instrumented binaries, and makes it possible
+to run the full coverage test suite.
+
+Enabling debug assertions in the compiler and in LLVM is recommended, but not
+mandatory.
+
+```toml
+# Similar to the "compiler" profile, but also enables debug assertions in LLVM.
+# These assertions can detect malformed coverage mappings in some cases.
+profile = "codegen"
+
+[build]
+# IMPORTANT: This tells the build system to build the LLVM profiler runtime.
+# Without it, the compiler can't produce coverage-instrumented binaries,
+# and many of the coverage tests will be skipped.
+profiler = true
+
+[rust]
+# Enable debug assertions in the compiler.
+debug-assertions = true
+```
 
 ## Rust symbol mangling
 
-`-Z instrument-coverage` automatically enables Rust symbol mangling `v0` (as
-if the user specified `-Z symbol-mangling-version=v0` option when invoking
+`-C instrument-coverage` automatically enables Rust symbol mangling `v0` (as
+if the user specified `-C symbol-mangling-version=v0` option when invoking
 `rustc`) to ensure consistent and reversible name mangling. This has two
 important benefits:
 
@@ -56,14 +82,14 @@ statically links coverage-instrumented binaries with LLVM runtime code
 ([compiler-rt][compiler-rt-profile]) that implements program hooks
 (such as an `exit` hook) to write the counter values to the `.profraw` file.
 
-In the `rustc` source tree, `library/profiler_builtins` bundles the LLVM
-`compiler-rt` code into a Rust library crate. (When building `rustc`, the
-`profiler_builtins` library is only included when `profiler = true` is set
-in `rustc`'s `config.toml`.)
+In the `rustc` source tree,
+`library/profiler_builtins` bundles the LLVM `compiler-rt` code into a Rust library crate.
+Note that when building `rustc`,
+`profiler_builtins` is only included when `build.profiler = true` is set in `config.toml`.
 
-When compiling with `-Z instrument-coverage`,
-[`CrateLoader::postprocess()`][crate-loader-postprocess] dynamically loads the
-`profiler_builtins` library by calling `inject_profiler_runtime()`.
+When compiling with `-C instrument-coverage`,
+[`CrateLoader::postprocess()`][crate-loader-postprocess] dynamically loads
+`profiler_builtins` by calling `inject_profiler_runtime()`.
 
 [compiler-rt-profile]: https://github.com/llvm/llvm-project/tree/main/compiler-rt/lib/profile
 [crate-loader-postprocess]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_metadata/creader/struct.CrateLoader.html#method.postprocess
@@ -73,21 +99,21 @@ When compiling with `-Z instrument-coverage`,
 Coverage instrumentation is performed on the MIR with a [MIR pass][mir-passes]
 called [`InstrumentCoverage`][mir-instrument-coverage]. This MIR pass analyzes
 the control flow graph (CFG)--represented by MIR `BasicBlock`s--to identify
-code branches, and injects additional [`Coverage`][coverage-statement]
-statements into the `BasicBlock`s.
+code branches, attaches [`FunctionCoverageInfo`] to the function's body,
+and injects additional [`Coverage`][coverage-statement] statements into the
+`BasicBlock`s.
 
 A MIR `Coverage` statement is a virtual instruction that indicates a counter
 should be incremented when its adjacent statements are executed, to count
 a span of code ([`CodeRegion`][code-region]). It counts the number of times a
-branch is executed, and also specifies the exact location of that code span in
-the Rust source code.
+branch is executed, and is referred to by coverage mappings in the function's
+coverage-info struct.
 
-Note that many of these `Coverage` statements will *not* be converted into
+Note that many coverage counters will _not_ be converted into
 physical counters (or any other executable instructions) in the final binary.
-Some of them will be (see `CoverageKind::`[`Counter`][counter-coverage-kind]),
+Some of them will be (see [`CoverageKind::CounterIncrement`]),
 but other counters can be computed on the fly, when generating a coverage
-report, by mapping a `CodeRegion` to a
-`CoverageKind`::[`Expression`][expression-coverage-kind].
+report, by mapping a `CodeRegion` to a coverage-counter _expression_.
 
 As an example:
 
@@ -111,7 +137,7 @@ fn some_func(flag: bool) {
 In this example, four contiguous code regions are counted while only
 incrementing two counters.
 
-CFG analysis is used to not only determine *where* the branches are, for
+CFG analysis is used to not only determine _where_ the branches are, for
 conditional expressions like `if`, `else`, `match`, and `loop`, but also to
 determine where expressions can be used in place of physical counters.
 
@@ -121,18 +147,18 @@ determines when to break out of a loop (a `while` condition, or an `if` or
 `match` with a `break`). In MIR, this is typically lowered to a `SwitchInt`,
 with one branch to stay in the loop, and another branch to break out of the
 loop. The branch that breaks out will almost always execute less often,
-so `InstrumentCoverage` chooses to add a `Counter` to that branch, and an
-`Expression(continue) = Counter(loop) - Counter(break)` to the branch that
+so `InstrumentCoverage` chooses to add a `CounterIncrement` to that branch, and
+uses an expression (`Counter(loop) - Counter(break)`) for the branch that
 continues.
 
 The `InstrumentCoverage` MIR pass is documented in
 [more detail below][instrument-coverage-pass-details].
 
 [mir-passes]: mir/passes.md
-[mir-instrument-coverage]: https://github.com/rust-lang/rust/tree/master/compiler/rustc_mir/src/transform/coverage
+[mir-instrument-coverage]: https://github.com/rust-lang/rust/tree/master/compiler/rustc_mir_transform/src/coverage
+[`FunctionCoverageInfo`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/coverage/struct.FunctionCoverageInfo.html
 [code-region]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/coverage/struct.CodeRegion.html
-[counter-coverage-kind]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/coverage/enum.CoverageKind.html#variant.Counter
-[expression-coverage-kind]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/coverage/enum.CoverageKind.html#variant.Expression
+[`CoverageKind::CounterIncrement`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/coverage/enum.CoverageKind.html#variant.CounterIncrement
 [coverage-statement]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/enum.StatementKind.html#variant.Coverage
 [instrument-coverage-pass-details]: #implementation-details-of-the-instrumentcoverage-mir-pass
 
@@ -150,40 +176,39 @@ MIR `Statement` into some backend-specific action or instruction.
         match statement.kind {
             ...
             mir::StatementKind::Coverage(box ref coverage) => {
-                self.codegen_coverage(&mut bx, coverage.clone());
-                bx
+                self.codegen_coverage(bx, coverage, statement.source_info.scope);
             }
 ```
 
+`codegen_coverage()` handles inlined statements and then forwards the coverage
+statement to [`Builder::add_coverage`], which handles each `CoverageKind` as
+follows:
 
-`codegen_coverage()` handles each `CoverageKind` as follows:
 
-* For all `CoverageKind`s, Coverage data (counter ID, expression equation
-  and ID, and code regions) are passed to the backend's `Builder`, to
-  populate data structures that will be used to generate the crate's
-  "Coverage Map". (See the [`FunctionCoverage`][function-coverage] `struct`.)
-* For `CoverageKind::Counter`s, an instruction is injected in the backend
+- For both `CounterIncrement` and `ExpressionUsed`, the underlying counter or
+  expression ID is passed through to the corresponding [`FunctionCoverage`]
+  struct to indicate that the corresponding regions of code were not removed
+  by MIR optimizations.
+- For `CoverageKind::CounterIncrement`s, an instruction is injected in the backend
   IR to increment the physical counter, by calling the `BuilderMethod`
   [`instrprof_increment()`][instrprof-increment].
 
 ```rust
-    pub fn codegen_coverage(&self, bx: &mut Bx, coverage: Coverage) {
-        let Coverage { kind, code_region } = coverage;
-        match kind {
-            CoverageKind::Counter { function_source_hash, id } => {
-                if let Some(code_region) = code_region {
-                    bx.add_coverage_counter(self.instance, id, code_region);
-                }
+    fn add_coverage(&mut self, instance: Instance<'tcx>, coverage: &Coverage) {
+        ...
+        let Coverage { kind } = coverage;
+        match *kind {
+            CoverageKind::CounterIncrement { id } => {
+                func_coverage.mark_counter_id_seen(id);
                 ...
                 bx.instrprof_increment(fn_name, hash, num_counters, index);
             }
-            CoverageKind::Expression { id, lhs, op, rhs } => {
-                bx.add_coverage_counter_expression(self.instance, id, lhs, op, rhs, code_region);
+            CoverageKind::ExpressionUsed { id } => {
+                func_coverage.mark_expression_id_seen(id);
             }
-            CoverageKind::Unreachable => {
-                ...
+        }
+    }
 ```
-_code snippet trimmed for brevity_
 
 > The function name `instrprof_increment()` is taken from the LLVM intrinsic
 call of the same name ([`llvm.instrprof.increment`][llvm-instrprof-increment]),
@@ -198,7 +223,8 @@ statements is only implemented for LLVM, at this time.
 [backend-lowering-mir]: backend/lowering-mir.md
 [codegen-statement]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_codegen_ssa/mir/struct.FunctionCx.html#method.codegen_statement
 [codegen-coverage]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_codegen_ssa/mir/struct.FunctionCx.html#method.codegen_coverage
-[function-coverage]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_codegen_ssa/coverageinfo/map/struct.FunctionCoverage.html
+[`Builder::add_coverage`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_codegen_llvm/builder/struct.Builder.html#method.add_coverage
+[`FunctionCoverage`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_codegen_llvm/coverageinfo/map_data/struct.FunctionCoverage.html
 [instrprof-increment]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_codegen_ssa/traits/trait.BuilderMethods.html#tymethod.instrprof_increment
 
 ### Coverage Map Generation
@@ -219,27 +245,24 @@ substitution combinations), `mapgen`'s `finalize()` method queries the
 and `CodeRegion`s; and calls LLVM codegen APIs to generate
 properly-configured variables in LLVM IR, according to very specific
 details of the [_LLVM Coverage Mapping Format_][coverage-mapping-format]
-(Version 4).[^llvm-and-covmap-versions]
+(Version 6).[^llvm-and-covmap-versions]
 
-[^llvm-and-covmap-versions]: The Rust compiler (as of <!-- date: 2021-01 -->
-January 2021) supports _LLVM Coverage Mapping Format_ Version 4 (the most
-up-to-date version of the format, at the time of this writing) for improved
-compatibility with other LLVM-based compilers (like _Clang_), and to take
-advantage of some format optimizations. Version 4 was introduced in _LLVM 11_,
-which is currently the default LLVM version for Rust. Note that the Rust
-compiler optionally supports some earlier LLVM versions, prior to _LLVM 11_. If
-`rustc` is configured to use an incompatible version of LLVM, compiling with `-Z
-instrument-coverage` will generate an error message.
+[^llvm-and-covmap-versions]: The Rust compiler (as of <!-- date-check: --> Jul 2023) supports _LLVM Coverage Mapping Format_ 6.
+    The Rust compiler will automatically use the most up-to-date coverage mapping format
+    version that is compatible with the compiler's built-in version of LLVM.
 
 ```rust
 pub fn finalize<'ll, 'tcx>(cx: &CodegenCx<'ll, 'tcx>) {
+    ...
+    if !tcx.sess.instrument_coverage_except_unused_functions() {
+        add_unused_functions(cx);
+    }
+
     let mut function_coverage_map = match cx.coverage_context() {
         Some(ctx) => ctx.take_function_coverage_map(),
         None => return,
     };
     ...
-    add_unreachable_coverage(tcx, &mut function_coverage_map);
-
     let mut mapgen = CoverageMapGenerator::new();
 
     for (instance, function_coverage) in function_coverage_map {
@@ -250,64 +273,74 @@ pub fn finalize<'ll, 'tcx>(cx: &CodegenCx<'ll, 'tcx>) {
 ```
 _code snippet trimmed for brevity_
 
-One notable step, performed by `mapgen::finalize()` before processing the
-`Instance`s and their `FunctionCoverage`s, is the call to
-[`add_unreachable_functions()`][add-unreachable-coverage].
+One notable first step performed by `mapgen::finalize()` is the call to
+[`add_unused_functions()`][add-unused-functions]:
 
-When finalizing the coverage map, `FunctionCoverage` only has the `CodeRegion`s and counters for
-the functions that went through codegen; such as public functions and "used" functions
-(functions referenced by other "used" or public items). Any other functions (considered unused
-or "Unreachable") were still parsed and processed through the MIR stage.
+When finalizing the coverage map, `FunctionCoverage` only has the `CodeRegion`s
+and counters for the functions that went through codegen; such as public
+functions and "used" functions (functions referenced by other "used" or public
+items). Any other functions (considered unused) were still parsed and processed
+through the MIR stage.
 
-The set of unreachable functions is computed via the set difference of all MIR
-`DefId`s (`tcx` query `mir_keys`) minus the codegenned `DefId`s
-(`tcx` query `collect_and_partition_mono_items`). `add_unreachable_functions()`
-computes the set of unreachable functions, queries the `tcx` for the
-previously-computed `CodeRegions`, for each unreachable MIR, and adds those code
-regions to one of the non-generic codegenned functions (non-generic avoids
-potentially injecting the unreachable coverage multiple times for multiple
-instantiations).
+The set of unused functions is computed via the set difference of all MIR
+`DefId`s (`tcx` query `mir_keys`) minus the codegenned `DefId`s (`tcx` query
+`codegened_and_inlined_items`). `add_unused_functions()` computes the set of
+unused functions, queries the `tcx` for the previously-computed `CodeRegions`,
+for each unused MIR, synthesizes an LLVM function (with no internal statements,
+since it will not be called), and adds a new `FunctionCoverage`, with
+`Unreachable` code regions.
 
 [compile-codegen-unit]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_codegen_llvm/base/fn.compile_codegen_unit.html
 [coverageinfo-finalize]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_codegen_llvm/context/struct.CodegenCx.html#method.coverageinfo_finalize
 [mapgen-finalize]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_codegen_llvm/coverageinfo/mapgen/fn.finalize.html
 [coverage-mapping-format]: https://llvm.org/docs/CoverageMappingFormat.html
-[add-unreachable-coverage]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_codegen_llvm/coverageinfo/mapgen/fn.add_unreachable_coverage.html
+[add-unused-functions]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_codegen_llvm/coverageinfo/mapgen/fn.add_unused_functions.html
 
 ## Testing LLVM Coverage
 
+[(See also the compiletest documentation for the `tests/coverage`
+test suite.)](./tests/compiletest.md#coverage-tests)
+
 Coverage instrumentation in the MIR is validated by a `mir-opt` test:
-[`instrument-coverage`][mir-opt-test].
+[`tests/mir-opt/instrument_coverage.rs`].
 
-More complete testing of end-to-end coverage instrumentation and reports are done
-in the `run-make-fulldeps` tests, with sample Rust programs (to be instrumented)
-in the [`coverage`][coverage-test-samples] directory, and the actual tests and expected
-results in [`coverage-reports`].
+Coverage instrumentation in LLVM IR is validated by the [`tests/coverage`]
+test suite in `coverage-map` mode.
+These tests compile a test program to LLVM IR assembly, and then
+use the [`src/tools/coverage-dump`] tool to extract and pretty-print the
+coverage mappings that would be embedded in the final binary.
 
-In addition to testing the final result, two intermediate results are also validated
-to catch potential regression errors early: Minimum `CoverageSpan`s computed during
-the `InstrumentCoverage` MIR pass are saved in `mir_dump` [Spanview][spanview-debugging]
-files and compared to expected results in [`coverage-spanview`].
+End-to-end testing of coverage instrumentation and coverage reporting is
+performed by the [`tests/coverage`] test suite in `coverage-run` mode,
+and by the [`tests/coverage-run-rustdoc`] test suite.
+These tests compile and run a test program with coverage
+instrumentation, then use LLVM tools to convert the coverage data into a
+human-readable coverage report.
 
-Finally, the [`coverage-llvmir`] test compares compiles a simple Rust program with
-`-Z instrument-coverage` and compares the compiled program's LLVM IR to expected
-LLVM IR instructions and structured data for a coverage-enabled program, including
-various checks for Coverage Map-related metadata and the LLVM intrinsic calls to
-increment the runtime counters.
+> Tests in `coverage-run` mode have an implicit `// needs-profiler-support`
+> directive, so they will be skipped if the profiler runtime has not been
+> [enabled in `config.toml`](#recommended-configtoml-settings).
 
-Expected results for both the `mir-opt` tests and the `coverage*` tests under
-`run-make-fulldeps` can be refreshed by running:
+Finally, the [`coverage-llvmir`] test compiles a simple Rust program
+with `-C instrument-coverage` and compares the compiled program's LLVM IR to
+expected LLVM IR instructions and structured data for a coverage-enabled
+program, including various checks for Coverage Map-related metadata and the LLVM
+intrinsic calls to increment the runtime counters.
+
+Expected results for the `coverage`, `coverage-run-rustdoc`,
+and `mir-opt` tests can be refreshed by running:
 
 ```shell
-$ ./x.py test src/test/<test-type> --blessed
+./x test coverage --bless
+./x test coverage-run-rustdoc --bless
+./x test tests/mir-opt --bless
 ```
 
-[mir-opt-test]: https://github.com/rust-lang/rust/blob/master/src/test/mir-opt/instrument_coverage.rs
-[coverage-test-samples]: https://github.com/rust-lang/rust/tree/master/src/test/run-make-fulldeps/coverage
-[`coverage-reports`]: https://github.com/rust-lang/rust/tree/master/src/test/run-make-fulldeps/coverage-reports
-[`coverage-spanview`]: https://github.com/rust-lang/rust/tree/master/src/test/run-make-fulldeps/coverage-spanview
-[spanview-debugging]: compiler-debugging.md#viewing-spanview-output
-[`coverage-llvmir`]: https://github.com/rust-lang/rust/tree/master/src/test/run-make-fulldeps/coverage-llvmir
+[`tests/mir-opt/instrument_coverage.rs`]: https://github.com/rust-lang/rust/blob/master/tests/mir-opt/instrument_coverage.rs
+[`tests/coverage`]: https://github.com/rust-lang/rust/tree/master/tests/coverage
+[`src/tools/coverage-dump`]: https://github.com/rust-lang/rust/tree/master/src/tools/coverage-dump
+[`tests/coverage-run-rustdoc`]: https://github.com/rust-lang/rust/tree/master/tests/coverage-run-rustdoc
+[`coverage-llvmir`]: https://github.com/rust-lang/rust/tree/master/tests/run-make/coverage-llvmir
 
 ## Implementation Details of the `InstrumentCoverage` MIR Pass
 
@@ -318,39 +351,33 @@ function, generic, or closure), the `Instrumentor`'s constructor prepares a
 [`inject_counters()`][inject-counters].
 
 ```rust
-        Instrumentor::new(&self.name(), tcx, mir_body).inject_counters();
+Instrumentor::new(&self.name(), tcx, mir_body).inject_counters();
 ```
 
 The `CoverageGraph` is a coverage-specific simplification of the MIR control
 flow graph (CFG). Its nodes are [`BasicCoverageBlock`s][bcb], which
 encompass one or more sequentially-executed MIR `BasicBlock`s
-(with no internal branching), plus a `CoverageKind` counter (to
-be added, via coverage analysis), and an optional set of additional counters
-to count incoming edges (if there are more than one).
+(with no internal branching).
+
+Nodes and edges in the graph can have associated [`BcbCounter`]s, which are
+stored in [`CoverageCounters`].
 
 The `Instrumentor`'s `inject_counters()` uses the `CoverageGraph` to
 compute the best places to inject coverage counters, as MIR `Statement`s,
 with the following steps:
 
-1. Depending on the debugging configurations in `rustc`'s, `config.toml`,
-   and `rustc` command line flags, various debugging features may be enabled
-   to enhance `debug!()` messages in logs, and to generate various "dump" files,
-   to help developers understand the MIR transformation process for coverage.
-   Most of the debugging features are implemented in the [`debug`][debug]
-   sub-module.
-2. [`generate_coverage_spans()`][generate-coverage-spans] computes the minimum set of distinct,
+1. [`generate_coverage_spans()`][generate-coverage-spans] computes the minimum set of distinct,
    non-branching code regions, from the MIR. These `CoverageSpan`s
    represent a span of code that must be counted.
-3. [`make_bcb_counters()`][make-bcb-counters] generates `CoverageKind::Counter`s and
-   `CoverageKind::Expression`s for each `CoverageSpan`, plus additional
-   `intermediate_expressions`[^intermediate-expressions], not associated with any `CodeRegion`, but
+2. [`make_bcb_counters()`][make-bcb-counters] generates `BcbCounter::Counter`s and
+   `BcbCounter::Expression`s for each `CoverageSpan`, plus additional
+   _intermediate expressions_[^intermediate-expressions] that are not associated
+   with any `CodeRegion`, but
    are required to compute a final `Expression` value for a `CodeRegion`.
-4. Inject the new counters into the MIR, as new `StatementKind::Coverage`
-   statements. This is done by three distinct functions:
-   - `inject_coverage_span_counters()`
-   - `inject_indirect_counters()`
-   - `inject_intermediate_expression()`, called for each intermediate expression
-     returned from `make_bcb_counters()`
+3. Inject the new counters into the MIR, as new `StatementKind::Coverage`
+   statements.
+4. Attach all other necessary coverage information to the function's body as
+  [`FunctionCoverageInfo`].
 
 [^intermediate-expressions]: Intermediate expressions are sometimes required
 because `Expression`s are limited to binary additions or subtractions. For
@@ -358,13 +385,14 @@ example, `A + (B - C)` might represent an `Expression` count computed from three
 other counters, `A`, `B`, and `C`, but computing that value requires an
 intermediate expression for `B - C`.
 
-[instrumentor]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/transform/coverage/struct.Instrumentor.html
-[coverage-graph]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/transform/coverage/graph/struct.CoverageGraph.html
-[inject-counters]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/transform/coverage/struct.Instrumentor.html#method.inject_counters
-[bcb]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/transform/coverage/graph/struct.BasicCoverageBlock.html
-[debug]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/transform/coverage/debug
-[generate-coverage-spans]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/transform/coverage/spans/struct.CoverageSpans.html#method.generate_coverage_spans
-[make-bcb-counters]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/transform/coverage/counters/struct.BcbCounters.html#method.make_bcb_counters
+[instrumentor]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_transform/coverage/struct.Instrumentor.html
+[coverage-graph]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_transform/coverage/graph/struct.CoverageGraph.html
+[inject-counters]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_transform/coverage/struct.Instrumentor.html#method.inject_counters
+[bcb]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_transform/coverage/graph/struct.BasicCoverageBlock.html
+[`BcbCounter`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_transform/coverage/counters/enum.BcbCounter.html
+[`CoverageCounters`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_transform/coverage/counters/struct.CoverageCounters.html
+[generate-coverage-spans]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_transform/coverage/spans/struct.CoverageSpans.html#method.generate_coverage_spans
+[make-bcb-counters]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_transform/coverage/counters/struct.BcbCounters.html#method.make_bcb_counters
 
 ### The `CoverageGraph`
 
@@ -396,16 +424,18 @@ contrast with the [`SimplifyCfg`][simplify-cfg] MIR pass, this step does
 not alter the MIR itself, because the `CoverageGraph` aggressively simplifies
 the CFG, and ignores nodes that are not relevant to coverage. For example:
 
-  * The BCB CFG ignores (excludes) branches considered not relevant
+  - The BCB CFG ignores (excludes) branches considered not relevant
     to the current coverage solution. It excludes unwind-related code[^78544]
     that is injected by the Rust compiler but has no physical source
     code to count, which allows a `Call`-terminated BasicBlock
     to be merged with its successor, within a single BCB.
-  * A `Goto`-terminated `BasicBlock` can be merged with its successor
-    ***as long as*** it has the only incoming edge to the successor `BasicBlock`.
-  * Some BasicBlock terminators support Rust-specific concerns--like borrow-checking--that are
-    not relevant to coverage analysis. `FalseUnwind`, for example, can be treated the same as
-    a `Goto` (potentially merged with its successor into the same BCB).
+  - A `Goto`-terminated `BasicBlock` can be merged with its successor
+    **_as long as_** it has the only incoming edge to the successor
+    `BasicBlock`.
+  - Some BasicBlock terminators support Rust-specific concerns--like
+    borrow-checking--that are not relevant to coverage analysis. `FalseUnwind`,
+    for example, can be treated the same as a `Goto` (potentially merged with
+    its successor into the same BCB).
 
 [^78544]: (Note, however, that Issue [#78544][rust-lang/rust#78544] considers
 providing future support for coverage of programs that intentionally
@@ -415,66 +445,12 @@ The BCB CFG is critical to simplifying the coverage analysis by ensuring graph p
 queries (`is_dominated_by()`, `predecessors`, `successors`, etc.) have branch (control flow)
 significance.
 
-To visualize the `CoverageGraph`, you can generate a _graphviz_ `*.dot`
-file with the following `rustc` flags:[^graphviz-dark-mode]
-
-[^graphviz-dark-mode]: This image also applies `-Z graphviz-dark-mode`, to
-produce a Graphviz document with "dark mode" styling. If you use a dark mode or
-theme in your development environment, you will probably want to use this
-option so you can review the graphviz output without straining your vision.
-
-```shell
-$ rustc -Z instrument-coverage -Z dump-mir=InstrumentCoverage \
-    -Z dump-mir-graphviz some_rust_source.rs
-```
-
-The `-Z dump-mir` flag requests [MIR debugging
-output][mir-debugging] (generating `*.mir` files, by default).
-`-Z dump-mir-graphviz` additionally generates `*.dot` files.
-`-Z dump-mir=InstrumentCoverage` restricts these files to the
-`InstrumentCoverage` pass. All files are written to the `./mir_dump/`
-directory, by default.
-
-Files with names ending in `.-------.InstrumentCoverage.0.dot` contain the
-_graphviz_ representations of a `CoverageGraph` (one for each MIR, that is,
-for each function and closure):
-
-<img alt="cropped image of a sample CoverageGraph in graphviz format"
- src="img/coverage-graphviz-01.png" style="border: 1px solid gray" class="center"/>
-<br/>
-
-This image shows each `BasicCoverageBlock` as a rectangular _node_, with
-directional edges (the arrows) leading from each node to its `successors()`.
-The nodes contain information in sections:
-
-1. The gray header has a label showing the BCB ID (or _index_ for looking up
-its `BasicCoverageBlockData`).
-2. The first content section shows the assigned `Counter` or `Expression` for
-each contiguous section of code. (There may be more than one `Expression`
-incremented by the same `Counter` for discontiguous sections of code representing
-the same sequential actions.) Note the code is represented by the line and
-column ranges (for example: `52:28-52:33`, representing the original source
-line 52, for columns 28-33). These are followed by the MIR `Statement` or
-`Terminator` represented by that source range. (How these coverage regions
-are determined is discussed in the following section.)
-3. The final section(s) show the MIR `BasicBlock`s (by ID/index and its
-`TerminatorKind`) contained in this BCB. The last BCB is separated out because
-its `successors()` determine the edges leading out of the BCB, and into
-the `leading_bb()` (first `BasicBlock`) of each successor BCB.
-
-Note, to find the `BasicCoverageBlock` from a final BCB `Terminator`'s
-successor `BasicBlock`, there is an index and helper
-function--[`bcb_from_bb()`][bcb-from-bb]--to look up a `BasicCoverageBlock` from _any_
-contained `BasicBlock`.
-
 [directed-graph]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_data_structures/graph/trait.DirectedGraph.html
 [graph-traits]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_data_structures/graph/index.html#traits
 [mir-dev-guide]: mir/index.md
-[compute-basic-coverage-blocks]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/transform/coverage/graph/struct.CoverageGraph.html#method.compute_basic_coverage_blocks
-[simplify-cfg]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/transform/simplify/struct.SimplifyCfg.html
+[compute-basic-coverage-blocks]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_transform/coverage/graph/struct.CoverageGraph.html#method.compute_basic_coverage_blocks
+[simplify-cfg]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_transform/simplify/enum.SimplifyCfg.html
 [rust-lang/rust#78544]: https://github.com/rust-lang/rust/issues/78544
-[mir-debugging]: mir/debugging.md
-[bcb-from-bb]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/transform/coverage/graph/struct.CoverageGraph.html#method.bcb_from_bb
 
 ### `CoverageSpans`
 
@@ -493,35 +469,9 @@ The final stage of `generate_coverage_spans()` is handled by
 merges and de-duplicates them, and returns an optimal, minimal set of `CoverageSpan`s
 that can be used to assign coverage `Counter`s or `Expression`s, one-for-one.
 
-An visual, interactive representation of the final `CoverageSpan`s can be
-generated with the following `rustc` flags:
-
-```shell
-$ rustc -Z instrument-coverage -Z dump-mir=InstrumentCoverage \
-    -Z dump-mir-spanview some_rust_source.rs
-```
-
-These flags request Spanview output for the `InstrumentCoverage` pass, and the
-resulting files (one for each MIR, that is, for each function or closure) can be
-found in the `mir_dump` directory (by default), with the extension:
-`.-------.InstrumentCoverage.0.html`.
-
-<img alt="cropped image of a sample Spanview in a browser"
- src="img/coverage-spanview-01.png" style="border: 1px solid gray" class="center"/>
-<br/>
-
-The image above shows one such example. The orange and blue backgrounds
-highlight alternating `CoverageSpan`s from the refined set. Hovering over a
-line expands the output on that line to show the MIR `BasicBlock` IDs covered
-by each `CoverageSpan`. While hovering, the `CoverageSpan` under the pointer
-also has a _tooltip_ block of text, showing even more detail, including the
-MIR `Statement`s and `Terminator`s contributing to the `CoverageSpan`, and
-their individual `Span`s (which should be encapsulated within the code region
-of the refined `CoverageSpan`)
-
-[coverage-spans]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/transform/coverage/spans/struct.CoverageSpans.html
-[coverage-span]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/transform/coverage/spans/struct.CoverageSpan.html
-[to-refined-spans]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/transform/coverage/spans/struct.CoverageSpans.html#method.to_refined_spans
+[coverage-spans]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_transform/coverage/spans/struct.CoverageSpans.html
+[coverage-span]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_transform/coverage/spans/struct.CoverageSpan.html
+[to-refined-spans]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_transform/coverage/spans/struct.CoverageSpans.html#method.to_refined_spans
 
 ### `make_bcb_counters()`
 
@@ -572,7 +522,7 @@ incoming edges. Given the following graph, for example, the count for
 
 In this situation, BCB node `B` may require an edge counter for its
 "edge from A", and that edge might be computed from an `Expression`,
-`Counter(A) - Counter(C)`. But an expression for the BCB _node_  `B`
+`Counter(A) - Counter(C)`. But an expression for the BCB _node_ `B`
 would be the sum of all incoming edges:
 
 ```text
@@ -584,45 +534,5 @@ of `Counter` vs. `Expression` also depends on the order of counter
 assignments, and whether a BCB or incoming edge counter already has
 its `Counter` or `Expression`.
 
-[bcb-counters]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/transform/coverage/counters/struct.BcbCounters.html
-[traverse-coverage-graph-with-loops]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/transform/coverage/graph/struct.TraverseCoverageGraphWithLoops.html
-
-### Injecting counters into a MIR `BasicBlock`
-
-With the refined `CoverageSpan`s, and after all `Counter`s and `Expression`s are
-created, the final step is to inject the `StatementKind::Coverage` statements
-into the MIR. There are three distinct sources, handled by the following
-functions:
-
-- [`inject_coverage_span_counters()`][inject-coverage-span-counters] injects the
-  counter from each `CoverageSpan`'s BCB.
-- [`inject_indirect_counters()`][inject-indirect-counters] injects counters
-  for any BCB not assigned to a `CoverageSpan`, and for all edge counters.
-  These counters don't have `CoverageSpan`s.
-- [`inject_intermediate_expression()`][inject-intermediate-expression] injects
-  the intermediate expressions returned from `make_bcb_counters()`. These
-  counters aren't associated with any BCB, edge, or `CoverageSpan`.
-
-These three functions inject the `Coverage` statements into the MIR.
-`Counter`s and `Expression`s with `CoverageSpan`s add `Coverage` statements
-to a corresponding `BasicBlock`, with a `CodeRegion` computed from the
-refined `Span` and current `SourceMap`.
-
-All other `Coverage` statements have a `CodeRegion` of `None`, but they
-still must be injected because they contribute to other `Expression`s.
-
-Finally, edge's with a `CoverageKind::Counter` require a new `BasicBlock`,
-so the counter is only incremented when traversing the branch edge.
-
-[inject-coverage-span-counters]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/transform/coverage/struct.Instrumentor.html#method.inject_coverage_span_counters
-[inject-indirect-counters]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/transform/coverage/struct.Instrumentor.html#method.inject_indirect_counters
-[inject-intermediate-expression]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/transform/coverage/fn.inject_intermediate_expression.html
-
-### Additional Debugging Support
-
-See the
-[crate documentation for `rustc_mir::transform::coverage::debug`][coverage-debugging]
-for a detailed description of the debug output, logging, and configuration options
-available to developers working on the `InstrumentCoverage` pass.
-
-[coverage-debugging]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/transform/coverage/debug/index.html
+[bcb-counters]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_transform/coverage/counters/struct.BcbCounters.html
+[traverse-coverage-graph-with-loops]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_transform/coverage/graph/struct.TraverseCoverageGraphWithLoops.html

@@ -17,8 +17,10 @@ some basic terminology, such as "transfer function", "fixpoint" and "lattice".
 If you're unfamiliar with these terms, or if you want a quick refresher,
 [*Static Program Analysis*] by Anders Møller and Michael I. Schwartzbach is an
 excellent, freely available textbook. For those who prefer audiovisual
-learning, the Goethe University Frankfurt has published a series of short
-[lectures on YouTube][goethe] in English that are very approachable.
+learning, we previously recommended a series of short lectures
+by the Goethe University Frankfurt on YouTube, but it has since been deleted.
+See [this PR][pr-1295] for the context and [this comment][pr-1295-comment]
+for the alternative lectures.
 
 ## Defining a Dataflow Analysis
 
@@ -59,7 +61,7 @@ slower as a result. All implementers of `GenKillAnalysis` also implement
 ### Transfer Functions and Effects
 
 The dataflow framework in `rustc` allows each statement (and terminator) inside
-a basic block define its own transfer function. For brevity, these
+a basic block to define its own transfer function. For brevity, these
 individual transfer functions are known as "effects". Each effect is applied
 successively in dataflow order, and together they define the transfer function
 for the entire basic block. It's also possible to define an effect for
@@ -80,8 +82,8 @@ possible effects for each statement and terminator, the "before" effect and the
 unprefixed (or "primary") effect. The "before" effects are applied immediately
 before the unprefixed effect **regardless of the direction of the analysis**.
 In other words, a backward analysis will apply the "before" effect and then the
-the "primary" effect when computing the transfer function for a basic block,
-just like a forward analysis.
+"primary" effect when computing the transfer function for a basic block, just
+like a forward analysis.
 
 The vast majority of analyses should use only the unprefixed effects: Having
 multiple effects for each statement makes it difficult for consumers to know
@@ -218,17 +220,18 @@ the example below:
 ["gen-kill" problems]: https://en.wikipedia.org/wiki/Data-flow_analysis#Bit_vector_problems
 [*Static Program Analysis*]: https://cs.au.dk/~amoeller/spa/
 [Debugging MIR]: ./debugging.html
-[`AnalysisDomain`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/dataflow/trait.AnalysisDomain.html
-[`Analysis`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/dataflow/trait.Analysis.html
-[`Engine`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/dataflow/struct.Engine.html
-[`GenKillAnalysis`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/dataflow/trait.GenKillAnalysis.html
-[`JoinSemiLattice`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/dataflow/lattice/trait.JoinSemiLattice.html
-[`NAME`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/dataflow/trait.AnalysisDomain.html#associatedconstant.NAME
-[`ResultsCursor`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/dataflow/struct.ResultsCursor.html
-[`ResultsVisitor`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/dataflow/trait.ResultsVisitor.html
-[`apply_call_return_effect`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/dataflow/trait.Analysis.html#tymethod.apply_call_return_effect
-[`into_engine`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/dataflow/trait.Analysis.html#method.into_engine
-[`lattice`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/dataflow/lattice/index.html
-[goethe]: https://www.youtube.com/watch?v=NVBQSR_HdL0&list=PL_sGR8T76Y58l3Gck3ZwIIHLWEmXrOLV_&index=2
+[`AnalysisDomain`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_dataflow/trait.AnalysisDomain.html
+[`Analysis`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_dataflow/trait.Analysis.html
+[`Engine`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_dataflow/struct.Engine.html
+[`GenKillAnalysis`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_dataflow/trait.GenKillAnalysis.html
+[`JoinSemiLattice`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_dataflow/lattice/trait.JoinSemiLattice.html
+[`NAME`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_dataflow/trait.AnalysisDomain.html#associatedconstant.NAME
+[`ResultsCursor`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_dataflow/struct.ResultsCursor.html
+[`ResultsVisitor`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_dataflow/trait.ResultsVisitor.html
+[`apply_call_return_effect`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_dataflow/trait.Analysis.html#tymethod.apply_call_return_effect
+[`into_engine`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_dataflow/trait.Analysis.html#method.into_engine
+[`lattice`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_dataflow/lattice/index.html
+[pr-1295]: https://github.com/rust-lang/rustc-dev-guide/pull/1295
+[pr-1295-comment]: https://github.com/rust-lang/rustc-dev-guide/pull/1295#issuecomment-1118131294
 [lattice]: https://en.wikipedia.org/wiki/Lattice_(order)
 [wiki]: https://en.wikipedia.org/wiki/Data-flow_analysis#Basic_principles

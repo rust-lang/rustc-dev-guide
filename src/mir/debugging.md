@@ -8,16 +8,11 @@ additional output formats, including:
 control-flow graph
 * `-Z dump-mir-dataflow` - dumps a `.dot` file showing the [dataflow state] at
   each point in the control-flow graph
-* `-Z dump-mir-spanview` - dumps an `.html` file that highlights the source
-spans associated with MIR elements (including mouse-over actions to reveal
-elements obscured by overlaps, and tooltips to view the MIR statements).
-This flag takes an optional value: `statement` (the default), `terminator`, or
-`block`, to generate span highlights with different levels of granulatity.
 
-`-Z dump-mir=F` is a handy compiler options that will let you view the MIR for
+`-Z dump-mir=F` is a handy compiler option that will let you view the MIR for
 each function at each stage of compilation. `-Z dump-mir` takes a **filter** `F`
 which allows you to control which functions and which passes you are
-interesting in. For example:
+interested in. For example:
 
 ```bash
 > rustc -Z dump-mir=foo ...
@@ -60,7 +55,7 @@ will select for things that reference *both* `main` and the pass
 > ls mir_dump
 rustc.main.000-000.CleanEndRegions.after.mir	rustc.main.000-000.CleanEndRegions.before.mir
 ```
-
+<!--- TODO: Change NoLandingPads. [#1232](https://github.com/rust-lang/rustc-dev-guide/issues/1232) -->
 Filters can also have `|` parts to combine multiple sets of
 `&`-filters. For example `main & CleanEndRegions | main &
 NoLandingPads` will select *either* `main` and `CleanEndRegions` *or*
@@ -87,6 +82,11 @@ rustc.main.002-006.NoLandingPads.before.mir
 
 (Here, the `main-promoted[0]` files refer to the MIR for "promoted constants"
 that appeared within the `main` function.)
+
+The `-Z unpretty=mir-cfg` flag can be used to create a graphviz MIR
+control-flow diagram for the whole crate:
+
+![A control-flow diagram](mir_cfg.svg)
 
 TODO: anything else?
 

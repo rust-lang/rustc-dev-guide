@@ -11,21 +11,21 @@ contributions to rustc and its design.
 
 Currently the compiler team chats in Zulip:
 
-- Team chat occurs in the `t-compiler` stream on [the Zulip instance][zulip]
+- Team chat occurs in the [`t-compiler`][zulip-t-compiler] stream on the Zulip instance
 - There are also a number of other associated Zulip streams,
   such as [`t-compiler/help`][zulip-help], where people can ask for help
   with rustc development, or [`t-compiler/meetings`][zulip-meetings],
   where the team holds their weekly triage and steering meetings.
 
-## Expert map
+## Reviewers
 
 If you're interested in figuring out who can answer questions about a
 particular part of the compiler, or you'd just like to know who works on what,
-check out our [experts directory][experts].
+check out [triagebot.toml's assign section][map].
 It contains a listing of the various parts of the compiler and a list of people
-who are experts on each one.
+who are reviewers of each part.
 
-[experts]: https://github.com/rust-lang/compiler-team/blob/master/content/experts/map.toml
+[map]: https://github.com/rust-lang/rust/blob/master/triagebot.toml
 
 ## Rust compiler meeting
 
@@ -60,8 +60,8 @@ The meeting currently takes place on Thursdays at 10am Boston time
 (UTC-4 typically, but daylight savings time sometimes makes things
 complicated).
 
-
 [procedure]: ./bug-fix-procedure.md
+[zulip-t-compiler]: https://rust-lang.zulipchat.com/#narrow/stream/131828-t-compiler
 [zulip-help]: https://rust-lang.zulipchat.com/#narrow/stream/182449-t-compiler.2Fhelp
 [zulip-meetings]: https://rust-lang.zulipchat.com/#narrow/stream/238009-t-compiler.2Fmeetings
 
@@ -79,6 +79,12 @@ group. One good way to find bugs is to look for
 [open issues tagged with E-easy](https://github.com/rust-lang/rust/issues?q=is%3Aopen+is%3Aissue+label%3AE-easy)
 or
 [E-mentor](https://github.com/rust-lang/rust/issues?q=is%3Aopen+is%3Aissue+label%3AE-mentor).
+
+You can also dig through the graveyard of PRs that were
+[closed due to inactivity](https://github.com/rust-lang/rust/pulls?q=is%3Apr+label%3AS-inactive),
+some of them may contain work that is still useful - refer to the
+associated issues, if any - and only needs some finishing touches
+for which the original author didn't have time.
 
 ### r+ rights
 
@@ -105,20 +111,22 @@ The guidelines for reviewers are as follows:
 
 [Code of Conduct]: https://www.rust-lang.org/policies/code-of-conduct
 
-### high-five
+### Reviewer rotation
 
-Once you have r+ rights, you can also be added to the [high-five][hi5]
-rotation. high-five is the bot that assigns incoming PRs to
-reviewers. If you are added, you will be randomly selected to review
+Once you have r+ rights, you can also be added to the [reviewer rotation].
+[triagebot] is the bot that [automatically assigns] incoming PRs to reviewers.
+If you are added, you will be randomly selected to review
 PRs. If you find you are assigned a PR that you don't feel comfortable
 reviewing, you can also leave a comment like `r? @so-and-so` to assign
 to someone else — if you don't know who to request, just write `r?
 @nikomatsakis for reassignment` and @nikomatsakis will pick someone
 for you.
 
-[hi5]: https://github.com/rust-highfive
+[reviewer rotation]: https://github.com/rust-lang/rust/blob/36285c5de8915ecc00d91ae0baa79a87ed5858d5/triagebot.toml#L528-L577
+[triagebot]: https://github.com/rust-lang/triagebot/
+[automatically assigns]: https://forge.rust-lang.org/triagebot/pr-assignment.html
 
-Getting on the high-five list is much appreciated as it lowers the
+Getting on the reviewer rotation is much appreciated as it lowers the
 review burden for all of us! However, if you don't have time to give
 people timely feedback on their PRs, it may be better that you don't
 get on the list.

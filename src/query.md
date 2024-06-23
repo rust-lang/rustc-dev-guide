@@ -1,30 +1,34 @@
 # Queries: demand-driven compilation
 
+<!-- toc -->
+
 As described in [the high-level overview of the compiler][hl], the Rust compiler
-is still (as of <!-- date: 2021-01 --> January 2021) transitioning from a
-traditional "pass-based" setup to a "demand-driven" system. **The Compiler Query
-System is the key to our new demand-driven organization.** The idea is pretty
-simple. You have various queries that compute things about the input – for
-example, there is a query called `type_of(def_id)` that, given the [def-id] of
+is still (as of <!-- date-check --> July 2021) transitioning from a
+traditional "pass-based" setup to a "demand-driven" system. The compiler query
+system is the key to rustc's demand-driven organization.
+The idea is pretty simple. Instead of entirely independent passes
+(parsing, type-checking, etc.), a set of function-like *queries*
+compute information about the input source. For example,
+there is a query called `type_of` that, given the [`DefId`] of
 some item, will compute the type of that item and return it to you.
 
-[def-id]: appendix/glossary.md#def-id
+[`DefId`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_span/def_id/struct.DefId.html
 [hl]: ./compiler-src.md
 
-Query execution is **memoized** – so the first time you invoke a
+Query execution is *memoized*. The first time you invoke a
 query, it will go do the computation, but the next time, the result is
 returned from a hashtable. Moreover, query execution fits nicely into
-**incremental computation**; the idea is roughly that, when you do a
-query, the result **may** be returned to you by loading stored data
-from disk (but that's a separate topic we won't discuss further here).
+*incremental computation*; the idea is roughly that, when you invoke a
+query, the result *may* be returned to you by loading stored data
+from disk.[^incr-comp-detail]
 
-The overall vision is that, eventually, the entire compiler
-control-flow will be query driven. There will effectively be one
-top-level query ("compile") that will run compilation on a crate; this
+Eventually, we want the entire compiler
+control-flow to be query driven. There will effectively be one
+top-level query (`compile`) that will run compilation on a crate; this
 will in turn demand information about that crate, starting from the
 *end*.  For example:
 
-- This "compile" query might demand to get a list of codegen-units
+- The `compile` query might demand to get a list of codegen-units
   (i.e. modules that need to be compiled by LLVM).
 - But computing the list of codegen-units would invoke some subquery
   that returns the list of all modules defined in the Rust source.
@@ -32,35 +36,35 @@ will in turn demand information about that crate, starting from the
 - This keeps going further and further back until we wind up doing the
   actual parsing.
 
-However, that vision is not fully realized. Still, big chunks of the
-compiler (for example, generating MIR) work exactly like this.
+Although this vision is not fully realized, large sections of the
+compiler (for example, generating [MIR](./mir/index.md)) currently work exactly like this.
 
-### Incremental Compilation in Detail
-
-The [Incremental Compilation in Detail][query-model] chapter gives a more
+[^incr-comp-detail]: The ["Incremental Compilation in Detail](queries/incremental-compilation-in-detail.md) chapter gives a more
 in-depth description of what queries are and how they work.
 If you intend to write a query of your own, this is a good read.
 
-### Invoking queries
+## Invoking queries
 
-To invoke a query is simple. The tcx ("type context") offers a method
-for each defined query. So, for example, to invoke the `type_of`
+Invoking a query is simple. The [`TyCtxt`] ("type context") struct offers a method
+for each defined query. For example, to invoke the `type_of`
 query, you would just do this:
 
 ```rust,ignore
 let ty = tcx.type_of(some_def_id);
 ```
 
-### How the compiler executes a query
+[`TyCtxt`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.TyCtxt.html
+
+## How the compiler executes a query
 
 So you may be wondering what happens when you invoke a query
 method. The answer is that, for each query, the compiler maintains a
 cache – if your query has already been executed, then, the answer is
 simple: we clone the return value out of the cache and return it
 (therefore, you should try to ensure that the return types of queries
-are cheaply cloneable; insert a `Rc` if necessary).
+are cheaply cloneable; insert an `Rc` if necessary).
 
-#### Providers
+### Providers
 
 If, however, the query is *not* in the cache, then the compiler will
 try to find a suitable **provider**. A provider is a function that has
@@ -93,13 +97,13 @@ fn provider<'tcx>(
 Providers take two arguments: the `tcx` and the query key.
 They return the result of the query.
 
-####  How providers are setup
+###  How providers are setup
 
 When the tcx is created, it is given the providers by its creator using
 the [`Providers`][providers_struct] struct. This struct is generated by
 the macros here, but it is basically a big list of function pointers:
 
-[providers_struct]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/query/struct.Providers.html
+[providers_struct]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/query/struct.Providers.html
 
 ```rust,ignore
 struct Providers {
@@ -155,54 +159,54 @@ providers**. Almost all **extern providers** wind up going through the
 from the crate metadata. But in some cases there are crates that
 provide queries for *both* local and external crates, in which case
 they define both a `provide` and a `provide_extern` function, through
-[`provide_both`][ext_provide_both], that `rustc_driver` can invoke.
+[`wasm_import_module_map`][wasm_import_module_map], that `rustc_driver` can invoke.
 
 [rustc_metadata]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_metadata/index.html
-[ext_provide_both]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_codegen_llvm/attributes/fn.provide_both.html
+[wasm_import_module_map]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_codegen_ssa/back/symbol_export/fn.wasm_import_module_map.html
 
-### Adding a new kind of query
+## Adding a new query
 
-So suppose you want to add a new kind of query, how do you do so?
-Well, defining a query takes place in two steps:
+How do you add a new query?
+Defining a query takes place in two steps:
 
-1. first, you have to specify the query name and arguments; and then,
-2. you have to supply query providers where needed.
+1. Declare the query name, its arguments and description.
+2. Supply query providers where needed.
 
-To specify the query name and arguments, you simply add an entry to
-the big macro invocation in
-[`compiler/rustc_middle/src/query/mod.rs`][query-mod], which looks something like:
+To declare the query name and arguments, you simply add an entry to
+the big macro invocation in [`compiler/rustc_middle/src/query/mod.rs`][query-mod].
+Then you need to add a documentation comment to it with some _internal_ description.
+Then, provide the `desc` attribute which contains a _user-facing_ description of the query.
+The `desc` attribute is shown to the user in query cycles.
+
+This looks something like:
 
 [query-mod]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/query/index.html
 
 ```rust,ignore
 rustc_queries! {
-    Other {
-        /// Records the type of every item.
-        query type_of(key: DefId) -> Ty<'tcx> {
-            cache { key.is_local() }
-        }
+    /// Records the type of every item.
+    query type_of(key: DefId) -> Ty<'tcx> {
+        cache_on_disk_if { key.is_local() }
+        desc { |tcx| "computing the type of `{}`", tcx.def_path_str(key) }
     }
-
     ...
 }
 ```
 
-Queries are grouped into categories (`Other`, `Codegen`, `TypeChecking`, etc.).
-Each group contains one or more queries. Each query definition is broken up like
-this:
+A query definition has the following form:
 
 ```rust,ignore
 query type_of(key: DefId) -> Ty<'tcx> { ... }
-^^    ^^^^^^^      ^^^^^     ^^^^^^^^   ^^^
+^^^^^ ^^^^^^^      ^^^^^     ^^^^^^^^   ^^^
 |     |            |         |          |
 |     |            |         |          query modifiers
-|     |            |         result type of query
+|     |            |         result type
 |     |            query key type
 |     name of query
 query keyword
 ```
 
-Let's go over them one by one:
+Let's go over these elements one by one:
 
 - **Query keyword:** indicates a start of a query definition.
 - **Name of query:** the name of the query method
@@ -215,15 +219,11 @@ Let's go over them one by one:
 - **Result type of query:** the type produced by this query. This type
   should (a) not use `RefCell` or other interior mutability and (b) be
   cheaply cloneable. Interning or using `Rc` or `Arc` is recommended for
-  non-trivial data types.
-  - The one exception to those rules is the `ty::steal::Steal` type,
-    which is used to cheaply modify MIR in place. See the definition
-    of `Steal` for more details. New uses of `Steal` should **not** be
-    added without alerting `@rust-lang/compiler`.
+  non-trivial data types.[^steal]
 - **Query modifiers:** various flags and options that customize how the
   query is processed (mostly with respect to [incremental compilation][incrcomp]).
 
-[Key]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_query_impl/keys/trait.Key.html
+[Key]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/query/keys/trait.Key.html
 [incrcomp]: queries/incremental-compilation-in-detail.html#query-modifiers
 
 So, to add a query:
@@ -232,60 +232,27 @@ So, to add a query:
 - Link the provider by modifying the appropriate `provide` method;
   or add a new one if needed and ensure that `rustc_driver` is invoking it.
 
-#### Query structs and descriptions
+[^steal]: The one exception to those rules is the `ty::steal::Steal` type,
+which is used to cheaply modify MIR in place. See the definition
+of `Steal` for more details. New uses of `Steal` should **not** be
+added without alerting `@rust-lang/compiler`.
 
-For each kind, the `rustc_queries` macro will generate a "query struct"
-named after the query. This struct is a kind of a place-holder
-describing the query. Each such struct implements the
-[`self::config::QueryConfig`][QueryConfig] trait, which has associated types for the
-key/value of that particular query. Basically the code generated looks something
-like this:
+## External links
 
-```rust,ignore
-// Dummy struct representing a particular kind of query:
-pub struct type_of<'tcx> { data: PhantomData<&'tcx ()> }
+Related design ideas, and tracking issues:
 
-impl<'tcx> QueryConfig for type_of<'tcx> {
-  type Key = DefId;
-  type Value = Ty<'tcx>;
+- Design document: [On-demand Rustc incremental design doc]
+- Tracking Issue: ["Red/Green" dependency tracking in compiler]
 
-  const NAME: QueryName = QueryName::type_of;
-  const CATEGORY: ProfileCategory = ProfileCategory::Other;
-}
-```
+More discussion and issues:
 
-There is an additional trait that you may wish to implement called
-[`self::config::QueryDescription`][QueryDescription]. This trait is
-used during cycle errors to give a "human readable" name for the query,
-so that we can summarize what was happening when the cycle occurred.
-Implementing this trait is optional if the query key is `DefId`, but
-if you *don't* implement it, you get a pretty generic error ("processing `foo`...").
-You can put new impls into the `config` module. They look something like this:
+- [GitHub issue #42633]
+- [Incremental Compilation Beta]
+- [Incremental Compilation Announcement]
 
-[QueryConfig]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_query_system/query/config/trait.QueryConfig.html
-[QueryDescription]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_query_system/query/config/trait.QueryDescription.html
+[On-demand Rustc incremental design doc]: https://github.com/nikomatsakis/rustc-on-demand-incremental-design-doc/blob/master/0000-rustc-on-demand-and-incremental.md
+["Red/Green" dependency tracking in compiler]: https://github.com/rust-lang/rust/issues/42293
+[GitHub issue #42633]: https://github.com/rust-lang/rust/issues/42633
+[Incremental Compilation Beta]: https://internals.rust-lang.org/t/incremental-compilation-beta/4721
+[Incremental Compilation Announcement]: https://blog.rust-lang.org/2016/09/08/incremental.html
 
-```rust,ignore
-impl<'tcx> QueryDescription for queries::type_of<'tcx> {
-    fn describe(tcx: TyCtxt, key: DefId) -> String {
-        format!("computing the type of `{}`", tcx.def_path_str(key))
-    }
-}
-```
-
-Another option is to add `desc` modifier:
-
-```rust,ignore
-rustc_queries! {
-    Other {
-        /// Records the type of every item.
-        query type_of(key: DefId) -> Ty<'tcx> {
-            desc { |tcx| "computing the type of `{}`", tcx.def_path_str(key) }
-        }
-    }
-}
-```
-
-`rustc_queries` macro will generate an appropriate `impl` automatically.
-
-[query-model]: queries/incremental-compilation-in-detail.md

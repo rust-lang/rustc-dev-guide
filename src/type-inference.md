@@ -36,20 +36,16 @@ signature, such as the `'a` in `for<'a> fn(&'a u32)`. A region is
 
 ## Creating an inference context
 
-You create and "enter" an inference context by doing something like
+You create an inference context by doing something like
 the following:
 
 ```rust,ignore
-tcx.infer_ctxt().enter(|infcx| {
-    // Use the inference context `infcx` here.
-})
+let infcx = tcx.infer_ctxt().build();
+// Use the inference context `infcx` here.
 ```
 
-Within the closure, `infcx` has the type `InferCtxt<'cx, 'tcx>` for some
-fresh `'cx`, while `'tcx` is the same as outside the inference context.
-(Again, see the [`ty` chapter][ty-ch] for more details on this setup.)
-
-[ty-ch]: ty.html
+`infcx` has the type `InferCtxt<'tcx>`, the same `'tcx` lifetime as on
+the `tcx` it was built from.
 
 The `tcx.infer_ctxt` method actually returns a builder, which means
 there are some kinds of configuration you can do before the `infcx` is
@@ -71,8 +67,8 @@ inference works, or perhaps this blog post on
 
 [Unification in the Chalk project]: http://smallcultfollowing.com/babysteps/blog/2017/03/25/unification-in-chalk-part-1/
 
-All told, the inference context stores four kinds of inference variables
-(as of <!-- date: 2018-01 --> January 2018):
+All told, the inference context stores five kinds of inference variables
+(as of <!-- date-check --> March 2023):
 
 - Type variables, which come in three varieties:
   - General type variables (the most common). These can be unified with any
@@ -82,6 +78,7 @@ All told, the inference context stores four kinds of inference variables
   - Float type variables, which can only be unified with a float type, and
     arise from a float literal expression like `22.0`.
 - Region variables, which represent lifetimes, and arise all over the place.
+- Const variables, which represent constants.
 
 All the type variables work in much the same way: you can create a new
 type variable, and what you get is `Ty<'tcx>` representing an
@@ -219,12 +216,19 @@ algorithms.
 [`region_constraints`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_infer/infer/region_constraints/index.html
 [`opportunistic_resolve_var`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_infer/infer/region_constraints/struct.RegionConstraintCollector.html#method.opportunistic_resolve_var
 
-## Extracting region constraints
+## Solving region constraints
 
-Ultimately, region constraints are only solved at the very end of
-type-checking, once all other constraints are known. There are two
+Region constraints are only solved at the very end of
+typechecking, once all other constraints are known and
+all other obligations have been proven. There are two
 ways to solve region constraints right now: lexical and
 non-lexical. Eventually there will only be one.
+
+An exception here is the leak-check which is used during trait solving
+and relies on region constraints containing higher-ranked regions. Region
+constraints in the root universe (i.e. not arising from a `for<'a>`) must
+not influence the trait system, as these regions are all erased during
+codegen.
 
 To solve **lexical** region constraints, you invoke
 [`resolve_regions_and_report_errors`].  This "closes" the region
@@ -232,16 +236,13 @@ constraint process and invokes the [`lexical_region_resolve`] code. Once
 this is done, any further attempt to equate or create a subtyping
 relationship will yield an ICE.
 
-Non-lexical region constraints are not handled within the inference
-context. Instead, the NLL solver (actually, the MIR type-checker)
-invokes [`take_and_reset_region_constraints`] periodically. This
-extracts all of the outlives constraints from the region solver, but
-leaves the set of variables intact. This is used to get *just* the
-region constraints that resulted from some particular point in the
-program, since the NLL solver needs to know not just *what* regions
-were subregions, but also *where*. Finally, the NLL solver invokes
-[`take_region_var_origins`], which "closes" the region constraint
-process in the same way as normal solving.
+The NLL solver (actually, the MIR type-checker) does things slightly
+differently. It uses canonical queries for trait solving which use
+[`take_and_reset_region_constraints`] at the end. This extracts all of the
+outlives constraints added during the canonical query. This is required
+as the NLL solver must not only know *what* regions outlive each other,
+but also *where*. Finally, the NLL solver invokes [`take_region_var_origins`],
+providing all region variables to the solver.
 
 [`resolve_regions_and_report_errors`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_infer/infer/struct.InferCtxt.html#method.resolve_regions_and_report_errors
 [`lexical_region_resolve`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_infer/infer/lexical_region_resolve/index.html

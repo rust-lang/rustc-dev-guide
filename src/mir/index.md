@@ -18,7 +18,9 @@ graphs and desugaring), you may enjoy the
 ## Introduction to MIR
 
 MIR is defined in the [`compiler/rustc_middle/src/mir/`][mir] module, but much of the code
-that manipulates it is found in [`compiler/rustc_mir`][mirmanip].
+that manipulates it is found in [`compiler/rustc_mir_build`][mirmanip_build],
+[`compiler/rustc_mir_transform`][mirmanip_transform], and
+[`compiler/rustc_mir_dataflow`][mirmanip_dataflow].
 
 [RFC 1211]: https://rust-lang.github.io/rfcs/1211-mir.html
 
@@ -52,7 +54,7 @@ This section introduces the key concepts of MIR, summarized here:
   - **Operands:** the arguments to an rvalue, which can either be a
     constant (like `22`) or a place (like `_1`).
 
-You can get a feeling for how MIR is structed by translating simple
+You can get a feeling for how MIR is constructed by translating simple
 programs into MIR and reading the pretty printed output. In fact, the
 playground makes this easy, since it supplies a MIR button that will
 show you the MIR for your program. Try putting this program into play
@@ -60,6 +62,12 @@ show you the MIR for your program. Try putting this program into play
 button on the top:
 
 [sample-play]: https://play.rust-lang.org/?gist=30074856e62e74e91f06abd19bd72ece&version=stable
+MIR shown by above link is optimized.
+Some statements like `StorageLive` are removed in optimization.
+This happens because the compiler notices the value is never accessed in the code.
+We can use `rustc [filename].rs -Z mir-opt-level=0 --emit mir` to view unoptimized MIR.
+This requires the nightly toolchain.
+
 
 ```rust
 fn main() {
@@ -215,7 +223,7 @@ over the overflow checks.)
 ## MIR data types
 
 The MIR data types are defined in the [`compiler/rustc_middle/src/mir/`][mir]
-module.  Each of the key concepts mentioned in the previous section
+module. Each of the key concepts mentioned in the previous section
 maps in a fairly straightforward way to a Rust type.
 
 The main MIR data type is [`Body`]. It contains the data for a single
@@ -231,15 +239,14 @@ but [you can read about those below](#promoted)).
 - **Terminators** are represented by the [`Terminator`].
 - **Locals** are represented by a [newtype'd] index type [`Local`].
   The data for a local variable is found in the
-  [`Body::local_decls`][localdecls] vector). There is also a special constant
+  [`Body::local_decls`][localdecls] vector. There is also a special constant
   [`RETURN_PLACE`] identifying the special "local" representing the return value.
-- **Places** are identified by the enum [`Place`]. There are a few
-  variants:
+- **Places** are identified by the struct [`Place`]. There are a few
+  fields:
   - Local variables like `_1`
-  - Static variables `FOO`
   - **Projections**, which are fields or other things that "project
-    out" from a base place. These are represented by the type
-    [`ProjectionElem`].  So e.g. the place `_1.f` is a projection,
+    out" from a base place. These are represented by the [newtype'd] type
+    [`ProjectionElem`]. So e.g. the place `_1.f` is a projection,
     with `f` being the "projection element" and `_1` being the base
     path. `*_1` is also a projection, with the `*` being represented
     by the [`ProjectionElem::Deref`] element.
@@ -248,7 +255,75 @@ but [you can read about those below](#promoted)).
 
 ## Representing constants
 
-*to be written*
+When code has reached the MIR stage, constants can generally come in two forms:
+*MIR constants* ([`mir::Constant`]) and *type system constants* ([`ty::Const`]).
+MIR constants are used as operands: in `x + CONST`, `CONST` is a MIR constant;
+similarly, in `x + 2`, `2` is a MIR constant. Type system constants are used in
+the type system, in particular for array lengths but also for const generics.
+
+Generally, both kinds of constants can be "unevaluated" or "already evaluated".
+And unevaluated constant simply stores the `DefId` of what needs to be evaluated
+to compute this result. An evaluated constant (a "value") has already been
+computed; their representation differs between type system constants and MIR
+constants: MIR constants evaluate to a `mir::ConstValue`; type system constants
+evaluate to a `ty::ValTree`.
+
+Type system constants have some more variants to support const generics: they
+can refer to local const generic parameters, and they are subject to inference.
+Furthermore, the `mir::Constant::Ty` variant lets us use an arbitrary type
+system constant as a MIR constant; this happens whenever a const generic
+parameter is used as an operand.
+
+### MIR constant values
+
+In general, a MIR constant value (`mir::ConstValue`) was computed by evaluating
+some constant the user wrote. This [const evaluation](../const-eval.md) produces
+a very low-level representation of the result in terms of individual bytes. We
+call this an "indirect" constant (`mir::ConstValue::Indirect`) since the value
+is stored in-memory.
+
+However, storing everything in-memory would be awfully inefficient. Hence there
+are some other variants in `mir::ConstValue` that can represent certain simple
+and common values more efficiently. In particular, everything that can be
+directly written as a literal in Rust (integers, floats, chars, bools, but also
+`"string literals"` and `b"byte string literals"`) has an optimized variant that
+avoids the full overhead of the in-memory representation.
+
+### ValTrees
+
+An evaluated type system constant is a "valtree". The `ty::ValTree` datastructure
+allows us to represent
+
+* arrays,
+* many structs,
+* tuples,
+* enums and,
+* most primitives.
+
+The most important rule for
+this representation is that every value must be uniquely represented. In other
+words: a specific value must only be representable in one specific way. For example: there is only
+one way to represent an array of two integers as a `ValTree`:
+`ValTree::Branch(&[ValTree::Leaf(first_int), ValTree::Leaf(second_int)])`.
+Even though theoretically a `[u32; 2]` could be encoded in a `u64` and thus just be a
+`ValTree::Leaf(bits_of_two_u32)`, that is not a legal construction of `ValTree`
+(and is very complex to do, so it is unlikely anyone is tempted to do so).
+
+These rules also mean that some values are not representable. There can be no `union`s in type
+level constants, as it is not clear how they should be represented, because their active variant
+is unknown. Similarly there is no way to represent raw pointers, as addresses are unknown at
+compile-time and thus we cannot make any assumptions about them. References on the other hand
+*can* be represented, as equality for references is defined as equality on their value, so we
+ignore their address and just look at the backing value. We must make sure that the pointer values
+of the references are not observable at compile time. We thus encode `&42` exactly like `42`.
+Any conversion from
+valtree back a to MIR constant value must reintroduce an actual indirection. At codegen time the
+addresses may be deduplicated between multiple uses or not, entirely depending on arbitrary
+optimization choices.
+
+As a consequence, all decoding of `ValTree` must happen by matching on the type first and making
+decisions depending on that. The value itself gives no useful information without the type that
+belongs to it.
 
 <a name="promoted"></a>
 
@@ -258,7 +333,9 @@ See the const-eval WG's [docs on promotion](https://github.com/rust-lang/const-e
 
 
 [mir]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/index.html
-[mirmanip]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/index.html
+[mirmanip_build]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_build/index.html
+[mirmanip_transform]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_transform/index.html
+[mirmanip_dataflow]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_dataflow/index.html
 [`Body`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Body.html
 [newtype'd]: ../appendix/glossary.html#newtype
 [basicblocks]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Body.html#structfield.basic_blocks
@@ -274,3 +351,5 @@ See the const-eval WG's [docs on promotion](https://github.com/rust-lang/const-e
 [`ProjectionElem::Deref`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/enum.ProjectionElem.html#variant.Deref
 [`Rvalue`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/enum.Rvalue.html
 [`Operand`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/enum.Operand.html
+[`mir::Constant`]: https://doc.rust-lang.org/nightly/nightly-rustc/stable_mir/mir/struct.Constant.html
+[`ty::Const`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.Const.html

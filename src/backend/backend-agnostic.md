@@ -2,19 +2,21 @@
 
 <!-- toc -->
 
-As of <!-- date: 2021-01 --> January 2021, `rustc_codegen_ssa` provides an
-abstract interface for all backends to implement, to allow other codegen
-backends (e.g. [Cranelift]).
+[`rustc_codegen_ssa`]
+provides an abstract interface for all backends to implement,
+namely LLVM, [Cranelift], and [GCC].
 
-[Cranelift]: https://github.com/bytecodealliance/wasmtime/tree/HEAD/cranelift
+[Cranelift]: https://github.com/rust-lang/rustc_codegen_cranelift
+[GCC]: https://github.com/rust-lang/rustc_codegen_gcc
+[`rustc_codegen_ssa`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_codegen_ssa/index.html
 
-> The following is a copy/paste of a README from the rust-lang/rust repo.
-> Please submit a PR if it needs updating.
+Below is some background information on the refactoring that created this
+abstract interface.
 
-# Refactoring of `rustc_codegen_llvm`
+## Refactoring of `rustc_codegen_llvm`
 by Denis Merigoux, October 23rd 2018
 
-## State of the code before the refactoring
+### State of the code before the refactoring
 
 All the code related to the compilation of MIR into LLVM IR was contained
 inside the `rustc_codegen_llvm` crate. Here is the breakdown of the most
@@ -54,7 +56,7 @@ While the LLVM-specific code will be left in `rustc_codegen_llvm`, all the new
 traits and backend-agnostic code will be moved in `rustc_codegen_ssa` (name
 suggestion by @eddyb).
 
-## Generic types and structures
+### Generic types and structures
 
 @irinagpopa started to parametrize the types of `rustc_codegen_llvm` by a
 generic `Value` type, implemented in LLVM by a reference `&'ll Value`. This
@@ -106,7 +108,7 @@ of the backend and it makes more sense to leave their definition to the backend
 implementor than to allow just a narrow spot via a generic field for the
 backend's context.
 
-## Traits and interface
+### Traits and interface
 
 Because they have to be defined by the backend, `CodegenCx` and `Builder` will
 be the structures implementing all the traits defining the backend's interface.
@@ -173,7 +175,7 @@ called. However, when implementing a Rust backend for `rustc`, these methods
 will need information from `CodegenCx`, hence the additional parameter (unused
 in the LLVM implementation of the trait).
 
-## State of the code after the refactoring
+### State of the code after the refactoring
 
 The traits offer an API which is very similar to the API of LLVM. This is not
 the best solution since LLVM has a very special way of doing things: when

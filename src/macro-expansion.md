@@ -48,47 +48,47 @@ iteration, this represents a compile error.  Here is the [algorithm][original]:
 [fef]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_expand/expand/struct.MacroExpander.html#method.fully_expand_fragment
 [original]: https://github.com/rust-lang/rust/pull/53778#issuecomment-419224049
 
-0. Initialize an `queue` of unresolved macros.
-1. Repeat until `queue` is empty (or we make no progress, which is an error):
-    0. [Resolve](./name-resolution.md) imports in our partially built crate as
-       much as possible.
-    1. Collect as many macro [`Invocation`s][inv] as possible from our
-       partially built crate (fn-like, attributes, derives) and add them to the
-       queue.
-    2. Dequeue the first element, and attempt to resolve it.
-    3. If it's resolved:
-        0. Run the macro's expander function that consumes a [`TokenStream`] or
-           AST and produces a [`TokenStream`] or [`AstFragment`] (depending on
-           the macro kind). (A `TokenStream` is a collection of [`TokenTree`s][tt],
-           each of which are a token (punctuation, identifier, or literal) or a
-           delimited group (anything inside `()`/`[]`/`{}`)).
-            - At this point, we know everything about the macro itself and can
-              call `set_expn_data` to fill in its properties in the global data;
-              that is the hygiene data associated with `ExpnId`. (See [the
-              "Hygiene" section below][hybelow]).
-        1. Integrate that piece of AST into the big existing partially built
-           AST. This is essentially where the "token-like mass" becomes a
-           proper set-in-stone AST with side-tables. It happens as follows:
-            - If the macro produces tokens (e.g. a proc macro), we parse into
-              an AST, which may produce parse errors.
-            - During expansion, we create `SyntaxContext`s (hierarchy 2). (See
-              [the "Hygiene" section below][hybelow])
-            - These three passes happen one after another on every AST fragment
-              freshly expanded from a macro:
-                - [`NodeId`]s are assigned by [`InvocationCollector`]. This
-                  also collects new macro calls from this new AST piece and
-                  adds them to the queue.
-                - ["Def paths"][defpath] are created and [`DefId`]s are
-                  assigned to them by [`DefCollector`].
-                - Names are put into modules (from the resolver's point of
-                  view) by [`BuildReducedGraphVisitor`].
-        2. After expanding a single macro and integrating its output, continue
-           to the next iteration of [`fully_expand_fragment`][fef].
-    4. If it's not resolved:
-        0. Put the macro back in the queue
-        1. Continue to next iteration...
+1. Initialize a `queue` of unresolved macros.
+2. Repeat until `queue` is empty (or we make no progress, which is an error):
+   1. [Resolve](./name-resolution.md) imports in our partially built crate as
+      much as possible.
+   2. Collect as many macro [`Invocation`s][inv] as possible from our
+      partially built crate (fn-like, attributes, derives) and add them to the
+      queue.
+   3. Dequeue the first element, and attempt to resolve it.
+   4. If it's resolved:
+      1. Run the macro's expander function that consumes a [`TokenStream`] or
+         AST and produces a [`TokenStream`] or [`AstFragment`] (depending on
+         the macro kind). (A `TokenStream` is a collection of [`TokenTree`s][tt],
+         each of which are a token (punctuation, identifier, or literal) or a
+         delimited group (anything inside `()`/`[]`/`{}`)).
+         - At this point, we know everything about the macro itself and can
+           call `set_expn_data` to fill in its properties in the global data;
+           that is the hygiene data associated with `ExpnId`. (See [the
+           "Hygiene" section below][hybelow]).
+      2. Integrate that piece of AST into the big existing partially built
+         AST. This is essentially where the "token-like mass" becomes a
+         proper set-in-stone AST with side-tables. It happens as follows:
+         - If the macro produces tokens (e.g. a proc macro), we parse into
+           an AST, which may produce parse errors.
+         - During expansion, we create `SyntaxContext`s (hierarchy 2). (See
+           [the "Hygiene" section below][hybelow])
+         - These three passes happen one after another on every AST fragment
+           freshly expanded from a macro:
+           - [`NodeId`]s are assigned by [`InvocationCollector`]. This
+             also collects new macro calls from this new AST piece and
+             adds them to the queue.
+           - ["Def paths"][defpath] are created and [`DefId`]s are
+             assigned to them by [`DefCollector`].
+           - Names are put into modules (from the resolver's point of
+             view) by [`BuildReducedGraphVisitor`].
+      3. After expanding a single macro and integrating its output, continue
+         to the next iteration of [`fully_expand_fragment`][fef].
+   5. If it's not resolved:
+      1. Put the macro back in the queue
+      2. Continue to next iteration...
 
-[defpath]: https://rustc-dev-guide.rust-lang.org/hir.html?highlight=def,path#identifiers-in-the-hir
+[defpath]: hir.md#identifiers-in-the-hir
 [`NodeId`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_ast/node_id/struct.NodeId.html
 [`InvocationCollector`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_expand/expand/struct.InvocationCollector.html
 [`DefId`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/def_id/struct.DefId.html
@@ -149,9 +149,9 @@ macros are implemented in [`rustc_builtin_macros`], along with some other early
 code generation facilities like injection of standard library imports or
 generation of test harness. There are some additional helpers for building
 their AST fragments in [`rustc_expand::build`][reb]. Eager expansion generally
-performs a subset of the things that lazy (normal) expansion. It is done by
+performs a subset of the things that lazy (normal) expansion does. It is done by
 invoking [`fully_expand_fragment`][fef] on only part of a crate (as opposed to
-whole crate, like we normally do).
+the whole crate, like we normally do).
 
 ### Other Data Structures
 
@@ -216,7 +216,7 @@ handle names defined _within a macro_. In particular, a hygienic macro system
 prevents errors due to names introduced within a macro. Rust macros are hygienic
 in that they do not allow one to write the sorts of bugs above.
 
-At a high level, hygiene within the rust compiler is accomplished by keeping
+At a high level, hygiene within the Rust compiler is accomplished by keeping
 track of the context where a name is introduced and used. We can then
 disambiguate names based on that context. Future iterations of the macro system
 will allow greater control to the macro author to use that context. For example,
@@ -227,7 +227,7 @@ only within the macro (i.e. it should not be visible outside the macro).
 [code_dir]: https://github.com/rust-lang/rust/tree/master/compiler/rustc_expand/src/mbe
 [code_mp]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_expand/mbe/macro_parser
 [code_mr]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_expand/mbe/macro_rules
-[code_parse_int]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_expand/mbe/macro_parser/fn.parse_tt.html
+[code_parse_int]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_expand/mbe/macro_parser/struct.TtParser.html#method.parse_tt
 [parsing]: ./the-parser.html
 
 The context is attached to AST nodes. All AST nodes generated by macros have
@@ -292,13 +292,8 @@ macro_rules! foo { () => { println!(); } }
 fn main() { foo!(); }
 ```
 
-In this code, the AST nodes that are finally generated would have hierarchy:
-
-```
-root
-    expn_id_foo
-        expn_id_println
-```
+In this code, the AST nodes that are finally generated would have hierarchy
+`root -> id(foo) -> id(println)`.
 
 ### The Macro Definition Hierarchy
 
@@ -397,8 +392,9 @@ macro foo($i: ident) { $i }
 foo!(bar!(baz));
 ```
 
-For the `baz` AST node in the final output, the first hierarchy is `ROOT ->
-id(foo) -> id(bar) -> baz`, while the third hierarchy is `ROOT -> baz`.
+For the `baz` AST node in the final output, the expansion-order hierarchy is
+`ROOT -> id(foo) -> id(bar) -> baz`, while the call-site hierarchy is `ROOT ->
+baz`.
 
 ### Macro Backtraces
 
@@ -427,12 +423,12 @@ Some important data structures/interfaces here:
 - [`SyntaxExtensionKind`] - expander functions may have several different
   signatures (take one token stream, or two, or a piece of AST, etc). This is
   an enum that lists them.
-- [`ProcMacro`]/[`TTMacroExpander`]/[`AttrProcMacro`]/[`MultiItemModifier`] -
+- [`BangProcMacro`]/[`TTMacroExpander`]/[`AttrProcMacro`]/[`MultiItemModifier`] -
   traits representing the expander function signatures.
 
 [`SyntaxExtension`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_expand/base/struct.SyntaxExtension.html
 [`SyntaxExtensionKind`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_expand/base/enum.SyntaxExtensionKind.html
-[`ProcMacro`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_expand/base/trait.ProcMacro.html
+[`BangProcMacro`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_expand/base/trait.BangProcMacro.html
 [`TTMacroExpander`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_expand/base/trait.TTMacroExpander.html
 [`AttrProcMacro`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_expand/base/trait.AttrProcMacro.html
 [`MultiItemModifier`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_expand/base/trait.MultiItemModifier.html
@@ -503,9 +499,10 @@ The interface of the macro parser is as follows (this is slightly simplified):
 
 ```rust,ignore
 fn parse_tt(
-    parser: &mut Cow<Parser>,
-    ms: &[TokenTree],
-) -> NamedParseResult
+    &mut self,
+    parser: &mut Cow<'_, Parser<'_>>,
+    matcher: &[MatcherLoc]
+) -> ParseResult
 ```
 
 We use these items in macro parser:
@@ -515,23 +512,23 @@ We use these items in macro parser:
   ask the MBE parser to parse. We will consume the raw stream of tokens and
   output a binding of metavariables to corresponding token trees. The parsing
   session can be used to report parser errors.
-- `ms` a _matcher_. This is a sequence of token trees that we want to match
-  the token stream against.
+- `matcher` is a sequence of `MatcherLoc`s that we want to match
+  the token stream against. They're converted from token trees before matching.
 
 In the analogy of a regex parser, the token stream is the input and we are matching it
-against the pattern `ms`. Using our examples, the token stream could be the stream of
-tokens containing the inside of the example invocation `print foo`, while `ms`
+against the pattern `matcher`. Using our examples, the token stream could be the stream of
+tokens containing the inside of the example invocation `print foo`, while `matcher`
 might be the sequence of token (trees) `print $mvar:ident`.
 
-The output of the parser is a `NamedParseResult`, which indicates which of
+The output of the parser is a [`ParseResult`], which indicates which of
 three cases has occurred:
 
-- Success: the token stream matches the given matcher `ms`, and we have produced a binding
+- Success: the token stream matches the given `matcher`, and we have produced a binding
   from metavariables to the corresponding token trees.
-- Failure: the token stream does not match `ms`. This results in an error message such as
+- Failure: the token stream does not match `matcher`. This results in an error message such as
   "No rule expected token _blah_".
 - Error: some fatal error has occurred _in the parser_. For example, this
-  happens if there are more than one pattern match, since that indicates
+  happens if there is more than one pattern match, since that indicates
   the macro is ambiguous.
 
 The full interface is defined [here][code_parse_int].
@@ -585,7 +582,7 @@ syntactic sugar and are allowed to be in namespaces.
 
 ## Procedural Macros
 
-Precedural macros are also expanded during parsing, as mentioned above.
+Procedural macros are also expanded during parsing, as mentioned above.
 However, they use a rather different mechanism. Rather than having a parser in
 the compiler, procedural macros are implemented as custom, third-party crates.
 The compiler will compile the proc macro crate and specially annotated
@@ -607,11 +604,12 @@ Because the Rust ABI is unstable, we use the C ABI for this conversion.
 [stablets]: https://doc.rust-lang.org/proc_macro/struct.TokenStream.html
 [pm]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_expand/proc_macro/index.html
 [pms]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_expand/proc_macro_server/index.html
+[`ParseResult`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_expand/mbe/macro_parser/enum.ParseResult.html
 
-TODO: more here.
+TODO: more here. [#1160](https://github.com/rust-lang/rustc-dev-guide/issues/1160)
 
 ### Custom Derive
 
 Custom derives are a special type of proc macro.
 
-TODO: more?
+TODO: more? [#1160](https://github.com/rust-lang/rustc-dev-guide/issues/1160)

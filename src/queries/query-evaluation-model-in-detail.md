@@ -76,7 +76,7 @@ executed, no results are cached. But the context already provides access to
 "input" data, i.e. pieces of immutable data that were computed before the
 context was created and that queries can access to do their computations.
 
-As of <!-- date: 2021-01 --> January 2021, this input data consists mainly of
+As of <!-- date-check --> January 2021, this input data consists mainly of
 the HIR map, upstream crate metadata, and the command-line options the compiler
 was invoked with; but in the future inputs will just consist of command-line
 options and a list of source files -- the HIR map will itself be provided by a
@@ -201,8 +201,8 @@ OK as long as the mutation is not observable. This is achieved by two things:
 - Before a result is stolen, we make sure to eagerly run all queries that
   might ever need to read that result. This has to be done manually by calling
   those queries.
-- Whenever a query tries to access a stolen result, we make the compiler ICE so
-  that such a condition cannot go unnoticed.
+- Whenever a query tries to access a stolen result, we make an ICE
+  (Internal Compiler Error) so that such a condition cannot go unnoticed.
 
 This is not an ideal setup because of the manual intervention needed, so it
 should be used sparingly and only when it is well known which queries might
@@ -211,29 +211,3 @@ much of a maintenance burden.
 
 To summarize: "Steal queries" break some of the rules in a controlled way.
 There are checks in place that make sure that nothing can go silently wrong.
-
-
-## Parallel Query Execution
-
-The query model has some properties that make it actually feasible to evaluate
-multiple queries in parallel without too much of an effort:
-
-- All data a query provider can access is accessed via the query context, so
-  the query context can take care of synchronizing access.
-- Query results are required to be immutable so they can safely be used by
-  different threads concurrently.
-
-The nightly compiler already implements parallel query evaluation as follows:
-
-When a query `foo` is evaluated, the cache table for `foo` is locked.
-
-- If there already is a result, we can clone it, release the lock and
-  we are done.
-- If there is no cache entry and no other active query invocation computing the
-  same result, we mark the key as being "in progress", release the lock and
-  start evaluating.
-- If there *is* another query invocation for the same key in progress, we
-  release the lock, and just block the thread until the other invocation has
-  computed the result we are waiting for. This cannot deadlock because, as
-  mentioned before, query invocations form a DAG. Some thread will always make
-  progress.

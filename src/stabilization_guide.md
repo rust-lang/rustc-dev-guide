@@ -1,6 +1,6 @@
 # Request for stabilization
 
-**NOTE**: this page is about stabilizing language features.
+**NOTE**: this page is about stabilizing *language* features.
 For stabilizing *library* features, see [Stabilizing a library feature].
 
 [Stabilizing a library feature]: ./stability.md#stabilizing-a-library-feature
@@ -58,10 +58,16 @@ The report should contain:
   and describe the feature's behavior on encountering edge cases.
 - Links to the documentations (the PRs we have made in the
   previous steps).
-- Any other relevant information(Examples of such reports can
-  be found in rust-lang/rust#44494 and rust-lang/rust#28237).
+- Any other relevant information.
 - The resolutions of any unresolved questions if the stabilization
   is for an RFC.
+
+Examples of stabilization reports can be found in
+[rust-lang/rust#44494][report1] and [rust-lang/rust#28237][report2] (these links
+will bring you directly to the comment containing the stabilization report).
+
+[report1]: https://github.com/rust-lang/rust/issues/44494#issuecomment-360191474
+[report2]: https://github.com/rust-lang/rust/issues/28237#issuecomment-363374130
 
 ## FCP
 
@@ -69,7 +75,7 @@ If any member of the team responsible for tracking this
 feature agrees with stabilizing this feature, they will
 start the FCP (final-comment-period) process by commenting
 
-```bash
+```text
 @rfcbot fcp merge
 ```
 
@@ -77,6 +83,9 @@ The rest of the team members will review the proposal. If the final
 decision is to stabilize, we proceed to do the actual code modification.
 
 ## Stabilization PR
+
+*This is for stabilizing language features.  If you are stabilizing a library
+feature, see [the stabilization chapter of the std dev guide][std-guide-stabilization] instead.*
 
 Once we have decided to stabilize a feature, we need to have
 a PR that actually makes that stabilization happen. These kinds
@@ -100,7 +109,7 @@ to stabilize, something like (this example is taken from
 
 ```rust,ignore
 // pub(restricted) visibilities (RFC 1422)
-(active, pub_restricted, "1.9.0", Some(32409)),
+(unstable, pub_restricted, "CURRENT_RUSTC_VERSION", Some(32409)),
 ```
 
 The above line should be moved down to the area for "accepted"
@@ -109,24 +118,20 @@ When it is done, it should look like:
 
 ```rust,ignore
 // pub(restricted) visibilities (RFC 1422)
-(accepted, pub_restricted, "1.31.0", Some(32409)),
+(accepted, pub_restricted, "CURRENT_RUSTC_VERSION", Some(32409)),
 // note that we changed this
 ```
 
-Note that, the version number is updated to be the version number
-of the stable release where this feature will appear. This can be
-found by consulting [the forge](https://forge.rust-lang.org/), which will guide
-you the next stable release number. You want to add 1 to that,
-because the code that lands today will become go into beta on that
-date, and then become stable after that. So, at the time of this
-writing, the next stable release (i.e. what is currently beta) was
-1.30.0, hence I wrote 1.31.0 above.
+(Even though you will encounter version numbers in the file of past changes,
+you should not put the rustc version you expect your stabilization to happen in,
+but instead `CURRENT_RUSTC_VERSION`)
 
 ### Removing existing uses of the feature-gate
 
 Next search for the feature string (in this case, `pub_restricted`)
 in the codebase to find where it appears. Change uses of
-`#![feature(XXX)]` from the `std` and any rustc crates to be
+`#![feature(XXX)]` from the `std` and any rustc crates (this includes test folders
+under `library/` and `compiler/` but not the toplevel `test/` one) to be
 `#![cfg_attr(bootstrap, feature(XXX))]`. This includes the feature-gate
 only for stage0, which is built using the current beta (this is
 needed because the feature is still unstable in the current beta).
@@ -177,6 +182,10 @@ if something { /* XXX */ }
 ```
 
 [rust-lang/rust#32409]: https://github.com/rust-lang/rust/issues/32409
+[std-guide-stabilization]: https://std-dev-guide.rust-lang.org/feature-lifecycle/stabilization.html
+[src-version]: https://github.com/rust-lang/rust/blob/master/src/version
+[forge-versions]: https://forge.rust-lang.org/#current-release-versions
+[forge-release-process]: https://forge.rust-lang.org/release/process.html
 [`compiler/rustc_feature`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_feature/index.html
 [The Reference]: https://github.com/rust-lang/reference
 [The Book]: https://github.com/rust-lang/book

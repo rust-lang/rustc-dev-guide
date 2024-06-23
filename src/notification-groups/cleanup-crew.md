@@ -1,6 +1,7 @@
 # Cleanup Crew
 
-**Github Label:** [ICEBreaker-Cleanup-Crew]
+**Github Label:** [ICEBreaker-Cleanup-Crew] <br>
+**Ping command:** `@rustbot ping cleanup-crew`
 
 [ICEBreaker-Cleanup-Crew]: https://github.com/rust-lang/rust/labels/ICEBreaker-Cleanup-Crew
 
@@ -39,9 +40,9 @@ are a few:
 
 * The [rust-reduce](https://github.com/jethrogb/rust-reduce) tool can try to reduce
   code automatically.
-  * The [C-reduce](https://embed.cs.utah.edu/creduce/) tool also works
+  * The [C-reduce](https://github.com/csmith-project/creduce) tool also works
     on Rust code, though it requires that you start from a single
-    file. (XXX link to some post explaining how to do it?)
+    file. (A post explaining how to do it can be found [here](https://insaneinside.net/2017/09/12/whole-crate-bug-reduction-with-creduce.html).)
 * pnkfelix's [Rust Bug Minimization Patterns] blog post
   * This post focuses on "heavy bore" techniques, where you are
     starting with a large, complex cargo project that you wish to
@@ -77,38 +78,13 @@ various builds of rustc. For recent regressions, it is even able to
 use the builds from our CI to track down the regression to a specific
 PR; for older regressions, it will simply identify a nightly.
 
-To learn to use [cargo-bisect-rustc], check out [this blog
-post][learn], which gives a quick introduction to how it works. You
-can also ask questions at the Zulip stream
-[`#t-compiler/cargo-bisect-rustc`][zcbr], or help in improving the tool.
+To learn to use [cargo-bisect-rustc], check out [this blog post][learn], which
+gives a quick introduction to how it works. Additionally, there is a [Guide]
+which goes into more detail on how to use it. You can also ask questions at
+the Zulip stream [`#t-compiler/cargo-bisect-rustc`][zcbr], or help in
+improving the tool.
 
 [cargo-bisect-rustc]: https://github.com/rust-lang/cargo-bisect-rustc/
 [learn]: https://blog.rust-lang.org/inside-rust/2019/12/18/bisecting-rust-compiler.html
 [zcbr]: https://rust-lang.zulipchat.com/#narrow/stream/217417-t-compiler.2Fcargo-bisect-rustc
-
-### identifying the range of PRs in a nightly
-
-If the regression occurred more than 90 days ago, then
-cargo-bisect-rustc will not able to identify the particular PR that
-caused the regression, just the nightly build. In that case, we can
-identify the set of PRs that this corresponds to by using the git
-history. 
-
-The command `rustc +nightly -vV` will cause rustc to output a number
-of useful bits of version info, including the `commit-hash`. Given the
-commit-hash of two nightly versions, you can find all of PRs that have
-landed in between by taking the following steps:
-
-1. Go to an update checkout of the [rust-lang/rust] repository
-2. Execute the command `git log --author=bors --format=oneline SHA1..SHA2`
-  * This will list out all of the commits by bors, which is our merge bot
-  * Each commit corresponds to one PR, and information about the PR should be in the description
-3. Copy and paste that information into the bug report
-
-Often, just eye-balling the PR descriptions (which are included in the
-commit messages) will give you a good idea which one likely caused the
-problem. But if you're unsure feel free to just ping the compiler team
-(`@rust-lang/compiler`) or else to ping the authors of the PR
-themselves.
-
-[rust-lang/rust]: https://github.com/rust-lang/rust/
+[Guide]: https://rust-lang.github.io/cargo-bisect-rustc/

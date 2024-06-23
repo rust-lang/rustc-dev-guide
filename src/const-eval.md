@@ -20,26 +20,31 @@ Additionally constant evaluation can be used to reduce the workload or binary
 size at runtime by precomputing complex operations at compiletime and only
 storing the result.
 
+All uses of constant evaluation can either be categorized as "influencing the type system"
+(array lengths, enum variant discriminants, const generic parameters), or as solely being
+done to precompute expressions to be used at runtime.
+
 Constant evaluation can be done by calling the `const_eval_*` functions of `TyCtxt`.
 They're the wrappers of the `const_eval` query.
 
-The `const_eval_*` functions use a [`ParamEnv`](./param_env.html) of environment
+* `const_eval_global_id_for_typeck` evaluates a constant to a valtree,
+  so the result value can be further inspected by the compiler.
+* `const_eval_global_id` evaluate a constant to an "opaque blob" containing its final value;
+  this is only useful for codegen backends and the CTFE evaluator engine itself.
+* `eval_static_initializer` specifically computes the initial values of a static.
+  Statics are special; all other functions do not represent statics correctly
+  and have thus assertions preventing their use on statics.
+
+The `const_eval_*` functions use a [`ParamEnv`](./param_env/param_env_summary.html) of environment
 in which the constant is evaluated (e.g. the function within which the constant is used)
 and a [`GlobalId`]. The `GlobalId` is made up of an `Instance` referring to a constant
 or static or of an `Instance` of a function and an index into the function's `Promoted` table.
 
-Constant evaluation returns a [`EvalToConstValueResult`] with either the error, or a
-representation of the constant. `static` initializers are always represented as
-[`miri`](./miri.html) virtual memory allocations (via [`ConstValue::ByRef`]).
-Other constants get represented as [`ConstValue::Scalar`]
-or [`ConstValue::Slice`] if possible. This means that the `const_eval_*`
-functions cannot be used to create miri-pointers to the evaluated constant.
-If you need the value of a constant inside Miri, you need to directly work with
-[`eval_const_to_op`].
+Constant evaluation returns an [`EvalToValTreeResult`] for type system constants
+or [`EvalToConstValueResult`] with either the error, or a representation of the
+evaluated constant: a [valtree](mir/index.md#valtrees) or a [MIR constant
+value](mir/index.md#mir-constant-values), respectively.
 
 [`GlobalId`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/interpret/struct.GlobalId.html
-[`ConstValue::Scalar`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/interpret/value/enum.ConstValue.html#variant.Scalar
-[`ConstValue::Slice`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/interpret/value/enum.ConstValue.html#variant.Slice
-[`ConstValue::ByRef`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/interpret/value/enum.ConstValue.html#variant.ByRef
 [`EvalToConstValueResult`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/interpret/error/type.EvalToConstValueResult.html
-[`eval_const_to_op`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir/interpret/struct.InterpCx.html#method.eval_const_to_op
+[`EvalToValTreeResult`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/interpret/error/type.EvalToValTreeResult.html

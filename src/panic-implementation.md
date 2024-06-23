@@ -28,7 +28,7 @@ Actually resolving this goes through several layers of indirection:
 
 1. In `compiler/rustc_middle/src/middle/weak_lang_items.rs`, `panic_impl` is
    declared as 'weak lang item', with the symbol `rust_begin_unwind`. This is
-   used in `rustc_typeck/src/collect.rs` to set the actual symbol name to
+   used in `rustc_hir_analysis/src/collect.rs` to set the actual symbol name to
    `rust_begin_unwind`.
 
    Note that `panic_impl` is declared in an `extern "Rust"` block,
@@ -66,22 +66,22 @@ control passes to `rust_panic_with_hook`. This method is responsible
 for invoking the global panic hook, and checking for double panics. Finally,
 we call `__rust_start_panic`, which is provided by the panic runtime.
 
-The call to `__rust_start_panic` is very weird - it is passed a `*mut &mut dyn BoxMeUp`,
+The call to `__rust_start_panic` is very weird - it is passed a `*mut &mut dyn PanicPayload`,
 converted to an `usize`. Let's break this type down:
 
-1. `BoxMeUp` is an internal trait. It is implemented for `PanicPayload`
+1. `PanicPayload` is an internal trait. It is implemented for `PanicPayload`
 (a wrapper around the user-supplied payload type), and has a method
-`fn box_me_up(&mut self) -> *mut (dyn Any + Send)`.
+`fn take_box(&mut self) -> *mut (dyn Any + Send)`.
 This method takes the user-provided payload (`T: Any + Send`),
 boxes it, and converts the box to a raw pointer.
 
-2. When we call `__rust_start_panic`, we have an `&mut dyn BoxMeUp`.
+2. When we call `__rust_start_panic`, we have an `&mut dyn PanicPayload`.
 However, this is a fat pointer (twice the size of a `usize`).
 To pass this to the panic runtime across an FFI boundary, we take a mutable
-reference *to this mutable reference* (`&mut &mut dyn BoxMeUp`), and convert it to a raw pointer
-(`*mut &mut dyn BoxMeUp`). The outer raw pointer is a thin pointer, since it points to a `Sized`
-type (a mutable reference). Therefore, we can convert this thin pointer into a `usize`, which
-is suitable for passing across an FFI boundary.
+reference *to this mutable reference* (`&mut &mut dyn PanicPayload`), and convert it to a raw
+pointer (`*mut &mut dyn PanicPayload`). The outer raw pointer is a thin pointer, since it points to
+a `Sized` type (a mutable reference). Therefore, we can convert this thin pointer into a `usize`,
+which is suitable for passing across an FFI boundary.
 
 Finally, we call `__rust_start_panic` with this `usize`. We have now entered the panic runtime.
 
@@ -96,8 +96,8 @@ as you would expect.
 `panic_unwind` is the more interesting case.
 
 In its implementation of `__rust_start_panic`, we take the `usize`, convert
-it back to a `*mut &mut dyn BoxMeUp`, dereference it, and call `box_me_up`
-on the `&mut dyn BoxMeUp`. At this point, we have a raw pointer to the payload
+it back to a `*mut &mut dyn PanicPayload`, dereference it, and call `take_box`
+on the `&mut dyn PanicPayload`. At this point, we have a raw pointer to the payload
 itself (a `*mut (dyn Send + Any)`): that is, a raw pointer to the actual value
 provided by the user who called `panic!`.
 
@@ -107,6 +107,9 @@ responsible for unwinding the stack, running any 'landing pads' associated
 with each frame (currently, running destructors), and transferring control
 to the `catch_unwind` frame.
 
-Note that all panics either abort the process or get caught by some call to `catch_unwind`:
-in `library/std/src/rt.rs`, the call to the user-provided
-`main` function is wrapped in `catch_unwind`.
+Note that all panics either abort the process or get caught by some call to `catch_unwind`.
+In particular, in std's [runtime service],
+the call to the user-provided `main` function is wrapped in `catch_unwind`.
+
+
+[runtime service]: https://github.com/rust-lang/rust/blob/master/library/std/src/rt.rs
