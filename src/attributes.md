@@ -5,9 +5,9 @@ Attributes come in two types - 'builtin'/'inert' attributes, and 'non-builtin'/'
 ## 'Builtin'/'inert' attributes
 
 These attributes are defined in the compiler itself, in
-[`compiler/rustc_feature/src/builtin_attrs.rs`][builtin_attrs]
+[`compiler/rustc_feature/src/builtin_attrs.rs`][builtin_attrs].
 
-Example include `#[allow]` and `#[macro_use]`
+Examples include `#[allow]` and `#[macro_use]`.
 
 [builtin_attrs]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_feature/builtin_attrs/index.html
 
