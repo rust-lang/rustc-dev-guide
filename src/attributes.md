@@ -2,7 +2,7 @@
 
 Attributes come in two types: *inert* (or *built-in*) and *active* (*non-builtin*).
 
-## 'Builtin'/'inert' attributes
+## Builtin/inert attributes
 
 These attributes are defined in the compiler itself, in
 [`compiler/rustc_feature/src/builtin_attrs.rs`][builtin_attrs].
