@@ -4,7 +4,6 @@
 
 
 
-
 Many Rust programmers rely on a built-in attribute called `#[test]`. All
 you have to do is mark a function and include some asserts like so:
 
