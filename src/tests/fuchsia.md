@@ -126,6 +126,12 @@ You can get ninja to print the actual command it invokes by forcing that command
 to fail, e.g. by adding a syntax error to one of the source files of the target.
 Once you have the command, you can run it from inside the output directory.
 
+After changing the toolchain itself, the build setting `rustc_version_string` in
+`out/default/args.gn` needs to be changed so that `fx build` or `ninja` will
+rebuild all the Rust targets. The contents of the string do not matter, as long
+as it changes from one build to the next. [build_fuchsia_from_rust_ci.sh] does
+this automatically by hashing the toolchain directory.
+
 The Fuchsia website has more detailed documentation of the [build system].
 
 #### Other tips and tricks
