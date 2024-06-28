@@ -9,7 +9,9 @@ in the past and was subsequently included in CI.
 Fuchsia builds as part of the suite of bors tests that run before a pull request
 is merged.
 
-If you are worried that a pull request might break the Fuchsia builder and want to test it out before submitting it to the bors queue, simply add this line to your PR description:
+If you are worried that a pull request might break the Fuchsia builder and want
+to test it out before submitting it to the bors queue, simply add this line to
+your PR description:
 
 > try-job: x86_64-gnu-integration
 
@@ -107,9 +109,9 @@ rustc_binary("example") {
 }
 ```
 
-This will add the flag `-Zeverybody-loops` to rustc for the given target. You can
-also use `public_configs` for a config to be added to every target that depends
-on that target.
+This will add the flag `-Zeverybody-loops` to rustc when building the `example`
+target. Note that you can also use [`public_configs`] for a config to be added
+to every target that depends on that target.
 
 If you want to add a flag to every Rust target in the build, you can add
 rustflags to the [`//build/config:compiler`] config or to the OS-specific
@@ -128,16 +130,18 @@ Once you have the command, you can run it from inside the output directory.
 
 After changing the toolchain itself, the build setting `rustc_version_string` in
 `out/default/args.gn` needs to be changed so that `fx build` or `ninja` will
-rebuild all the Rust targets. The contents of the string do not matter, as long
-as it changes from one build to the next. [build_fuchsia_from_rust_ci.sh] does
-this automatically by hashing the toolchain directory.
+rebuild all the Rust targets. This can be done in a text editor and the contents
+of the string do not matter, as long as it changes from one build to the next.
+[build_fuchsia_from_rust_ci.sh] does this for you by hashing the toolchain
+directory.
 
 The Fuchsia website has more detailed documentation of the [build system].
 
 #### Other tips and tricks
 
-You can comment out the `fx set` command after the initial run so it won't rerun
-GN each time.
+When using `build_fuchsia_from_rust_ci.sh` you can comment out the `fx set`
+command after the initial run so it won't rerun GN each time. If you do this you
+can also comment out the version_string line to save a couple seconds.
 
 `export NINJA_PERSISTENT_MODE=1` to get faster ninja startup times after the
 initial build.
@@ -149,11 +153,12 @@ rustc book][platform-support].
 
 [regressions]: https://gist.github.com/tmandry/7103eba4bd6a6fb0c439b5a90ae355fa
 [build-toolchain]: https://fuchsia.dev/fuchsia-src/development/build/rust_toolchain
-[build-fuchsia.sh]: https://github.com/rust-lang/rust/pull/126105/files?file-filters%5B%5D=.sh&show-viewed-files=true
+[build-fuchsia.sh]: https://github.com/rust-lang/rust/blob/99f77a2eda555b50b518f74823ab636a20efb87f/src/ci/docker/host-x86_64/x86_64-gnu-integration/build-fuchsia.sh
 [build_fuchsia_from_rust_ci.sh]: https://cs.opensource.google/fuchsia/fuchsia/+/main:scripts/rust/build_fuchsia_from_rust_ci.sh?q=build_fuchsia_from_rust_ci&ss=fuchsia
 [platform-support]: https://doc.rust-lang.org/nightly/rustc/platform-support/fuchsia.html
 [GN]: https://gn.googlesource.com/gn/+/main#gn
 [Ninja]: https://ninja-build.org/
+[`public_configs`]: https://gn.googlesource.com/gn/+/main/docs/reference.md#var_public_configs
 [`//build/config:compiler`]: https://cs.opensource.google/fuchsia/fuchsia/+/main:build/config/BUILD.gn;l=121;drc=c26c473bef93b33117ae417893118907a026fec7
 [build system]: https://fuchsia.dev/fuchsia-src/development/build/build_system
 

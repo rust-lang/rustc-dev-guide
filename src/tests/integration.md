@@ -22,10 +22,10 @@ This runs as part of CI and ensures there aren't any significant regressions.
 ### Integration builders
 
 Integration jobs build large open-source Rust projects that are used as
-regression tests in CI.
+regression tests in CI. Our integration jobs build the following projects:
 
-Fuchsia is currently the only project used in this way. See the [Fuchsia
-chapter](fuchsia.md) for more details.
+- [Fuchsia](fuchsia.md)
+- Linux kernel
 
 ## A note about terminology
 
