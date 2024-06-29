@@ -1,8 +1,15 @@
-# Implementing new features
+# Implementing new language features
+
+<!-- toc -->
 
 When you want to implement a new significant feature in the compiler,
 you need to go through this process to make sure everything goes
 smoothly.
+
+**NOTE: this section is for *language* features, not *library* features,
+which use [a different process].**
+
+[a different process]: ./stability.md
 
 ## The @rfcbot FCP process
 
@@ -28,6 +35,12 @@ get by with only an r+. For example, it is OK to add or modify
 unstable command-line flags or attributes without an FCP for
 compiler development or standard library use, as long as you don't
 expect them to be in wide use in the nightly ecosystem.
+Some teams have lighter weight processes that they use in scenarios
+like this; for example, the compiler team recommends
+filing a Major Change Proposal ([MCP][mcp]) as a lightweight way to
+garner support and feedback without requiring full consensus.
+
+[mcp]: https://forge.rust-lang.org/compiler/mcp.html#public-facing-changes-require-rfcbot-fcp
 
 You don't need to have the implementation fully ready for r+ to propose an FCP,
 but it is generally a good idea to have at least a proof
@@ -83,31 +96,16 @@ by being unstable and unchanged for a year.
 To keep track of the status of an unstable feature, the
 experience we get while using it on nightly, and of the
 concerns that block its stabilization, every feature-gate
-needs a tracking issue.
-
-General discussions about the feature should be done on
-the tracking issue.
+needs a tracking issue. General discussions about the feature should be done on the tracking issue.
 
 For features that have an RFC, you should use the RFC's
 tracking issue for the feature.
 
 For other features, you'll have to make a tracking issue
 for that feature. The issue title should be "Tracking issue
-for YOUR FEATURE".
+for YOUR FEATURE". Use the ["Tracking Issue" issue template][template].
 
-For tracking issues for features (as opposed to future-compat
-warnings), I don't think the description has to contain
-anything specific. Generally we put the list of items required
-for stabilization in a checklist, e.g.,
-
-```txt
-**Steps:**
-
-- [ ] Implement the RFC. (CC @rust-lang/compiler -- can anyone write
-      up mentoring instructions?)
-- [ ] Adjust the documentation. ([See instructions on rustc-dev-guide.](stabilization_guide.md#documentation-prs))
-- [ ] Stabilize the feature. ([See instructions on rustc-dev-guide.](stabilization_guide.md#stabilization-pr))
-```
+[template]: https://github.com/rust-lang/rust/issues/new?template=tracking_issue.md
 
 ##  Stability in code
 
@@ -120,14 +118,50 @@ a new unstable feature:
    The tracking issue should be labeled with at least `C-tracking-issue`.
    For a language feature, a label `F-feature_name` should be added as well.
 
-2. Pick a name for the feature gate (for RFCs, use the name
+1. Pick a name for the feature gate (for RFCs, use the name
    in the RFC).
 
-3. Add a feature gate declaration to `rustc_feature/src/active.rs`
-   in the active `declare_features` block. See [here][add-feature-gate] for
-   detailed instructions.
+1. Add the feature name to `rustc_span/src/symbol.rs` in the `Symbols {...}` block.
 
-4. Prevent usage of the new feature unless the feature gate is set.
+   Note that this block must be in alphabetical order.
+
+1. Add a feature gate declaration to `rustc_feature/src/unstable.rs` in the unstable
+   `declare_features` block.
+
+   ```rust ignore
+   /// description of feature
+   (unstable, $feature_name, "CURRENT_RUSTC_VERSION", Some($tracking_issue_number))
+   ```
+
+   If you haven't yet
+   opened a tracking issue (e.g. because you want initial feedback on whether the feature is likely
+   to be accepted), you can temporarily use `None` - but make sure to update it before the PR is
+   merged!
+
+   For example:
+
+   ```rust ignore
+   /// Allows defining identifiers beyond ASCII.
+   (unstable, non_ascii_idents, "CURRENT_RUSTC_VERSION", Some(55467), None),
+   ```
+
+   Features can be marked as incomplete, and trigger the warn-by-default [`incomplete_features`
+   lint]
+   by setting their type to `incomplete`:
+
+   [`incomplete_features` lint]: https://doc.rust-lang.org/rustc/lints/listing/warn-by-default.html#incomplete-features
+
+   ```rust ignore
+   /// Allows unsized rvalues at arguments and parameters.
+   (incomplete, unsized_locals, "CURRENT_RUSTC_VERSION", Some(48055), None),
+   ```
+
+   To avoid [semantic merge conflicts], please use `CURRENT_RUSTC_VERSION` instead of `1.70` or
+   another explicit version number.
+
+   [semantic merge conflicts]: https://bors.tech/essay/2017/02/02/pitch/
+
+1. Prevent usage of the new feature unless the feature gate is set.
    You can check it in most places in the compiler using the
    expression `tcx.features().$feature_name` (or
    `sess.features_untracked().$feature_name` if the
@@ -139,22 +173,26 @@ a new unstable feature:
     For an example of adding an error, see [#81015].
 
    For features introducing new syntax, pre-expansion gating should be used instead.
-   To do so, extend the [`GatedSpans`] struct, add spans to it during parsing,
-   and then finally feature-gate all the spans in
-   [`rustc_ast_passes::feature_gate::check_crate`].
+   During parsing, when the new syntax is parsed, the symbol must be inserted to the
+   current crate's [`GatedSpans`] via `self.sess.gated_span.gate(sym::my_feature, span)`. 
+   
+   After being inserted to the gated spans, the span must be checked in the 
+   [`rustc_ast_passes::feature_gate::check_crate`] function, which actually denies
+   features. Exactly how it is gated depends on the exact type of feature, but most 
+   likely will use the `gate_all!()` macro. 
 
-5. Add a test to ensure the feature cannot be used without
-   a feature gate, by creating `feature-gate-$feature_name.rs`
-   and `feature-gate-$feature_name.stderr` files under the
-   directory where the other tests for your feature reside.
+1. Add a test to ensure the feature cannot be used without
+   a feature gate, by creating `tests/ui/feature-gates/feature-gate-$feature_name.rs`.
+   You can generate the corresponding `.stderr` file by running `./x test 
+tests/ui/feature-gates/ --bless`.
 
-6. Add a section to the unstable book, in
+1. Add a section to the unstable book, in
    `src/doc/unstable-book/src/language-features/$feature_name.md`.
 
-7. Write a lot of tests for the new feature.
+1. Write a lot of tests for the new feature, preferably in `tests/ui/$feature_name/`.
    PRs without tests will not be accepted!
 
-8. Get your PR reviewed and land it. You have now successfully
+1. Get your PR reviewed and land it. You have now successfully
    implemented a feature in Rust!
 
 [`GatedSpans`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/parse/struct.GatedSpans.html
@@ -164,5 +202,5 @@ a new unstable feature:
 [value the stability of Rust]: https://github.com/rust-lang/rfcs/blob/master/text/1122-language-semver.md
 [stability in code]: #stability-in-code
 [here]: ./stabilization_guide.md
-[tracking issue]: #tracking-issue
+[tracking issue]: #tracking-issues
 [add-feature-gate]: ./feature-gates.md#adding-a-feature-gate

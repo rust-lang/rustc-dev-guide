@@ -1,4 +1,4 @@
-# Rustc Bug Fix Procedure
+# Procedures for Breaking Changes
 
 <!-- toc -->
 
@@ -53,9 +53,9 @@ Please see [the RFC][rfc 1122] for full details!
 The procedure for making a breaking change is as follows (each of these steps is
 described in more detail below):
 
-0. Do a **crater run** to assess the impact of the change.
-1. Make a **special tracking issue** dedicated to the change.
-1. Do not report an error right away. Instead, **issue forwards-compatibility
+1. Do a **crater run** to assess the impact of the change.
+2. Make a **special tracking issue** dedicated to the change.
+3. Do not report an error right away. Instead, **issue forwards-compatibility
    lint warnings**.
    - Sometimes this is not straightforward. See the text below for suggestions
      on different techniques we have employed in the past.
@@ -65,7 +65,7 @@ described in more detail below):
      - Submit PRs to all known affected crates that fix the issue
        - or, at minimum, alert the owners of those crates to the problem and
          direct them to the tracking issue
-1. Once the change has been in the wild for at least one cycle, we can
+4. Once the change has been in the wild for at least one cycle, we can
    **stabilize the change**, converting those warnings into errors.
 
 Finally, for changes to `rustc_ast` that will affect plugins, the general policy
@@ -168,6 +168,13 @@ errors are reported: then you know that your new code will only execute when
 there were no errors before.
 
 #### Crater and crates.io
+
+[Crater] is a bot that will compile all crates.io crates and many
+public github repos with the compiler with your changes. A report will then be
+generated with crates that ceased to compile with or began to compile with your
+changes. Crater runs can take a few days to complete.
+
+[Crater]: ./tests/crater.md
 
 We should always do a crater run to assess impact. It is polite and considerate
 to at least notify the authors of affected crates the breaking change. If we can
@@ -297,7 +304,7 @@ self.tcx.sess.add_lint(lint::builtin::OVERLAPPING_INHERENT_IMPLS,
 We want to convert this into an error. In some cases, there may be an
 existing error for this scenario. In others, we will need to allocate a
 fresh diagnostic code.  [Instructions for allocating a fresh diagnostic
-code can be found here.](./diagnostics/diagnostic-codes.md) You may want
+code can be found here.](./diagnostics/error-codes.md) You may want
 to mention in the extended description that the compiler behavior
 changed on this point, and include a reference to the tracking issue for
 the change.
@@ -306,7 +313,7 @@ Let's say that we've adopted `E0592` as our code. Then we can change the
 `add_lint()` call above to something like:
 
 ```rust
-struct_span_err!(self.tcx.sess, self.tcx.span_of_impl(item1).unwrap(), msg)
+struct_span_code_err!(self.dcx(), self.tcx.span_of_impl(item1).unwrap(), E0592, msg)
     .emit();
 ```
 
@@ -318,7 +325,7 @@ general, if the test used to have `#[deny(overlapping_inherent_impls)]`, that
 can just be removed.
 
 ```
-./x.py test
+./x test
 ```
 
 #### All done!

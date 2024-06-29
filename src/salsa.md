@@ -9,10 +9,16 @@ want to watch [Salsa In More
 Depth](https://www.youtube.com/watch?v=i_IhACacPRY), also by Niko
 Matsakis.
 
-> As of <!-- date-check --> April 2022, although Salsa is inspired by
+> As of <!-- date-check --> November 2022, although Salsa is inspired by
 > (among other things) rustc's query system, it is not used directly in rustc.
-> It _is_ used in chalk and extensively in `rust-analyzer`, but there are no
-> medium or long-term concrete plans to integrate it into the compiler.
+> It _is_ used in [chalk], an implementation of  Rust's trait system, and extensively in
+> [`rust-analyzer`], the official implementation of the language server protocol for Rust, but
+> there are no  medium or long-term concrete plans to integrate it into the
+> compiler.
+
+
+[`rust-analyzer`]: https://rust-analyzer.github.io/
+[chalk]: https://rust-lang.github.io/chalk/book/what_is_chalk.html
 
 ## What is Salsa?
 
@@ -148,9 +154,9 @@ this one depends on by specifying them as supertraits, as seen in the following
 example:
 
 ```rust,ignore
-/// This query group is going to contain queries that depend on derived values a
+/// This query group is going to contain queries that depend on derived values. A
 /// query group can access another query group's queries by specifying the
-/// dependency as a super trait query groups can be stacked as much as needed using
+/// dependency as a super trait. Query groups can be stacked as much as needed using
 /// that pattern.
 #[salsa::query_group(ParserStorage)]
 pub trait Parser: Inputs {
@@ -168,7 +174,7 @@ belongs to, in addition to the other keys.
 ```rust,ignore
 ///This is going to be the definition of the `ast` query in the `Parser` trait.
 ///So, when the query `ast` is invoked, and it needs to be recomputed, Salsa is going to call this function
-///and it's is going to give it the database as `impl Parser`.
+///and it's going to give it the database as `impl Parser`.
 ///The function doesn't need to be aware of all the queries of all the query groups
 fn ast(db: &impl Parser, name: String) -> String {
     //! Note, `impl Parser` is used here but `dyn Parser` works just as well

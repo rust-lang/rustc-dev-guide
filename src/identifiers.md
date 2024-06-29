@@ -1,4 +1,4 @@
-# Identifiers in the Compiler
+# Identifiers in the compiler
 
 If you have read the few previous chapters, you now know that `rustc` uses
 many different intermediate representations to perform different kinds of analyses.
@@ -65,13 +65,12 @@ See the [HIR chapter][hir-map] for more detailed information.
 
 - [`BasicBlock`] identifies a *basic block*. It points to an instance of
   [`BasicBlockData`], which can be retrieved by indexing into
-  [`Body::basic_blocks()`] (note that you must call a function; the field is
-  private).
+  [`Body.basic_blocks`].
 
 - [`Local`] identifies a local variable in a function. Its associated data is in
   [`LocalDecl`], which can be retrieved by indexing into [`Body.local_decls`].
 
-- [`Field`] identifies a struct's, union's, or enum variant's field. It is used
+- [`FieldIdx`] identifies a struct's, union's, or enum variant's field. It is used
   as a "projection" in [`Place`].
 
 - [`SourceScope`] identifies a name scope in the original source code. Used for
@@ -93,11 +92,11 @@ See the [HIR chapter][hir-map] for more detailed information.
 
 [`BasicBlock`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.BasicBlock.html
 [`BasicBlockData`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.BasicBlockData.html
-[`Body::basic_blocks()`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Body.html#method.basic_blocks
+[`Body.basic_blocks`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Body.html#structfield.basic_blocks
 [`Local`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Local.html
 [`LocalDecl`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.LocalDecl.html
 [`Body.local_decls`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Body.html#structfield.local_decls
-[`Field`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Field.html
+[`FieldIdx`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_target/abi/struct.FieldIdx.html
 [`Place`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Place.html
 [`SourceScope`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.SourceScope.html
 [`SourceScopeData`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.SourceScopeData.html

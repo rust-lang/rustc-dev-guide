@@ -14,7 +14,7 @@ error code path leads to a failure.
 There are some important considerations about the usage of `ErrorGuaranteed`:
 
 * It does _not_ convey information about the _kind_ of error. For example, the
-  error may be due (indirectly) to a `delay_span_bug` or other compiler error.
+  error may be due (indirectly) to a delayed bug or other compiler error.
   Thus, you should not rely on
   `ErrorGuaranteed` when deciding whether to emit an error, or what kind of error
   to emit.
@@ -23,12 +23,11 @@ There are some important considerations about the usage of `ErrorGuaranteed`:
   _has already been_ emitted -- that is, the [`emit()`][emit] function has
   already been called.  For example, if we detect that a future part of the
   compiler will error, we _cannot_ use `ErrorGuaranteed` unless we first emit
-  an error ourselves.
+  an error or delayed bug ourselves.
 
 Thankfully, in most cases, it should be statically impossible to abuse
 `ErrorGuaranteed`.
 
 [errorguar]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/struct.ErrorGuaranteed.html
 [rerrors]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/index.html
-[dsp]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/struct.Handler.html#method.delay_span_bug
-[emit]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/diagnostic_builder/struct.DiagnosticBuilder.html#method.emit
+[emit]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/struct.diag.html#method.emit

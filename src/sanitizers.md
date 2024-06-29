@@ -9,6 +9,9 @@ The rustc compiler contains support for following sanitizers:
   forward-edge control flow protection.
 * [Hardware-assisted AddressSanitizer][clang-hwasan]  a tool similar to
   AddressSanitizer but based on partial hardware assistance.
+* [KernelControlFlowIntegrity][clang-kcfi] LLVM Kernel Control Flow Integrity
+  (KCFI) provides forward-edge control flow protection for operating systems
+  kernels.
 * [LeakSanitizer][clang-lsan] a run-time memory leak detector.
 * [MemorySanitizer][clang-msan] a detector of uninitialized reads.
 * [ThreadSanitizer][clang-tsan] a fast data race detector.
@@ -16,9 +19,9 @@ The rustc compiler contains support for following sanitizers:
 ## How to use the sanitizers?
 
 To enable a sanitizer compile with `-Z sanitizer=...` option, where value is one
-of `address`, `cfi`, `hwaddress`, `leak`, `memory` or `thread`. For more details
-on how to use sanitizers please refer to the sanitizer flag in [the unstable
-book](https://doc.rust-lang.org/unstable-book/).
+of `address`, `cfi`, `hwaddress`, `kcfi`, `leak`, `memory` or `thread`. For more
+details on how to use sanitizers please refer to the sanitizer flag in [the
+unstable book](https://doc.rust-lang.org/unstable-book/).
 
 ## How are sanitizers implemented in rustc?
 
@@ -61,9 +64,9 @@ implementation:
    constructed by cargo `-Z build-std` or xargo.
 
 [compiler-rt]: https://github.com/llvm/llvm-project/tree/main/compiler-rt
-[sanitizer-build]: https://github.com/rust-lang/rust/blob/1.55.0/src/bootstrap/native.rs#L700-L765
-[sanitizer-targets]: https://github.com/rust-lang/rust/blob/1.55.0/src/bootstrap/native.rs#L806-L820
-[sanitizer-copy]: https://github.com/rust-lang/rust/blob/1.55.0/src/bootstrap/compile.rs#L376-L407
+[sanitizer-build]: https://github.com/rust-lang/rust/blob/1ead4761e9e2f056385768614c23ffa7acb6a19e/src/bootstrap/src/core/build_steps/llvm.rs#L958-L1031
+[sanitizer-targets]: https://github.com/rust-lang/rust/blob/1ead4761e9e2f056385768614c23ffa7acb6a19e/src/bootstrap/src/core/build_steps/llvm.rs#L1073-L1111
+[sanitizer-copy]: https://github.com/rust-lang/rust/blob/1ead4761e9e2f056385768614c23ffa7acb6a19e/src/bootstrap/src/core/build_steps/compile.rs#L637-L676
 [sanitizer-attribute]: https://github.com/rust-lang/rust/blob/1.55.0/compiler/rustc_codegen_llvm/src/attributes.rs#L42-L58
 [inline-mir]: https://github.com/rust-lang/rust/blob/1.55.0/compiler/rustc_mir/src/transform/inline.rs#L314-L316
 [inline-llvm]: https://github.com/rust-lang/llvm-project/blob/9330ec5a4c1df5fc1fa62f993ed6a04da68cb040/llvm/include/llvm/IR/Attributes.td#L225-L241
@@ -73,8 +76,8 @@ implementation:
 ## Testing sanitizers
 
 Sanitizers are validated by code generation tests in
-[`src/test/codegen/sanitize*.rs`][test-cg] and end-to-end functional tests in
-[`src/test/ui/sanitize/`][test-ui] directory.
+[`tests/codegen/sanitize*.rs`][test-cg] and end-to-end functional tests in
+[`tests/ui/sanitize/`][test-ui] directory.
 
 Testing sanitizer functionality requires the sanitizer runtimes (built when
 `sanitizer = true` in `config.toml`) and target providing support for particular
@@ -82,8 +85,8 @@ sanitizer. When sanitizer is unsupported on given target, sanitizers tests will
 be ignored. This behaviour is controlled by compiletest `needs-sanitizer-*`
 directives.
 
-[test-cg]: https://github.com/rust-lang/rust/tree/master/src/test/codegen
-[test-ui]: https://github.com/rust-lang/rust/tree/master/src/test/ui/sanitize
+[test-cg]: https://github.com/rust-lang/rust/tree/master/tests/codegen
+[test-ui]: https://github.com/rust-lang/rust/tree/master/tests/ui/sanitize
 
 ## Enabling sanitizer on a new target
 
@@ -95,7 +98,7 @@ To enable a sanitizer on a new target which is already supported by LLVM:
 2. [Build the runtime for the target and include it in the libdir.][sanitizer-targets]
 3. [Teach compiletest that your target now supports the sanitizer.][compiletest-definition]
    Tests marked with `needs-sanitizer-*` should now run on the target.
-4. Run tests `./x.py test --force-rerun src/test/ui/sanitize/` to verify.
+4. Run tests `./x test --force-rerun tests/ui/sanitize/` to verify.
 5. [--enable-sanitizers in the CI configuration][ci-configuration] to build and
    distribute the sanitizer runtime as part of the release process.
 
@@ -109,6 +112,7 @@ To enable a sanitizer on a new target which is already supported by LLVM:
 * [AddressSanitizer in Clang][clang-asan]
 * [ControlFlowIntegrity in Clang][clang-cfi]
 * [Hardware-assisted AddressSanitizer][clang-hwasan]
+* [KernelControlFlowIntegrity in Clang][clang-kcfi]
 * [LeakSanitizer in Clang][clang-lsan]
 * [MemorySanitizer in Clang][clang-msan]
 * [ThreadSanitizer in Clang][clang-tsan]
@@ -116,6 +120,7 @@ To enable a sanitizer on a new target which is already supported by LLVM:
 [clang-asan]: https://clang.llvm.org/docs/AddressSanitizer.html
 [clang-cfi]: https://clang.llvm.org/docs/ControlFlowIntegrity.html
 [clang-hwasan]: https://clang.llvm.org/docs/HardwareAssistedAddressSanitizerDesign.html
+[clang-kcfi]: https://clang.llvm.org/docs/ControlFlowIntegrity.html#fsanitize-kcfi
 [clang-lsan]: https://clang.llvm.org/docs/LeakSanitizer.html
 [clang-msan]: https://clang.llvm.org/docs/MemorySanitizer.html
 [clang-tsan]: https://clang.llvm.org/docs/ThreadSanitizer.html

@@ -28,13 +28,13 @@ optimizes it, and returns the improved MIR.
 
 ## Quickstart for adding a new optimization
 
-1. Make a Rust source file in `src/test/mir-opt` that shows the code you want to
+1. Make a Rust source file in `tests/mir-opt` that shows the code you want to
    optimize. This should be kept simple, so avoid `println!` or other formatting
    code if it's not necessary for the optimization. The reason for this is that
    `println!`, `format!`, etc. generate a lot of MIR that can make it harder to
    understand what the optimization does to the test.
 
-2. Run `./x.py test --bless src/test/mir-opt/<your-test>.rs` to generate a MIR
+2. Run `./x test --bless tests/mir-opt/<your-test>.rs` to generate a MIR
    dump. Read [this README][mir-opt-test-readme] for instructions on how to dump
    things.
 
@@ -45,16 +45,16 @@ optimizes it, and returns the improved MIR.
 4. Implement a new optimization in [`compiler/rustc_mir_transform/src`].
    The fastest and easiest way to do this is to
 
-   1. pick a small optimization (such as [`no_landing_pads`]) and copy it
+   1. pick a small optimization (such as [`remove_storage_markers`]) and copy it
       to a new file,
    2. add your optimization to one of the lists in the
       [`run_optimization_passes()`] function,
    3. and then start modifying the copied optimization.
 
-5. Rerun `./x.py test --bless src/test/mir-opt/<your-test>.rs` to regenerate the
+5. Rerun `./x test --bless tests/mir-opt/<your-test>.rs` to regenerate the
    MIR dumps. Look at the diffs to see if they are what you expect.
 
-6. Run `./x.py test src/test/ui` to see if your optimization broke anything.
+6. Run `./x test tests/ui` to see if your optimization broke anything.
 
 7. If there are issues with your optimization, experiment with it a bit and
    repeat steps 5 and 6.
@@ -70,10 +70,9 @@ optimizes it, and returns the improved MIR.
 If you have any questions along the way, feel free to ask in
 `#t-compiler/wg-mir-opt` on Zulip.
 
-[mir-opt-test-readme]: https://github.com/rust-lang/rust/blob/master/src/test/mir-opt/README.md
+[mir-opt-test-readme]: https://github.com/rust-lang/rust/blob/master/tests/mir-opt/README.md
 [`compiler/rustc_mir_transform/src`]: https://github.com/rust-lang/rust/tree/master/compiler/rustc_mir_transform/src
-<!--- TODO: Change NoLandingPads. [#1232](https://github.com/rust-lang/rustc-dev-guide/issues/1232) -->
-[`no_landing_pads`]: https://github.com/rust-lang/rust/blob/master/compiler/rustc_mir_transform/src/no_landing_pads.rs
+[`remove_storage_markers`]: https://github.com/rust-lang/rust/blob/HEAD/compiler/rustc_mir_transform/src/remove_storage_markers.rs
 [`run_optimization_passes()`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_transform/fn.run_optimization_passes.html
 
 ## Defining optimization passes
@@ -131,6 +130,6 @@ needed for correctness), then fuel should not be used. An example of this is `Pr
 perform optimizations. In these situations, we should allow for the initial gathering pass
 and then check fuel as close to the mutation as possible. This allows for the best
 debugging experience, because we can determine where in the list of candidates an optimization
-may have been misapplied. Examples of this are `InstCombine` and `ConstantPropagation`.
+may have been misapplied. Examples of this are `InstSimplify` and `ConstantPropagation`.
 
 [consideroptimizing]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/context/struct.TyCtxt.html#method.consider_optimizing

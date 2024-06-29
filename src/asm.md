@@ -10,12 +10,13 @@ through all of the compiler layers down to LLVM codegen. Throughout the various 
 
 - The template string, which is stored as an array of `InlineAsmTemplatePiece`. Each piece
 represents either a literal or a placeholder for an operand (just like format strings).
-```rust
-pub enum InlineAsmTemplatePiece {
-    String(String),
-    Placeholder { operand_idx: usize, modifier: Option<char>, span: Span },
-}
-```
+
+  ```rust
+  pub enum InlineAsmTemplatePiece {
+      String(String),
+      Placeholder { operand_idx: usize, modifier: Option<char>, span: Span },
+  }
+  ```
 
 - The list of operands to the `asm!` (`in`, `[late]out`, `in[late]out`, `sym`, `const`). These are
 represented differently at each stage of lowering, but follow a common pattern:
@@ -34,21 +35,22 @@ or a `fn`.
 - The options set at the end of the `asm!` macro. The only ones that are of particular interest to
 rustc are `NORETURN` which makes `asm!` return `!` instead of `()`, and `RAW` which disables format
 string parsing. The remaining options are mostly passed through to LLVM with little processing.
-```rust
-bitflags::bitflags! {
-    pub struct InlineAsmOptions: u16 {
-        const PURE = 1 << 0;
-        const NOMEM = 1 << 1;
-        const READONLY = 1 << 2;
-        const PRESERVES_FLAGS = 1 << 3;
-        const NORETURN = 1 << 4;
-        const NOSTACK = 1 << 5;
-        const ATT_SYNTAX = 1 << 6;
-        const RAW = 1 << 7;
-        const MAY_UNWIND = 1 << 8;
-    }
-}
-```
+
+  ```rust
+  bitflags::bitflags! {
+      pub struct InlineAsmOptions: u16 {
+          const PURE = 1 << 0;
+          const NOMEM = 1 << 1;
+          const READONLY = 1 << 2;
+          const PRESERVES_FLAGS = 1 << 3;
+          const NORETURN = 1 << 4;
+          const NOSTACK = 1 << 5;
+          const ATT_SYNTAX = 1 << 6;
+          const RAW = 1 << 7;
+          const MAY_UNWIND = 1 << 8;
+      }
+  }
+  ```
 
 ## AST
 
@@ -275,7 +277,7 @@ pub enum InlineAsmOperand<'tcx> {
 }
 ```
 
-As part of HAIR lowering, `InOut` and `SplitInOut` operands are lowered to a split form with a
+As part of THIR lowering, `InOut` and `SplitInOut` operands are lowered to a split form with a
 separate `in_value` and `out_place`.
 
 Semantically, the `InlineAsm` terminator is similar to the `Call` terminator except that it has
@@ -359,9 +361,9 @@ can't know ahead of time whether a function will require a frame/base pointer.
 
 Various tests for inline assembly are available:
 
-- `src/test/assembly/asm`
-- `src/test/ui/asm`
-- `src/test/codegen/asm-*`
+- `tests/assembly/asm`
+- `tests/ui/asm`
+- `tests/codegen/asm-*`
 
 Every architecture supported by inline assembly must have exhaustive tests in
-`src/test/assembly/asm` which test all combinations of register classes and types.
+`tests/assembly/asm` which test all combinations of register classes and types.

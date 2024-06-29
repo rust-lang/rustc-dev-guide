@@ -6,18 +6,18 @@ UI tests are a particular [test suite](compiletest.md#test-suites) of compiletes
 
 ## Introduction
 
-The tests in [`src/test/ui`] are a collection of general-purpose tests which
+The tests in [`tests/ui`] are a collection of general-purpose tests which
 primarily focus on validating the console output of the compiler, but can be
 used for many other purposes.
 For example, tests can also be configured to [run the resulting
 program](#controlling-passfail-expectations) to verify its behavior.
 
-[`src/test/ui`]: https://github.com/rust-lang/rust/blob/master/src/test/ui
+[`tests/ui`]: https://github.com/rust-lang/rust/blob/master/tests/ui
 
 ## General structure of a test
 
-A test consists of a Rust source file located anywhere in the `src/test/ui` directory.
-For example, [`src/test/ui/hello.rs`] is a basic hello-world test.
+A test consists of a Rust source file located anywhere in the `tests/ui` directory.
+For example, [`tests/ui/hello.rs`] is a basic hello-world test.
 
 Compiletest will use `rustc` to compile the test, and compare the output
 against the expected output which is stored in a `.stdout` or `.stderr` file
@@ -29,7 +29,12 @@ the source file.
 See [Error annotations](#error-annotations) for more.
 
 [Headers](headers.md) in the form of comments at the top of the file control
-how the test is compiled and what the expected behavior is.
+how the test is compiled and what the expected behavior is. Note that tests in
+the "ui" test suite require the use of `//@ header-name` instead of
+`// header-name` like the other test suites do. The other test suites will be
+migrated to use the `//@` syntax too, but that is in progress. Additionally,
+`// ignore-tidy` and `// ignore-tidy-*` are ignored by compiletest when
+handling "ui" test suite tests (note that they are not `//@` directives).
 
 Tests are expected to fail to compile, since most tests are testing compiler
 errors.
@@ -40,7 +45,7 @@ By default, a test is built as an executable binary.
 If you need a different crate type, you can use the `#![crate_type]` attribute
 to set it as needed.
 
-[`src/test/ui/hello.rs`]: https://github.com/rust-lang/rust/blob/master/src/test/ui/hello.rs
+[`tests/ui/hello.rs`]: https://github.com/rust-lang/rust/blob/master/tests/ui/hello.rs
 
 ## Output comparison
 
@@ -59,6 +64,9 @@ The general form is:
 
 *test-name*`.`*revision*`.`*compare_mode*`.`*extension*
 
+* *test-name* cannot contain dots. This is so that the general form of test
+  output filenames have a predictable form we can pattern match on in order to
+  track stray test output files.
 * *revision* is the [revision](#cfg-revisions) name.
   This is not included when not using revisions.
 * *compare_mode* is the [compare mode](#compare-modes).
@@ -84,8 +92,11 @@ check for output files:
   [Normalization](#normalization)).
 * `dont-check-compiler-stderr` — Ignores stderr from the compiler.
 * `dont-check-compiler-stdout` — Ignores stdout from the compiler.
+* `compare-output-lines-by-subset` — Checks that the output contains the
+  contents of the stored output files by lines opposed to checking for strict
+  equality.
 
-UI tests run with with `-Zdeduplicate-diagnostics=no` flag which disables
+UI tests run with `-Zdeduplicate-diagnostics=no` flag which disables
 rustc's built-in diagnostic deduplication mechanism.
 This means you may see some duplicate messages in the output.
 This helps illuminate situations where duplicate diagnostics are being
@@ -99,7 +110,7 @@ platforms, mainly about filenames.
 Compiletest makes the following replacements on the compiler output:
 
 - The directory where the test is defined is replaced with `$DIR`.
-  Example: `/path/to/rust/src/test/ui/error-codes`
+  Example: `/path/to/rust/tests/ui/error-codes`
 - The directory to the standard library source is replaced with `$SRC_DIR`.
   Example: `/path/to/rust/library`
 - Line and column numbers for paths in `$SRC_DIR` are replaced with `LL:COL`.
@@ -123,7 +134,7 @@ more suitable for UI testing.
 For example, it will anonymize line numbers in the output (line numbers
 prefixing each source line are replaced with `LL`).
 In extremely rare situations, this mode can be disabled with the header
-command `// compile-flags: -Z ui-testing=no`.
+command `//@ compile-flags: -Z ui-testing=no`.
 
 Note: The line and column numbers for `-->` lines pointing to the test are
 *not* normalized, and left as-is. This ensures that the compiler continues
@@ -136,9 +147,9 @@ Sometimes these built-in normalizations are not enough. In such cases, you
 may provide custom normalization rules using the header commands, e.g.
 
 ```rust,ignore
-// normalize-stdout-test: "foo" -> "bar"
-// normalize-stderr-32bit: "fn\(\) \(32 bits\)" -> "fn\(\) \($$PTR bits\)"
-// normalize-stderr-64bit: "fn\(\) \(64 bits\)" -> "fn\(\) \($$PTR bits\)"
+//@ normalize-stdout-test: "foo" -> "bar"
+//@ normalize-stderr-32bit: "fn\(\) \(32 bits\)" -> "fn\(\) \($$PTR bits\)"
+//@ normalize-stderr-64bit: "fn\(\) \(64 bits\)" -> "fn\(\) \($$PTR bits\)"
 ```
 
 This tells the test, on 32-bit platforms, whenever the compiler writes
@@ -160,8 +171,8 @@ The corresponding reference file will use the normalized output to test both
 Please see [`ui/transmute/main.rs`][mrs] and [`main.stderr`] for a
 concrete usage example.
 
-[mrs]: https://github.com/rust-lang/rust/blob/master/src/test/ui/transmute/main.rs
-[`main.stderr`]: https://github.com/rust-lang/rust/blob/master/src/test/ui/transmute/main.stderr
+[mrs]: https://github.com/rust-lang/rust/blob/master/tests/ui/transmute/main.rs
+[`main.stderr`]: https://github.com/rust-lang/rust/blob/master/tests/ui/transmute/main.stderr
 
 Besides `normalize-stderr-32bit` and `-64bit`, one may use any target
 information or stage supported by [`ignore-X`](headers.md#ignoring-tests)
@@ -206,6 +217,10 @@ There are several ways to match the message with the line (see the examples belo
   previous comment.
   This is more convenient than using multiple carets when there are multiple
   messages associated with the same line.
+
+The space character between `//~` (or other variants) and the subsequent text
+is negligible (i.e. there is no semantic difference between `//~ ERROR` and
+`//~ERROR` although the former is more common in the codebase).
 
 ### Error annotation examples
 
@@ -284,7 +299,7 @@ We want to ensure this shows "index out of bounds" but we cannot use the
 Then it's time to use the `error-pattern` header:
 
 ```rust,ignore
-// error-pattern: index out of bounds
+//@ error-pattern: index out of bounds
 fn main() {
     let a: *const [_] = &[1, 2, 3];
     unsafe {
@@ -323,9 +338,9 @@ conditionally checked based on the current revision.
 This is done by placing the revision cfg name in brackets like this:
 
 ```rust,ignore
-// edition:2018
-// revisions: mir thir
-// [thir]compile-flags: -Z thir-unsafeck
+//@ edition:2018
+//@ revisions: mir thir
+//@ [thir]compile-flags: -Z thir-unsafeck
 
 async unsafe fn f() {}
 
@@ -346,6 +361,9 @@ multiple `.stderr` files for the different outputs.
 In the example above, there would be a `.mir.stderr` and `.thir.stderr` file
 with the different outputs of the different revisions.
 
+> Note: cfg revisions also work inside the source code with `#[cfg]` attributes.
+> 
+> By convention, the `FALSE` cfg is used to have an always-false config.
 
 ## Controlling pass/fail expectations
 
@@ -356,20 +374,20 @@ and you can even run the resulting program.
 Just add one of the following [header commands](headers.md):
 
 * Pass headers:
-  * `// check-pass` — compilation should succeed but skip codegen
+  * `//@ check-pass` — compilation should succeed but skip codegen
     (which is expensive and isn't supposed to fail in most cases).
-  * `// build-pass` — compilation and linking should succeed but do
+  * `//@ build-pass` — compilation and linking should succeed but do
     not run the resulting binary.
-  * `// run-pass` — compilation should succeed and running the resulting
+  * `//@ run-pass` — compilation should succeed and running the resulting
     binary should also succeed.
 * Fail headers:
-  * `// check-fail` — compilation should fail (the codegen phase is skipped).
+  * `//@ check-fail` — compilation should fail (the codegen phase is skipped).
     This is the default for UI tests.
-  * `// build-fail` — compilation should fail during the codegen phase.
+  * `//@ build-fail` — compilation should fail during the codegen phase.
     This will run `rustc` twice, once to verify that it compiles successfully
     without the codegen phase, then a second time the full compile should
     fail.
-  * `// run-fail` — compilation should succeed, but running the resulting
+  * `//@ run-fail` — compilation should succeed, but running the resulting
     binary should fail.
 
 For `run-pass` and `run-fail` tests, by default the output of the program
@@ -383,7 +401,7 @@ Tests with the `*-pass` headers can be overridden with the `--pass`
 command-line option:
 
 ```sh
-./x.py test src/test/ui --pass check
+./x test tests/ui --pass check
 ```
 
 The `--pass` option only affects UI tests.
@@ -422,30 +440,30 @@ from the internet – we often name the test after the issue plus a short
 description.
 Ideally, the test should be added to a directory that helps identify what
 piece of code is being tested here (e.g.,
-`src/test/ui/borrowck/issue-54597-reject-move-out-of-borrow-via-pat.rs`)
+`tests/ui/borrowck/issue-54597-reject-move-out-of-borrow-via-pat.rs`)
 
 When writing a new feature, **create a subdirectory to store your tests**.
 For example, if you are implementing RFC 1234 ("Widgets"), then it might make
-sense to put the tests in a directory like `src/test/ui/rfc1234-widgets/`.
+sense to put the tests in a directory like `tests/ui/rfc1234-widgets/`.
 
 In other cases, there may already be a suitable directory. (The proper
 directory structure to use is actually an area of active debate.)
 
-Over time, the [`src/test/ui`] directory has grown very fast.
+Over time, the [`tests/ui`] directory has grown very fast.
 There is a check in [tidy](intro.md#tidy) that will ensure none of the
 subdirectories has more than 1000 entries.
 Having too many files causes problems because it isn't editor/IDE friendly and
 the GitHub UI won't show more than 1000 entries.
-However, since `src/test/ui` (UI test root directory) and `src/test/ui/issues`
+However, since `tests/ui` (UI test root directory) and `tests/ui/issues`
 directories have more than 1000 entries, we set a different limit for those
 directories.
 So, please avoid putting a new test there and try to find a more relevant
 place.
 
 For example, if your test is related to closures, you should put it in
-`src/test/ui/closures`.
+`tests/ui/closures`.
 If you're not sure where is the best place, it's still okay to add to
-`src/test/ui/issues/`.
+`tests/ui/issues/`.
 When you reach the limit, you could increase it by tweaking [here][ui test
 tidy].
 
@@ -459,8 +477,8 @@ and that the resulting changes compile correctly.
 This can be done with the `run-rustfix` header:
 
 ```rust,ignore
-// run-rustfix
-// check-pass
+//@ run-rustfix
+//@ check-pass
 #![crate_type = "lib"]
 
 pub struct not_camel_case {}
@@ -478,12 +496,12 @@ Then, it applies the suggestion and compares against `.fixed` (they must match).
 Finally, the fixed source is compiled, and this compilation is required to succeed.
 
 Usually when creating a rustfix test you will generate the `.fixed` file
-automatically with the `x.py test --bless` option.
+automatically with the `x test --bless` option.
 
 The `run-rustfix` header will cause *all* suggestions to be applied, even
 if they are not [`MachineApplicable`](../diagnostics.md#suggestions).
-If this is a problem, then you can instead use the `rustfix-only-machine-applicable`
-header.
+If this is a problem, then you can add the `rustfix-only-machine-applicable`
+header in addition to `run-rustfix`.
 This should be used if there is a mixture of different suggestion levels, and
 some of the non-machine-applicable ones do not apply cleanly.
 
@@ -508,7 +526,7 @@ If in the rare case you encounter a test that has different behavior, you can
 run something like the following to generate the alternate stderr file:
 
 ```sh
-./x.py test src/test/ui --compare-mode=polonius --bless
+./x test tests/ui --compare-mode=polonius --bless
 ```
 
 Currently none of the compare modes are checked in CI for UI tests.

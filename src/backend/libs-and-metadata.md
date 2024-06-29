@@ -103,9 +103,8 @@ The hash includes a variety of elements:
 * Hashes of the HIR nodes.
 * All of the upstream crate hashes.
 * All of the source filenames.
-* Hashes of certain command-line flags (like `-C metadata` via the [Crate
-  Disambiguator](#crate-disambiguator), and all CLI options marked with
-  `[TRACKED]`).
+* Hashes of certain command-line flags (like `-C metadata` via the [Stable
+  Crate Id](#stable-crate-id), and all CLI options marked with `[TRACKED]`).
 
 See [`compute_hir_hash`] for where the hash is actually computed.
 
@@ -165,7 +164,7 @@ compilation.
 [`CStore`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_metadata/creader/struct.CStore.html
 [`CrateMetadata`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_metadata/rmeta/decoder/struct.CrateMetadata.html
 [`GlobalCtxt`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.GlobalCtxt.html
-[sysroot]: ../building/bootstrapping.md#what-is-a-sysroot
+[sysroot]: ../building/bootstrapping/what-bootstrapping-does.md#what-is-a-sysroot
 
 ## Pipelining
 

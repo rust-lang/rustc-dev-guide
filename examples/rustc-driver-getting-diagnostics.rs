@@ -1,10 +1,6 @@
 #![feature(rustc_private)]
 
-// NOTE: For the example to compile, you will need to first run the following:
-//   rustup component add rustc-dev llvm-tools-preview
-
-// version: 1.62.0-nightly (7c4b47696 2022-04-30)
-
+extern crate rustc_driver;
 extern crate rustc_error_codes;
 extern crate rustc_errors;
 extern crate rustc_hash;
@@ -13,25 +9,39 @@ extern crate rustc_interface;
 extern crate rustc_session;
 extern crate rustc_span;
 
-use rustc_errors::registry;
-use rustc_session::config::{self, CheckCfg};
-use rustc_span::source_map;
-use std::io;
-use std::path;
-use std::process;
-use std::str;
-use std::sync;
+use rustc_errors::{
+    emitter::Emitter, registry, translation::Translate, DiagCtxt, DiagInner, FluentBundle,
+};
+use rustc_session::config;
+use rustc_span::source_map::SourceMap;
 
-// Buffer diagnostics in a Vec<u8>.
-#[derive(Clone)]
-pub struct DiagnosticSink(sync::Arc<sync::Mutex<Vec<u8>>>);
+use std::{
+    path, process, str,
+    sync::{Arc, Mutex},
+};
 
-impl io::Write for DiagnosticSink {
-    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-        self.0.lock().unwrap().write(buf)
+struct DebugEmitter {
+    source_map: Arc<SourceMap>,
+    diagnostics: Arc<Mutex<Vec<DiagInner>>>,
+}
+
+impl Translate for DebugEmitter {
+    fn fluent_bundle(&self) -> Option<&Arc<FluentBundle>> {
+        None
     }
-    fn flush(&mut self) -> io::Result<()> {
-        self.0.lock().unwrap().flush()
+
+    fn fallback_fluent_bundle(&self) -> &FluentBundle {
+        panic!("this emitter should not translate message")
+    }
+}
+
+impl Emitter for DebugEmitter {
+    fn emit_diagnostic(&mut self, diag: DiagInner) {
+        self.diagnostics.lock().unwrap().push(diag);
+    }
+
+    fn source_map(&self) -> Option<&Arc<SourceMap>> {
+        Some(&self.source_map)
     }
 }
 
@@ -42,22 +52,16 @@ fn main() {
         .output()
         .unwrap();
     let sysroot = str::from_utf8(&out.stdout).unwrap().trim();
-    let buffer = sync::Arc::new(sync::Mutex::new(Vec::new()));
+    let buffer: Arc<Mutex<Vec<DiagInner>>> = Arc::default();
+    let diagnostics = buffer.clone();
     let config = rustc_interface::Config {
         opts: config::Options {
             maybe_sysroot: Some(path::PathBuf::from(sysroot)),
-            // Configure the compiler to emit diagnostics in compact JSON format.
-            error_format: config::ErrorOutputType::Json {
-                pretty: false,
-                json_rendered: rustc_errors::emitter::HumanReadableErrorType::Default(
-                    rustc_errors::emitter::ColorConfig::Never,
-                ),
-            },
             ..config::Options::default()
         },
         // This program contains a type error.
         input: config::Input::Str {
-            name: source_map::FileName::Custom("main.rs".into()),
+            name: rustc_span::FileName::Custom("main.rs".into()),
             input: "
 fn main() {
     let x: &str = 1;
@@ -65,32 +69,38 @@ fn main() {
 "
             .into(),
         },
-        // Redirect the diagnostic output of the compiler to a buffer.
-        diagnostic_output: rustc_session::DiagnosticOutput::Raw(Box::from(DiagnosticSink(
-            buffer.clone(),
-        ))),
-        crate_cfg: rustc_hash::FxHashSet::default(),
-        crate_check_cfg: CheckCfg::default(),
-        input_path: None,
+        crate_cfg: Vec::new(),
+        crate_check_cfg: Vec::new(),
         output_dir: None,
         output_file: None,
         file_loader: None,
+        locale_resources: rustc_driver::DEFAULT_LOCALE_RESOURCES,
         lint_caps: rustc_hash::FxHashMap::default(),
-        parse_sess_created: None,
+        psess_created: Some(Box::new(|parse_sess| {
+            parse_sess.dcx = DiagCtxt::new(Box::new(DebugEmitter {
+                source_map: parse_sess.clone_source_map(),
+                diagnostics,
+            }))
+        })),
         register_lints: None,
         override_queries: None,
-        registry: registry::Registry::new(&rustc_error_codes::DIAGNOSTICS),
+        registry: registry::Registry::new(rustc_errors::codes::DIAGNOSTICS),
         make_codegen_backend: None,
+        expanded_args: Vec::new(),
+        ice_file: None,
+        hash_untracked_state: None,
+        using_internal_features: Arc::default(),
     };
     rustc_interface::run_compiler(config, |compiler| {
         compiler.enter(|queries| {
-            queries.global_ctxt().unwrap().take().enter(|tcx| {
+            queries.global_ctxt().unwrap().enter(|tcx| {
                 // Run the analysis phase on the local crate to trigger the type error.
                 let _ = tcx.analysis(());
             });
         });
     });
     // Read buffered diagnostics.
-    let diagnostics = String::from_utf8(buffer.lock().unwrap().clone()).unwrap();
-    println!("{diagnostics}");
+    buffer.lock().unwrap().iter().for_each(|diagnostic| {
+        println!("{diagnostic:#?}");
+    });
 }

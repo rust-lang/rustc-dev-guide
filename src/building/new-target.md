@@ -4,11 +4,13 @@ These are a set of steps to add support for a new target. There are
 numerous end states and paths to get there, so not all sections may be
 relevant to your desired goal.
 
+<!-- toc -->
+
 ## Specifying a new LLVM
 
 For very new targets, you may need to use a different fork of LLVM
 than what is currently shipped with Rust. In that case, navigate to
-the `src/llvm-project` git submodule (you might need to run `./x.py
+the `src/llvm-project` git submodule (you might need to run `./x
 check` at least once so the submodule is updated), check out the
 appropriate commit for your fork, then commit that new submodule
 reference in the main Rust repository.
@@ -84,12 +86,23 @@ unexpected because stage0 doesn't know about the new target specification and
 we pass `--check-cfg` in order to tell it to check.
 
 To fix the errors you will need to manually add the unexpected value to the
-`EXTRA_CHECK_CFGS` list in `src/bootstrap/lib.rs`. Here is an example for
+`EXTRA_CHECK_CFGS` list in `src/bootstrap/src/lib.rs`. Here is an example for
 adding `NEW_TARGET_OS` as `target_os`:
 ```diff
 - (Some(Mode::Std), "target_os", Some(&["watchos"])),
 + // #[cfg(bootstrap)] NEW_TARGET_OS
 + (Some(Mode::Std), "target_os", Some(&["watchos", "NEW_TARGET_OS"])),
+```
+
+To use this target in bootstrap, we need to explicitly add the target triple to the `STAGE0_MISSING_TARGETS`
+list in `src/bootstrap/src/core/sanity.rs`. This is necessary because the default compiler bootstrap uses does
+not recognize the new target we just added. Therefore, it should be added to `STAGE0_MISSING_TARGETS` so that the
+bootstrap is aware that this target is not yet supported by the stage0 compiler.
+
+```diff
+const STAGE0_MISSING_TARGETS: &[&str] = &[
++   "NEW_TARGET_TRIPLE"
+];
 ```
 
 ## Patching crates
@@ -102,15 +115,11 @@ unreleased version of `libc`, you can add it to the top-level
 
 ```diff
 diff --git a/Cargo.toml b/Cargo.toml
-index be15e50e2bc..4fb1248ba99 100644
+index 1e83f05e0ca..4d0172071c1 100644
 --- a/Cargo.toml
 +++ b/Cargo.toml
-@@ -66,10 +66,11 @@ cargo = { path = "src/tools/cargo" }
+@@ -113,6 +113,8 @@ cargo-util = { path = "src/tools/cargo/crates/cargo-util" }
  [patch.crates-io]
- # Similar to Cargo above we want the RLS to use a vendored version of `rustfmt`
- # that we're shipping as well (to ensure that the rustfmt in RLS and the
- # `rustfmt` executable are the same exact version).
- rustfmt-nightly = { path = "src/tools/rustfmt" }
 +libc = { git = "https://github.com/rust-lang/libc", rev = "0bf7ce340699dcbacabdf5f16a242d2219a49ee0" }
 
  # See comments in `src/tools/rustc-workspace-hack/README.md` for what's going on
@@ -137,7 +146,7 @@ cross-compile `rustc`:
 
 ```
 DESTDIR=/path/to/install/in \
-./x.py install -i --stage 1 --host aarch64-apple-darwin.json --target aarch64-apple-darwin \
+./x install -i --stage 1 --host aarch64-apple-darwin.json --target aarch64-apple-darwin \
 compiler/rustc library/std
 ```
 

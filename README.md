@@ -49,10 +49,10 @@ To build a local static HTML site, install [`mdbook`](https://github.com/rust-la
 and execute the following command in the root of the repository:
 
 ```
-> mdbook build
+> mdbook build --open
 ```
 
-The build files are found in the `book` directory.
+The build files are found in the `book/html` directory.
 
 ### Link Validations
 
@@ -63,25 +63,6 @@ We use `mdbook-linkcheck` to validate URLs included in our documentation.
 
 We use `mdbook-toc` to auto-generate TOCs for long sections. You can invoke the preprocessor by
 including the `<!-- toc -->` marker at the place where you want the TOC.
-
-### Pre-commit script
-
-We also test that line lengths are less than 100 columns. To test this locally,
-you can run `ci/check_line_lengths.sh`.
-
-You can also set this to run automatically.
-
-On Linux:
-
-```bash
-ln -s ../../ci/check_line_lengths.sh .git/hooks/pre-commit
-```
-
-On Windows:
-
-```powershell
-New-Item -Path .git/hooks/pre-commit -ItemType HardLink -Value <absolute_path/to/check_line_lengths.sh>
-```
 
 ## How to fix toolstate failures
 
@@ -118,7 +99,7 @@ git submodule update --remote src/doc/rustc-dev-guide
 git add -u
 git commit -m "Update rustc-dev-guide"
 # Note that you can use -i, which is short for --incremental, in the following command
-./x.py test --incremental src/doc/rustc-dev-guide # This is optional and should succeed anyway
+./x test --incremental src/doc/rustc-dev-guide # This is optional and should succeed anyway
 # Open a PR in rust-lang/rust
 ```
 

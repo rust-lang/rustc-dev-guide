@@ -163,7 +163,7 @@ Depending on the feature/change/bug fix/improvement, implementation may be
 relatively-straightforward or it may be a major undertaking. You can always ask
 for help or mentorship from more experienced compiler devs.  Also, you don't
 have to be the one to implement your feature; but keep in mind that if you
-don't it might be a while before someone else does.
+don't, it might be a while before someone else does.
 
 For the `?` macro feature, I needed to go understand the relevant parts of
 macro expansion in the compiler. Personally, I find that [improving the
@@ -181,15 +181,24 @@ gate is removed when the feature is stabilized.
 make your changes/improvements.
 
 When you open a PR on the [rust-lang/rust], a bot will assign your PR to a
-review. If there is a particular Rust team member you are working with, you can
+reviewer. If there is a particular Rust team member you are working with, you can
 request that reviewer by leaving a comment on the thread with `r?
 @reviewer-github-id` (e.g. `r? @eddyb`). If you don't know who to request,
 don't request anyone; the bot will assign someone automatically based on which files you changed.
 
-The reviewer may request changes before they approve your PR. Feel free to ask
-questions or discuss things you don't understand or disagree with. However,
+The reviewer may request changes before they approve your PR, they may mark the PR with label 
+"S-waiting-on-author" after leaving comments, this means that the PR is blocked on you to make 
+some requested changes. When you finished iterating on the changes, you can mark the PR as 
+`S-waiting-on-review` again by leaving a comment with `@rustbot ready`, this will remove the 
+`S-waiting-on-author` label and add the `S-waiting-on-review` label.
+
+Feel free to ask questions or discuss things you don't understand or disagree with. However,
 recognize that the PR won't be merged unless someone on the Rust team approves
-it.
+it. If a reviewer leave a comment like `r=me after fixing ...`, that means they approve the PR and 
+you can merge it with comment with `@bors r=reviewer-github-id`(e.g. `@bors r=eddyb`) to merge it 
+after fixing trivial issues. Note that `r=someone` requires permission and bors could say 
+something like "🔑 Insufficient privileges..." when commenting `r=someone`. In that case, 
+you have to ask the reviewer to revisit your PR.
 
 When your reviewer approves the PR, it will go into a queue for yet another bot
 called `@bors`. `@bors` manages the CI build/merge queue. When your PR reaches

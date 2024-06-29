@@ -8,8 +8,6 @@ Specifically:
   crate, these are then deserialized by crates that depend on that library.
 - Certain query outputs are serialized in a binary format to
   [persist incremental compilation results].
-- The `-Z ast-json` and `-Z ast-json-noexpand` flags serialize the [AST] to json
-  and output the result to stdout.
 - [`CrateInfo`] is serialized to json when the `-Z no-link` flag is used, and
   deserialized from json when the `-Z link-only` flag is used.
 
@@ -108,8 +106,8 @@ and `Encodable`.
 - `MetadataEncodable` and `MetadataDecodable` generate implementations that
   only allow decoding by [`rustc_metadata::rmeta::encoder::EncodeContext`] and
   [`rustc_metadata::rmeta::decoder::DecodeContext`]. These are used for types
-  that contain `rustc_metadata::rmeta::Lazy`.
-- `TyEncodable` and `TyDecoder` generate implementation that apply to any
+  that contain `rustc_metadata::rmeta::Lazy*`.
+- `TyEncodable` and `TyDecodable` generate implementation that apply to any
   `TyEncoder` or `TyDecoder`. These should be used for types that are only
   serialized in crate metadata and/or the incremental cache, which is most
   serializable types in `rustc_middle`.
@@ -130,7 +128,7 @@ some deserialization needs to be deferred from the initial loading of metadata.
 The [`LazyValue<T>`] type wraps the (relative) offset in the crate metadata where a
 `T` has been serialized. There are also some variants, [`LazyArray<T>`] and [`LazyTable<I, T>`].
 
-The `Lazy<[T]>` and `LazyTable<I, T>` type provide some functionality over
+The `LazyArray<[T]>` and `LazyTable<I, T>` types provide some functionality over
 `Lazy<Vec<T>>` and `Lazy<HashMap<I, T>>`:
 
 - It's possible to encode a `LazyArray<T>` directly from an iterator, without
@@ -162,5 +160,5 @@ for `Encodable<CacheEncoder>`.
 [`rustc_metadata::rmeta::decoder::DecodeContext`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_metadata/rmeta/decoder/struct.DecodeContext.html
 [`rustc_metadata::rmeta::encoder::EncodeContext`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_metadata/rmeta/encoder/struct.EncodeContext.html
 [`rustc_serialize`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_serialize/index.html
-[`TyDecoder`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/codec/trait.TyEncoder.html
-[`TyEncoder`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/codec/trait.TyDecoder.html
+[`TyDecoder`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/codec/trait.TyDecoder.html
+[`TyEncoder`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/codec/trait.TyEncoder.html

@@ -300,7 +300,7 @@ does not.
 
 > Thanks to `mem`, `scottmcm`, and `Levi` on the official Discord for the
 > recommendations, and to `tinaun` for posting a link to a [twitter thread from
-> Graydon Hoare](https://twitter.com/graydon_pub/status/1039615569132118016)
+> Graydon Hoare](https://web.archive.org/web/20181230012554/https://twitter.com/graydon_pub/status/1039615569132118016)
 > which had some more recommendations!
 >
 > Other sources: https://gcc.gnu.org/wiki/ListOfCompilerBooks
@@ -310,7 +310,7 @@ does not.
 ## Books
 - [Types and Programming Languages](https://www.cis.upenn.edu/~bcpierce/tapl/)
 - [Programming Language Pragmatics](https://www.cs.rochester.edu/~scott/pragmatics/)
-- [Practical Foundations for Programming Languages](https://www.cs.cmu.edu/~rwh/pfpl/2nded.pdf)
+- [Practical Foundations for Programming Languages](https://www.cs.cmu.edu/~rwh/pfpl/)
 - [Compilers: Principles, Techniques, and Tools, 2nd Edition](https://www.pearson.com/us/higher-education/program/Aho-Compilers-Principles-Techniques-and-Tools-2nd-Edition/PGM167067.html)
 - [Garbage Collection: Algorithms for Automatic Dynamic Memory Management](https://www.cs.kent.ac.uk/people/staff/rej/gcbook/)
 - [Linkers and Loaders](https://www.amazon.com/Linkers-Kaufmann-Software-Engineering-Programming/dp/1558604960) (There are also free versions of this, but the version we had linked seems to be offline at the moment.)
@@ -328,5 +328,5 @@ does not.
 - [nLab](https://ncatlab.org/nlab/show/HomePage)
 
 ## Misc Papers and Blog Posts
-- [Programming in Martin-Löf's Type Theory](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.118.6683&rep=rep1&type=pdf)
+- [Programming in Martin-Löf's Type Theory](https://www.researchgate.net/publication/213877272_Programming_in_Martin-Lof's_Type_Theory)
 - [Polymorphism, Subtyping, and Type Inference in MLsub](https://dl.acm.org/doi/10.1145/3093333.3009882)

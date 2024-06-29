@@ -10,13 +10,13 @@ like the standard library (std) or the compiler (rustc).
   as rustdoc is under active development:
 
   ```bash
-  ./x.py doc
+  ./x doc
   ```
 
   If you want to be sure the documentation looks the same as on CI:
 
   ```bash
-  ./x.py doc --stage 1
+  ./x doc --stage 1
   ```
 
   This ensures that (current) rustdoc gets built,
@@ -26,15 +26,17 @@ like the standard library (std) or the compiler (rustc).
   you can build just the documentation you want:
 
   ```bash
-  ./x.py doc src/doc/book
-  ./x.py doc src/doc/nomicon
-  ./x.py doc compiler library
+  ./x doc src/doc/book
+  ./x doc src/doc/nomicon
+  ./x doc compiler library
   ```
+
+  See [the nightly docs index page](https://doc.rust-lang.org/nightly/) for a full list of books.
 
 - Document internal rustc items
 
   Compiler documentation is not built by default.
-  To create it by default with `x.py doc`, modify `config.toml`:
+  To create it by default with `x doc`, modify `config.toml`:
 
   ```toml
   [build]

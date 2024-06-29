@@ -27,8 +27,10 @@ The repository consists of three main directories:
   `proc_macro`, `test`), as well as the Rust runtime (`backtrace`, `rtstartup`,
   `lang_start`).
   
+- `tests/` contains the compiler tests.
+  
 - `src/` contains the source code for rustdoc, clippy, cargo, the build system,
-  compiler tests, language docs, etc.
+  language docs, etc.
 
 ## Compiler
 
@@ -147,14 +149,14 @@ You can read more about rustdoc in [this chapter][rustdocch].
 
 ## Tests
 
-The test suite for all of the above is in [`src/test/`]. You can read more
+The test suite for all of the above is in [`tests/`]. You can read more
 about the test suite [in this chapter][testsch].
 
 The test harness itself is in [`src/tools/compiletest`].
 
 [testsch]: ./tests/intro.md
 
-[`src/test/`]: https://github.com/rust-lang/rust/tree/master/src/test
+[`tests/`]: https://github.com/rust-lang/rust/tree/master/tests
 [`src/tools/compiletest`]: https://github.com/rust-lang/rust/tree/master/src/tools/compiletest
 
 ## Build System
@@ -171,7 +173,7 @@ from `src/tools/`, such as [`tidy`] or [`compiletest`].
 [`tidy`]: https://github.com/rust-lang/rust/tree/master/src/tools/tidy
 [`compiletest`]: https://github.com/rust-lang/rust/tree/master/src/tools/compiletest
 
-[bootstch]: ./building/bootstrapping.md
+[bootstch]: ./building/bootstrapping/intro.md
 
 ## Standard library
 
@@ -193,11 +195,8 @@ These include:
   run a lot of tests on a lot of platforms.
 - [`src/doc`]: Various documentation, including submodules for a few books.
 - [`src/etc`]: Miscellaneous utilities.
-- [`src/tools/rustc-workspace-hack`], and others: Various workarounds to make
-  cargo work with bootstrapping.
 - And more...
 
 [`src/ci`]: https://github.com/rust-lang/rust/tree/master/src/ci
 [`src/doc`]: https://github.com/rust-lang/rust/tree/master/src/doc
 [`src/etc`]: https://github.com/rust-lang/rust/tree/master/src/etc
-[`src/tools/rustc-workspace-hack`]: https://github.com/rust-lang/rust/tree/master/src/tools/rustc-workspace-hack

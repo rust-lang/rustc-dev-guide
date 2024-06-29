@@ -5,7 +5,7 @@
 The HIR – "High-Level Intermediate Representation" – is the primary IR used
 in most of rustc. It is a compiler-friendly representation of the abstract
 syntax tree (AST) that is generated after parsing, macro expansion, and name
-resolution (see [Lowering](./lowering.html) for how the HIR is created).
+resolution (see [Lowering](./ast-lowering.html) for how the HIR is created).
 Many parts of HIR resemble Rust surface syntax quite closely, with
 the exception that some of Rust's expression forms have been desugared away.
 For example, `for` loops are converted into a `loop` and do not appear in
@@ -18,6 +18,14 @@ You can view the HIR representation of your code by passing the
 
 ```bash
 cargo rustc -- -Z unpretty=hir-tree
+```
+
+
+You can also use the `-Z unpretty=hir` option to generate a HIR
+that is closer to the original source code expression:
+
+```bash
+cargo rustc -- -Z unpretty=hir
 ```
 
 ## Out-of-band storage and the `Crate` type
@@ -117,9 +125,9 @@ that `n` must be some HIR expression, you can do
 [Expr]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/struct.Expr.html
 
 Finally, you can use the HIR map to find the parents of nodes, via
-calls like [`tcx.hir().get_parent_node(n)`][get_parent_node].
+calls like [`tcx.hir().get_parent(n)`][get_parent].
 
-[get_parent_node]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/hir/map/struct.Map.html#method.get_parent_node
+[get_parent]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/hir/map/struct.Map.html#method.get_parent
 
 ## HIR Bodies
 

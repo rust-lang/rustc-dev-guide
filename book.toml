@@ -1,7 +1,7 @@
 [book]
-title = "Guide to Rustc Development"
-author = "Rustc developers"
-description = "A guide to developing rustc"
+title = "Rust Compiler Development Guide"
+author = "The Rust Project Developers"
+description = "A guide to developing the Rust compiler (rustc)"
 
 [build]
 create-missing = false
@@ -15,8 +15,11 @@ command = "mdbook-mermaid"
 
 [output.html]
 git-repository-url = "https://github.com/rust-lang/rustc-dev-guide"
-edit-url-template = "https://github.com/rust-lang/rustc-dev-guide/tree/master/{path}?mode=edit"
+edit-url-template = "https://github.com/rust-lang/rustc-dev-guide/edit/master/{path}"
 additional-js = ["mermaid.min.js", "mermaid-init.js"]
+
+[output.html.search]
+use-boolean-and = true
 
 [output.html.fold]
 enable = true
@@ -35,11 +38,15 @@ exclude = [
     "www\\.amazon\\.com",
     "www\\.rustaceans\\.org",
     "play\\.rust-lang\\.org",
-    "tomlee\\.co"
+    "tomlee\\.co",
+    "marketplace\\.visualstudio\\.com",
+    "objects\\.githubusercontent\\.com"
 ]
 cache-timeout = 86400
 warning-policy = "error"
 
 [output.html.redirect]
 "/compiletest.html" = "tests/compiletest.html"
-"/diagnostics/sessiondiagnostic.html" = "diagnostics/diagnostic-structs.html"
+"/diagnostics/sessiondiagnostic.html" = "diagnostic-structs.html"
+"/diagnostics/diagnostic-codes.html" = "error-codes.html"
+"/miri.html" = "const-eval/interpret.html"

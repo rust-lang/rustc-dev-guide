@@ -5,16 +5,18 @@
 Header commands are special comments that tell compiletest how to build and
 interpret a test.
 They must appear before the Rust source in the test.
-They may also appear in Makefiles for [run-make tests](compiletest.md#run-make-tests).
+They may also appear in `rmake.rs` or legacy Makefiles for
+[run-make tests](compiletest.md#run-make-tests).
 
 They are normally put after the short comment that explains the point of this test.
-For example, this test uses the `// compile-flags` command to specify a custom
+Compiletest test suites use `//@` to signal that a comment is a header.
+For example, this test uses the `//@ compile-flags` command to specify a custom
 flag to give to rustc when the test is compiled:
 
 ```rust,ignore
 // Test the behavior of `0 - 1` when overflow checks are disabled.
 
-// compile-flags: -C overflow-checks=off
+//@ compile-flags: -C overflow-checks=off
 
 fn main() {
     let x = 0 - 1;
@@ -22,13 +24,17 @@ fn main() {
 }
 ```
 
-Header commands can be standalone (like `// run-pass`) or take a value (like
-`// compile-flags: -C overflow-checks=off`).
+Header commands can be standalone (like `//@ run-pass`) or take a value (like
+`//@ compile-flags: -C overflow-checks=off`).
+
+Header commands are written with one header per line: you cannot write multiple
+headers on the same line. For example, if you write `//@ only-x86 only-windows`
+then `only-windows` is interpreted as a comment, not a separate directive.
 
 ## Header commands
 
 The following is a list of header commands.
-Commands are linked to sections the describe the command in more detail if available.
+Commands are linked to sections that describe the command in more detail if available.
 This list may not be exhaustive.
 Header commands can generally be found by browsing the `TestProps` structure
 found in [`header.rs`] from the compiletest source.
@@ -52,9 +58,13 @@ found in [`header.rs`] from the compiletest source.
     * [`stderr-per-bitwidth`](ui.md#output-comparison) — separate output per bit width
     * [`dont-check-compiler-stderr`](ui.md#output-comparison) — don't validate stderr
     * [`dont-check-compiler-stdout`](ui.md#output-comparison) — don't validate stdout
+    * [`compare-output-lines-by-subset`](ui.md#output-comparison) — checks output by
+      line subset
 * [Building auxiliary crates](compiletest.md#building-auxiliary-crates)
     * `aux-build`
     * `aux-crate`
+    * `aux-bin`
+    * `aux-codegen-backend`
 * [Pretty-printer](compiletest.md#pretty-printer-tests) headers
     * `pretty-compare-only`
     * `pretty-expanded`
@@ -65,13 +75,13 @@ found in [`header.rs`] from the compiletest source.
     * `only-X`
     * `needs-X`
     * `no-system-llvm`
-    * `min-llvm-versionX`
+    * `min-llvm-version`
     * `min-system-llvm-version`
-    * `ignore-llvm-version`
     * `ignore-llvm-version`
 * [Environment variable headers](#environment-variable-headers)
     * `rustc-env`
     * `exec-env`
+    * `unset-exec-env`
     * `unset-rustc-env`
 * [Miscellaneous headers](#miscellaneous-headers)
     * `compile-flags` — adds compiler flags
@@ -83,14 +93,20 @@ found in [`header.rs`] from the compiletest source.
     * [`error-pattern`](ui.md#error-pattern) — errors not on a line
     * `incremental` — incremental tests not in the incremental test-suite
     * `no-prefer-dynamic` — don't use `-C prefer-dynamic`, don't build as a dylib
+    * `no-auto-check-cfg` — disable auto check-cfg (only for `--check-cfg` tests)
     * `force-host` — build only for the host target
     * [`revisions`](compiletest.md#revisions) — compile multiple times
+    * [`unused-revision-names`](compiletest.md#ignoring-unused-revision-names) -
+      suppress tidy checks for mentioning unknown revision names
     * [`forbid-output`](compiletest.md#incremental-tests) — incremental cfail rejects output pattern
     * [`should-ice`](compiletest.md#incremental-tests) — incremental cfail should ICE
     * [`known-bug`](ui.md#known-bugs) — indicates that the test is
       for a known bug that has not yet been fixed
 * [Assembly](compiletest.md#assembly-tests) headers
     * `assembly-output` — the type of assembly output to check
+* [Tool-specific headers](#tool-specific-headers)
+    * `filecheck-flags` - passes extra flags to the `FileCheck` tool
+    * `llvm-cov-flags` - passes extra flags to the `llvm-cov` tool
 
 
 ### Ignoring tests
@@ -142,11 +158,14 @@ The following header commands will check rustc build settings and target setting
   (AddressSanitizer, hardware-assisted AddressSanitizer, LeakSanitizer,
   MemorySanitizer or ThreadSanitizer respectively)
 * `needs-run-enabled` — ignores if it is a test that gets executed, and
-  running has been disabled. Running tests can be disabled with the `x.py test
+  running has been disabled. Running tests can be disabled with the `x test
   --run=never` flag, or running on fuchsia.
 * `needs-unwind` — ignores if the target does not support unwinding
 * `needs-rust-lld` — ignores if the rust lld support is not enabled
   (`rust.lld = true` in `config.toml`)
+* `needs-threads` — ignores if the target does not have threading support
+* `needs-symlink` — ignores if the target does not support symlinks. This can be the case on Windows
+  if the developer did not enable priviledged symlink permissions.
 
 The following header commands will check LLVM support:
 
@@ -157,17 +176,20 @@ The following header commands will check LLVM support:
 * `ignore-llvm-version: 9.0` — ignores a specific LLVM version
 * `ignore-llvm-version: 7.0 - 9.9.9` — ignores LLVM versions in a range (inclusive)
 * `needs-llvm-components: powerpc` — ignores if the specific LLVM component was not built.
-  Note: The test will fail on CI if the component does not exist.
-* `needs-matching-clang` — ignores if the version of clang does not match the
-  LLVM version of rustc.
-  These tests are always ignored unless a special environment variable is set
-  (which is only done in one CI job).
+  Note: The test will fail on CI (when `COMPILETEST_REQUIRE_ALL_LLVM_COMPONENTS` is set) if the component does not exist.
+* `needs-forced-clang-based-tests` —
+  test is ignored unless the environment variable `RUSTBUILD_FORCE_CLANG_BASED_TESTS`
+  is set, which enables building clang alongside LLVM
+  - This is only set in one CI job ([`x86_64-gnu-debug`]), which only runs a tiny
+    subset of `run-make` tests. Other tests with this header will not run at all,
+    which is usually not what you want.
 
 See also [Debuginfo tests](compiletest.md#debuginfo-tests) for headers for
 ignoring debuggers.
 
 [remote testing]: running.md#running-tests-on-a-remote-machine
 [compare modes]: ui.md#compare-modes
+[`x86_64-gnu-debug`]: https://github.com/rust-lang/rust/blob/ab3dba92db355b8d97db915a2dca161a117e959c/src/ci/docker/host-x86_64/x86_64-gnu-debug/Dockerfile#L32
 
 ### Environment variable headers
 
@@ -177,6 +199,8 @@ The following headers affect environment variables.
   form `KEY=VALUE`.
 * `exec-env` is an environment variable to set when executing a test of the
   form `KEY=VALUE`.
+* `unset-exec-env` specifies an environment variable to unset when executing a
+  test.
 * `unset-rustc-env` specifies an environment variable to unset when running
   `rustc`.
 
@@ -186,10 +210,10 @@ The following headers are generally available, and not specific to particular
 test suites.
 
 * `compile-flags` passes extra command-line args to the compiler,
-  e.g. `compile-flags -g` which forces debuginfo to be enabled.
+  e.g. `//@ compile-flags: -g` which forces debuginfo to be enabled.
 * `run-flags` passes extra args to the test if the test is to be executed.
 * `edition` controls the edition the test should be compiled with
-  (defaults to 2015). Example usage: `// edition:2018`.
+  (defaults to 2015). Example usage: `//@ edition:2018`.
 * `failure-status` specifies the numeric exit code that should be expected for
   tests that expect an error.
   If this is not set, the default is 1.
@@ -225,6 +249,19 @@ test suites.
   to be loaded by the host compiler.
 
 
+### Tool-specific headers
+
+The following headers affect how certain command-line tools are invoked,
+in test suites that use those tools:
+
+* `filecheck-flags` adds extra flags when running LLVM's `FileCheck` tool.
+  - Used by [codegen tests](compiletest.md#codegen-tests),
+  [assembly tests](compiletest.md#assembly-tests), and
+  [MIR-opt tests](compiletest.md#mir-opt-tests).
+* `llvm-cov-flags` adds extra flags when running LLVM's `llvm-cov` tool.
+  - Used by [coverage tests](compiletest.md#coverage-tests) in `coverage-run` mode.
+
+
 ## Substitutions
 
 Headers values support substituting a few variables which will be replaced
@@ -233,7 +270,7 @@ For example, if you need to pass a compiler flag with a path to a specific
 file, something like the following could work:
 
 ```rust,ignore
-// compile-flags: --remap-path-prefix={{src-base}}=/the/src
+//@ compile-flags: --remap-path-prefix={{src-base}}=/the/src
 ```
 
 Where the sentinel `{{src-base}}` will be replaced with the appropriate path
@@ -244,12 +281,19 @@ described below:
   - Examples: `/path/to/rust`, `/path/to/build/root`
 - `{{src-base}}`: The directory where the test is defined. This is equivalent to
   `$DIR` for [output normalization].
-  - Example: `/path/to/rust/src/test/ui/error-codes`
+  - Example: `/path/to/rust/tests/ui/error-codes`
 - `{{build-base}}`: The base directory where the test's output goes. This is
   equivalent to `$TEST_BUILD_DIR` for [output normalization].
   - Example: `/path/to/rust/build/x86_64-unknown-linux-gnu/test/ui`
+- `{{sysroot-base}}`: Path of the sysroot directory used to build the test.
+  - Mainly intended for `ui-fulldeps` tests that run the compiler via API.
+- `{{target-linker}}`: Linker that would be passed to `-Clinker` for this test,
+  or blank if no linker override is active.
+  - Mainly intended for `ui-fulldeps` tests that run the compiler via API.
+- `{{target}}`: The target the test is compiling for
+  - Example: `x86_64-unknown-linux-gnu`
 
-See [`src/test/ui/commandline-argfile.rs`](https://github.com/rust-lang/rust/blob/a5029ac0ab372aec515db2e718da6d7787f3d122/src/test/ui/commandline-argfile.rs)
+See [`tests/ui/commandline-argfile.rs`](https://github.com/rust-lang/rust/blob/master/tests/ui/commandline-argfile.rs)
 for an example of a test that uses this substitution.
 
 [output normalization]: ui.md#normalization
@@ -279,8 +323,8 @@ also in [`src/tools/compiletest/src/header.rs`] (note that the `Config`
 struct's declaration block is found in [`src/tools/compiletest/src/common.rs`]).
 `TestProps`'s `load_from()` method will try passing the current line of text to
 each parser, which, in turn typically checks to see if the line begins with a
-particular commented (`//`) header command such as `// must-compile-successfully`
-or `// failure-status`. Whitespace after the comment marker is optional.
+particular commented (`//@`) header command such as `//@ must-compile-successfully`
+or `//@ failure-status`. Whitespace after the comment marker is optional.
 
 Parsers will override a given header command property's default value merely by
 being specified in the test file as a header command or by having a parameter

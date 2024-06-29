@@ -10,7 +10,7 @@ This is a guide for how to profile rustc with [perf](https://perf.wiki.kernel.or
   - `debuginfo-level = 1` - enables line debuginfo
   - `jemalloc = false` - lets you do memory use profiling with valgrind
   - leave everything else the defaults
-- Run `./x.py build` to get a full build
+- Run `./x build` to get a full build
 - Make a rustup toolchain pointing to that result
   - see [the "build and run" section for instructions][b-a-r]
 
@@ -90,14 +90,15 @@ You can also use that same command to use cachegrind or other profiling tools.
 
 If you prefer to run things manually, that is also possible. You first
 need to find the source for the test you want. Sources for the tests
-are found in [the `collector/benchmarks` directory][dir]. So let's go
-into the directory of a specific test; we'll use `clap-rs` as an
-example:
+are found in [the `collector/compile-benchmarks` directory][compile-time dir]
+and [the `collector/runtime-benchmarks` directory][runtime dir]. So let's
+go into the directory of a specific test; we'll use `clap-rs` as an example:
 
-[dir]: https://github.com/rust-lang/rustc-perf/tree/master/collector/benchmarks
+[compile-time dir]: https://github.com/rust-lang/rustc-perf/tree/master/collector/compile-benchmarks
+[runtime dir]: https://github.com/rust-lang/rustc-perf/tree/master/collector/runtime-benchmarks
 
 ```bash
-cd collector/benchmarks/clap-rs
+cd collector/compile-benchmarks/clap-3.1.6
 ```
 
 In this case, let's say we want to profile the `cargo check`
@@ -281,7 +282,7 @@ Tree
 What happens with `--tree-callees` is that
 
 - we find each sample matching the regular expression
-- we look at the code that is occurs *after* the regex match and try
+- we look at the code that occurs *after* the regex match and try
   to build up a call tree
 
 The `--tree-min-percent 3` option says "only show me things that take

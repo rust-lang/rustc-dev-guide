@@ -1,5 +1,4 @@
 # Debugging the compiler
-[debugging]: #debugging
 
 <!-- toc -->
 
@@ -43,9 +42,15 @@ otherwise you need to disable new symbol-mangling-version in `config.toml`.
 new-symbol-mangling = false
 ```
 
-> See the comments in `config.toml.example` for more info.
+> See the comments in `config.example.toml` for more info.
 
 You will need to rebuild the compiler after changing any configuration option.
+
+## Suppressing the ICE file
+
+By default, if rustc encounters an Internal Compiler Error (ICE) it will dump the ICE contents to an
+ICE file within the current working directory named `rustc-ice-<timestamp>-<pid>.txt`. If this is
+not desirable, you can prevent the ICE file from being created with `RUSTC_ICE=0`.
 
 ## `-Z` flags
 
@@ -53,8 +58,8 @@ The compiler has a bunch of `-Z` flags. These are unstable flags that are only
 enabled on nightly. Many of them are useful for debugging. To get a full listing
 of `-Z` flags, use `-Z help`.
 
-One useful flag is `-Z verbose`, which generally enables printing more info that
-could be useful for debugging.
+One useful flag is `-Z verbose-internals`, which generally enables printing more
+info that could be useful for debugging.
 
 ## Getting a backtrace
 [getting-a-backtrace]: #getting-a-backtrace
@@ -109,12 +114,8 @@ stack backtrace:
 
 If you want to get a backtrace to the point where the compiler emits an
 error message, you can pass the `-Z treat-err-as-bug=n`, which will make
-the compiler panic on the `nth` error on `delay_span_bug`. If you leave
-off `=n`, the compiler will assume `1` for `n` and thus panic on the
-first error it encounters.
-
-This can also help when debugging `delay_span_bug` calls - it will make
-the first `delay_span_bug` call panic, which will give you a useful backtrace.
+the compiler panic on the `nth` error. If you leave off `=n`, the compiler will
+assume `1` for `n` and thus panic on the first error it encounters.
 
 For example:
 
@@ -128,7 +129,7 @@ fn main() {
 }
 ```
 
-```bash
+```
 $ rustc +stage1 error.rs
 error[E0277]: cannot add `()` to `{integer}`
  --> error.rs:2:7
@@ -143,7 +144,7 @@ error: aborting due to previous error
 
 Now, where does the error above come from?
 
-```bash
+```
 $ RUST_BACKTRACE=1 rustc +stage1 error.rs -Z treat-err-as-bug
 error[E0277]: the trait bound `{integer}: std::ops::Add<()>` is not satisfied
  --> error.rs:2:7
@@ -185,6 +186,47 @@ stack backtrace:
 
 Cool, now I have a backtrace for the error!
 
+## Debugging delayed bugs
+
+The `-Z eagerly-emit-delayed-bugs` option makes it easy to debug delayed bugs.
+It turns them into normal errors, i.e. makes them visible. This can be used in
+combination with `-Z treat-err-as-bug` to stop at a particular delayed bug and
+get a backtrace.
+
+## Getting the error creation location
+
+`-Z track-diagnostics` can help figure out where errors are emitted. It uses `#[track_caller]`
+for this and prints its location alongside the error:
+
+```
+$ RUST_BACKTRACE=1 rustc +stage1 error.rs -Z track-diagnostics
+error[E0277]: cannot add `()` to `{integer}`
+ --> src\error.rs:2:7
+  |
+2 |     1 + ();
+  |       ^ no implementation for `{integer} + ()`
+-Ztrack-diagnostics: created at compiler/rustc_trait_selection/src/traits/error_reporting/mod.rs:638:39
+  |
+  = help: the trait `Add<()>` is not implemented for `{integer}`
+  = help: the following other types implement trait `Add<Rhs>`:
+            <&'a f32 as Add<f32>>
+            <&'a f64 as Add<f64>>
+            <&'a i128 as Add<i128>>
+            <&'a i16 as Add<i16>>
+            <&'a i32 as Add<i32>>
+            <&'a i64 as Add<i64>>
+            <&'a i8 as Add<i8>>
+            <&'a isize as Add<isize>>
+          and 48 others
+
+For more information about this error, try `rustc --explain E0277`.
+```
+
+This is similar but different to `-Z treat-err-as-bug`:
+- it will print the locations for all errors emitted
+- it does not require a compiler built with debug symbols
+- you don't have to read through a big stack trace.
+
 ## Getting logging output
 
 The compiler uses the [`tracing`] crate for logging.
@@ -208,24 +250,6 @@ $ dot -T pdf maybe_init_suffix.dot > maybe_init_suffix.pdf
 $ firefox maybe_init_suffix.pdf # Or your favorite pdf viewer
 ```
 
-## Viewing Spanview output (.html files)
-[viewing-spanview-output]: #viewing-spanview-output
-
-In addition to [graphviz output](#formatting-graphviz-output-dot-files), MIR debugging
-flags include an option to generate a MIR representation called `Spanview` that
-uses HTML to highlight code regions in the original source code and display
-compiler metadata associated with each region.
-[`-Z dump-mir-spanview`](./mir/debugging.md), for example, highlights spans
-associated with each MIR `Statement`, `Terminator`, and/or `BasicBlock`.
-
-These `.html` files use CSS features to dynamically expand spans obscured by
-overlapping spans, and native tooltips (based on the HTML `title` attribute) to
-reveal the actual MIR elements, as text.
-
-To view these files, simply use a modern browser, or a CSS-capable HTML preview
-feature in a modern IDE. (The default HTML preview pane in *VS Code* is known to
-work, for instance.)
-
 ## Narrowing (Bisecting) Regressions
 
 The [cargo-bisect-rustc][bisect] tool can be used as a quick and easy way to
@@ -236,7 +260,7 @@ on *why* it was changed.  See [this tutorial][bisect-tutorial] on how to use
 it.
 
 [bisect]: https://github.com/rust-lang/cargo-bisect-rustc
-[bisect-tutorial]: https://github.com/rust-lang/cargo-bisect-rustc/blob/master/TUTORIAL.md
+[bisect-tutorial]: https://rust-lang.github.io/cargo-bisect-rustc/tutorial.html
 
 ## Downloading Artifacts from Rust's CI
 
@@ -307,3 +331,37 @@ error: aborting due to previous error
 ```
 
 [`Layout`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_target/abi/struct.Layout.html
+
+
+## Configuring CodeLLDB for debugging `rustc`
+
+If you are using VSCode, and have edited your `config.toml` to request debugging
+level 1 or 2 for the parts of the code you're interested in, then you should be
+able to use the [CodeLLDB] extension in VSCode to debug it.
+
+Here is a sample `launch.json` file, being used to run a stage 1 compiler direct
+from the directory where it is built (does not have to be "installed"):
+
+```javascript
+// .vscode/launch.json
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "lldb",
+        "request": "launch",
+        "name": "Launch",
+        "args": [],  // array of string command-line arguments to pass to compiler
+        "program": "${workspaceFolder}/build/host/stage1/bin/rustc",
+        "windows": {  // applicable if using windows
+            "program": "${workspaceFolder}/build/host/stage1/bin/rustc.exe"
+        },
+        "cwd": "${workspaceFolder}",  // current working directory at program start
+        "stopOnEntry": false,
+        "sourceLanguages": ["rust"]
+      }
+    ]
+  }
+```
+
+[CodeLLDB]: https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb

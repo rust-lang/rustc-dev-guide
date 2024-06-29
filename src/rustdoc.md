@@ -1,8 +1,5 @@
 # Rustdoc overview
 
-`rustdoc` uses `rustc` internals (and, of course, the standard library), so you
-will have to build the compiler and `std` once before you can build `rustdoc`.
-
 `rustdoc` lives in-tree with the
 compiler and standard library. This chapter is about how it works.
 For information about Rustdoc's features and how to use them, see
@@ -11,6 +8,11 @@ For more details about how rustdoc works, see the
 ["Rustdoc internals" chapter][Rustdoc internals].
 
 [Rustdoc internals]: ./rustdoc-internals.md
+
+<!-- toc -->
+
+`rustdoc` uses `rustc` internals (and, of course, the standard library), so you
+will have to build the compiler and `std` once before you can build `rustdoc`.
 
 Rustdoc is implemented entirely within the crate [`librustdoc`][rd]. It runs
 the compiler up to the point where we have an internal representation of a
@@ -39,24 +41,24 @@ does is call the `main()` that's in this crate's `lib.rs`, though.)
 
 ## Cheat sheet
 
-* Run `./x.py setup tools` before getting started. This will configure `x.py`
+* Run `./x setup tools` before getting started. This will configure `x`
   with nice settings for developing rustdoc and other tools, including
   downloading a copy of rustc rather than building it.
-* Use `./x.py check src/tools/rustdoc` to quickly check for compile errors.
-* Use `./x.py build` to make a usable
+* Use `./x check src/tools/rustdoc` to quickly check for compile errors.
+* Use `./x build` to make a usable
   rustdoc you can run on other projects.
   * Add `library/test` to be able to use `rustdoc --test`.
-  * Run `rustup toolchain link stage2 build/$TARGET/stage2` to add a
+  * Run `rustup toolchain link stage2 build/host/stage2` to add a
     custom toolchain called `stage2` to your rustup environment. After
     running that, `cargo +stage2 doc` in any directory will build with
     your locally-compiled rustdoc.
-* Use `./x.py doc library` to use this rustdoc to generate the
+* Use `./x doc library` to use this rustdoc to generate the
   standard library docs.
-  * The completed docs will be available in `build/$TARGET/doc` (under `core`, `alloc`, and `std`).
+  * The completed docs will be available in `build/host/doc` (under `core`, `alloc`, and `std`).
   * If you want to copy those docs to a webserver, copy all of
-    `build/$TARGET/doc`, since that's where the CSS, JS, fonts, and landing
+    `build/host/doc`, since that's where the CSS, JS, fonts, and landing
     page are.
-* Use `./x.py test src/test/rustdoc*` to run the tests using a stage1
+* Use `./x test tests/rustdoc*` to run the tests using a stage1
   rustdoc.
   * See [Rustdoc internals] for more information about tests.
 
@@ -72,13 +74,13 @@ does is call the `main()` that's in this crate's `lib.rs`, though.)
   `doctest.rs`.
 * The Markdown renderer is loaded up in `html/markdown.rs`, including functions
   for extracting doctests from a given block of Markdown.
-* The tests on the structure of rustdoc HTML output are located in `src/test/rustdoc`, where
+* The tests on the structure of rustdoc HTML output are located in `tests/rustdoc`, where
   they're handled by the test runner of rustbuild and the supplementary script
   `src/etc/htmldocck.py`.
 
 ## Tests
 
-* All paths in this section are relative to `src/test` in the rust-lang/rust repository.
+* All paths in this section are relative to `tests` in the rust-lang/rust repository.
 * Tests on search index generation are located in `rustdoc-js`, as a
   series of JavaScript files that encode queries on the standard library search
   index and expected results.
@@ -148,7 +150,7 @@ authors can request rebuilds, which will be run with the latest rustdoc.
 
 Docs.rs performs some transformations on rustdoc's output in order to save
 storage and display a navigation bar at the top. In particular, certain static
-files (like main.js and rustdoc.css may be shared across multiple invocations
+files, like main.js and rustdoc.css, may be shared across multiple invocations
 of the same version of rustdoc. Others, like crates.js and sidebar-items.js, are
 different for different invocations. Still others, like fonts, will never
 change. These categories are distinguished using the `SharedResource` enum in

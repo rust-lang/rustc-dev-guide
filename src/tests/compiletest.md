@@ -11,6 +11,16 @@ efficient test execution (parallel execution is supported),
 and allows the test author to configure behavior and expected results of both
 individual and groups of tests.
 
+> NOTE:
+> For macOS users, `SIP` (System Integrity Protection) [may consistently
+> check the compiled binary by sending network requests to Apple][zulip],
+> so you may get a huge performance degradation when running tests.
+>
+> You can resolve it by tweaking the following settings:
+> `Privacy & Security -> Developer Tools -> Add Terminal (Or VsCode, etc.)`.
+
+[zulip]: https://rust-lang.zulipchat.com/#narrow/stream/182449-t-compiler.2Fhelp/topic/.E2.9C.94.20Is.20there.20any.20performance.20issue.20for.20MacOS.3F
+
 `compiletest` may check test code for success, for runtime failure,
 or for compile-time failure.
 Tests are typically organized as a Rust source file with annotations in
@@ -24,13 +34,18 @@ See the [Adding new tests](adding.md) chapter for a tutorial on creating a new
 test, and the [Running tests](running.md) chapter on how to run the test
 suite.
 
+Compiletest itself tries to avoid running tests when the artifacts
+that are involved (mainly the compiler) haven't changed. You can use
+`x test --test-args --force-rerun` to rerun a test even when none of the
+inputs have changed.
+
 ## Test suites
 
-All of the tests are in the [`src/test`] directory.
+All of the tests are in the [`tests`] directory.
 The tests are organized into "suites", with each suite in a separate subdirectory.
 Each test suite behaves a little differently, with different compiler behavior
 and different checks for correctness.
-For example, the [`src/test/incremental`] directory contains tests for
+For example, the [`tests/incremental`] directory contains tests for
 incremental compilation.
 The various suites are defined in [`src/tools/compiletest/src/common.rs`] in
 the `pub enum Mode` declaration.
@@ -48,10 +63,14 @@ The following test suites are available, with links for more information:
 - [`codegen-units`](#codegen-units-tests) — tests for codegen unit partitioning
 - [`assembly`](#assembly-tests) — verifies assembly output
 - [`mir-opt`](#mir-opt-tests) — tests for MIR generation
-- [`run-make`](#run-make-tests) — general purpose tests using a Makefile
+- [`run-make`](#run-make-tests) — general purpose tests using Rust programs (or
+  Makefiles (legacy))
 - `run-make-fulldeps` — `run-make` tests which require a linkable build of `rustc`,
   or the rust demangler
 - [`run-pass-valgrind`](#valgrind-tests) — tests run with Valgrind
+- [`coverage`](#coverage-tests) - tests for coverage instrumentation
+- [`coverage-run-rustdoc`](#coverage-tests) - coverage tests that also run
+  instrumented doctests
 - [Rustdoc tests](../rustdoc.md#tests):
     - `rustdoc` — tests for rustdoc, making sure that the generated files
       contain the expected documentation.
@@ -62,12 +81,12 @@ The following test suites are available, with links for more information:
     - `rustdoc-json` — tests on the JSON output of rustdoc.
     - `rustdoc-ui` — tests on the terminal output of rustdoc.
 
-[`src/test`]: https://github.com/rust-lang/rust/blob/master/src/test
+[`tests`]: https://github.com/rust-lang/rust/blob/master/tests
 [`src/tools/compiletest/src/common.rs`]: https://github.com/rust-lang/rust/tree/master/src/tools/compiletest/src/common.rs
 
 ### Pretty-printer tests
 
-The tests in [`src/test/pretty`] exercise the "pretty-printing" functionality of `rustc`.
+The tests in [`tests/pretty`] exercise the "pretty-printing" functionality of `rustc`.
 The `-Z unpretty` CLI option for `rustc` causes it to translate the input source
 into various different formats, such as the Rust source after macro expansion.
 
@@ -119,11 +138,11 @@ The header commands for pretty-printing tests are:
   pretty-printing rounds will be compared to ensure that the pretty-printed
   output converges to a steady state.
 
-[`src/test/pretty`]: https://github.com/rust-lang/rust/tree/master/src/test/pretty
+[`tests/pretty`]: https://github.com/rust-lang/rust/tree/master/tests/pretty
 
 ### Incremental tests
 
-The tests in [`src/test/incremental`] exercise incremental compilation.
+The tests in [`tests/incremental`] exercise incremental compilation.
 They use [revision headers](#revisions) to tell compiletest to run the
 compiler in a series of steps.
 Compiletest starts with an empty directory with the `-C incremental` flag, and
@@ -142,7 +161,7 @@ the current revision name.
 For example, this will run twice, simulating changing a function:
 
 ```rust,ignore
-// revisions: rpass1 rpass2
+//@ revisions: rpass1 rpass2
 
 #[cfg(rpass1)]
 fn foo() {
@@ -168,12 +187,12 @@ cause an Internal Compiler Error (ICE).
 This is a highly specialized header to check that the incremental cache
 continues to work after an ICE.
 
-[`src/test/incremental`]: https://github.com/rust-lang/rust/tree/master/src/test/incremental
+[`tests/incremental`]: https://github.com/rust-lang/rust/tree/master/tests/incremental
 
 
 ### Debuginfo tests
 
-The tests in [`src/test/debuginfo`] test debuginfo generation.
+The tests in [`tests/debuginfo`] test debuginfo generation.
 They build a program, launch a debugger, and issue commands to the debugger.
 A single test can work with cdb, gdb, and lldb.
 
@@ -206,11 +225,11 @@ breakpoint, launch the program, inspect a value, and check what the debugger
 prints:
 
 ```rust,ignore
-// compile-flags: -g
+//@ compile-flags: -g
 
-// lldb-command: run
-// lldb-command: print foo
-// lldb-check: $0 = 123
+//@ lldb-command: run
+//@ lldb-command: print foo
+//@ lldb-check: $0 = 123
 
 fn main() {
     let foo = 123;
@@ -237,12 +256,12 @@ test based on the debugger currently being used:
   NOTE: The "Rust" version of LLDB doesn't exist anymore, so this will always be ignored.
   This should probably be removed.
 
-[`src/test/debuginfo`]: https://github.com/rust-lang/rust/tree/master/src/test/debuginfo
+[`tests/debuginfo`]: https://github.com/rust-lang/rust/tree/master/tests/debuginfo
 
 
 ### Codegen tests
 
-The tests in [`src/test/codegen`] test LLVM code generation.
+The tests in [`tests/codegen`] test LLVM code generation.
 They compile the test with the `--emit=llvm-ir` flag to emit LLVM IR.
 They then run the LLVM [FileCheck] tool.
 The test is annotated with various `// CHECK` comments to check the generated code.
@@ -250,13 +269,13 @@ See the FileCheck documentation for a tutorial and more information.
 
 See also the [assembly tests](#assembly-tests) for a similar set of tests.
 
-[`src/test/codegen`]: https://github.com/rust-lang/rust/tree/master/src/test/codegen
+[`tests/codegen`]: https://github.com/rust-lang/rust/tree/master/tests/codegen
 [FileCheck]: https://llvm.org/docs/CommandGuide/FileCheck.html
 
 
 ### Assembly tests
 
-The tests in [`src/test/assembly`] test LLVM assembly output.
+The tests in [`tests/assembly`] test LLVM assembly output.
 They compile the test with the `--emit=asm` flag to emit a `.s` file with the
 assembly output.
 They then run the LLVM [FileCheck] tool.
@@ -271,12 +290,12 @@ See the FileCheck documentation for a tutorial and more information.
 
 See also the [codegen tests](#codegen-tests) for a similar set of tests.
 
-[`src/test/assembly`]: https://github.com/rust-lang/rust/tree/master/src/test/assembly
+[`tests/assembly`]: https://github.com/rust-lang/rust/tree/master/tests/assembly
 
 
 ### Codegen-units tests
 
-The tests in [`src/test/codegen-units`] test the
+The tests in [`tests/codegen-units`] test the
 [monomorphization](../backend/monomorph.md) collector and CGU partitioning.
 
 These tests work by running `rustc` with a flag to print the result of the
@@ -295,12 +314,12 @@ where `cgu` is a space separated list of the CGU names and the linkage
 information in brackets.
 For example: `//~ MONO_ITEM static function::FOO @@ statics[Internal]`
 
-[`src/test/codegen-units`]: https://github.com/rust-lang/rust/tree/master/src/test/codegen-units
+[`tests/codegen-units`]: https://github.com/rust-lang/rust/tree/master/tests/codegen-units
 
 
 ### Mir-opt tests
 
-The tests in [`src/test/mir-opt`] check parts of the generated MIR to make
+The tests in [`tests/mir-opt`] check parts of the generated MIR to make
 sure it is generated correctly and is doing the expected optimizations.
 Check out the [MIR Optimizations](../mir/optimizations.md) chapter for more.
 
@@ -315,7 +334,7 @@ set a baseline for optimizations:
 
 The test should be annotated with `// EMIT_MIR` comments that specify files that
 will contain the expected MIR output.
-You can use `x.py test --bless` to create the initial expected files.
+You can use `x test --bless` to create the initial expected files.
 
 There are several forms the `EMIT_MIR` comment can take:
 
@@ -336,28 +355,71 @@ There are several forms the `EMIT_MIR` comment can take:
 
   This is useful if you want to see how an optimization changes the MIR.
 
-* `// EMIT_MIR $MIR_PATH.dot` or `$MIR_PATH.html` — These are special cases
-  for other MIR outputs (via `-Z dump-mir-graphviz` and `-Z dump-mir-spanview`)
-  that will check that the output matches the given file.
+* `// EMIT_MIR $MIR_PATH.dot` — When using specific flags that dump additional
+  MIR data (e.g. `-Z dump-mir-graphviz` to produce `.dot` files), this will
+  check that the output matches the given file.
 
 By default 32 bit and 64 bit targets use the same dump files, which can be
 problematic in the presence of pointers in constants or other bit width
 dependent things. In that case you can add `// EMIT_MIR_FOR_EACH_BIT_WIDTH` to
 your test, causing separate files to be generated for 32bit and 64bit systems.
 
-[`src/test/mir-opt`]: https://github.com/rust-lang/rust/tree/master/src/test/mir-opt
+[`tests/mir-opt`]: https://github.com/rust-lang/rust/tree/master/tests/mir-opt
 
 
-### Run-make tests
+### `run-make` tests
 
-The tests in [`src/test/run-make`] are general-purpose tests using Makefiles
-which provide the ultimate in flexibility.
-These should be used as a last resort.
-If possible, you should use one of the other test suites.
+> NOTE:
+> We are planning to migrate all existing Makefile-based `run-make` tests
+> to Rust recipes. You should not be adding new Makefile-based `run-make`
+> tests.
+
+The tests in [`tests/run-make`] are general-purpose tests using Rust *recipes*,
+which are small programs allowing arbitrary Rust code such as `rustc`
+invocations, and is supported by a [`run_make_support`] library. Using Rust
+recipes provide the ultimate in flexibility.
+
+*These should be used as a last resort*. If possible, you should use one of the
+other test suites.
+
 If there is some minor feature missing which you need for your test,
 consider extending compiletest to add a header command for what you need.
-However, sometimes just running a bunch of commands is really what you
-need, `run-make` is here to the rescue!
+However, if running a bunch of commands is really what you need,
+`run-make` is here to the rescue!
+
+#### Using Rust recipes
+
+Each test should be in a separate directory with a `rmake.rs` Rust program,
+called the *recipe*. A recipe will be compiled and executed by compiletest
+with the `run_make_support` library linked in.
+
+If you need new utilities or functionality, consider extending and improving
+the [`run_make_support`] library.
+
+Compiletest directives like `//@ only-<target>` or `//@ ignore-<target>` are supported in
+`rmake.rs`, like in UI tests.
+
+Two `run-make` tests are ported over to Rust recipes as examples:
+
+- <https://github.com/rust-lang/rust/tree/master/tests/run-make/CURRENT_RUSTC_VERSION>
+- <https://github.com/rust-lang/rust/tree/master/tests/run-make/a-b-a-linker-guard>
+
+#### Quickly check if `rmake.rs` tests can be compiled
+
+You can quickly check if `rmake.rs` tests can be compiled without having to
+build stage1 rustc by forcing `rmake.rs` to be compiled with the stage0
+compiler:
+
+```bash
+$ COMPILETEST_FORCE_STAGE0=1 x test --stage 0 tests/run-make/<test-name>
+```
+
+Of course, some tests will not successfully *run* in this way.
+
+#### Using Makefiles (legacy)
+
+> NOTE:
+> You should avoid writing new Makefile-based `run-make` tests.
 
 Each test should be in a separate directory with a `Makefile` indicating the
 commands to run.
@@ -365,33 +427,107 @@ There is a [`tools.mk`] Makefile which you can include which provides a bunch of
 utilities to make it easier to run commands and compare outputs.
 Take a look at some of the other tests for some examples on how to get started.
 
-[`tools.mk`]: https://github.com/rust-lang/rust/blob/master/src/test/run-make-fulldeps/tools.mk
-[`src/test/run-make`]: https://github.com/rust-lang/rust/tree/master/src/test/run-make
+[`tools.mk`]: https://github.com/rust-lang/rust/blob/master/tests/run-make/tools.mk
+[`tests/run-make`]: https://github.com/rust-lang/rust/tree/master/tests/run-make
+[`run_make_support`]: https://github.com/rust-lang/rust/tree/master/src/tools/run-make-support
 
 
 ### Valgrind tests
 
-The tests in [`src/test/run-pass-valgrind`] are for use with [Valgrind].
+The tests in [`tests/run-pass-valgrind`] are for use with [Valgrind].
 These are currently vestigial, as Valgrind is no longer used in CI.
 These may be removed in the future.
 
 [Valgrind]: https://valgrind.org/
-[`src/test/run-pass-valgrind`]: https://github.com/rust-lang/rust/tree/master/src/test/run-pass-valgrind
+[`tests/run-pass-valgrind`]: https://github.com/rust-lang/rust/tree/master/tests/run-pass-valgrind
+
+
+### Coverage tests
+
+The tests in [`tests/coverage`] are shared by multiple test modes that test
+coverage instrumentation in different ways.
+Running the `coverage` test suite will automatically run each test in all of
+the different coverage modes.
+
+Each mode also has an alias to run the coverage tests in just that mode:
+
+```bash
+./x test coverage # runs all of tests/coverage in all coverage modes
+./x test tests/coverage # same as above
+
+./x test tests/coverage/if.rs # runs the specified test in all coverage modes
+
+./x test coverage-map # runs all of tests/coverage in "coverage-map" mode only
+./x test coverage-run # runs all of tests/coverage in "coverage-run" mode only
+
+./x test coverage-map -- tests/coverage/if.rs # runs the specified test in "coverage-map" mode only
+```
+
+---
+
+In `coverage-map` mode, these tests verify the mappings between source code
+regions and coverage counters that are emitted by LLVM.
+They compile the test with `--emit=llvm-ir`,
+then use a custom tool ([`src/tools/coverage-dump`])
+to extract and pretty-print the coverage mappings embedded in the IR.
+These tests don't require the profiler runtime, so they run in PR CI jobs and
+are easy to run/bless locally.
+
+These coverage map tests can be sensitive to changes in MIR lowering or MIR
+optimizations, producing mappings that are different but produce identical
+coverage reports.
+
+As a rule of thumb, any PR that doesn't change coverage-specific
+code should **feel free to re-bless** the `coverage-map` tests as necessary,
+without worrying about the actual changes, as long as the `coverage-run` tests
+still pass.
+
+---
+
+In `coverage-run` mode, these tests perform an end-to-end test of coverage reporting.
+They compile a test program with coverage instrumentation, run that program to
+produce raw coverage data, and then use LLVM tools to process that data into a
+human-readable code coverage report.
+
+Instrumented binaries need to be linked against the LLVM profiler runtime,
+so `coverage-run` tests are **automatically skipped**
+unless the profiler runtime is enabled in `config.toml`:
+
+```toml
+# config.toml
+[build]
+profiler = true
+```
+
+This also means that they typically don't run in PR CI jobs,
+though they do run as part of the full set of CI jobs used for merging.
+
+---
+
+The tests in [`tests/coverage-run-rustdoc`] also run instrumented doctests and
+include them in the coverage report. This avoids having to build rustdoc when
+only running the main `coverage` suite.
+
+[`tests/coverage`]: https://github.com/rust-lang/rust/tree/master/tests/coverage
+[`src/tools/coverage-dump`]: https://github.com/rust-lang/rust/tree/master/src/tools/coverage-dump
+[`tests/coverage-run-rustdoc`]: https://github.com/rust-lang/rust/tree/master/tests/coverage-run-rustdoc
 
 
 ## Building auxiliary crates
 
 It is common that some tests require additional auxiliary crates to be compiled.
-There are two [headers](headers.md) to assist with that:
+There are multiple [headers](headers.md) to assist with that:
 
 * `aux-build`
 * `aux-crate`
+* `aux-bin`
+* `aux-codegen-backend`
 
 `aux-build` will build a separate crate from the named source file.
 The source file should be in a directory called `auxiliary` beside the test file.
 
 ```rust,ignore
-// aux-build: my-helper.rs
+//@ aux-build: my-helper.rs
 
 extern crate my_helper;
 // ... You can use my_helper.
@@ -410,6 +546,14 @@ For example, `// aux-crate:foo=bar.rs` will compile `auxiliary/bar.rs` and
 make it available under then name `foo` within the test.
 This is similar to how Cargo does dependency renaming.
 
+`aux-bin` is similar to `aux-build` but will build a binary instead of a
+library. The binary will be available in `auxiliary/bin` relative to the working
+directory of the test.
+
+`aux-codegen-backend` is similar to `aux-build`, but will then pass the compiled
+dylib to `-Zcodegen-backend` when building the main file. This will only work
+for tests in `tests/ui-fulldeps`, since it requires the use of compiler crates.
+
 ### Auxiliary proc-macro
 
 If you want a proc-macro dependency, then there currently is some ceremony
@@ -418,8 +562,8 @@ Place the proc-macro itself in a file like `auxiliary/my-proc-macro.rs`
 with the following structure:
 
 ```rust,ignore
-// force-host
-// no-prefer-dynamic
+//@ force-host
+//@ no-prefer-dynamic
 
 #![crate_type = "proc-macro"]
 
@@ -437,10 +581,10 @@ compiler, and `no-prefer-dynamic` is needed to tell compiletest to not use
 `prefer-dynamic` which is not compatible with proc-macros.
 The `#![crate_type]` attribute is needed to specify the correct crate-type.
 
-Then in your test, you can build with with `aux-build`:
+Then in your test, you can build with `aux-build`:
 
 ```rust,ignore
-// aux-build: my-proc-macro.rs
+//@ aux-build: my-proc-macro.rs
 
 extern crate my_proc_macro;
 
@@ -452,14 +596,11 @@ fn main() {
 
 ## Revisions
 
-Certain classes of tests support "revisions" (as of <!-- date-check --> July 2022,
-this includes UI, assembly, codegen, debuginfo, incremental, and rustdoc UI tests,
-though incremental tests are somewhat different).
 Revisions allow a single test file to be used for multiple tests.
 This is done by adding a special header at the top of the file:
 
 ```rust,ignore
-// revisions: foo bar baz
+//@ revisions: foo bar baz
 ```
 
 This will result in the test being compiled (and tested) three times,
@@ -469,17 +610,34 @@ You can therefore use `#[cfg(foo)]` etc within the test to tweak
 each of these results.
 
 You can also customize headers and expected error messages to a particular
-revision. To do this, add `[foo]` (or `bar`, `baz`, etc) after the `//`
-comment, like so:
+revision. To do this, add `[revision-name]` after the `//` comment, like so:
 
 ```rust,ignore
 // A flag to pass in only for cfg `foo`:
-//[foo]compile-flags: -Z verbose
+//@[foo]compile-flags: -Z verbose-internals
 
 #[cfg(foo)]
 fn test_foo() {
     let x: usize = 32_u32; //[foo]~ ERROR mismatched types
 }
+```
+
+Multiple revisions can be specified in a comma-separated list, such as
+`//[foo,bar,baz]~^`.
+
+In test suites that use the LLVM [FileCheck] tool, the current revision name is
+also registered as an additional prefix for FileCheck directives:
+
+```rust,ignore
+//@ revisions: NORMAL COVERAGE
+//@ [COVERAGE] compile-flags: -Cinstrument-coverage
+//@ [COVERAGE] needs-profiler-support
+
+// COVERAGE:   @__llvm_coverage_mapping
+// NORMAL-NOT: @__llvm_coverage_mapping
+
+// CHECK: main
+fn main() {}
 ```
 
 Note that not all headers have meaning when customized to a revision.
@@ -488,10 +646,32 @@ currently only apply to the test as a whole, not to particular
 revisions. The only headers that are intended to really work when
 customized to a revision are error patterns and compiler flags.
 
+<!-- date-check jul 2023 -->
+Following is classes of tests that support revisions:
+- UI
+- assembly
+- codegen
+- coverage
+- debuginfo
+- rustdoc UI tests
+- incremental (these are special in that they inherently cannot be run in parallel)
+
+### Ignoring unused revision names
+
+Normally, revision names mentioned in other headers and error annotations must
+correspond to an actual revision declared in a `revisions` header. This is
+enforced by an `./x test tidy` check.
+
+If a revision name needs to be temporarily removed from the revision list for
+some reason, the above check can be suppressed by adding the revision name to
+an `//@ unused-revision-names:` header instead.
+
+Specifying an unused name of `*` (i.e. `//@ unused-revision-names: *`) will
+permit any unused revision name to be mentioned.
 
 ## Compare modes
 
-Compiletest can be run in different modes, called *compare modes*, which can
+Compiletest can be run in different modes, called _compare modes_, which can
 be used to compare the behavior of all tests with different compiler flags
 enabled.
 This can help highlight what differences might appear with certain flags, and
@@ -501,7 +681,7 @@ To run the tests in a different mode, you need to pass the `--compare-mode`
 CLI flag:
 
 ```bash
-./x.py test src/test/ui --compare-mode=chalk
+./x test tests/ui --compare-mode=chalk
 ```
 
 The possible compare modes are:
@@ -517,10 +697,10 @@ tests support different output for different modes.
 In CI, compare modes are only used in one Linux builder, and only with the
 following settings:
 
-* `src/test/debuginfo`: Uses `split-dwarf` mode.
+* `tests/debuginfo`: Uses `split-dwarf` mode.
   This helps ensure that none of the debuginfo tests are affected when
   enabling split-DWARF.
 
 Note that compare modes are separate to [revisions](#revisions).
-All revisions are tested when running `./x.py test src/test/ui`, however
+All revisions are tested when running `./x test tests/ui`, however
 compare-modes must be manually run individually via the `--compare-mode` flag.

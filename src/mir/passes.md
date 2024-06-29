@@ -39,7 +39,21 @@ are defined in the [`rustc_mir_transform`][mirtransform] crate, the `MirPass` tr
 `run_pass`, that simply gets an `&mut Body` (along with the `tcx`).
 The MIR is therefore modified in place (which helps to keep things efficient).
 
-A good example of a simple MIR pass is [`CleanupNonCodegenStatements`][cleanup-pass], which walks
+A basic example of a MIR pass is [`RemoveStorageMarkers`], which walks
+the MIR and removes all storage marks if they won't be emitted during codegen. As you
+can see from its source, a MIR pass is defined by first defining a
+dummy type, a struct with no fields, something like:
+
+```rust
+struct MyPass;
+```
+
+for which you then implement the `MirPass` trait. You can then insert
+this pass into the appropriate list of passes found in a query like
+`optimized_mir`, `mir_validated`, etc. (If this is an optimization, it
+should go into the `optimized_mir` list.)
+
+Another example of a simple MIR pass is [`CleanupNonCodegenStatements`][cleanup-pass], which walks
 the MIR and removes all statements that are not relevant to code generation. As you can see from
 its [source][cleanup-source], it is defined by first defining a dummy type, a struct with no
 fields:
@@ -166,4 +180,5 @@ simply loads from a cache the second time).
 [cleanup-pass]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_transform/cleanup_post_borrowck/struct.CleanupNonCodegenStatements.html
 [cleanup-source]: https://github.com/rust-lang/rust/blob/e2b52ff73edc8b0b7c74bc28760d618187731fe8/compiler/rustc_mir_transform/src/cleanup_post_borrowck.rs#L27
 [pass-register]: https://github.com/rust-lang/rust/blob/e2b52ff73edc8b0b7c74bc28760d618187731fe8/compiler/rustc_mir_transform/src/lib.rs#L413
+[`RemoveStorageMarkers`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_transform/remove_storage_markers/struct.RemoveStorageMarkers.html
 [MIR visitor]: ./visitor.html

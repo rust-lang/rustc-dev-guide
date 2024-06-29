@@ -5,7 +5,7 @@ as well as to help new contributors get involved in rustc development.
 
 There are seven parts to this guide:
 
-1. [Building and debugging `rustc`][p1]:
+1. [Building `rustc`][p1]:
    Contains information that should be useful no matter how you are contributing,
    about building, debugging, profiling, etc.
 2. [Contributing to `rustc`][p2]:
@@ -23,7 +23,7 @@ There are seven parts to this guide:
 7. [Appendices][p7] at the end with useful reference information.
    There are a few of these with different information, including a glossary.
 
-[p1]: ./getting-started.md
+[p1]: ./building/how-to-build-and-run.html
 [p2]: ./contributing.md
 [p3]: ./part-2-intro.md
 [p4]: ./part-3-intro.md
@@ -58,14 +58,50 @@ please see the corresponding [subsection on writing documentation in this guide]
 
 You might also find the following sites useful:
 
-- [rustc API docs] -- rustdoc documentation for the compiler
+- This guide contains information about how various parts of the
+  compiler work and how to contribute to the compiler.
+- [rustc API docs] -- rustdoc documentation for the compiler, devtools, and internal tools
 - [Forge] -- contains documentation about Rust infrastructure, team procedures, and more
 - [compiler-team] -- the home-base for the Rust compiler team, with description
   of the team procedures, active working groups, and the team calendar.
 - [std-dev-guide] -- a similar guide for developing the standard library.
+- [The t-compiler zulip][z]
+- `#contribute` and `#wg-rustup` on [Discord](https://discord.gg/rust-lang).
+- The [Rust Internals forum][rif], a place to ask questions and
+  discuss Rust's internals
+- The [Rust reference][rr], even though it doesn't specifically talk about
+  Rust's internals, is a great resource nonetheless
+- Although out of date, [Tom Lee's great blog article][tlgba] is very helpful
+- [rustaceans.org][ro] is helpful, but mostly dedicated to IRC
+- The [Rust Compiler Testing Docs][rctd]
+- For [@bors], [this cheat sheet][cheatsheet] is helpful
+- Google is always helpful when programming.
+  You can [search all Rust documentation][gsearchdocs] (the standard library,
+  the compiler, the books, the references, and the guides) to quickly find
+  information about the language and compiler.
+- You can also use Rustdoc's built-in search feature to find documentation on
+  types and functions within the crates you're looking at. You can also search
+  by type signature! For example, searching for `* -> vec` should find all
+  functions that return a `Vec<T>`.
+  _Hint:_ Find more tips and keyboard shortcuts by typing `?` on any Rustdoc
+  page!
 
+
+[rustc dev guide]: about-this-guide.md
+[gsearchdocs]: https://www.google.com/search?q=site:doc.rust-lang.org+your+query+here
+[stddocs]: https://doc.rust-lang.org/std
+[rif]: http://internals.rust-lang.org
+[rr]: https://doc.rust-lang.org/book/
+[rustforge]: https://forge.rust-lang.org/
+[tlgba]: https://tomlee.co/2014/04/a-more-detailed-tour-of-the-rust-compiler/
+[ro]: https://www.rustaceans.org/
+[rctd]: tests/intro.md
+[cheatsheet]: https://bors.rust-lang.org/
+[Miri]: https://github.com/rust-lang/miri
+[@bors]: https://github.com/bors
 [GitHub repository]: https://github.com/rust-lang/rustc-dev-guide/
-[rustc API docs]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/
+[rustc API docs]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle
 [Forge]: https://forge.rust-lang.org/
 [compiler-team]: https://github.com/rust-lang/compiler-team/
 [std-dev-guide]: https://std-dev-guide.rust-lang.org/
+[z]: https://rust-lang.zulipchat.com/#narrow/stream/131828-t-compiler

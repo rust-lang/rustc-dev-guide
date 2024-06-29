@@ -62,7 +62,8 @@ the result of `type_of(bar)` might yield a different result than what we
 have in the cache and, transitively, the result of `type_check_item(foo)`
 might have changed too. We thus re-run `type_check_item(foo)`, which in
 turn will re-run `type_of(bar)`, which will yield an up-to-date result
-because it reads the up-to-date version of `Hir(bar)`.
+because it reads the up-to-date version of `Hir(bar)`. Also, we re-run
+`type_check_item(bar)` because result of `type_of(bar)` might have changed.
 
 
 ## The Problem With The Basic Algorithm: False Positives
@@ -175,17 +176,17 @@ fn try_mark_green(tcx, current_node) -> bool {
 
     true
 }
-
-// Note: The actual implementation can be found in
-//       compiler/rustc_middle/src/dep_graph/graph.rs
 ```
+
+> NOTE:
+> The actual implementation can be found in
+> [`compiler/rustc_query_system/src/dep_graph/graph.rs`][try_mark_green]
 
 By using red-green marking we can avoid the devastating cumulative effect of
 having false positives during change detection. Whenever a query is executed
 in incremental mode, we first check if its already green. If not, we run
 `try_mark_green()` on it. If it still isn't green after that, then we actually
 invoke the query provider to re-compute the result.
-
 
 
 ## The Real World: How Persistence Makes Everything Complicated
@@ -533,5 +534,5 @@ be reusable. See <https://github.com/rust-lang/rust/issues/47389> for more
 information.
 
 
-
 [query-model]: ./query-evaluation-model-in-detail.html
+[try_mark_green]: https://doc.rust-lang.org/nightly/nightly-rustc/src/rustc_query_system/dep_graph/graph.rs.html

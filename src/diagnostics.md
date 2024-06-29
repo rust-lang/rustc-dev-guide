@@ -30,8 +30,8 @@ LL | more code
   (See [diagnostic levels](#diagnostic-levels))
 - Code (for example, for "mismatched types", it is `E0308`). It helps
   users get more information about the current error through an extended
-  description of the problem in the error code index. Diagnostics created
-  by lints don't have a code in the emitted message.
+  description of the problem in the error code index. Not all diagnostic have a
+  code. For example, diagnostics created by lints don't have one.
 - Message. It is the main description of the problem. It should be general and
   able to stand on its own, so that it can make sense even in isolation.
 - Diagnostic window. This contains several things:
@@ -69,17 +69,12 @@ surrounded with backticks:
 error: the identifier `foo.bar` is invalid
 ```
 
-### Error explanations
+### Error codes and explanations
 
-Some errors include long form descriptions. They may be viewed with the
-`--explain` flag, or via the [error index]. Each explanation comes with an
-example of how to trigger it and advice on how to fix it.
-
-Please read [RFC 1567] for details on how to format and write long error
-codes.
-
-The descriptions are written in Markdown, and all of them are linked in the
-[`rustc_error_codes`] crate.
+Most errors have an associated error code. Error codes are linked to long-form
+explanations which contains an example of how to trigger the error and in-depth
+details about the error. They may be viewed with the `--explain` flag, or via
+the [error index].
 
 As a general rule, give an error a code (with an associated explanation) if the
 explanation would give more information than the error itself. A lot of the time
@@ -89,12 +84,15 @@ triggers to include useful information for all cases in the error, in which case
 it's a good idea to add an explanation.[^estebank]
 As always, if you are not sure, just ask your reviewer!
 
+If you decide to add a new error with an associated error code, please read
+[this section][error-codes] for a guide and important details about the
+process.
+
 [^estebank]: This rule of thumb was suggested by **@estebank** [here][estebank-comment].
 
-[`rustc_error_codes`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_error_codes/error_codes/index.html
 [error index]: https://doc.rust-lang.org/error-index.html
-[RFC 1567]: https://github.com/rust-lang/rfcs/blob/master/text/1567-long-error-codes-explanation-normalization.md
 [estebank-comment]: https://github.com/rust-lang/rustc-dev-guide/pull/967#issuecomment-733218283
+[error-codes]: ./diagnostics/error-codes.md
 
 ### Lints versus fixed diagnostics
 
@@ -112,19 +110,20 @@ Here are a few examples:
 - Dead code: this is a lint. While the user probably doesn't want dead code in
   their crate, making this a hard error would make refactoring and development
   very painful.
-- [safe_packed_borrows future compatibility warning][safe_packed_borrows]:
-  this is a silencable lint related to safety. It was judged that the making
-  this a hard (fixed) error would cause too much breakage, so instead a
-  warning is emitted that eventually will be turned into a hard error.
+- [future-incompatible lints]:
+  these are silencable lints.
+  It was decided that making them fixed errors would cause too much breakage,
+  so warnings are instead emitted,
+  and will eventually be turned into fixed (hard) errors.
 
-Hard-coded warnings (those using the `span_warn` methods) should be avoided
+Hard-coded warnings (those using methods like `span_warn`) should be avoided
 for normal code, preferring to use lints instead. Some cases, such as warnings
 with CLI flags, will require the use of hard-coded warnings.
 
 See the `deny` [lint level](#diagnostic-levels) below for guidelines when to
 use an error-level lint instead of a fixed error.
 
-[safe_packed_borrows]: https://github.com/rust-lang/rust/issues/46043
+[future-incompatible lints]: #future-incompatible-lints
 
 ## Diagnostic output style guide
 
@@ -140,7 +139,7 @@ use an error-level lint instead of a fixed error.
 - The word "illegal" is illegal. Prefer "invalid" or a more specific word
   instead.
 - Errors should document the span of code where they occur (use
-  [`rustc_errors::diagnostic_builder::DiagnosticBuilder`][diagbuild]'s
+  [`rustc_errors::DiagCtxt`][DiagCtxt]'s
   `span_*` methods or a diagnostic struct's `#[primary_span]` to easily do
   this). Also `note` other spans that have contributed to the error if the span
   isn't too large.
@@ -269,7 +268,7 @@ book][rustc-lint-levels] and the [reference][reference-diagnostics].
 
 ### Finding the source of errors
 
-There are two main ways to find where a given error is emitted:
+There are three main ways to find where a given error is emitted:
 
 - `grep` for either a sub-part of the error message/label or error code. This
   usually works well and is straightforward, but there are some cases where
@@ -287,6 +286,8 @@ There are two main ways to find where a given error is emitted:
   - The _construction_ of the error is far away from where it is _emitted_,
     a problem similar to the one we faced with the `grep` approach.
     In some cases, we buffer multiple errors in order to emit them in order.
+- Invoking `rustc` with `-Z track-diagnostics` will print error creation
+  locations alongside the error.
 
 The regular development practices apply: judicious use of `debug!()` statements
 and use of a debugger to trigger break points in order to figure out in what
@@ -314,29 +315,27 @@ reporting errors.
 
 [errors]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/index.html
 
-Diagnostics can be implemented as types which implement the `SessionDiagnostic`
+Diagnostics can be implemented as types which implement the `Diagnostic`
 trait. This is preferred for new diagnostics as it enforces a separation
 between diagnostic emitting logic and the main code paths. For less-complex
-diagnostics, the `SessionDiagnostic` trait can be derived -- see [Diagnostic
+diagnostics, the `Diagnostic` trait can be derived -- see [Diagnostic
 structs][diagnostic-structs]. Within the trait implementation, the APIs
 described below can be used as normal.
 
 [diagnostic-structs]: ./diagnostics/diagnostic-structs.md
 
-[`Session`][session] and [`ParseSess`][parsesses] have
-methods (or fields with methods) that allow reporting errors. These methods
+[`DiagCtxt`][DiagCtxt] has methods that create and emit errors. These methods
 usually have names like `span_err` or `struct_span_err` or `span_warn`, etc...
 There are lots of them; they emit different types of "errors", such as
 warnings, errors, fatal errors, suggestions, etc.
 
-[parsesses]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/parse/struct.ParseSess.html
-[session]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/struct.Session.html
+[DiagCtxt]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/struct.DiagCtxt.html
 
 In general, there are two classes of such methods: ones that emit an error
 directly and ones that allow finer control over what to emit. For example,
 [`span_err`][spanerr] emits the given error message at the given `Span`, but
 [`struct_span_err`][strspanerr] instead returns a
-[`DiagnosticBuilder`][diagbuild].
+[`Diag`][diag].
 
 Most of these methods will accept strings, but it is recommended that typed
 identifiers for translatable diagnostics be used for new diagnostics (see
@@ -344,20 +343,20 @@ identifiers for translatable diagnostics be used for new diagnostics (see
 
 [translation]: ./diagnostics/translation.md
 
-`DiagnosticBuilder` allows you to add related notes and suggestions to an error
+`Diag` allows you to add related notes and suggestions to an error
 before emitting it by calling the [`emit`][emit] method. (Failing to either
-emit or [cancel][cancel] a `DiagnosticBuilder` will result in an ICE.) See the
-[docs][diagbuild] for more info on what you can do.
+emit or [cancel][cancel] a `Diag` will result in an ICE.) See the
+[docs][diag] for more info on what you can do.
 
-[spanerr]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/struct.Session.html#method.span_err
-[strspanerr]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/struct.Session.html#method.struct_span_err
-[diagbuild]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/diagnostic_builder/struct.DiagnosticBuilder.html
-[emit]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/diagnostic_builder/struct.DiagnosticBuilder.html#method.emit
-[cancel]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/struct.Diagnostic.html#method.cancel
+[spanerr]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/struct.DiagCtxt.html#method.span_err
+[strspanerr]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/struct.DiagCtxt.html#method.struct_span_err
+[diag]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/struct.Diag.html
+[emit]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/struct.Diag.html#method.emit
+[cancel]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/struct.Diag.html#method.cancel
 
 ```rust,ignore
-// Get a DiagnosticBuilder. This does _not_ emit an error yet.
-let mut err = sess.struct_span_err(sp, fluent::example::example_error);
+// Get a `Diag`. This does _not_ emit an error yet.
+let mut err = sess.dcx.struct_span_err(sp, fluent::example::example_error);
 
 // In some cases, you might need to check if `sp` is generated by a macro to
 // avoid printing weird errors about macro-generated code.
@@ -386,19 +385,17 @@ example-example-error = oh no! this is an error!
 
 In addition to telling the user exactly _why_ their code is wrong, it's
 oftentimes furthermore possible to tell them how to fix it. To this end,
-`DiagnosticBuilder` offers a structured suggestions API, which formats code
+`Diag` offers a structured suggestions API, which formats code
 suggestions pleasingly in the terminal, or (when the `--error-format json` flag
-is passed) as JSON for consumption by tools, most notably the [Rust Language
-Server][rls] and [`rustfix`][rustfix].
+is passed) as JSON for consumption by tools like [`rustfix`][rustfix].
 
-[rls]: https://github.com/rust-lang/rls
 [rustfix]: https://github.com/rust-lang/rustfix
 
 Not all suggestions should be applied mechanically, they have a degree of
 confidence in the suggested code, from high
 (`Applicability::MachineApplicable`) to low (`Applicability::MaybeIncorrect`).
 Be conservative when choosing the level. Use the
-[`span_suggestion`][span_suggestion] method of `DiagnosticBuilder` to
+[`span_suggestion`][span_suggestion] method of `Diag` to
 make a suggestion. The last argument provides a hint to tools whether
 the suggestion is mechanically applicable or not.
 
@@ -417,12 +414,12 @@ them))
 - not shown (used for _very_ obvious cases, but we still want to allow tools to
 apply them)
 
-[span_suggestion]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/struct.DiagnosticBuilder.html#method.span_suggestion
+[span_suggestion]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/struct.Diag.html#method.span_suggestion
 
 For example, to make our `qux` suggestion machine-applicable, we would do:
 
 ```rust,ignore
-let mut err = sess.struct_span_err(sp, fluent::example::message);
+let mut err = sess.dcx.struct_span_err(sp, fluent::example::message);
 
 if let Ok(snippet) = sess.source_map().span_to_snippet(sp) {
     err.span_suggestion(
@@ -508,6 +505,81 @@ module.
 
 [rlint]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/lint/index.html
 
+### When do lints run?
+
+Different lints will run at different times based on what information the lint
+needs to do its job. Some lints get grouped into *passes* where the lints
+within a pass are processed together via a single visitor. Some of the passes
+are:
+
+- Pre-expansion pass: Works on [AST nodes] before [macro expansion]. This
+  should generally be avoided.
+  - Example: [`keyword_idents`] checks for identifiers that will become
+    keywords in future editions, but is sensitive to identifiers used in
+    macros.
+
+- Early lint pass: Works on [AST nodes] after [macro expansion] and name
+  resolution, just before [AST lowering]. These lints are for purely
+  syntactical lints.
+  - Example: The [`unused_parens`] lint checks for parenthesized-expressions
+    in situations where they are not needed, like an `if` condition.
+
+- Late lint pass: Works on [HIR nodes], towards the end of [analysis] (after
+  borrow checking, etc.). These lints have full type information available.
+  Most lints are late.
+  - Example: The [`invalid_value`] lint (which checks for obviously invalid
+    uninitialized values) is a late lint because it needs type information to
+    figure out whether a type allows being left uninitialized.
+
+- MIR pass: Works on [MIR nodes]. This isn't quite the same as other passes;
+  lints that work on MIR nodes have their own methods for running.
+  - Example: The [`arithmetic_overflow`] lint is emitted when it detects a
+    constant value that may overflow.
+
+Most lints work well via the pass systems, and they have a fairly
+straightforward interface and easy way to integrate (mostly just implementing
+a specific `check` function). However, some lints are easier to write when
+they live on a specific code path anywhere in the compiler. For example, the
+[`unused_mut`] lint is implemented in the borrow checker as it requires some
+information and state in the borrow checker.
+
+Some of these inline lints fire before the linting system is ready. Those
+lints will be *buffered* where they are held until later phases of the
+compiler when the linting system is ready. See [Linting early in the
+compiler](#linting-early-in-the-compiler).
+
+
+[AST nodes]: the-parser.md
+[AST lowering]: ast-lowering.md
+[HIR nodes]: hir.md
+[MIR nodes]: mir/index.md
+[macro expansion]: macro-expansion.md
+[analysis]: part-4-intro.md
+[`keyword_idents`]: https://doc.rust-lang.org/rustc/lints/listing/allowed-by-default.html#keyword-idents
+[`unused_parens`]: https://doc.rust-lang.org/rustc/lints/listing/warn-by-default.html#unused-parens
+[`invalid_value`]: https://doc.rust-lang.org/rustc/lints/listing/warn-by-default.html#invalid-value
+[`arithmetic_overflow`]: https://doc.rust-lang.org/rustc/lints/listing/deny-by-default.html#arithmetic-overflow
+[`unused_mut`]: https://doc.rust-lang.org/rustc/lints/listing/warn-by-default.html#unused-mut
+
+### Lint definition terms
+
+Lints are managed via the [`LintStore`][LintStore] and get registered in
+various ways. The following terms refer to the different classes of lints
+generally based on how they are registered.
+
+- *Built-in* lints are defined inside the compiler source.
+- *Driver-registered* lints are registered when the compiler driver is created
+  by an external driver. This is the mechanism used by Clippy, for example.
+- *Tool* lints are lints with a path prefix like `clippy::` or `rustdoc::`.
+- *Internal* lints are the `rustc::` scoped tool lints that only run on the
+  rustc source tree itself and are defined in the compiler source like a
+  regular built-in lint.
+
+More information about lint registration can be found in the [LintStore]
+chapter.
+
+[LintStore]: diagnostics/lintstore.md
+
 ### Declaring a lint
 
 The built-in compiler lints are defined in the [`rustc_lint`][builtin]
@@ -570,24 +642,22 @@ fn pierce_parens(mut expr: &ast::Expr) -> &ast::Expr {
 // list of methods.
 impl EarlyLintPass for WhileTrue {
     fn check_expr(&mut self, cx: &EarlyContext<'_>, e: &ast::Expr) {
-        if let ast::ExprKind::While(cond, ..) = &e.kind {
-            if let ast::ExprKind::Lit(ref lit) = pierce_parens(cond).kind {
-                if let ast::LitKind::Bool(true) = lit.kind {
-                    if !lit.span.from_expansion() {
-                        let condition_span = cx.sess.source_map().guess_head_span(e.span);
-                        cx.struct_span_lint(WHILE_TRUE, condition_span, |lint| {
-                            lint.build(fluent::example::use_loop)
-                                .span_suggestion_short(
-                                    condition_span,
-                                    fluent::example::suggestion,
-                                    "loop".to_owned(),
-                                    Applicability::MachineApplicable,
-                                )
-                                .emit();
-                        })
-                    }
-                }
-            }
+        if let ast::ExprKind::While(cond, ..) = &e.kind
+            && let ast::ExprKind::Lit(ref lit) = pierce_parens(cond).kind
+            && let ast::LitKind::Bool(true) = lit.kind
+            && !lit.span.from_expansion()
+        {
+            let condition_span = cx.sess.source_map().guess_head_span(e.span);
+            cx.struct_span_lint(WHILE_TRUE, condition_span, |lint| {
+                lint.build(fluent::example::use_loop)
+                    .span_suggestion_short(
+                        condition_span,
+                        fluent::example::suggestion,
+                        "loop".to_owned(),
+                        Applicability::MachineApplicable,
+                    )
+                    .emit();
+            })
         }
     }
 }
@@ -615,6 +685,8 @@ declare_lint! {
 This makes the `ANONYMOUS_PARAMETERS` lint allow-by-default in the 2015 edition
 but warn-by-default in the 2018 edition.
 
+See [Edition-specific lints](./guides/editions.md#edition-specific-lints) for more information.
+
 ### Feature-gated lints
 
 Lints belonging to a feature should only be usable if the feature is enabled in the
@@ -637,15 +709,16 @@ broader meaning than what rustc exposes to users of the compiler.
 Inside rustc, future-incompatible lints are for signalling to the user that code they have
 written may not compile in the future. In general, future-incompatible code
 exists for two reasons:
-* the user has written unsound code that the compiler mistakenly accepted. While
+* The user has written unsound code that the compiler mistakenly accepted. While
 it is within Rust's backwards compatibility guarantees to fix the soundness hole
 (breaking the user's code), the lint is there to warn the user that this will happen
 in some upcoming version of rustc *regardless of which edition the code uses*. This is the
 meaning that rustc exclusively exposes to users as "future incompatible".
-* the user has written code that will either no longer compiler *or* will change
+* The user has written code that will either no longer compiler *or* will change
 meaning in an upcoming *edition*. These are often called "edition lints" and can be
 typically seen in the various "edition compatibility" lint groups (e.g., `rust_2021_compatibility`)
 that are used to lint against code that will break if the user updates the crate's edition.
+See [migration lints](guides/editions.md#migration-lints) for more details.
 
 A future-incompatible lint should be declared with the `@future_incompatible`
 additional "field":
@@ -665,7 +738,7 @@ declare_lint! {
 Notice the `reason` field which describes why the future incompatible change is happening.
 This will change the diagnostic message the user receives as well as determine which
 lint groups the lint is added to. In the example above, the lint is an "edition lint"
-(since it's "reason" is `EditionError`) signifying to the user that the use of anonymous
+(since its "reason" is `EditionError`), signifying to the user that the use of anonymous
 parameters will no longer compile in Rust 2018 and beyond.
 
 Inside [LintStore::register_lints][fi-lint-groupings], lints with `future_incompatible`
@@ -757,7 +830,7 @@ then dumped into the `Session::buffered_lints` used by the rest of the compiler.
 
 The compiler accepts an `--error-format json` flag to output
 diagnostics as JSON objects (for the benefit of tools such as `cargo
-fix` or the RLS). It looks like this:
+fix`). It looks like this:
 
 ```console
 $ rustc json_error_demo.rs --error-format json
@@ -771,7 +844,7 @@ object, but the series of lines taken together is, unfortunately, not
 valid JSON, thwarting tools and tricks (such as [piping to `python3 -m
 json.tool`](https://docs.python.org/3/library/json.html#module-json.tool))
 that require such. (One speculates that this was intentional for LSP
-performance purposes, so that each line/object can be sent to RLS as
+performance purposes, so that each line/object can be sent as
 it is flushed?)
 
 Also note the "rendered" field, which contains the "human" output as a
@@ -786,7 +859,7 @@ The "human" readable and the json format emitter can be found under
 The JSON emitter defines [its own `Diagnostic`
 struct](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/json/struct.Diagnostic.html)
 (and sub-structs) for the JSON serialization. Don't confuse this with
-[`errors::Diagnostic`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/struct.Diagnostic.html)!
+[`errors::Diag`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/struct.Diag.html)!
 
 ## `#[rustc_on_unimplemented(...)]`
 

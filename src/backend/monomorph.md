@@ -10,7 +10,7 @@ execute.
 Different languages handle this problem differently. For example, in some
 languages, such as Java, we may not know the most precise type of value until
 runtime. In the case of Java, this is ok because (almost) all variables are
-reference values anyway (i.e. pointers to a stack allocated object). This
+reference values anyway (i.e. pointers to a heap allocated object). This
 flexibility comes at the cost of performance, since all accesses to an object
 must dereference a pointer.
 
@@ -70,7 +70,7 @@ or more modules in Crate B.
 | Crate A function | Behavior |
 | - | - |
 | Non-generic function | Crate A function doesn't appear in any codegen units of Crate B |
-| Non-generic `#[inline]` function |  Crate A function appears with in a single CGU  of Crate B, and exists even after post-inlining stage|
+| Non-generic `#[inline]` function |  Crate A function appears within a single CGU  of Crate B, and exists even after post-inlining stage|
 | Generic function |  Regardless of inlining, all monomorphized (specialized) functions <br> from Crate A appear within a single codegen unit for Crate B. <br> The codegen unit exists even after the post inlining stage.|
 | Generic `#[inline]` function |   - same - |
 
@@ -99,7 +99,7 @@ are relatively rare in functions, but closures inherit the generic
 parameters of their parent function and it is common for closures to not
 use those inherited parameters. Without polymorphization, a copy of these
 closures would be created for each copy of the parent function. By
-creating fewer copies, less LLVM IR is generated and needs processed.
+creating fewer copies, less LLVM IR is generated; therefore less needs to be processed.
 
 `unused_generic_params` returns a `FiniteBitSet<u64>` where a bit is set if
 the generic parameter of the corresponding index is unused. Any parameters
@@ -133,7 +133,7 @@ the substitutions with the identity parameter before being added to the set
 of collected items - thereby reducing the copies from two (`[u16, u32]` and
 `[u64, u32]`) to one (`[A, u32]`).
 
-`unused_generic_params` will also invoked during code generation when the
+`unused_generic_params` will also be invoked during code generation when the
 symbol name for `foo` is being computed for use in the callsites of `foo`
 (which have the regular substitutions present, otherwise there would be a
 symbol mismatch between the caller and the function).
