@@ -2,8 +2,8 @@
 
 If you would like to get the MIR:
 
-- for a function - you can use the `optimized_mir(def_id)` query;
-- for a promoted - you can use the `promoted_mir(def_id)` query.
+- for a function - you can use the `optimized_mir` query (typically used by codegen) or the `mir_for_ctfe` query (typically used by compile time function evaluation, i.e., *CTFE*);
+- for a promoted - you can use the `promoted_mir` query.
 
 These will give you back the final, optimized MIR. For foreign def-ids, we simply read the MIR
 from the other crate's metadata. But for local def-ids, the query will
@@ -13,8 +13,8 @@ This section describes how those queries and passes work and how you can extend 
 
 To produce the optimized MIR for a given def-id `D`, `optimized_mir(D)`
 goes through several suites of passes, each grouped by a
-query. Each suite consists of passes which perform analysis, transformation or optimization.
-Each query represent a useful intermediate point
+query. Each suite consists of passes which perform linting, analysis, transformation or
+optimization. Each query represent a useful intermediate point
 where we can access the MIR dialect for type checking or other purposes:
 
 - `mir_built(D)` – it gives the initial MIR just after it's built;
@@ -31,7 +31,7 @@ where we can access the MIR dialect for type checking or other purposes:
 ## Implementing and registering a pass
 
 A `MirPass` is some bit of code that processes the MIR, typically transforming it along the way
-somehow. But it may also do other things like analysis (e.g., [`CheckPackedRef`][lint1],
+somehow. But it may also do other things like lingint (e.g., [`CheckPackedRef`][lint1],
 [`CheckConstItemMutation`][lint2], [`FunctionItemReferences`][lint3], which implement `MirLint`) or
 optimization (e.g., [`SimplifyCfg`][opt1], [`RemoveUnneededDrops`][opt2]). While most MIR passes
 are defined in the [`rustc_mir_transform`][mirtransform] crate, the `MirPass` trait itself is
@@ -42,15 +42,15 @@ The MIR is therefore modified in place (which helps to keep things efficient).
 A basic example of a MIR pass is [`RemoveStorageMarkers`], which walks
 the MIR and removes all storage marks if they won't be emitted during codegen. As you
 can see from its source, a MIR pass is defined by first defining a
-dummy type, a struct with no fields, something like:
+dummy type, a struct with no fields:
 
 ```rust
-struct MyPass;
+pub struct RemoveStorageMarkers;
 ```
 
-for which you then implement the `MirPass` trait. You can then insert
+for which we implement the `MirPass` trait. We can then insert
 this pass into the appropriate list of passes found in a query like
-`optimized_mir`, `mir_validated`, etc. (If this is an optimization, it
+`mir_built`, `optimized_mir`, etc. (If this is an optimization, it
 should go into the `optimized_mir` list.)
 
 Another example of a simple MIR pass is [`CleanupNonCodegenStatements`][cleanup-pass], which walks
@@ -62,7 +62,7 @@ fields:
 pub struct CleanupNonCodegenStatements;
 ```
 
-for which we then implement the `MirPass` trait:
+for which we implement the `MirPass` trait:
 
 ```rust
 impl<'tcx> MirPass<'tcx> for CleanupNonCodegenStatements {
@@ -95,11 +95,9 @@ ensure that, before the MIR at a particular phase in the processing
 pipeline is stolen, anyone who may want to read from it has already
 done so.
 
-<!-- FIXME - What is force? Do we still have it in rustc? -->
 Concretely, this means that if you have a query `foo(D)`
-that wants to access the result of `mir_const(D)` or
-`mir_promoted(D)`, you need to have the successor pass "force"
-`foo(D)` using `ty::queries::foo::force(...)`. This will force a query
+that wants to access the result of `mir_promoted(D)`, you need to have `foo(D)`
+calling the `mir_const(D)` query first. This will force it
 to execute even though you don't directly require its result.
 
 > This mechanism is a bit dodgy. There is a discussion of more elegant
