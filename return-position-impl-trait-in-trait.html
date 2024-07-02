@@ -1,0 +1,578 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Return Position Impl Trait In Trait - Rust Compiler Development Guide</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="A guide to developing the Rust compiler (rustc)">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item affix "><a href="getting-started.html">Getting Started</a></li><li class="chapter-item affix "><a href="about-this-guide.html">About this guide</a></li><li class="spacer"></li><li class="chapter-item affix "><li class="part-title">Building and debugging rustc</li><li class="chapter-item "><a href="building/how-to-build-and-run.html"><strong aria-hidden="true">1.</strong> How to build and run the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="building/quickstart.html"><strong aria-hidden="true">1.1.</strong> Quickstart</a></li><li class="chapter-item "><a href="building/prerequisites.html"><strong aria-hidden="true">1.2.</strong> Prerequisites</a></li><li class="chapter-item "><a href="building/suggested.html"><strong aria-hidden="true">1.3.</strong> Suggested Workflows</a></li><li class="chapter-item "><a href="building/build-install-distribution-artifacts.html"><strong aria-hidden="true">1.4.</strong> Distribution artifacts</a></li><li class="chapter-item "><a href="building/compiler-documenting.html"><strong aria-hidden="true">1.5.</strong> Building Documentation</a></li><li class="chapter-item "><a href="rustdoc.html"><strong aria-hidden="true">1.6.</strong> Rustdoc overview</a></li><li class="chapter-item "><a href="building/new-target.html"><strong aria-hidden="true">1.7.</strong> Adding a new target</a></li><li class="chapter-item "><a href="building/optimized-build.html"><strong aria-hidden="true">1.8.</strong> Optimized build</a></li></ol></li><li class="chapter-item "><a href="tests/intro.html"><strong aria-hidden="true">2.</strong> Testing the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="tests/running.html"><strong aria-hidden="true">2.1.</strong> Running tests</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="tests/docker.html"><strong aria-hidden="true">2.1.1.</strong> Testing with Docker</a></li><li class="chapter-item "><a href="tests/ci.html"><strong aria-hidden="true">2.1.2.</strong> Testing with CI</a></li></ol></li><li class="chapter-item "><a href="tests/adding.html"><strong aria-hidden="true">2.2.</strong> Adding new tests</a></li><li class="chapter-item "><a href="tests/compiletest.html"><strong aria-hidden="true">2.3.</strong> Compiletest</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="tests/ui.html"><strong aria-hidden="true">2.3.1.</strong> UI tests</a></li><li class="chapter-item "><a href="tests/headers.html"><strong aria-hidden="true">2.3.2.</strong> Test headers</a></li></ol></li><li class="chapter-item "><a href="tests/integration.html"><strong aria-hidden="true">2.4.</strong> Integration testing</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="tests/crater.html"><strong aria-hidden="true">2.4.1.</strong> Crater</a></li><li class="chapter-item "><a href="tests/fuchsia.html"><strong aria-hidden="true">2.4.2.</strong> Fuchsia</a></li><li class="chapter-item "><a href="tests/rust-for-linux.html"><strong aria-hidden="true">2.4.3.</strong> Rust for Linux</a></li></ol></li><li class="chapter-item "><a href="tests/perf.html"><strong aria-hidden="true">2.5.</strong> Performance testing</a></li><li class="chapter-item "><a href="tests/suggest-tests.html"><strong aria-hidden="true">2.6.</strong> Suggest tests tool</a></li></ol></li><li class="chapter-item "><a href="compiler-debugging.html"><strong aria-hidden="true">3.</strong> Debugging the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="tracing.html"><strong aria-hidden="true">3.1.</strong> Using the tracing/logging instrumentation</a></li></ol></li><li class="chapter-item "><a href="profiling.html"><strong aria-hidden="true">4.</strong> Profiling the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="profiling/with_perf.html"><strong aria-hidden="true">4.1.</strong> with the linux perf tool</a></li><li class="chapter-item "><a href="profiling/wpa_profiling.html"><strong aria-hidden="true">4.2.</strong> with Windows Performance Analyzer</a></li></ol></li><li class="chapter-item "><a href="crates-io.html"><strong aria-hidden="true">5.</strong> crates.io Dependencies</a></li><li class="chapter-item affix "><li class="part-title">Contributing to Rust</li><li class="chapter-item "><a href="contributing.html"><strong aria-hidden="true">6.</strong> Contribution Procedures</a></li><li class="chapter-item "><a href="compiler-team.html"><strong aria-hidden="true">7.</strong> About the compiler team</a></li><li class="chapter-item "><a href="git.html"><strong aria-hidden="true">8.</strong> Using Git</a></li><li class="chapter-item "><a href="rustbot.html"><strong aria-hidden="true">9.</strong> Mastering @rustbot</a></li><li class="chapter-item "><a href="walkthrough.html"><strong aria-hidden="true">10.</strong> Walkthrough: a typical contribution</a></li><li class="chapter-item "><a href="implementing_new_features.html"><strong aria-hidden="true">11.</strong> Implementing new language features</a></li><li class="chapter-item "><a href="stability.html"><strong aria-hidden="true">12.</strong> Stability attributes</a></li><li class="chapter-item "><a href="stabilization_guide.html"><strong aria-hidden="true">13.</strong> Stabilizing Features</a></li><li class="chapter-item "><a href="feature-gates.html"><strong aria-hidden="true">14.</strong> Feature Gates</a></li><li class="chapter-item "><a href="conventions.html"><strong aria-hidden="true">15.</strong> Coding conventions</a></li><li class="chapter-item "><a href="bug-fix-procedure.html"><strong aria-hidden="true">16.</strong> Procedures for Breaking Changes</a></li><li class="chapter-item "><a href="external-repos.html"><strong aria-hidden="true">17.</strong> Using external repositories</a></li><li class="chapter-item "><a href="fuzzing.html"><strong aria-hidden="true">18.</strong> Fuzzing</a></li><li class="chapter-item "><a href="notification-groups/about.html"><strong aria-hidden="true">19.</strong> Notification groups</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="notification-groups/apple.html"><strong aria-hidden="true">19.1.</strong> Apple</a></li><li class="chapter-item "><a href="notification-groups/arm.html"><strong aria-hidden="true">19.2.</strong> ARM</a></li><li class="chapter-item "><a href="notification-groups/cleanup-crew.html"><strong aria-hidden="true">19.3.</strong> Cleanup Crew</a></li><li class="chapter-item "><a href="notification-groups/llvm.html"><strong aria-hidden="true">19.4.</strong> LLVM</a></li><li class="chapter-item "><a href="notification-groups/risc-v.html"><strong aria-hidden="true">19.5.</strong> RISC-V</a></li><li class="chapter-item "><a href="notification-groups/windows.html"><strong aria-hidden="true">19.6.</strong> Windows</a></li><li class="chapter-item "><a href="notification-groups/rust-for-linux.html"><strong aria-hidden="true">19.7.</strong> Rust for Linux</a></li></ol></li><li class="chapter-item "><a href="licenses.html"><strong aria-hidden="true">20.</strong> Licenses</a></li><li class="chapter-item "><a href="guides/editions.html"><strong aria-hidden="true">21.</strong> Editions</a></li><li class="chapter-item affix "><li class="part-title">Bootstrapping</li><li class="chapter-item "><a href="building/bootstrapping/intro.html"><strong aria-hidden="true">22.</strong> Prologue</a></li><li class="chapter-item "><a href="building/bootstrapping/what-bootstrapping-does.html"><strong aria-hidden="true">23.</strong> What Bootstrapping does</a></li><li class="chapter-item "><a href="building/bootstrapping/how-bootstrap-does-it.html"><strong aria-hidden="true">24.</strong> How Bootstrap does it</a></li><li class="chapter-item affix "><li class="part-title">High-level Compiler Architecture</li><li class="chapter-item "><a href="part-2-intro.html"><strong aria-hidden="true">25.</strong> Prologue</a></li><li class="chapter-item "><a href="overview.html"><strong aria-hidden="true">26.</strong> Overview of the compiler</a></li><li class="chapter-item "><a href="compiler-src.html"><strong aria-hidden="true">27.</strong> The compiler source code</a></li><li class="chapter-item "><a href="query.html"><strong aria-hidden="true">28.</strong> Queries: demand-driven compilation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="queries/query-evaluation-model-in-detail.html"><strong aria-hidden="true">28.1.</strong> The Query Evaluation Model in Detail</a></li><li class="chapter-item "><a href="queries/incremental-compilation.html"><strong aria-hidden="true">28.2.</strong> Incremental compilation</a></li><li class="chapter-item "><a href="queries/incremental-compilation-in-detail.html"><strong aria-hidden="true">28.3.</strong> Incremental compilation In Detail</a></li><li class="chapter-item "><a href="incrcomp-debugging.html"><strong aria-hidden="true">28.4.</strong> Debugging and Testing</a></li><li class="chapter-item "><a href="salsa.html"><strong aria-hidden="true">28.5.</strong> Salsa</a></li></ol></li><li class="chapter-item "><a href="memory.html"><strong aria-hidden="true">29.</strong> Memory Management in Rustc</a></li><li class="chapter-item "><a href="serialization.html"><strong aria-hidden="true">30.</strong> Serialization in Rustc</a></li><li class="chapter-item "><a href="parallel-rustc.html"><strong aria-hidden="true">31.</strong> Parallel Compilation</a></li><li class="chapter-item "><a href="rustdoc-internals.html"><strong aria-hidden="true">32.</strong> Rustdoc internals</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="rustdoc-internals/search.html"><strong aria-hidden="true">32.1.</strong> Search</a></li></ol></li><li class="chapter-item "><li class="part-title">Source Code Representation</li><li class="chapter-item "><a href="part-3-intro.html"><strong aria-hidden="true">33.</strong> Prologue</a></li><li class="chapter-item "><a href="cli.html"><strong aria-hidden="true">34.</strong> Command-line arguments</a></li><li class="chapter-item "><a href="rustc-driver.html"><strong aria-hidden="true">35.</strong> rustc_driver and rustc_interface</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="rustc-driver-interacting-with-the-ast.html"><strong aria-hidden="true">35.1.</strong> Example: Type checking</a></li><li class="chapter-item "><a href="rustc-driver-getting-diagnostics.html"><strong aria-hidden="true">35.2.</strong> Example: Getting diagnostics</a></li></ol></li><li class="chapter-item "><a href="syntax-intro.html"><strong aria-hidden="true">36.</strong> Syntax and the AST</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="the-parser.html"><strong aria-hidden="true">36.1.</strong> Lexing and Parsing</a></li><li class="chapter-item "><a href="macro-expansion.html"><strong aria-hidden="true">36.2.</strong> Macro expansion</a></li><li class="chapter-item "><a href="name-resolution.html"><strong aria-hidden="true">36.3.</strong> Name resolution</a></li><li class="chapter-item "><a href="attributes.html"><strong aria-hidden="true">36.4.</strong> Attributes</a></li><li class="chapter-item "><a href="test-implementation.html"><strong aria-hidden="true">36.5.</strong> #[test] Implementation</a></li><li class="chapter-item "><a href="panic-implementation.html"><strong aria-hidden="true">36.6.</strong> Panic Implementation</a></li><li class="chapter-item "><a href="ast-validation.html"><strong aria-hidden="true">36.7.</strong> AST Validation</a></li><li class="chapter-item "><a href="feature-gate-ck.html"><strong aria-hidden="true">36.8.</strong> Feature Gate Checking</a></li><li class="chapter-item "><a href="lang-items.html"><strong aria-hidden="true">36.9.</strong> Lang Items</a></li></ol></li><li class="chapter-item "><a href="hir.html"><strong aria-hidden="true">37.</strong> The HIR (High-level IR)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ast-lowering.html"><strong aria-hidden="true">37.1.</strong> Lowering AST to HIR</a></li><li class="chapter-item "><a href="hir-debugging.html"><strong aria-hidden="true">37.2.</strong> Debugging</a></li></ol></li><li class="chapter-item "><a href="thir.html"><strong aria-hidden="true">38.</strong> The THIR (Typed High-level IR)</a></li><li class="chapter-item "><a href="mir/index.html"><strong aria-hidden="true">39.</strong> The MIR (Mid-level IR)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="mir/construction.html"><strong aria-hidden="true">39.1.</strong> MIR construction</a></li><li class="chapter-item "><a href="mir/visitor.html"><strong aria-hidden="true">39.2.</strong> MIR visitor and traversal</a></li><li class="chapter-item "><a href="mir/passes.html"><strong aria-hidden="true">39.3.</strong> MIR passes: getting the MIR for a function</a></li></ol></li><li class="chapter-item "><a href="identifiers.html"><strong aria-hidden="true">40.</strong> Identifiers in the compiler</a></li><li class="chapter-item "><a href="closure.html"><strong aria-hidden="true">41.</strong> Closure expansion</a></li><li class="chapter-item "><a href="asm.html"><strong aria-hidden="true">42.</strong> Inline assembly</a></li><li class="chapter-item affix "><li class="part-title">Analysis</li><li class="chapter-item "><a href="part-4-intro.html"><strong aria-hidden="true">43.</strong> Prologue</a></li><li class="chapter-item "><a href="generic_parameters_summary.html"><strong aria-hidden="true">44.</strong> Generic parameter definitions</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="what_is_ty_generics.html"><strong aria-hidden="true">44.1.</strong> What is ty::Generics</a></li><li class="chapter-item "><a href="early-late-bound-params/early-late-bound-summary.html"><strong aria-hidden="true">44.2.</strong> Early vs Late bound parameters</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="early-late-bound-params/early-late-bound-implementation-nuances.html"><strong aria-hidden="true">44.2.1.</strong> Implementation nuances of early/late bound parameters</a></li><li class="chapter-item "><a href="early-late-bound-params/turbofishing-and-early-late-bound.html"><strong aria-hidden="true">44.2.2.</strong> Interactions with turbofishing</a></li></ol></li></ol></li><li class="chapter-item "><a href="ty.html"><strong aria-hidden="true">45.</strong> The ty module: representing types</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ty_module/generic_arguments.html"><strong aria-hidden="true">45.1.</strong> ADTs and Generic Arguments</a></li><li class="chapter-item "><a href="ty_module/param_ty_const_regions.html"><strong aria-hidden="true">45.2.</strong> Parameter types/consts/regions</a></li><li class="chapter-item "><a href="ty_module/early_binder.html"><strong aria-hidden="true">45.3.</strong> EarlyBinder and instantiating parameters</a></li><li class="chapter-item "><a href="ty_module/binders.html"><strong aria-hidden="true">45.4.</strong> Binder and Higher ranked regions</a></li><li class="chapter-item "><a href="ty_module/instantiating_binders.html"><strong aria-hidden="true">45.5.</strong> Instantiating binders</a></li><li class="chapter-item "><a href="constants.html"><strong aria-hidden="true">45.6.</strong> Constants in the type system</a></li></ol></li><li class="chapter-item "><a href="ty-fold.html"><strong aria-hidden="true">46.</strong> TypeFolder and TypeFoldable</a></li><li class="chapter-item "><a href="param_env/param_env_summary.html"><strong aria-hidden="true">47.</strong> Parameter Environments</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="param_env/param_env_what_is_it.html"><strong aria-hidden="true">47.1.</strong> What is it?</a></li><li class="chapter-item "><a href="param_env/param_env_construction_internals.html"><strong aria-hidden="true">47.2.</strong> How are ParamEnv's constructed internally</a></li><li class="chapter-item "><a href="param_env/param_env_acquisition.html"><strong aria-hidden="true">47.3.</strong> Which ParamEnv do I use?</a></li></ol></li><li class="chapter-item "><a href="type-inference.html"><strong aria-hidden="true">48.</strong> Type inference</a></li><li class="chapter-item "><a href="traits/resolution.html"><strong aria-hidden="true">49.</strong> Trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="traits/hrtb.html"><strong aria-hidden="true">49.1.</strong> Higher-ranked trait bounds</a></li><li class="chapter-item "><a href="traits/caching.html"><strong aria-hidden="true">49.2.</strong> Caching subtleties</a></li><li class="chapter-item "><a href="traits/implied-bounds.html"><strong aria-hidden="true">49.3.</strong> Implied bounds</a></li><li class="chapter-item "><a href="traits/specialization.html"><strong aria-hidden="true">49.4.</strong> Specialization</a></li><li class="chapter-item "><a href="traits/chalk.html"><strong aria-hidden="true">49.5.</strong> Chalk-based trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="traits/lowering-to-logic.html"><strong aria-hidden="true">49.5.1.</strong> Lowering to logic</a></li><li class="chapter-item "><a href="traits/goals-and-clauses.html"><strong aria-hidden="true">49.5.2.</strong> Goals and clauses</a></li><li class="chapter-item "><a href="traits/canonical-queries.html"><strong aria-hidden="true">49.5.3.</strong> Canonical queries</a></li><li class="chapter-item "><a href="traits/canonicalization.html"><strong aria-hidden="true">49.5.4.</strong> Canonicalization</a></li></ol></li><li class="chapter-item "><a href="solve/trait-solving.html"><strong aria-hidden="true">49.6.</strong> Next-gen trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="solve/invariants.html"><strong aria-hidden="true">49.6.1.</strong> Invariants of the type system</a></li><li class="chapter-item "><a href="solve/the-solver.html"><strong aria-hidden="true">49.6.2.</strong> The solver</a></li><li class="chapter-item "><a href="solve/canonicalization.html"><strong aria-hidden="true">49.6.3.</strong> Canonicalization</a></li><li class="chapter-item "><a href="solve/coinduction.html"><strong aria-hidden="true">49.6.4.</strong> Coinduction</a></li><li class="chapter-item "><a href="solve/caching.html"><strong aria-hidden="true">49.6.5.</strong> Caching</a></li><li class="chapter-item "><a href="solve/proof-trees.html"><strong aria-hidden="true">49.6.6.</strong> Proof trees</a></li><li class="chapter-item "><a href="solve/normalization.html"><strong aria-hidden="true">49.6.7.</strong> Normalization</a></li><li class="chapter-item "><a href="solve/opaque-types.html"><strong aria-hidden="true">49.6.8.</strong> Opaque types</a></li><li class="chapter-item "><a href="solve/significant-changes.html"><strong aria-hidden="true">49.6.9.</strong> Significant changes and quirks</a></li></ol></li><li class="chapter-item "><a href="traits/unsize.html"><strong aria-hidden="true">49.7.</strong> Unsize and CoerceUnsized traits</a></li></ol></li><li class="chapter-item expanded "><a href="type-checking.html"><strong aria-hidden="true">50.</strong> Type checking</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="method-lookup.html"><strong aria-hidden="true">50.1.</strong> Method Lookup</a></li><li class="chapter-item "><a href="variance.html"><strong aria-hidden="true">50.2.</strong> Variance</a></li><li class="chapter-item expanded "><a href="opaque-types-type-alias-impl-trait.html"><strong aria-hidden="true">50.3.</strong> Opaque Types</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="opaque-types-impl-trait-inference.html"><strong aria-hidden="true">50.3.1.</strong> Inference details</a></li><li class="chapter-item expanded "><a href="return-position-impl-trait-in-trait.html" class="active"><strong aria-hidden="true">50.3.2.</strong> Return Position Impl Trait In Trait</a></li><li class="chapter-item "><a href="borrow_check/opaque-types-region-inference-restrictions.html"><strong aria-hidden="true">50.3.3.</strong> Region inference restrictions</a></li></ol></li></ol></li><li class="chapter-item "><a href="effects.html"><strong aria-hidden="true">51.</strong> Effect checking</a></li><li class="chapter-item "><a href="pat-exhaustive-checking.html"><strong aria-hidden="true">52.</strong> Pattern and Exhaustiveness Checking</a></li><li class="chapter-item "><a href="unsafety-checking.html"><strong aria-hidden="true">53.</strong> Unsafety Checking</a></li><li class="chapter-item "><a href="mir/dataflow.html"><strong aria-hidden="true">54.</strong> MIR dataflow</a></li><li class="chapter-item "><a href="mir/drop-elaboration.html"><strong aria-hidden="true">55.</strong> Drop elaboration</a></li><li class="chapter-item "><a href="borrow_check.html"><strong aria-hidden="true">56.</strong> The borrow checker</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="borrow_check/moves_and_initialization.html"><strong aria-hidden="true">56.1.</strong> Tracking moves and initialization</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="borrow_check/moves_and_initialization/move_paths.html"><strong aria-hidden="true">56.1.1.</strong> Move paths</a></li></ol></li><li class="chapter-item "><a href="borrow_check/type_check.html"><strong aria-hidden="true">56.2.</strong> MIR type checker</a></li><li class="chapter-item "><a href="borrow_check/drop_check.html"><strong aria-hidden="true">56.3.</strong> Drop check</a></li><li class="chapter-item "><a href="borrow_check/region_inference.html"><strong aria-hidden="true">56.4.</strong> Region inference</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="borrow_check/region_inference/constraint_propagation.html"><strong aria-hidden="true">56.4.1.</strong> Constraint propagation</a></li><li class="chapter-item "><a href="borrow_check/region_inference/lifetime_parameters.html"><strong aria-hidden="true">56.4.2.</strong> Lifetime parameters</a></li><li class="chapter-item "><a href="borrow_check/region_inference/member_constraints.html"><strong aria-hidden="true">56.4.3.</strong> Member constraints</a></li><li class="chapter-item "><a href="borrow_check/region_inference/placeholders_and_universes.html"><strong aria-hidden="true">56.4.4.</strong> Placeholders and universes</a></li><li class="chapter-item "><a href="borrow_check/region_inference/closure_constraints.html"><strong aria-hidden="true">56.4.5.</strong> Closure constraints</a></li><li class="chapter-item "><a href="borrow_check/region_inference/error_reporting.html"><strong aria-hidden="true">56.4.6.</strong> Error reporting</a></li></ol></li><li class="chapter-item "><a href="borrow_check/two_phase_borrows.html"><strong aria-hidden="true">56.5.</strong> Two-phase-borrows</a></li></ol></li><li class="chapter-item "><a href="diagnostics.html"><strong aria-hidden="true">57.</strong> Errors and Lints</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="diagnostics/diagnostic-structs.html"><strong aria-hidden="true">57.1.</strong> Diagnostic and subdiagnostic structs</a></li><li class="chapter-item "><a href="diagnostics/translation.html"><strong aria-hidden="true">57.2.</strong> Translation</a></li><li class="chapter-item "><a href="diagnostics/lintstore.html"><strong aria-hidden="true">57.3.</strong> LintStore</a></li><li class="chapter-item "><a href="diagnostics/error-codes.html"><strong aria-hidden="true">57.4.</strong> Error codes</a></li><li class="chapter-item "><a href="diagnostics/diagnostic-items.html"><strong aria-hidden="true">57.5.</strong> Diagnostic items</a></li><li class="chapter-item "><a href="diagnostics/error-guaranteed.html"><strong aria-hidden="true">57.6.</strong> ErrorGuaranteed</a></li></ol></li><li class="chapter-item "><li class="part-title">MIR to Binaries</li><li class="chapter-item "><a href="part-5-intro.html"><strong aria-hidden="true">58.</strong> Prologue</a></li><li class="chapter-item "><a href="mir/optimizations.html"><strong aria-hidden="true">59.</strong> MIR optimizations</a></li><li class="chapter-item "><a href="mir/debugging.html"><strong aria-hidden="true">60.</strong> Debugging</a></li><li class="chapter-item "><a href="const-eval.html"><strong aria-hidden="true">61.</strong> Constant evaluation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="const-eval/interpret.html"><strong aria-hidden="true">61.1.</strong> Interpreter</a></li></ol></li><li class="chapter-item "><a href="backend/monomorph.html"><strong aria-hidden="true">62.</strong> Monomorphization</a></li><li class="chapter-item "><a href="backend/lowering-mir.html"><strong aria-hidden="true">63.</strong> Lowering MIR</a></li><li class="chapter-item "><a href="backend/codegen.html"><strong aria-hidden="true">64.</strong> Code Generation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="backend/updating-llvm.html"><strong aria-hidden="true">64.1.</strong> Updating LLVM</a></li><li class="chapter-item "><a href="backend/debugging.html"><strong aria-hidden="true">64.2.</strong> Debugging LLVM</a></li><li class="chapter-item "><a href="backend/backend-agnostic.html"><strong aria-hidden="true">64.3.</strong> Backend Agnostic Codegen</a></li><li class="chapter-item "><a href="backend/implicit-caller-location.html"><strong aria-hidden="true">64.4.</strong> Implicit Caller Location</a></li></ol></li><li class="chapter-item "><a href="backend/libs-and-metadata.html"><strong aria-hidden="true">65.</strong> Libraries and Metadata</a></li><li class="chapter-item "><a href="profile-guided-optimization.html"><strong aria-hidden="true">66.</strong> Profile-guided Optimization</a></li><li class="chapter-item "><a href="llvm-coverage-instrumentation.html"><strong aria-hidden="true">67.</strong> LLVM Source-Based Code Coverage</a></li><li class="chapter-item "><a href="sanitizers.html"><strong aria-hidden="true">68.</strong> Sanitizers Support</a></li><li class="chapter-item "><a href="debugging-support-in-rustc.html"><strong aria-hidden="true">69.</strong> Debugging support in the Rust compiler</a></li><li class="spacer"></li><li class="chapter-item affix "><a href="appendix/background.html">Appendix A: Background topics</a></li><li class="chapter-item affix "><a href="appendix/glossary.html">Appendix B: Glossary</a></li><li class="chapter-item affix "><a href="appendix/code-index.html">Appendix C: Code Index</a></li><li class="chapter-item affix "><a href="appendix/compiler-lecture.html">Appendix D: Compiler Lecture Series</a></li><li class="chapter-item affix "><a href="appendix/bibliography.html">Appendix E: Bibliography</a></li><li class="chapter-item affix "><a href="appendix/humorust.html">Appendix Z: HumorRust</a></li><li class="spacer"></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Compiler Development Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide/edit/master/src/return-position-impl-trait-in-trait.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="return-position-impl-trait-in-trait"><a class="header" href="#return-position-impl-trait-in-trait">Return Position Impl Trait In Trait</a></h1>
+<p>Return-position impl trait in trait (RPITIT) is conceptually (and as of
+<a href="https://github.com/rust-lang/rust/pull/112988">#112988</a>, literally) sugar that turns RPITs in trait methods into
+generic associated types (GATs) without the user having to define that
+GAT either on the trait side or impl side.</p>
+<p>RPITIT was originally implemented in <a href="https://github.com/rust-lang/rust/pull/101224">#101224</a>, which added support for
+async fn in trait (AFIT), since the implementation for RPITIT came for
+free as a part of implementing AFIT which had been RFC'd previously. It
+was then RFC'd independently in <a href="https://github.com/rust-lang/rfcs/pull/3425">RFC 3425</a>, which was recently approved
+by T-lang.</p>
+<h2 id="how-does-it-work"><a class="header" href="#how-does-it-work">How does it work?</a></h2>
+<p>This doc is ordered mostly via the compilation pipeline:</p>
+<ol>
+<li>AST lowering (AST -&gt; HIR)</li>
+<li>HIR ty lowering (HIR -&gt; rustc_middle::ty data types)</li>
+<li>typeck</li>
+</ol>
+<h3 id="ast-lowering"><a class="header" href="#ast-lowering">AST lowering</a></h3>
+<p>AST lowering for RPITITs is almost the same as lowering RPITs. We
+still lower them as
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/hir/struct.OpaqueTy.html"><code>hir::ItemKind::OpaqueTy</code></a>.
+The two differences are that:</p>
+<p>We record <code>in_trait</code> for the opaque. This will signify that the opaque
+is an RPITIT for HIR ty lowering, diagnostics that deal with HIR, etc.</p>
+<p>We record <code>lifetime_mapping</code>s for the opaque type, described below.</p>
+<h4 id="aside-opaque-lifetime-duplication"><a class="header" href="#aside-opaque-lifetime-duplication">Aside: Opaque lifetime duplication</a></h4>
+<p><em>All opaques</em> (not just RPITITs) end up duplicating their captured
+lifetimes into new lifetime parameters local to the opaque. The main
+reason we do this is because RPITs need to be able to &quot;reify&quot;<sup class="footnote-reference"><a href="#1">1</a></sup> any
+captured late-bound arguments, or make them into early-bound ones. This
+is so they can be used as generic args for the opaque, and later to
+instantiate hidden types. Since we don't know which lifetimes are early-
+or late-bound during AST lowering, we just do this for all lifetimes.</p>
+<div class="footnote-definition" id="1"><sup class="footnote-definition-label">1</sup>
+<p>This is compiler-errors terminology, I'm not claiming it's accurate :^)</p>
+</div>
+<p>The main addition for RPITITs is that during lowering we track the
+relationship between the captured lifetimes and the corresponding
+duplicated lifetimes in an additional field,
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/hir/struct.OpaqueTy.html#structfield.lifetime_mapping"><code>OpaqueTy::lifetime_mapping</code></a>.
+We use this lifetime mapping later on in <code>predicates_of</code> to install
+bounds that enforce equality between these duplicated lifetimes and
+their source lifetimes in order to properly typecheck these GATs, which
+will be discussed below.</p>
+<h5 id="note"><a class="header" href="#note">Note</a></h5>
+<p>It may be better if we were able to lower without duplicates and for
+that I think we would need to stop distinguishing between early and late
+bound lifetimes. So we would need a solution like <a href="https://github.com/rust-lang/rust/pull/103448">Account for
+late-bound lifetimes in generics
+#103448</a> and then also a
+PR similar to <a href="https://github.com/rust-lang/rust/pull/103449">Inherit function lifetimes for impl-trait
+#103449</a>.</p>
+<h3 id="hir-ty-lowering"><a class="header" href="#hir-ty-lowering">HIR ty lowering</a></h3>
+<p>The main change to HIR ty lowering is that we lower <code>hir::TyKind::OpaqueDef</code>
+for an RPITIT to a projection instead of an opaque, using a newly
+synthesized def-id for a new associated type in the trait. We'll
+describe how exactly we get this def-id in the next section.</p>
+<p>This means that any time we call <code>lower_ty</code> on the RPITIT, we end up
+getting a projection back instead of an opaque. This projection can then
+be normalized to the right value -- either the original opaque if we're
+in the trait, or the inferred type of the RPITIT if we're in an impl.</p>
+<h4 id="lowering-to-synthetic-associated-types"><a class="header" href="#lowering-to-synthetic-associated-types">Lowering to synthetic associated types</a></h4>
+<p>Using query feeding, we synthesize new associated types on both the
+trait side and impl side for RPITITs that show up in methods.</p>
+<h5 id="lowering-rpitits-in-traits"><a class="header" href="#lowering-rpitits-in-traits">Lowering RPITITs in traits</a></h5>
+<p>When <code>tcx.associated_item_def_ids(trait_def_id)</code> is called on a trait to
+gather all of the trait's associated types, the query previously just
+returned the def-ids of the HIR items that are children of the trait.
+After <a href="https://github.com/rust-lang/rust/pull/112988">#112988</a>, additionally, for each method in the trait, we add the
+def-ids returned by
+<code>tcx.associated_types_for_impl_traits_in_associated_fn(trait_method_def_id)</code>,
+which walks through each trait method, gathers any RPITITs that show up
+in the signature, and then calls
+<code>associated_type_for_impl_trait_in_trait</code> for each RPITIT, which
+synthesizes a new associated type.</p>
+<h5 id="lowering-rpitits-in-impls"><a class="header" href="#lowering-rpitits-in-impls">Lowering RPITITs in impls</a></h5>
+<p>Similarly, along with the impl's HIR items, for each impl method, we
+additionally add all of the
+<code>associated_types_for_impl_traits_in_associated_fn</code> for the impl method.
+This calls <code>associated_type_for_impl_trait_in_impl</code>, which will
+synthesize an associated type definition for each RPITIT that comes from
+the corresponding trait method.</p>
+<h4 id="synthesizing-new-associated-types"><a class="header" href="#synthesizing-new-associated-types">Synthesizing new associated types</a></h4>
+<p>We use query feeding
+(<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/query/plumbing/struct.TyCtxtAt.html#method.create_def"><code>TyCtxtAt::create_def</code></a>)
+to synthesize a new def-id for the synthetic GATs for each RPITIT.</p>
+<p>Locally, most of rustc's queries match on the HIR of an item to compute
+their values. Since the RPITIT doesn't really have HIR associated with
+it, or at least not HIR that corresponds to an associated type, we must
+compute many queries eagerly and
+<a href="https://github.com/rust-lang/rust/pull/104940">feed</a> them, like
+<code>opt_def_kind</code>, <code>associated_item</code>, <code>visibility</code>, and<code>defaultness</code>.</p>
+<p>The values for most of these queries is obvious, since the RPITIT
+conceptually inherits most of its information from the parent function
+(e.g. <code>visibility</code>), or because it's trivially knowable because it's an
+associated type (<code>opt_def_kind</code>).</p>
+<p>Some other queries are more involved, or cannot be fed, and we
+document the interesting ones of those below:</p>
+<h5 id="generics_of-for-the-trait"><a class="header" href="#generics_of-for-the-trait"><code>generics_of</code> for the trait</a></h5>
+<p>The GAT for an RPITIT conceptually inherits the same generics as the
+RPIT it comes from. However, instead of having the method as the
+generics' parent, the trait is the parent.</p>
+<p>Currently we get away with taking the RPIT's generics and method
+generics and flattening them both into a new generics list, preserving
+the def-id of each of the parameters. (This may cause issues with
+def-ids having the wrong parents, but in the worst case this will cause
+diagnostics issues. If this ends up being an issue, we can synthesize
+new def-ids for generic params whose parent is the GAT.)</p>
+<details>
+<summary> <b>An illustrated example</b> </summary>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Foo {
+    fn method&lt;'early: 'early, 'late, T&gt;() -&gt; impl Sized + Captures&lt;'early, 'late&gt;;
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Would desugar to...</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Foo {
+    //       vvvvvvvvv method's generics
+    //                  vvvvvvvvvvvvvvvvvvvvvvvv opaque's generics
+    type Gat&lt;'early, T, 'early_duplicated, 'late&gt;: Sized + Captures&lt;'early_duplicated, 'late&gt;;
+
+    fn method&lt;'early: 'early, 'late, T&gt;() -&gt; Self::Gat&lt;'early, T, 'early, 'late&gt;;
+}
+<span class="boring">}
+</span></code></pre></pre>
+</details>
+<h5 id="generics_of-for-the-impl"><a class="header" href="#generics_of-for-the-impl"><code>generics_of</code> for the impl</a></h5>
+<p>The generics for an impl's GAT are a bit more interesting. They are
+composed of RPITIT's own generics (from the trait definition), appended
+onto the impl's methods generics. This has the same issue as above,
+where the generics for the GAT have parameters whose def-ids have the
+wrong parent, but this should only cause issues in diagnostics.</p>
+<p>We could fix this similarly if we were to synthesize new generics
+def-ids, but this can be done later in a forwards-compatible way,
+perhaps by a interested new contributor.</p>
+<h5 id="opt_rpitit_info"><a class="header" href="#opt_rpitit_info"><code>opt_rpitit_info</code></a></h5>
+<p>Some queries rely on computing information that would result in cycles
+if we were to feed them eagerly, like <code>explicit_predicates_of</code>.
+Therefore we defer to the <code>predicates_of</code> provider to return the right
+value for our RPITIT's GAT. We do this by detecting early on in the
+query if the associated type is synthetic by using
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/context/struct.TyCtxt.html#method.opt_rpitit_info"><code>opt_rpitit_info</code></a>,
+which returns <code>Some</code> if the associated type is synthetic.</p>
+<p>Then, during a query like <code>explicit_predicates_of</code>, we can detect if an
+associated type is synthetic like:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn explicit_predicates_of(tcx: TyCtxt&lt;'_&gt;, def_id: LocalDefId) -&gt; ... {
+    if let Some(rpitit_info) = tcx.opt_rpitit_info(def_id) {
+        // Do something special for RPITITs...
+        return ...;
+    }
+
+    // The regular computation which relies on access to the HIR of `def_id`.
+}
+<span class="boring">}
+</span></code></pre></pre>
+<h5 id="explicit_predicates_of"><a class="header" href="#explicit_predicates_of"><code>explicit_predicates_of</code></a></h5>
+<p>RPITITs begin by copying the predicates of the method that defined it,
+both on the trait and impl side.</p>
+<p>Additionally, we install &quot;bidirectional outlives&quot; predicates.
+Specifically, we add region-outlives predicates in both directions for
+each captured early-bound lifetime that constrains it to be equal to the
+duplicated early-bound lifetime that results from lowering. This is best
+illustrated in an example:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Foo&lt;'a&gt; {
+    fn bar() -&gt; impl Sized + 'a;
+}
+
+// Desugars into...
+
+trait Foo&lt;'a&gt; {
+    type Gat&lt;'a_duplicated&gt;: Sized + 'a
+    where
+        'a: 'a_duplicated,
+        'a_duplicated: 'a;
+    //~^ Specifically, we should be able to assume that the
+    // duplicated `'a_duplicated` lifetime always stays in
+    // sync with the `'a` lifetime.
+
+    fn bar() -&gt; Self::Gat&lt;'a&gt;;
+}
+<span class="boring">}
+</span></code></pre></pre>
+<h5 id="assumed_wf_types"><a class="header" href="#assumed_wf_types"><code>assumed_wf_types</code></a></h5>
+<p>The GATs in both the trait and impl inherit the <code>assumed_wf_types</code> of
+the trait method that defines the RPITIT. This is to make sure that the
+following code is well formed when lowered.</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Foo {
+    fn iter&lt;'a, T&gt;(x: &amp;'a [T]) -&gt; impl Iterator&lt;Item = &amp;'a T&gt;;
+}
+
+// which is lowered to...
+
+trait FooDesugared {
+    type Iter&lt;'a, T&gt;: Iterator&lt;Item = &amp;'a T&gt;;
+    //~^ assumed wf: `&amp;'a [T]`
+    // Without assumed wf types, the GAT would not be well-formed on its own.
+
+    fn iter&lt;'a, T&gt;(x: &amp;'a [T]) -&gt; Self::Iter&lt;'a, T&gt;;
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Because <code>assumed_wf_types</code> is only defined for local def ids, in order
+to properly implement <code>assumed_wf_types</code> for impls of foreign traits
+with RPITs, we need to encode the assumed wf types of RPITITs in an
+extern query
+<a href="https://github.com/rust-lang/rust/blob/a17c7968b727d8413801961fc4e89869b6ab00d3/compiler/rustc_ty_utils/src/implied_bounds.rs#L14"><code>assumed_wf_types_for_rpitit</code></a>.</p>
+<h3 id="typechecking"><a class="header" href="#typechecking">Typechecking</a></h3>
+<h4 id="the-rpitit-inference-algorithm"><a class="header" href="#the-rpitit-inference-algorithm">The RPITIT inference algorithm</a></h4>
+<p>The RPITIT inference algorithm is implemented in
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_analysis/check/compare_impl_item/fn.collect_return_position_impl_trait_in_trait_tys.html"><code>collect_return_position_impl_trait_in_trait_tys</code></a>.</p>
+<p><strong>High-level:</strong> Given a impl method and a trait method, we take the
+trait method and instantiate each RPITIT in the signature with an infer
+var. We then equate this trait method signature with the impl method
+signature, and process all obligations that fall out in order to infer
+the type of all of the RPITITs in the method.</p>
+<p>The method is also responsible for making sure that the hidden types for
+each RPITIT actually satisfy the bounds of the <code>impl Trait</code>, i.e. that
+if we infer <code>impl Trait = Foo</code>, that <code>Foo: Trait</code> holds.</p>
+<details>
+    <summary><b>An example...</b></summary>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span>#![feature(return_position_impl_trait_in_trait)]
+
+<span class="boring">fn main() {
+</span>use std::ops::Deref;
+
+trait Foo {
+    fn bar() -&gt; impl Deref&lt;Target = impl Sized&gt;;
+             // ^- RPITIT ?0        ^- RPITIT ?1
+}
+
+impl Foo for () {
+    fn bar() -&gt; Box&lt;String&gt; { Box::new(String::new()) }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>We end up with the trait signature that looks like <code>fn() -&gt; ?0</code>, and
+nested obligations <code>?0: Deref&lt;Target = ?1&gt;</code>, <code>?1: Sized</code>. The impl
+signature is <code>fn() -&gt; Box&lt;String&gt;</code>.</p>
+<p>Equating these signatures gives us <code>?0 = Box&lt;String&gt;</code>, which then after
+processing the obligation <code>Box&lt;String&gt;: Deref&lt;Target = ?1&gt;</code> gives us <code>?1 = String</code>, and the other obligation <code>String: Sized</code> evaluates to true.</p>
+<p>By the end of the algorithm, we end up with a mapping between associated
+type def-ids to concrete types inferred from the signature. We can then
+use this mapping to implement <code>type_of</code> for the synthetic associated
+types in the impl, since this mapping describes the type that should
+come after the <code>=</code> in <code>type Assoc = ...</code> for each RPITIT.</p>
+</details>
+<h5 id="implied-bounds-in-rpitit-hidden-type-inference"><a class="header" href="#implied-bounds-in-rpitit-hidden-type-inference">Implied bounds in RPITIT hidden type inference</a></h5>
+<p>Since <code>collect_return_position_impl_trait_in_trait_tys</code> does fulfillment and
+region resolution, we must provide it <code>assumed_wf_types</code> so that we can prove
+region obligations with the same expected implied bounds as
+<code>compare_method_predicate_entailment</code> does.</p>
+<p>Since the return type of a method is understood to be one of the assumed WF
+types, and we eagerly fold the return type with inference variables to do
+opaque type inference, after opaque type inference, the return type will
+resolve to contain the hidden types of the RPITITs. this would mean that the
+hidden types of the RPITITs would be assumed to be well-formed without having
+independently proven that they are. This resulted in a
+<a href="https://github.com/rust-lang/rust/pull/116072">subtle unsoundness bug</a>. In
+order to prevent this cyclic reasoning, we instead replace the hidden types of
+the RPITITs in the return type of the method with <em>placeholders</em>, which lead
+to no implied well-formedness bounds.</p>
+<h4 id="default-trait-body"><a class="header" href="#default-trait-body">Default trait body</a></h4>
+<p>Type-checking a default trait body, like:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Foo {
+    fn bar() -&gt; impl Sized {
+        1i32
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>requires one interesting hack. We need to install a projection predicate
+into the param-env of <code>Foo::bar</code> allowing us to assume that the RPITIT's
+GAT normalizes to the RPITIT's opaque type. This relies on the
+observation that a trait method and RPITIT's GAT will always be &quot;in
+sync&quot;. That is, one will only ever be overridden if the other one is as
+well.</p>
+<p>Compare this to a similar desugaring of the code above, which would fail
+because we cannot rely on this same assumption:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span>#![feature(impl_trait_in_assoc_type)]
+#![feature(associated_type_defaults)]
+
+<span class="boring">fn main() {
+</span>trait Foo {
+    type RPITIT = impl Sized;
+
+    fn bar() -&gt; Self::RPITIT {
+        01i32
+    }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Failing because a down-stream impl could theoretically provide an
+implementation for <code>RPITIT</code> without providing an implementation of
+<code>foo</code>:</p>
+<pre><code class="language-text">error[E0308]: mismatched types
+--&gt; src/lib.rs:8:9
+ |
+5 |     type RPITIT = impl Sized;
+ |     ------------------------- associated type defaults can't be assumed inside the trait defining them
+6 |
+7 |     fn bar() -&gt; Self::RPITIT {
+ |                 ------------ expected `&lt;Self as Foo&gt;::RPITIT` because of return type
+8 |         01i32
+ |         ^^^^^ expected associated type, found `i32`
+ |
+ = note: expected associated type `&lt;Self as Foo&gt;::RPITIT`
+                       found type `i32`
+</code></pre>
+<h4 id="well-formedness-checking"><a class="header" href="#well-formedness-checking">Well-formedness checking</a></h4>
+<p>We check well-formedness of RPITITs just like regular associated types.</p>
+<p>Since we added lifetime bounds in <code>predicates_of</code> that link the
+duplicated early-bound lifetimes to their original lifetimes, and we
+implemented <code>assumed_wf_types</code> which inherits the WF types of the method
+from which the RPITIT originates (<a href="https://github.com/rust-lang/rust/pull/113704">#113704</a>), we have no issues
+WF-checking the GAT as if it were a regular GAT.</p>
+<h3 id="whats-broken-whats-weird-etc"><a class="header" href="#whats-broken-whats-weird-etc">What's broken, what's weird, etc.</a></h3>
+<h5 id="specialization-is-super-busted"><a class="header" href="#specialization-is-super-busted">Specialization is super busted</a></h5>
+<p>The &quot;default trait methods&quot; described above does not interact well with
+specialization, because we only install those projection bounds in trait
+default methods, and not in impl methods. Given that specialization is
+already pretty busted, I won't go into detail, but it's currently a bug
+tracked in:
+* <code>tests/ui/impl-trait/in-trait/specialization-broken.rs</code></p>
+<h5 id="projections-dont-have-variances"><a class="header" href="#projections-dont-have-variances">Projections don't have variances</a></h5>
+<p>This code fails because projections don't have variances:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span>#![feature(return_position_impl_trait_in_trait)]
+
+<span class="boring">fn main() {
+</span>trait Foo {
+    // Note that the RPITIT below does *not* capture `'lt`.
+    fn bar&lt;'lt: 'lt&gt;() -&gt; impl Eq;
+}
+
+fn test&lt;'a, 'b, T: Foo&gt;() -&gt; bool {
+    &lt;T as Foo&gt;::bar::&lt;'a&gt;() == &lt;T as Foo&gt;::bar::&lt;'b&gt;()
+    //~^ ERROR
+    // (requires that `'a == 'b`)
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>This is because we can't relate <code>&lt;T as Foo&gt;::Rpitit&lt;'a&gt;</code> and <code>&lt;T as Foo&gt;::Rpitit&lt;'b&gt;</code>, even if they don't capture their lifetime. If we were
+using regular opaque types, this would work, because they would be
+bivariant in that lifetime parameter:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span>#![feature(return_position_impl_trait_in_trait)]
+
+<span class="boring">fn main() {
+</span>fn bar&lt;'lt: 'lt&gt;() -&gt; impl Eq {
+    ()
+}
+
+fn test&lt;'a, 'b&gt;() -&gt; bool {
+    bar::&lt;'a&gt;() == bar::&lt;'b&gt;()
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>This is probably okay though, since RPITITs will likely have their
+captures behavior changed to capture all in-scope lifetimes anyways.
+This could also be relaxed later in a forwards-compatible way if we were
+to consider variances of RPITITs when relating projections.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="opaque-types-impl-trait-inference.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next" href="borrow_check/opaque-types-region-inference-restrictions.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="opaque-types-impl-trait-inference.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next" href="borrow_check/opaque-types-region-inference-restrictions.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        <script type="text/javascript" src="mermaid.min.js"></script>
+        <script type="text/javascript" src="mermaid-init.js"></script>
+
+
+    </body>
+</html>

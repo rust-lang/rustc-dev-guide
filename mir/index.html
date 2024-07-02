@@ -1,0 +1,480 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>The MIR (Mid-level IR) - Rust Compiler Development Guide</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="A guide to developing the Rust compiler (rustc)">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item affix "><a href="../getting-started.html">Getting Started</a></li><li class="chapter-item affix "><a href="../about-this-guide.html">About this guide</a></li><li class="spacer"></li><li class="chapter-item affix "><li class="part-title">Building and debugging rustc</li><li class="chapter-item "><a href="../building/how-to-build-and-run.html"><strong aria-hidden="true">1.</strong> How to build and run the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../building/quickstart.html"><strong aria-hidden="true">1.1.</strong> Quickstart</a></li><li class="chapter-item "><a href="../building/prerequisites.html"><strong aria-hidden="true">1.2.</strong> Prerequisites</a></li><li class="chapter-item "><a href="../building/suggested.html"><strong aria-hidden="true">1.3.</strong> Suggested Workflows</a></li><li class="chapter-item "><a href="../building/build-install-distribution-artifacts.html"><strong aria-hidden="true">1.4.</strong> Distribution artifacts</a></li><li class="chapter-item "><a href="../building/compiler-documenting.html"><strong aria-hidden="true">1.5.</strong> Building Documentation</a></li><li class="chapter-item "><a href="../rustdoc.html"><strong aria-hidden="true">1.6.</strong> Rustdoc overview</a></li><li class="chapter-item "><a href="../building/new-target.html"><strong aria-hidden="true">1.7.</strong> Adding a new target</a></li><li class="chapter-item "><a href="../building/optimized-build.html"><strong aria-hidden="true">1.8.</strong> Optimized build</a></li></ol></li><li class="chapter-item "><a href="../tests/intro.html"><strong aria-hidden="true">2.</strong> Testing the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../tests/running.html"><strong aria-hidden="true">2.1.</strong> Running tests</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../tests/docker.html"><strong aria-hidden="true">2.1.1.</strong> Testing with Docker</a></li><li class="chapter-item "><a href="../tests/ci.html"><strong aria-hidden="true">2.1.2.</strong> Testing with CI</a></li></ol></li><li class="chapter-item "><a href="../tests/adding.html"><strong aria-hidden="true">2.2.</strong> Adding new tests</a></li><li class="chapter-item "><a href="../tests/compiletest.html"><strong aria-hidden="true">2.3.</strong> Compiletest</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../tests/ui.html"><strong aria-hidden="true">2.3.1.</strong> UI tests</a></li><li class="chapter-item "><a href="../tests/headers.html"><strong aria-hidden="true">2.3.2.</strong> Test headers</a></li></ol></li><li class="chapter-item "><a href="../tests/integration.html"><strong aria-hidden="true">2.4.</strong> Integration testing</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../tests/crater.html"><strong aria-hidden="true">2.4.1.</strong> Crater</a></li><li class="chapter-item "><a href="../tests/fuchsia.html"><strong aria-hidden="true">2.4.2.</strong> Fuchsia</a></li><li class="chapter-item "><a href="../tests/rust-for-linux.html"><strong aria-hidden="true">2.4.3.</strong> Rust for Linux</a></li></ol></li><li class="chapter-item "><a href="../tests/perf.html"><strong aria-hidden="true">2.5.</strong> Performance testing</a></li><li class="chapter-item "><a href="../tests/suggest-tests.html"><strong aria-hidden="true">2.6.</strong> Suggest tests tool</a></li></ol></li><li class="chapter-item "><a href="../compiler-debugging.html"><strong aria-hidden="true">3.</strong> Debugging the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../tracing.html"><strong aria-hidden="true">3.1.</strong> Using the tracing/logging instrumentation</a></li></ol></li><li class="chapter-item "><a href="../profiling.html"><strong aria-hidden="true">4.</strong> Profiling the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../profiling/with_perf.html"><strong aria-hidden="true">4.1.</strong> with the linux perf tool</a></li><li class="chapter-item "><a href="../profiling/wpa_profiling.html"><strong aria-hidden="true">4.2.</strong> with Windows Performance Analyzer</a></li></ol></li><li class="chapter-item "><a href="../crates-io.html"><strong aria-hidden="true">5.</strong> crates.io Dependencies</a></li><li class="chapter-item affix "><li class="part-title">Contributing to Rust</li><li class="chapter-item "><a href="../contributing.html"><strong aria-hidden="true">6.</strong> Contribution Procedures</a></li><li class="chapter-item "><a href="../compiler-team.html"><strong aria-hidden="true">7.</strong> About the compiler team</a></li><li class="chapter-item "><a href="../git.html"><strong aria-hidden="true">8.</strong> Using Git</a></li><li class="chapter-item "><a href="../rustbot.html"><strong aria-hidden="true">9.</strong> Mastering @rustbot</a></li><li class="chapter-item "><a href="../walkthrough.html"><strong aria-hidden="true">10.</strong> Walkthrough: a typical contribution</a></li><li class="chapter-item "><a href="../implementing_new_features.html"><strong aria-hidden="true">11.</strong> Implementing new language features</a></li><li class="chapter-item "><a href="../stability.html"><strong aria-hidden="true">12.</strong> Stability attributes</a></li><li class="chapter-item "><a href="../stabilization_guide.html"><strong aria-hidden="true">13.</strong> Stabilizing Features</a></li><li class="chapter-item "><a href="../feature-gates.html"><strong aria-hidden="true">14.</strong> Feature Gates</a></li><li class="chapter-item "><a href="../conventions.html"><strong aria-hidden="true">15.</strong> Coding conventions</a></li><li class="chapter-item "><a href="../bug-fix-procedure.html"><strong aria-hidden="true">16.</strong> Procedures for Breaking Changes</a></li><li class="chapter-item "><a href="../external-repos.html"><strong aria-hidden="true">17.</strong> Using external repositories</a></li><li class="chapter-item "><a href="../fuzzing.html"><strong aria-hidden="true">18.</strong> Fuzzing</a></li><li class="chapter-item "><a href="../notification-groups/about.html"><strong aria-hidden="true">19.</strong> Notification groups</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../notification-groups/apple.html"><strong aria-hidden="true">19.1.</strong> Apple</a></li><li class="chapter-item "><a href="../notification-groups/arm.html"><strong aria-hidden="true">19.2.</strong> ARM</a></li><li class="chapter-item "><a href="../notification-groups/cleanup-crew.html"><strong aria-hidden="true">19.3.</strong> Cleanup Crew</a></li><li class="chapter-item "><a href="../notification-groups/llvm.html"><strong aria-hidden="true">19.4.</strong> LLVM</a></li><li class="chapter-item "><a href="../notification-groups/risc-v.html"><strong aria-hidden="true">19.5.</strong> RISC-V</a></li><li class="chapter-item "><a href="../notification-groups/windows.html"><strong aria-hidden="true">19.6.</strong> Windows</a></li><li class="chapter-item "><a href="../notification-groups/rust-for-linux.html"><strong aria-hidden="true">19.7.</strong> Rust for Linux</a></li></ol></li><li class="chapter-item "><a href="../licenses.html"><strong aria-hidden="true">20.</strong> Licenses</a></li><li class="chapter-item "><a href="../guides/editions.html"><strong aria-hidden="true">21.</strong> Editions</a></li><li class="chapter-item affix "><li class="part-title">Bootstrapping</li><li class="chapter-item "><a href="../building/bootstrapping/intro.html"><strong aria-hidden="true">22.</strong> Prologue</a></li><li class="chapter-item "><a href="../building/bootstrapping/what-bootstrapping-does.html"><strong aria-hidden="true">23.</strong> What Bootstrapping does</a></li><li class="chapter-item "><a href="../building/bootstrapping/how-bootstrap-does-it.html"><strong aria-hidden="true">24.</strong> How Bootstrap does it</a></li><li class="chapter-item affix "><li class="part-title">High-level Compiler Architecture</li><li class="chapter-item "><a href="../part-2-intro.html"><strong aria-hidden="true">25.</strong> Prologue</a></li><li class="chapter-item "><a href="../overview.html"><strong aria-hidden="true">26.</strong> Overview of the compiler</a></li><li class="chapter-item "><a href="../compiler-src.html"><strong aria-hidden="true">27.</strong> The compiler source code</a></li><li class="chapter-item "><a href="../query.html"><strong aria-hidden="true">28.</strong> Queries: demand-driven compilation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../queries/query-evaluation-model-in-detail.html"><strong aria-hidden="true">28.1.</strong> The Query Evaluation Model in Detail</a></li><li class="chapter-item "><a href="../queries/incremental-compilation.html"><strong aria-hidden="true">28.2.</strong> Incremental compilation</a></li><li class="chapter-item "><a href="../queries/incremental-compilation-in-detail.html"><strong aria-hidden="true">28.3.</strong> Incremental compilation In Detail</a></li><li class="chapter-item "><a href="../incrcomp-debugging.html"><strong aria-hidden="true">28.4.</strong> Debugging and Testing</a></li><li class="chapter-item "><a href="../salsa.html"><strong aria-hidden="true">28.5.</strong> Salsa</a></li></ol></li><li class="chapter-item "><a href="../memory.html"><strong aria-hidden="true">29.</strong> Memory Management in Rustc</a></li><li class="chapter-item "><a href="../serialization.html"><strong aria-hidden="true">30.</strong> Serialization in Rustc</a></li><li class="chapter-item "><a href="../parallel-rustc.html"><strong aria-hidden="true">31.</strong> Parallel Compilation</a></li><li class="chapter-item "><a href="../rustdoc-internals.html"><strong aria-hidden="true">32.</strong> Rustdoc internals</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../rustdoc-internals/search.html"><strong aria-hidden="true">32.1.</strong> Search</a></li></ol></li><li class="chapter-item "><li class="part-title">Source Code Representation</li><li class="chapter-item "><a href="../part-3-intro.html"><strong aria-hidden="true">33.</strong> Prologue</a></li><li class="chapter-item "><a href="../cli.html"><strong aria-hidden="true">34.</strong> Command-line arguments</a></li><li class="chapter-item "><a href="../rustc-driver.html"><strong aria-hidden="true">35.</strong> rustc_driver and rustc_interface</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../rustc-driver-interacting-with-the-ast.html"><strong aria-hidden="true">35.1.</strong> Example: Type checking</a></li><li class="chapter-item "><a href="../rustc-driver-getting-diagnostics.html"><strong aria-hidden="true">35.2.</strong> Example: Getting diagnostics</a></li></ol></li><li class="chapter-item "><a href="../syntax-intro.html"><strong aria-hidden="true">36.</strong> Syntax and the AST</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../the-parser.html"><strong aria-hidden="true">36.1.</strong> Lexing and Parsing</a></li><li class="chapter-item "><a href="../macro-expansion.html"><strong aria-hidden="true">36.2.</strong> Macro expansion</a></li><li class="chapter-item "><a href="../name-resolution.html"><strong aria-hidden="true">36.3.</strong> Name resolution</a></li><li class="chapter-item "><a href="../attributes.html"><strong aria-hidden="true">36.4.</strong> Attributes</a></li><li class="chapter-item "><a href="../test-implementation.html"><strong aria-hidden="true">36.5.</strong> #[test] Implementation</a></li><li class="chapter-item "><a href="../panic-implementation.html"><strong aria-hidden="true">36.6.</strong> Panic Implementation</a></li><li class="chapter-item "><a href="../ast-validation.html"><strong aria-hidden="true">36.7.</strong> AST Validation</a></li><li class="chapter-item "><a href="../feature-gate-ck.html"><strong aria-hidden="true">36.8.</strong> Feature Gate Checking</a></li><li class="chapter-item "><a href="../lang-items.html"><strong aria-hidden="true">36.9.</strong> Lang Items</a></li></ol></li><li class="chapter-item "><a href="../hir.html"><strong aria-hidden="true">37.</strong> The HIR (High-level IR)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../ast-lowering.html"><strong aria-hidden="true">37.1.</strong> Lowering AST to HIR</a></li><li class="chapter-item "><a href="../hir-debugging.html"><strong aria-hidden="true">37.2.</strong> Debugging</a></li></ol></li><li class="chapter-item "><a href="../thir.html"><strong aria-hidden="true">38.</strong> The THIR (Typed High-level IR)</a></li><li class="chapter-item expanded "><a href="../mir/index.html" class="active"><strong aria-hidden="true">39.</strong> The MIR (Mid-level IR)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../mir/construction.html"><strong aria-hidden="true">39.1.</strong> MIR construction</a></li><li class="chapter-item "><a href="../mir/visitor.html"><strong aria-hidden="true">39.2.</strong> MIR visitor and traversal</a></li><li class="chapter-item "><a href="../mir/passes.html"><strong aria-hidden="true">39.3.</strong> MIR passes: getting the MIR for a function</a></li></ol></li><li class="chapter-item "><a href="../identifiers.html"><strong aria-hidden="true">40.</strong> Identifiers in the compiler</a></li><li class="chapter-item "><a href="../closure.html"><strong aria-hidden="true">41.</strong> Closure expansion</a></li><li class="chapter-item "><a href="../asm.html"><strong aria-hidden="true">42.</strong> Inline assembly</a></li><li class="chapter-item affix "><li class="part-title">Analysis</li><li class="chapter-item "><a href="../part-4-intro.html"><strong aria-hidden="true">43.</strong> Prologue</a></li><li class="chapter-item "><a href="../generic_parameters_summary.html"><strong aria-hidden="true">44.</strong> Generic parameter definitions</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../what_is_ty_generics.html"><strong aria-hidden="true">44.1.</strong> What is ty::Generics</a></li><li class="chapter-item "><a href="../early-late-bound-params/early-late-bound-summary.html"><strong aria-hidden="true">44.2.</strong> Early vs Late bound parameters</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../early-late-bound-params/early-late-bound-implementation-nuances.html"><strong aria-hidden="true">44.2.1.</strong> Implementation nuances of early/late bound parameters</a></li><li class="chapter-item "><a href="../early-late-bound-params/turbofishing-and-early-late-bound.html"><strong aria-hidden="true">44.2.2.</strong> Interactions with turbofishing</a></li></ol></li></ol></li><li class="chapter-item "><a href="../ty.html"><strong aria-hidden="true">45.</strong> The ty module: representing types</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../ty_module/generic_arguments.html"><strong aria-hidden="true">45.1.</strong> ADTs and Generic Arguments</a></li><li class="chapter-item "><a href="../ty_module/param_ty_const_regions.html"><strong aria-hidden="true">45.2.</strong> Parameter types/consts/regions</a></li><li class="chapter-item "><a href="../ty_module/early_binder.html"><strong aria-hidden="true">45.3.</strong> EarlyBinder and instantiating parameters</a></li><li class="chapter-item "><a href="../ty_module/binders.html"><strong aria-hidden="true">45.4.</strong> Binder and Higher ranked regions</a></li><li class="chapter-item "><a href="../ty_module/instantiating_binders.html"><strong aria-hidden="true">45.5.</strong> Instantiating binders</a></li><li class="chapter-item "><a href="../constants.html"><strong aria-hidden="true">45.6.</strong> Constants in the type system</a></li></ol></li><li class="chapter-item "><a href="../ty-fold.html"><strong aria-hidden="true">46.</strong> TypeFolder and TypeFoldable</a></li><li class="chapter-item "><a href="../param_env/param_env_summary.html"><strong aria-hidden="true">47.</strong> Parameter Environments</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../param_env/param_env_what_is_it.html"><strong aria-hidden="true">47.1.</strong> What is it?</a></li><li class="chapter-item "><a href="../param_env/param_env_construction_internals.html"><strong aria-hidden="true">47.2.</strong> How are ParamEnv's constructed internally</a></li><li class="chapter-item "><a href="../param_env/param_env_acquisition.html"><strong aria-hidden="true">47.3.</strong> Which ParamEnv do I use?</a></li></ol></li><li class="chapter-item "><a href="../type-inference.html"><strong aria-hidden="true">48.</strong> Type inference</a></li><li class="chapter-item "><a href="../traits/resolution.html"><strong aria-hidden="true">49.</strong> Trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../traits/hrtb.html"><strong aria-hidden="true">49.1.</strong> Higher-ranked trait bounds</a></li><li class="chapter-item "><a href="../traits/caching.html"><strong aria-hidden="true">49.2.</strong> Caching subtleties</a></li><li class="chapter-item "><a href="../traits/implied-bounds.html"><strong aria-hidden="true">49.3.</strong> Implied bounds</a></li><li class="chapter-item "><a href="../traits/specialization.html"><strong aria-hidden="true">49.4.</strong> Specialization</a></li><li class="chapter-item "><a href="../traits/chalk.html"><strong aria-hidden="true">49.5.</strong> Chalk-based trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../traits/lowering-to-logic.html"><strong aria-hidden="true">49.5.1.</strong> Lowering to logic</a></li><li class="chapter-item "><a href="../traits/goals-and-clauses.html"><strong aria-hidden="true">49.5.2.</strong> Goals and clauses</a></li><li class="chapter-item "><a href="../traits/canonical-queries.html"><strong aria-hidden="true">49.5.3.</strong> Canonical queries</a></li><li class="chapter-item "><a href="../traits/canonicalization.html"><strong aria-hidden="true">49.5.4.</strong> Canonicalization</a></li></ol></li><li class="chapter-item "><a href="../solve/trait-solving.html"><strong aria-hidden="true">49.6.</strong> Next-gen trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../solve/invariants.html"><strong aria-hidden="true">49.6.1.</strong> Invariants of the type system</a></li><li class="chapter-item "><a href="../solve/the-solver.html"><strong aria-hidden="true">49.6.2.</strong> The solver</a></li><li class="chapter-item "><a href="../solve/canonicalization.html"><strong aria-hidden="true">49.6.3.</strong> Canonicalization</a></li><li class="chapter-item "><a href="../solve/coinduction.html"><strong aria-hidden="true">49.6.4.</strong> Coinduction</a></li><li class="chapter-item "><a href="../solve/caching.html"><strong aria-hidden="true">49.6.5.</strong> Caching</a></li><li class="chapter-item "><a href="../solve/proof-trees.html"><strong aria-hidden="true">49.6.6.</strong> Proof trees</a></li><li class="chapter-item "><a href="../solve/normalization.html"><strong aria-hidden="true">49.6.7.</strong> Normalization</a></li><li class="chapter-item "><a href="../solve/opaque-types.html"><strong aria-hidden="true">49.6.8.</strong> Opaque types</a></li><li class="chapter-item "><a href="../solve/significant-changes.html"><strong aria-hidden="true">49.6.9.</strong> Significant changes and quirks</a></li></ol></li><li class="chapter-item "><a href="../traits/unsize.html"><strong aria-hidden="true">49.7.</strong> Unsize and CoerceUnsized traits</a></li></ol></li><li class="chapter-item "><a href="../type-checking.html"><strong aria-hidden="true">50.</strong> Type checking</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../method-lookup.html"><strong aria-hidden="true">50.1.</strong> Method Lookup</a></li><li class="chapter-item "><a href="../variance.html"><strong aria-hidden="true">50.2.</strong> Variance</a></li><li class="chapter-item "><a href="../opaque-types-type-alias-impl-trait.html"><strong aria-hidden="true">50.3.</strong> Opaque Types</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../opaque-types-impl-trait-inference.html"><strong aria-hidden="true">50.3.1.</strong> Inference details</a></li><li class="chapter-item "><a href="../return-position-impl-trait-in-trait.html"><strong aria-hidden="true">50.3.2.</strong> Return Position Impl Trait In Trait</a></li><li class="chapter-item "><a href="../borrow_check/opaque-types-region-inference-restrictions.html"><strong aria-hidden="true">50.3.3.</strong> Region inference restrictions</a></li></ol></li></ol></li><li class="chapter-item "><a href="../effects.html"><strong aria-hidden="true">51.</strong> Effect checking</a></li><li class="chapter-item "><a href="../pat-exhaustive-checking.html"><strong aria-hidden="true">52.</strong> Pattern and Exhaustiveness Checking</a></li><li class="chapter-item "><a href="../unsafety-checking.html"><strong aria-hidden="true">53.</strong> Unsafety Checking</a></li><li class="chapter-item "><a href="../mir/dataflow.html"><strong aria-hidden="true">54.</strong> MIR dataflow</a></li><li class="chapter-item "><a href="../mir/drop-elaboration.html"><strong aria-hidden="true">55.</strong> Drop elaboration</a></li><li class="chapter-item "><a href="../borrow_check.html"><strong aria-hidden="true">56.</strong> The borrow checker</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../borrow_check/moves_and_initialization.html"><strong aria-hidden="true">56.1.</strong> Tracking moves and initialization</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../borrow_check/moves_and_initialization/move_paths.html"><strong aria-hidden="true">56.1.1.</strong> Move paths</a></li></ol></li><li class="chapter-item "><a href="../borrow_check/type_check.html"><strong aria-hidden="true">56.2.</strong> MIR type checker</a></li><li class="chapter-item "><a href="../borrow_check/drop_check.html"><strong aria-hidden="true">56.3.</strong> Drop check</a></li><li class="chapter-item "><a href="../borrow_check/region_inference.html"><strong aria-hidden="true">56.4.</strong> Region inference</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../borrow_check/region_inference/constraint_propagation.html"><strong aria-hidden="true">56.4.1.</strong> Constraint propagation</a></li><li class="chapter-item "><a href="../borrow_check/region_inference/lifetime_parameters.html"><strong aria-hidden="true">56.4.2.</strong> Lifetime parameters</a></li><li class="chapter-item "><a href="../borrow_check/region_inference/member_constraints.html"><strong aria-hidden="true">56.4.3.</strong> Member constraints</a></li><li class="chapter-item "><a href="../borrow_check/region_inference/placeholders_and_universes.html"><strong aria-hidden="true">56.4.4.</strong> Placeholders and universes</a></li><li class="chapter-item "><a href="../borrow_check/region_inference/closure_constraints.html"><strong aria-hidden="true">56.4.5.</strong> Closure constraints</a></li><li class="chapter-item "><a href="../borrow_check/region_inference/error_reporting.html"><strong aria-hidden="true">56.4.6.</strong> Error reporting</a></li></ol></li><li class="chapter-item "><a href="../borrow_check/two_phase_borrows.html"><strong aria-hidden="true">56.5.</strong> Two-phase-borrows</a></li></ol></li><li class="chapter-item "><a href="../diagnostics.html"><strong aria-hidden="true">57.</strong> Errors and Lints</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../diagnostics/diagnostic-structs.html"><strong aria-hidden="true">57.1.</strong> Diagnostic and subdiagnostic structs</a></li><li class="chapter-item "><a href="../diagnostics/translation.html"><strong aria-hidden="true">57.2.</strong> Translation</a></li><li class="chapter-item "><a href="../diagnostics/lintstore.html"><strong aria-hidden="true">57.3.</strong> LintStore</a></li><li class="chapter-item "><a href="../diagnostics/error-codes.html"><strong aria-hidden="true">57.4.</strong> Error codes</a></li><li class="chapter-item "><a href="../diagnostics/diagnostic-items.html"><strong aria-hidden="true">57.5.</strong> Diagnostic items</a></li><li class="chapter-item "><a href="../diagnostics/error-guaranteed.html"><strong aria-hidden="true">57.6.</strong> ErrorGuaranteed</a></li></ol></li><li class="chapter-item "><li class="part-title">MIR to Binaries</li><li class="chapter-item "><a href="../part-5-intro.html"><strong aria-hidden="true">58.</strong> Prologue</a></li><li class="chapter-item "><a href="../mir/optimizations.html"><strong aria-hidden="true">59.</strong> MIR optimizations</a></li><li class="chapter-item "><a href="../mir/debugging.html"><strong aria-hidden="true">60.</strong> Debugging</a></li><li class="chapter-item "><a href="../const-eval.html"><strong aria-hidden="true">61.</strong> Constant evaluation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../const-eval/interpret.html"><strong aria-hidden="true">61.1.</strong> Interpreter</a></li></ol></li><li class="chapter-item "><a href="../backend/monomorph.html"><strong aria-hidden="true">62.</strong> Monomorphization</a></li><li class="chapter-item "><a href="../backend/lowering-mir.html"><strong aria-hidden="true">63.</strong> Lowering MIR</a></li><li class="chapter-item "><a href="../backend/codegen.html"><strong aria-hidden="true">64.</strong> Code Generation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../backend/updating-llvm.html"><strong aria-hidden="true">64.1.</strong> Updating LLVM</a></li><li class="chapter-item "><a href="../backend/debugging.html"><strong aria-hidden="true">64.2.</strong> Debugging LLVM</a></li><li class="chapter-item "><a href="../backend/backend-agnostic.html"><strong aria-hidden="true">64.3.</strong> Backend Agnostic Codegen</a></li><li class="chapter-item "><a href="../backend/implicit-caller-location.html"><strong aria-hidden="true">64.4.</strong> Implicit Caller Location</a></li></ol></li><li class="chapter-item "><a href="../backend/libs-and-metadata.html"><strong aria-hidden="true">65.</strong> Libraries and Metadata</a></li><li class="chapter-item "><a href="../profile-guided-optimization.html"><strong aria-hidden="true">66.</strong> Profile-guided Optimization</a></li><li class="chapter-item "><a href="../llvm-coverage-instrumentation.html"><strong aria-hidden="true">67.</strong> LLVM Source-Based Code Coverage</a></li><li class="chapter-item "><a href="../sanitizers.html"><strong aria-hidden="true">68.</strong> Sanitizers Support</a></li><li class="chapter-item "><a href="../debugging-support-in-rustc.html"><strong aria-hidden="true">69.</strong> Debugging support in the Rust compiler</a></li><li class="spacer"></li><li class="chapter-item affix "><a href="../appendix/background.html">Appendix A: Background topics</a></li><li class="chapter-item affix "><a href="../appendix/glossary.html">Appendix B: Glossary</a></li><li class="chapter-item affix "><a href="../appendix/code-index.html">Appendix C: Code Index</a></li><li class="chapter-item affix "><a href="../appendix/compiler-lecture.html">Appendix D: Compiler Lecture Series</a></li><li class="chapter-item affix "><a href="../appendix/bibliography.html">Appendix E: Bibliography</a></li><li class="chapter-item affix "><a href="../appendix/humorust.html">Appendix Z: HumorRust</a></li><li class="spacer"></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Compiler Development Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide/edit/master/src/mir/index.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="the-mir-mid-level-ir"><a class="header" href="#the-mir-mid-level-ir">The MIR (Mid-level IR)</a></h1>
+<ul>
+<li><a href="#introduction-to-mir">Introduction to MIR</a></li>
+<li><a href="#key-mir-vocabulary">Key MIR vocabulary</a></li>
+<li><a href="#mir-data-types">MIR data types</a></li>
+<li><a href="#representing-constants">Representing constants</a>
+<ul>
+<li><a href="#mir-constant-values">MIR constant values</a></li>
+<li><a href="#valtrees">ValTrees</a></li>
+<li><a href="#promoted-constants">Promoted constants</a></li>
+</ul>
+</li>
+</ul>
+<p>MIR is Rust's <em>Mid-level Intermediate Representation</em>. It is
+constructed from <a href="../hir.html">HIR</a>. MIR was introduced in
+<a href="https://rust-lang.github.io/rfcs/1211-mir.html">RFC 1211</a>. It is a radically simplified form of Rust that is used for
+certain flow-sensitive safety checks – notably the borrow checker! –
+and also for optimization and code generation.</p>
+<p>If you'd like a very high-level introduction to MIR, as well as some
+of the compiler concepts that it relies on (such as control-flow
+graphs and desugaring), you may enjoy the
+<a href="https://blog.rust-lang.org/2016/04/19/MIR.html">rust-lang blog post that introduced MIR</a>.</p>
+<h2 id="introduction-to-mir"><a class="header" href="#introduction-to-mir">Introduction to MIR</a></h2>
+<p>MIR is defined in the <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/index.html"><code>compiler/rustc_middle/src/mir/</code></a> module, but much of the code
+that manipulates it is found in <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_build/index.html"><code>compiler/rustc_mir_build</code></a>,
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_transform/index.html"><code>compiler/rustc_mir_transform</code></a>, and
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_mir_dataflow/index.html"><code>compiler/rustc_mir_dataflow</code></a>.</p>
+<p>Some of the key characteristics of MIR are:</p>
+<ul>
+<li>It is based on a <a href="../appendix/background.html#cfg">control-flow graph</a>.</li>
+<li>It does not have nested expressions.</li>
+<li>All types in MIR are fully explicit.</li>
+</ul>
+<h2 id="key-mir-vocabulary"><a class="header" href="#key-mir-vocabulary">Key MIR vocabulary</a></h2>
+<p>This section introduces the key concepts of MIR, summarized here:</p>
+<ul>
+<li><strong>Basic blocks</strong>: units of the control-flow graph, consisting of:
+<ul>
+<li><strong>statements:</strong> actions with one successor</li>
+<li><strong>terminators:</strong> actions with potentially multiple successors; always at
+the end of a block</li>
+<li>(if you're not familiar with the term <em>basic block</em>, see the <a href="../appendix/background.html#cfg">background
+chapter</a>)</li>
+</ul>
+</li>
+<li><strong>Locals:</strong> Memory locations allocated on the stack (conceptually, at
+least), such as function arguments, local variables, and
+temporaries. These are identified by an index, written with a
+leading underscore, like <code>_1</code>. There is also a special &quot;local&quot;
+(<code>_0</code>) allocated to store the return value.</li>
+<li><strong>Places:</strong> expressions that identify a location in memory, like <code>_1</code> or
+<code>_1.f</code>.</li>
+<li><strong>Rvalues:</strong> expressions that produce a value. The &quot;R&quot; stands for
+the fact that these are the &quot;right-hand side&quot; of an assignment.
+<ul>
+<li><strong>Operands:</strong> the arguments to an rvalue, which can either be a
+constant (like <code>22</code>) or a place (like <code>_1</code>).</li>
+</ul>
+</li>
+</ul>
+<p>You can get a feeling for how MIR is constructed by translating simple
+programs into MIR and reading the pretty printed output. In fact, the
+playground makes this easy, since it supplies a MIR button that will
+show you the MIR for your program. Try putting this program into play
+(or <a href="https://play.rust-lang.org/?gist=30074856e62e74e91f06abd19bd72ece&amp;version=stable">clicking on this link</a>), and then clicking the &quot;MIR&quot;
+button on the top:</p>
+<p>MIR shown by above link is optimized.
+Some statements like <code>StorageLive</code> are removed in optimization.
+This happens because the compiler notices the value is never accessed in the code.
+We can use <code>rustc [filename].rs -Z mir-opt-level=0 --emit mir</code> to view unoptimized MIR.
+This requires the nightly toolchain.</p>
+<pre><pre class="playground"><code class="language-rust">fn main() {
+    let mut vec = Vec::new();
+    vec.push(1);
+    vec.push(2);
+}
+</code></pre></pre>
+<p>You should see something like:</p>
+<pre><code class="language-mir">// WARNING: This output format is intended for human consumers only
+// and is subject to change without notice. Knock yourself out.
+fn main() -&gt; () {
+    ...
+}
+</code></pre>
+<p>This is the MIR format for the <code>main</code> function.</p>
+<p><strong>Variable declarations.</strong> If we drill in a bit, we'll see it begins
+with a bunch of variable declarations. They look like this:</p>
+<pre><code class="language-mir">let mut _0: ();                      // return place
+let mut _1: std::vec::Vec&lt;i32&gt;;      // in scope 0 at src/main.rs:2:9: 2:16
+let mut _2: ();
+let mut _3: &amp;mut std::vec::Vec&lt;i32&gt;;
+let mut _4: ();
+let mut _5: &amp;mut std::vec::Vec&lt;i32&gt;;
+</code></pre>
+<p>You can see that variables in MIR don't have names, they have indices,
+like <code>_0</code> or <code>_1</code>.  We also intermingle the user's variables (e.g.,
+<code>_1</code>) with temporary values (e.g., <code>_2</code> or <code>_3</code>). You can tell apart
+user-defined variables because they have debuginfo associated to them (see below).</p>
+<p><strong>User variable debuginfo.</strong> Below the variable declarations, we find the only
+hint that <code>_1</code> represents a user variable:</p>
+<pre><code class="language-mir">scope 1 {
+    debug vec =&gt; _1;                 // in scope 1 at src/main.rs:2:9: 2:16
+}
+</code></pre>
+<p>Each <code>debug &lt;Name&gt; =&gt; &lt;Place&gt;;</code> annotation describes a named user variable,
+and where (i.e. the place) a debugger can find the data of that variable.
+Here the mapping is trivial, but optimizations may complicate the place,
+or lead to multiple user variables sharing the same place.
+Additionally, closure captures are described using the same system, and so
+they're complicated even without optimizations, e.g.: <code>debug x =&gt; (*((*_1).0: &amp;T));</code>.</p>
+<p>The &quot;scope&quot; blocks (e.g., <code>scope 1 { .. }</code>) describe the lexical structure of
+the source program (which names were in scope when), so any part of the program
+annotated with <code>// in scope 0</code> would be missing <code>vec</code>, if you were stepping
+through the code in a debugger, for example.</p>
+<p><strong>Basic blocks.</strong> Reading further, we see our first <strong>basic block</strong> (naturally
+it may look slightly different when you view it, and I am ignoring some of the
+comments):</p>
+<pre><code class="language-mir">bb0: {
+    StorageLive(_1);
+    _1 = const &lt;std::vec::Vec&lt;T&gt;&gt;::new() -&gt; bb2;
+}
+</code></pre>
+<p>A basic block is defined by a series of <strong>statements</strong> and a final
+<strong>terminator</strong>.  In this case, there is one statement:</p>
+<pre><code class="language-mir">StorageLive(_1);
+</code></pre>
+<p>This statement indicates that the variable <code>_1</code> is &quot;live&quot;, meaning
+that it may be used later – this will persist until we encounter a
+<code>StorageDead(_1)</code> statement, which indicates that the variable <code>_1</code> is
+done being used. These &quot;storage statements&quot; are used by LLVM to
+allocate stack space.</p>
+<p>The <strong>terminator</strong> of the block <code>bb0</code> is the call to <code>Vec::new</code>:</p>
+<pre><code class="language-mir">_1 = const &lt;std::vec::Vec&lt;T&gt;&gt;::new() -&gt; bb2;
+</code></pre>
+<p>Terminators are different from statements because they can have more
+than one successor – that is, control may flow to different
+places. Function calls like the call to <code>Vec::new</code> are always
+terminators because of the possibility of unwinding, although in the
+case of <code>Vec::new</code> we are able to see that indeed unwinding is not
+possible, and hence we list only one successor block, <code>bb2</code>.</p>
+<p>If we look ahead to <code>bb2</code>, we will see it looks like this:</p>
+<pre><code class="language-mir">bb2: {
+    StorageLive(_3);
+    _3 = &amp;mut _1;
+    _2 = const &lt;std::vec::Vec&lt;T&gt;&gt;::push(move _3, const 1i32) -&gt; [return: bb3, unwind: bb4];
+}
+</code></pre>
+<p>Here there are two statements: another <code>StorageLive</code>, introducing the <code>_3</code>
+temporary, and then an assignment:</p>
+<pre><code class="language-mir">_3 = &amp;mut _1;
+</code></pre>
+<p>Assignments in general have the form:</p>
+<pre><code class="language-text">&lt;Place&gt; = &lt;Rvalue&gt;
+</code></pre>
+<p>A place is an expression like <code>_3</code>, <code>_3.f</code> or <code>*_3</code> – it denotes a
+location in memory.  An <strong>Rvalue</strong> is an expression that creates a
+value: in this case, the rvalue is a mutable borrow expression, which
+looks like <code>&amp;mut &lt;Place&gt;</code>. So we can kind of define a grammar for
+rvalues like so:</p>
+<pre><code class="language-text">&lt;Rvalue&gt;  = &amp; (mut)? &lt;Place&gt;
+          | &lt;Operand&gt; + &lt;Operand&gt;
+          | &lt;Operand&gt; - &lt;Operand&gt;
+          | ...
+
+&lt;Operand&gt; = Constant
+          | copy Place
+          | move Place
+</code></pre>
+<p>As you can see from this grammar, rvalues cannot be nested – they can
+only reference places and constants. Moreover, when you use a place,
+we indicate whether we are <strong>copying it</strong> (which requires that the
+place have a type <code>T</code> where <code>T: Copy</code>) or <strong>moving it</strong> (which works
+for a place of any type). So, for example, if we had the expression <code>x = a + b + c</code> in Rust, that would get compiled to two statements and a
+temporary:</p>
+<pre><code class="language-mir">TMP1 = a + b
+x = TMP1 + c
+</code></pre>
+<p>(<a href="https://play.rust-lang.org/?gist=1751196d63b2a71f8208119e59d8a5b6&amp;version=stable">Try it and see</a>, though you may want to do release mode to skip
+over the overflow checks.)</p>
+<h2 id="mir-data-types"><a class="header" href="#mir-data-types">MIR data types</a></h2>
+<p>The MIR data types are defined in the <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/index.html"><code>compiler/rustc_middle/src/mir/</code></a>
+module. Each of the key concepts mentioned in the previous section
+maps in a fairly straightforward way to a Rust type.</p>
+<p>The main MIR data type is <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Body.html"><code>Body</code></a>. It contains the data for a single
+function (along with sub-instances of Mir for &quot;promoted constants&quot;,
+but <a href="#promoted">you can read about those below</a>).</p>
+<ul>
+<li><strong>Basic blocks</strong>: The basic blocks are stored in the field
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Body.html#structfield.basic_blocks"><code>Body::basic_blocks</code></a>; this is a vector
+of <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.BasicBlockData.html"><code>BasicBlockData</code></a> structures. Nobody ever references a
+basic block directly: instead, we pass around <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.BasicBlock.html"><code>BasicBlock</code></a>
+values, which are <a href="../appendix/glossary.html#newtype">newtype'd</a> indices into this vector.</li>
+<li><strong>Statements</strong> are represented by the type <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Statement.html"><code>Statement</code></a>.</li>
+<li><strong>Terminators</strong> are represented by the <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/terminator/struct.Terminator.html"><code>Terminator</code></a>.</li>
+<li><strong>Locals</strong> are represented by a <a href="../appendix/glossary.html#newtype">newtype'd</a> index type <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Local.html"><code>Local</code></a>.
+The data for a local variable is found in the
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Body.html#structfield.local_decls"><code>Body::local_decls</code></a> vector. There is also a special constant
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/constant.RETURN_PLACE.html"><code>RETURN_PLACE</code></a> identifying the special &quot;local&quot; representing the return value.</li>
+<li><strong>Places</strong> are identified by the struct <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/struct.Place.html"><code>Place</code></a>. There are a few
+fields:
+<ul>
+<li>Local variables like <code>_1</code></li>
+<li><strong>Projections</strong>, which are fields or other things that &quot;project
+out&quot; from a base place. These are represented by the <a href="../appendix/glossary.html#newtype">newtype'd</a> type
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/enum.ProjectionElem.html"><code>ProjectionElem</code></a>. So e.g. the place <code>_1.f</code> is a projection,
+with <code>f</code> being the &quot;projection element&quot; and <code>_1</code> being the base
+path. <code>*_1</code> is also a projection, with the <code>*</code> being represented
+by the <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/enum.ProjectionElem.html#variant.Deref"><code>ProjectionElem::Deref</code></a> element.</li>
+</ul>
+</li>
+<li><strong>Rvalues</strong> are represented by the enum <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/enum.Rvalue.html"><code>Rvalue</code></a>.</li>
+<li><strong>Operands</strong> are represented by the enum <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/enum.Operand.html"><code>Operand</code></a>.</li>
+</ul>
+<h2 id="representing-constants"><a class="header" href="#representing-constants">Representing constants</a></h2>
+<p>When code has reached the MIR stage, constants can generally come in two forms:
+<em>MIR constants</em> (<a href="https://doc.rust-lang.org/nightly/nightly-rustc/stable_mir/mir/struct.Constant.html"><code>mir::Constant</code></a>) and <em>type system constants</em> (<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.Const.html"><code>ty::Const</code></a>).
+MIR constants are used as operands: in <code>x + CONST</code>, <code>CONST</code> is a MIR constant;
+similarly, in <code>x + 2</code>, <code>2</code> is a MIR constant. Type system constants are used in
+the type system, in particular for array lengths but also for const generics.</p>
+<p>Generally, both kinds of constants can be &quot;unevaluated&quot; or &quot;already evaluated&quot;.
+And unevaluated constant simply stores the <code>DefId</code> of what needs to be evaluated
+to compute this result. An evaluated constant (a &quot;value&quot;) has already been
+computed; their representation differs between type system constants and MIR
+constants: MIR constants evaluate to a <code>mir::ConstValue</code>; type system constants
+evaluate to a <code>ty::ValTree</code>.</p>
+<p>Type system constants have some more variants to support const generics: they
+can refer to local const generic parameters, and they are subject to inference.
+Furthermore, the <code>mir::Constant::Ty</code> variant lets us use an arbitrary type
+system constant as a MIR constant; this happens whenever a const generic
+parameter is used as an operand.</p>
+<h3 id="mir-constant-values"><a class="header" href="#mir-constant-values">MIR constant values</a></h3>
+<p>In general, a MIR constant value (<code>mir::ConstValue</code>) was computed by evaluating
+some constant the user wrote. This <a href="../const-eval.html">const evaluation</a> produces
+a very low-level representation of the result in terms of individual bytes. We
+call this an &quot;indirect&quot; constant (<code>mir::ConstValue::Indirect</code>) since the value
+is stored in-memory.</p>
+<p>However, storing everything in-memory would be awfully inefficient. Hence there
+are some other variants in <code>mir::ConstValue</code> that can represent certain simple
+and common values more efficiently. In particular, everything that can be
+directly written as a literal in Rust (integers, floats, chars, bools, but also
+<code>&quot;string literals&quot;</code> and <code>b&quot;byte string literals&quot;</code>) has an optimized variant that
+avoids the full overhead of the in-memory representation.</p>
+<h3 id="valtrees"><a class="header" href="#valtrees">ValTrees</a></h3>
+<p>An evaluated type system constant is a &quot;valtree&quot;. The <code>ty::ValTree</code> datastructure
+allows us to represent</p>
+<ul>
+<li>arrays,</li>
+<li>many structs,</li>
+<li>tuples,</li>
+<li>enums and,</li>
+<li>most primitives.</li>
+</ul>
+<p>The most important rule for
+this representation is that every value must be uniquely represented. In other
+words: a specific value must only be representable in one specific way. For example: there is only
+one way to represent an array of two integers as a <code>ValTree</code>:
+<code>ValTree::Branch(&amp;[ValTree::Leaf(first_int), ValTree::Leaf(second_int)])</code>.
+Even though theoretically a <code>[u32; 2]</code> could be encoded in a <code>u64</code> and thus just be a
+<code>ValTree::Leaf(bits_of_two_u32)</code>, that is not a legal construction of <code>ValTree</code>
+(and is very complex to do, so it is unlikely anyone is tempted to do so).</p>
+<p>These rules also mean that some values are not representable. There can be no <code>union</code>s in type
+level constants, as it is not clear how they should be represented, because their active variant
+is unknown. Similarly there is no way to represent raw pointers, as addresses are unknown at
+compile-time and thus we cannot make any assumptions about them. References on the other hand
+<em>can</em> be represented, as equality for references is defined as equality on their value, so we
+ignore their address and just look at the backing value. We must make sure that the pointer values
+of the references are not observable at compile time. We thus encode <code>&amp;42</code> exactly like <code>42</code>.
+Any conversion from
+valtree back a to MIR constant value must reintroduce an actual indirection. At codegen time the
+addresses may be deduplicated between multiple uses or not, entirely depending on arbitrary
+optimization choices.</p>
+<p>As a consequence, all decoding of <code>ValTree</code> must happen by matching on the type first and making
+decisions depending on that. The value itself gives no useful information without the type that
+belongs to it.</p>
+<p><a name="promoted"></a></p>
+<h3 id="promoted-constants"><a class="header" href="#promoted-constants">Promoted constants</a></h3>
+<p>See the const-eval WG's <a href="https://github.com/rust-lang/const-eval/blob/master/promotion.md">docs on promotion</a>.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../thir.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next" href="../mir/construction.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../thir.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next" href="../mir/construction.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        <script type="text/javascript" src="../mermaid.min.js"></script>
+        <script type="text/javascript" src="../mermaid-init.js"></script>
+
+
+    </body>
+</html>

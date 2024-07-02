@@ -1,0 +1,583 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>What Bootstrapping does - Rust Compiler Development Guide</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="A guide to developing the Rust compiler (rustc)">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../../favicon.svg">
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../../highlight.css">
+        <link rel="stylesheet" href="../../tomorrow-night.css">
+        <link rel="stylesheet" href="../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item affix "><a href="../../getting-started.html">Getting Started</a></li><li class="chapter-item affix "><a href="../../about-this-guide.html">About this guide</a></li><li class="spacer"></li><li class="chapter-item affix "><li class="part-title">Building and debugging rustc</li><li class="chapter-item "><a href="../../building/how-to-build-and-run.html"><strong aria-hidden="true">1.</strong> How to build and run the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../building/quickstart.html"><strong aria-hidden="true">1.1.</strong> Quickstart</a></li><li class="chapter-item "><a href="../../building/prerequisites.html"><strong aria-hidden="true">1.2.</strong> Prerequisites</a></li><li class="chapter-item "><a href="../../building/suggested.html"><strong aria-hidden="true">1.3.</strong> Suggested Workflows</a></li><li class="chapter-item "><a href="../../building/build-install-distribution-artifacts.html"><strong aria-hidden="true">1.4.</strong> Distribution artifacts</a></li><li class="chapter-item "><a href="../../building/compiler-documenting.html"><strong aria-hidden="true">1.5.</strong> Building Documentation</a></li><li class="chapter-item "><a href="../../rustdoc.html"><strong aria-hidden="true">1.6.</strong> Rustdoc overview</a></li><li class="chapter-item "><a href="../../building/new-target.html"><strong aria-hidden="true">1.7.</strong> Adding a new target</a></li><li class="chapter-item "><a href="../../building/optimized-build.html"><strong aria-hidden="true">1.8.</strong> Optimized build</a></li></ol></li><li class="chapter-item "><a href="../../tests/intro.html"><strong aria-hidden="true">2.</strong> Testing the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../tests/running.html"><strong aria-hidden="true">2.1.</strong> Running tests</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../tests/docker.html"><strong aria-hidden="true">2.1.1.</strong> Testing with Docker</a></li><li class="chapter-item "><a href="../../tests/ci.html"><strong aria-hidden="true">2.1.2.</strong> Testing with CI</a></li></ol></li><li class="chapter-item "><a href="../../tests/adding.html"><strong aria-hidden="true">2.2.</strong> Adding new tests</a></li><li class="chapter-item "><a href="../../tests/compiletest.html"><strong aria-hidden="true">2.3.</strong> Compiletest</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../tests/ui.html"><strong aria-hidden="true">2.3.1.</strong> UI tests</a></li><li class="chapter-item "><a href="../../tests/headers.html"><strong aria-hidden="true">2.3.2.</strong> Test headers</a></li></ol></li><li class="chapter-item "><a href="../../tests/integration.html"><strong aria-hidden="true">2.4.</strong> Integration testing</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../tests/crater.html"><strong aria-hidden="true">2.4.1.</strong> Crater</a></li><li class="chapter-item "><a href="../../tests/fuchsia.html"><strong aria-hidden="true">2.4.2.</strong> Fuchsia</a></li><li class="chapter-item "><a href="../../tests/rust-for-linux.html"><strong aria-hidden="true">2.4.3.</strong> Rust for Linux</a></li></ol></li><li class="chapter-item "><a href="../../tests/perf.html"><strong aria-hidden="true">2.5.</strong> Performance testing</a></li><li class="chapter-item "><a href="../../tests/suggest-tests.html"><strong aria-hidden="true">2.6.</strong> Suggest tests tool</a></li></ol></li><li class="chapter-item "><a href="../../compiler-debugging.html"><strong aria-hidden="true">3.</strong> Debugging the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../tracing.html"><strong aria-hidden="true">3.1.</strong> Using the tracing/logging instrumentation</a></li></ol></li><li class="chapter-item "><a href="../../profiling.html"><strong aria-hidden="true">4.</strong> Profiling the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../profiling/with_perf.html"><strong aria-hidden="true">4.1.</strong> with the linux perf tool</a></li><li class="chapter-item "><a href="../../profiling/wpa_profiling.html"><strong aria-hidden="true">4.2.</strong> with Windows Performance Analyzer</a></li></ol></li><li class="chapter-item "><a href="../../crates-io.html"><strong aria-hidden="true">5.</strong> crates.io Dependencies</a></li><li class="chapter-item affix "><li class="part-title">Contributing to Rust</li><li class="chapter-item "><a href="../../contributing.html"><strong aria-hidden="true">6.</strong> Contribution Procedures</a></li><li class="chapter-item "><a href="../../compiler-team.html"><strong aria-hidden="true">7.</strong> About the compiler team</a></li><li class="chapter-item "><a href="../../git.html"><strong aria-hidden="true">8.</strong> Using Git</a></li><li class="chapter-item "><a href="../../rustbot.html"><strong aria-hidden="true">9.</strong> Mastering @rustbot</a></li><li class="chapter-item "><a href="../../walkthrough.html"><strong aria-hidden="true">10.</strong> Walkthrough: a typical contribution</a></li><li class="chapter-item "><a href="../../implementing_new_features.html"><strong aria-hidden="true">11.</strong> Implementing new language features</a></li><li class="chapter-item "><a href="../../stability.html"><strong aria-hidden="true">12.</strong> Stability attributes</a></li><li class="chapter-item "><a href="../../stabilization_guide.html"><strong aria-hidden="true">13.</strong> Stabilizing Features</a></li><li class="chapter-item "><a href="../../feature-gates.html"><strong aria-hidden="true">14.</strong> Feature Gates</a></li><li class="chapter-item "><a href="../../conventions.html"><strong aria-hidden="true">15.</strong> Coding conventions</a></li><li class="chapter-item "><a href="../../bug-fix-procedure.html"><strong aria-hidden="true">16.</strong> Procedures for Breaking Changes</a></li><li class="chapter-item "><a href="../../external-repos.html"><strong aria-hidden="true">17.</strong> Using external repositories</a></li><li class="chapter-item "><a href="../../fuzzing.html"><strong aria-hidden="true">18.</strong> Fuzzing</a></li><li class="chapter-item "><a href="../../notification-groups/about.html"><strong aria-hidden="true">19.</strong> Notification groups</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../notification-groups/apple.html"><strong aria-hidden="true">19.1.</strong> Apple</a></li><li class="chapter-item "><a href="../../notification-groups/arm.html"><strong aria-hidden="true">19.2.</strong> ARM</a></li><li class="chapter-item "><a href="../../notification-groups/cleanup-crew.html"><strong aria-hidden="true">19.3.</strong> Cleanup Crew</a></li><li class="chapter-item "><a href="../../notification-groups/llvm.html"><strong aria-hidden="true">19.4.</strong> LLVM</a></li><li class="chapter-item "><a href="../../notification-groups/risc-v.html"><strong aria-hidden="true">19.5.</strong> RISC-V</a></li><li class="chapter-item "><a href="../../notification-groups/windows.html"><strong aria-hidden="true">19.6.</strong> Windows</a></li><li class="chapter-item "><a href="../../notification-groups/rust-for-linux.html"><strong aria-hidden="true">19.7.</strong> Rust for Linux</a></li></ol></li><li class="chapter-item "><a href="../../licenses.html"><strong aria-hidden="true">20.</strong> Licenses</a></li><li class="chapter-item "><a href="../../guides/editions.html"><strong aria-hidden="true">21.</strong> Editions</a></li><li class="chapter-item affix "><li class="part-title">Bootstrapping</li><li class="chapter-item "><a href="../../building/bootstrapping/intro.html"><strong aria-hidden="true">22.</strong> Prologue</a></li><li class="chapter-item expanded "><a href="../../building/bootstrapping/what-bootstrapping-does.html" class="active"><strong aria-hidden="true">23.</strong> What Bootstrapping does</a></li><li class="chapter-item "><a href="../../building/bootstrapping/how-bootstrap-does-it.html"><strong aria-hidden="true">24.</strong> How Bootstrap does it</a></li><li class="chapter-item affix "><li class="part-title">High-level Compiler Architecture</li><li class="chapter-item "><a href="../../part-2-intro.html"><strong aria-hidden="true">25.</strong> Prologue</a></li><li class="chapter-item "><a href="../../overview.html"><strong aria-hidden="true">26.</strong> Overview of the compiler</a></li><li class="chapter-item "><a href="../../compiler-src.html"><strong aria-hidden="true">27.</strong> The compiler source code</a></li><li class="chapter-item "><a href="../../query.html"><strong aria-hidden="true">28.</strong> Queries: demand-driven compilation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../queries/query-evaluation-model-in-detail.html"><strong aria-hidden="true">28.1.</strong> The Query Evaluation Model in Detail</a></li><li class="chapter-item "><a href="../../queries/incremental-compilation.html"><strong aria-hidden="true">28.2.</strong> Incremental compilation</a></li><li class="chapter-item "><a href="../../queries/incremental-compilation-in-detail.html"><strong aria-hidden="true">28.3.</strong> Incremental compilation In Detail</a></li><li class="chapter-item "><a href="../../incrcomp-debugging.html"><strong aria-hidden="true">28.4.</strong> Debugging and Testing</a></li><li class="chapter-item "><a href="../../salsa.html"><strong aria-hidden="true">28.5.</strong> Salsa</a></li></ol></li><li class="chapter-item "><a href="../../memory.html"><strong aria-hidden="true">29.</strong> Memory Management in Rustc</a></li><li class="chapter-item "><a href="../../serialization.html"><strong aria-hidden="true">30.</strong> Serialization in Rustc</a></li><li class="chapter-item "><a href="../../parallel-rustc.html"><strong aria-hidden="true">31.</strong> Parallel Compilation</a></li><li class="chapter-item "><a href="../../rustdoc-internals.html"><strong aria-hidden="true">32.</strong> Rustdoc internals</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../rustdoc-internals/search.html"><strong aria-hidden="true">32.1.</strong> Search</a></li></ol></li><li class="chapter-item "><li class="part-title">Source Code Representation</li><li class="chapter-item "><a href="../../part-3-intro.html"><strong aria-hidden="true">33.</strong> Prologue</a></li><li class="chapter-item "><a href="../../cli.html"><strong aria-hidden="true">34.</strong> Command-line arguments</a></li><li class="chapter-item "><a href="../../rustc-driver.html"><strong aria-hidden="true">35.</strong> rustc_driver and rustc_interface</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../rustc-driver-interacting-with-the-ast.html"><strong aria-hidden="true">35.1.</strong> Example: Type checking</a></li><li class="chapter-item "><a href="../../rustc-driver-getting-diagnostics.html"><strong aria-hidden="true">35.2.</strong> Example: Getting diagnostics</a></li></ol></li><li class="chapter-item "><a href="../../syntax-intro.html"><strong aria-hidden="true">36.</strong> Syntax and the AST</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../the-parser.html"><strong aria-hidden="true">36.1.</strong> Lexing and Parsing</a></li><li class="chapter-item "><a href="../../macro-expansion.html"><strong aria-hidden="true">36.2.</strong> Macro expansion</a></li><li class="chapter-item "><a href="../../name-resolution.html"><strong aria-hidden="true">36.3.</strong> Name resolution</a></li><li class="chapter-item "><a href="../../attributes.html"><strong aria-hidden="true">36.4.</strong> Attributes</a></li><li class="chapter-item "><a href="../../test-implementation.html"><strong aria-hidden="true">36.5.</strong> #[test] Implementation</a></li><li class="chapter-item "><a href="../../panic-implementation.html"><strong aria-hidden="true">36.6.</strong> Panic Implementation</a></li><li class="chapter-item "><a href="../../ast-validation.html"><strong aria-hidden="true">36.7.</strong> AST Validation</a></li><li class="chapter-item "><a href="../../feature-gate-ck.html"><strong aria-hidden="true">36.8.</strong> Feature Gate Checking</a></li><li class="chapter-item "><a href="../../lang-items.html"><strong aria-hidden="true">36.9.</strong> Lang Items</a></li></ol></li><li class="chapter-item "><a href="../../hir.html"><strong aria-hidden="true">37.</strong> The HIR (High-level IR)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../ast-lowering.html"><strong aria-hidden="true">37.1.</strong> Lowering AST to HIR</a></li><li class="chapter-item "><a href="../../hir-debugging.html"><strong aria-hidden="true">37.2.</strong> Debugging</a></li></ol></li><li class="chapter-item "><a href="../../thir.html"><strong aria-hidden="true">38.</strong> The THIR (Typed High-level IR)</a></li><li class="chapter-item "><a href="../../mir/index.html"><strong aria-hidden="true">39.</strong> The MIR (Mid-level IR)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../mir/construction.html"><strong aria-hidden="true">39.1.</strong> MIR construction</a></li><li class="chapter-item "><a href="../../mir/visitor.html"><strong aria-hidden="true">39.2.</strong> MIR visitor and traversal</a></li><li class="chapter-item "><a href="../../mir/passes.html"><strong aria-hidden="true">39.3.</strong> MIR passes: getting the MIR for a function</a></li></ol></li><li class="chapter-item "><a href="../../identifiers.html"><strong aria-hidden="true">40.</strong> Identifiers in the compiler</a></li><li class="chapter-item "><a href="../../closure.html"><strong aria-hidden="true">41.</strong> Closure expansion</a></li><li class="chapter-item "><a href="../../asm.html"><strong aria-hidden="true">42.</strong> Inline assembly</a></li><li class="chapter-item affix "><li class="part-title">Analysis</li><li class="chapter-item "><a href="../../part-4-intro.html"><strong aria-hidden="true">43.</strong> Prologue</a></li><li class="chapter-item "><a href="../../generic_parameters_summary.html"><strong aria-hidden="true">44.</strong> Generic parameter definitions</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../what_is_ty_generics.html"><strong aria-hidden="true">44.1.</strong> What is ty::Generics</a></li><li class="chapter-item "><a href="../../early-late-bound-params/early-late-bound-summary.html"><strong aria-hidden="true">44.2.</strong> Early vs Late bound parameters</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../early-late-bound-params/early-late-bound-implementation-nuances.html"><strong aria-hidden="true">44.2.1.</strong> Implementation nuances of early/late bound parameters</a></li><li class="chapter-item "><a href="../../early-late-bound-params/turbofishing-and-early-late-bound.html"><strong aria-hidden="true">44.2.2.</strong> Interactions with turbofishing</a></li></ol></li></ol></li><li class="chapter-item "><a href="../../ty.html"><strong aria-hidden="true">45.</strong> The ty module: representing types</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../ty_module/generic_arguments.html"><strong aria-hidden="true">45.1.</strong> ADTs and Generic Arguments</a></li><li class="chapter-item "><a href="../../ty_module/param_ty_const_regions.html"><strong aria-hidden="true">45.2.</strong> Parameter types/consts/regions</a></li><li class="chapter-item "><a href="../../ty_module/early_binder.html"><strong aria-hidden="true">45.3.</strong> EarlyBinder and instantiating parameters</a></li><li class="chapter-item "><a href="../../ty_module/binders.html"><strong aria-hidden="true">45.4.</strong> Binder and Higher ranked regions</a></li><li class="chapter-item "><a href="../../ty_module/instantiating_binders.html"><strong aria-hidden="true">45.5.</strong> Instantiating binders</a></li><li class="chapter-item "><a href="../../constants.html"><strong aria-hidden="true">45.6.</strong> Constants in the type system</a></li></ol></li><li class="chapter-item "><a href="../../ty-fold.html"><strong aria-hidden="true">46.</strong> TypeFolder and TypeFoldable</a></li><li class="chapter-item "><a href="../../param_env/param_env_summary.html"><strong aria-hidden="true">47.</strong> Parameter Environments</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../param_env/param_env_what_is_it.html"><strong aria-hidden="true">47.1.</strong> What is it?</a></li><li class="chapter-item "><a href="../../param_env/param_env_construction_internals.html"><strong aria-hidden="true">47.2.</strong> How are ParamEnv's constructed internally</a></li><li class="chapter-item "><a href="../../param_env/param_env_acquisition.html"><strong aria-hidden="true">47.3.</strong> Which ParamEnv do I use?</a></li></ol></li><li class="chapter-item "><a href="../../type-inference.html"><strong aria-hidden="true">48.</strong> Type inference</a></li><li class="chapter-item "><a href="../../traits/resolution.html"><strong aria-hidden="true">49.</strong> Trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../traits/hrtb.html"><strong aria-hidden="true">49.1.</strong> Higher-ranked trait bounds</a></li><li class="chapter-item "><a href="../../traits/caching.html"><strong aria-hidden="true">49.2.</strong> Caching subtleties</a></li><li class="chapter-item "><a href="../../traits/implied-bounds.html"><strong aria-hidden="true">49.3.</strong> Implied bounds</a></li><li class="chapter-item "><a href="../../traits/specialization.html"><strong aria-hidden="true">49.4.</strong> Specialization</a></li><li class="chapter-item "><a href="../../traits/chalk.html"><strong aria-hidden="true">49.5.</strong> Chalk-based trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../traits/lowering-to-logic.html"><strong aria-hidden="true">49.5.1.</strong> Lowering to logic</a></li><li class="chapter-item "><a href="../../traits/goals-and-clauses.html"><strong aria-hidden="true">49.5.2.</strong> Goals and clauses</a></li><li class="chapter-item "><a href="../../traits/canonical-queries.html"><strong aria-hidden="true">49.5.3.</strong> Canonical queries</a></li><li class="chapter-item "><a href="../../traits/canonicalization.html"><strong aria-hidden="true">49.5.4.</strong> Canonicalization</a></li></ol></li><li class="chapter-item "><a href="../../solve/trait-solving.html"><strong aria-hidden="true">49.6.</strong> Next-gen trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../solve/invariants.html"><strong aria-hidden="true">49.6.1.</strong> Invariants of the type system</a></li><li class="chapter-item "><a href="../../solve/the-solver.html"><strong aria-hidden="true">49.6.2.</strong> The solver</a></li><li class="chapter-item "><a href="../../solve/canonicalization.html"><strong aria-hidden="true">49.6.3.</strong> Canonicalization</a></li><li class="chapter-item "><a href="../../solve/coinduction.html"><strong aria-hidden="true">49.6.4.</strong> Coinduction</a></li><li class="chapter-item "><a href="../../solve/caching.html"><strong aria-hidden="true">49.6.5.</strong> Caching</a></li><li class="chapter-item "><a href="../../solve/proof-trees.html"><strong aria-hidden="true">49.6.6.</strong> Proof trees</a></li><li class="chapter-item "><a href="../../solve/normalization.html"><strong aria-hidden="true">49.6.7.</strong> Normalization</a></li><li class="chapter-item "><a href="../../solve/opaque-types.html"><strong aria-hidden="true">49.6.8.</strong> Opaque types</a></li><li class="chapter-item "><a href="../../solve/significant-changes.html"><strong aria-hidden="true">49.6.9.</strong> Significant changes and quirks</a></li></ol></li><li class="chapter-item "><a href="../../traits/unsize.html"><strong aria-hidden="true">49.7.</strong> Unsize and CoerceUnsized traits</a></li></ol></li><li class="chapter-item "><a href="../../type-checking.html"><strong aria-hidden="true">50.</strong> Type checking</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../method-lookup.html"><strong aria-hidden="true">50.1.</strong> Method Lookup</a></li><li class="chapter-item "><a href="../../variance.html"><strong aria-hidden="true">50.2.</strong> Variance</a></li><li class="chapter-item "><a href="../../opaque-types-type-alias-impl-trait.html"><strong aria-hidden="true">50.3.</strong> Opaque Types</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../opaque-types-impl-trait-inference.html"><strong aria-hidden="true">50.3.1.</strong> Inference details</a></li><li class="chapter-item "><a href="../../return-position-impl-trait-in-trait.html"><strong aria-hidden="true">50.3.2.</strong> Return Position Impl Trait In Trait</a></li><li class="chapter-item "><a href="../../borrow_check/opaque-types-region-inference-restrictions.html"><strong aria-hidden="true">50.3.3.</strong> Region inference restrictions</a></li></ol></li></ol></li><li class="chapter-item "><a href="../../effects.html"><strong aria-hidden="true">51.</strong> Effect checking</a></li><li class="chapter-item "><a href="../../pat-exhaustive-checking.html"><strong aria-hidden="true">52.</strong> Pattern and Exhaustiveness Checking</a></li><li class="chapter-item "><a href="../../unsafety-checking.html"><strong aria-hidden="true">53.</strong> Unsafety Checking</a></li><li class="chapter-item "><a href="../../mir/dataflow.html"><strong aria-hidden="true">54.</strong> MIR dataflow</a></li><li class="chapter-item "><a href="../../mir/drop-elaboration.html"><strong aria-hidden="true">55.</strong> Drop elaboration</a></li><li class="chapter-item "><a href="../../borrow_check.html"><strong aria-hidden="true">56.</strong> The borrow checker</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../borrow_check/moves_and_initialization.html"><strong aria-hidden="true">56.1.</strong> Tracking moves and initialization</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../borrow_check/moves_and_initialization/move_paths.html"><strong aria-hidden="true">56.1.1.</strong> Move paths</a></li></ol></li><li class="chapter-item "><a href="../../borrow_check/type_check.html"><strong aria-hidden="true">56.2.</strong> MIR type checker</a></li><li class="chapter-item "><a href="../../borrow_check/drop_check.html"><strong aria-hidden="true">56.3.</strong> Drop check</a></li><li class="chapter-item "><a href="../../borrow_check/region_inference.html"><strong aria-hidden="true">56.4.</strong> Region inference</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../borrow_check/region_inference/constraint_propagation.html"><strong aria-hidden="true">56.4.1.</strong> Constraint propagation</a></li><li class="chapter-item "><a href="../../borrow_check/region_inference/lifetime_parameters.html"><strong aria-hidden="true">56.4.2.</strong> Lifetime parameters</a></li><li class="chapter-item "><a href="../../borrow_check/region_inference/member_constraints.html"><strong aria-hidden="true">56.4.3.</strong> Member constraints</a></li><li class="chapter-item "><a href="../../borrow_check/region_inference/placeholders_and_universes.html"><strong aria-hidden="true">56.4.4.</strong> Placeholders and universes</a></li><li class="chapter-item "><a href="../../borrow_check/region_inference/closure_constraints.html"><strong aria-hidden="true">56.4.5.</strong> Closure constraints</a></li><li class="chapter-item "><a href="../../borrow_check/region_inference/error_reporting.html"><strong aria-hidden="true">56.4.6.</strong> Error reporting</a></li></ol></li><li class="chapter-item "><a href="../../borrow_check/two_phase_borrows.html"><strong aria-hidden="true">56.5.</strong> Two-phase-borrows</a></li></ol></li><li class="chapter-item "><a href="../../diagnostics.html"><strong aria-hidden="true">57.</strong> Errors and Lints</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../diagnostics/diagnostic-structs.html"><strong aria-hidden="true">57.1.</strong> Diagnostic and subdiagnostic structs</a></li><li class="chapter-item "><a href="../../diagnostics/translation.html"><strong aria-hidden="true">57.2.</strong> Translation</a></li><li class="chapter-item "><a href="../../diagnostics/lintstore.html"><strong aria-hidden="true">57.3.</strong> LintStore</a></li><li class="chapter-item "><a href="../../diagnostics/error-codes.html"><strong aria-hidden="true">57.4.</strong> Error codes</a></li><li class="chapter-item "><a href="../../diagnostics/diagnostic-items.html"><strong aria-hidden="true">57.5.</strong> Diagnostic items</a></li><li class="chapter-item "><a href="../../diagnostics/error-guaranteed.html"><strong aria-hidden="true">57.6.</strong> ErrorGuaranteed</a></li></ol></li><li class="chapter-item "><li class="part-title">MIR to Binaries</li><li class="chapter-item "><a href="../../part-5-intro.html"><strong aria-hidden="true">58.</strong> Prologue</a></li><li class="chapter-item "><a href="../../mir/optimizations.html"><strong aria-hidden="true">59.</strong> MIR optimizations</a></li><li class="chapter-item "><a href="../../mir/debugging.html"><strong aria-hidden="true">60.</strong> Debugging</a></li><li class="chapter-item "><a href="../../const-eval.html"><strong aria-hidden="true">61.</strong> Constant evaluation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../const-eval/interpret.html"><strong aria-hidden="true">61.1.</strong> Interpreter</a></li></ol></li><li class="chapter-item "><a href="../../backend/monomorph.html"><strong aria-hidden="true">62.</strong> Monomorphization</a></li><li class="chapter-item "><a href="../../backend/lowering-mir.html"><strong aria-hidden="true">63.</strong> Lowering MIR</a></li><li class="chapter-item "><a href="../../backend/codegen.html"><strong aria-hidden="true">64.</strong> Code Generation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../backend/updating-llvm.html"><strong aria-hidden="true">64.1.</strong> Updating LLVM</a></li><li class="chapter-item "><a href="../../backend/debugging.html"><strong aria-hidden="true">64.2.</strong> Debugging LLVM</a></li><li class="chapter-item "><a href="../../backend/backend-agnostic.html"><strong aria-hidden="true">64.3.</strong> Backend Agnostic Codegen</a></li><li class="chapter-item "><a href="../../backend/implicit-caller-location.html"><strong aria-hidden="true">64.4.</strong> Implicit Caller Location</a></li></ol></li><li class="chapter-item "><a href="../../backend/libs-and-metadata.html"><strong aria-hidden="true">65.</strong> Libraries and Metadata</a></li><li class="chapter-item "><a href="../../profile-guided-optimization.html"><strong aria-hidden="true">66.</strong> Profile-guided Optimization</a></li><li class="chapter-item "><a href="../../llvm-coverage-instrumentation.html"><strong aria-hidden="true">67.</strong> LLVM Source-Based Code Coverage</a></li><li class="chapter-item "><a href="../../sanitizers.html"><strong aria-hidden="true">68.</strong> Sanitizers Support</a></li><li class="chapter-item "><a href="../../debugging-support-in-rustc.html"><strong aria-hidden="true">69.</strong> Debugging support in the Rust compiler</a></li><li class="spacer"></li><li class="chapter-item affix "><a href="../../appendix/background.html">Appendix A: Background topics</a></li><li class="chapter-item affix "><a href="../../appendix/glossary.html">Appendix B: Glossary</a></li><li class="chapter-item affix "><a href="../../appendix/code-index.html">Appendix C: Code Index</a></li><li class="chapter-item affix "><a href="../../appendix/compiler-lecture.html">Appendix D: Compiler Lecture Series</a></li><li class="chapter-item affix "><a href="../../appendix/bibliography.html">Appendix E: Bibliography</a></li><li class="chapter-item affix "><a href="../../appendix/humorust.html">Appendix Z: HumorRust</a></li><li class="spacer"></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Compiler Development Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide/edit/master/src/building/bootstrapping/what-bootstrapping-does.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="what-bootstrapping-does"><a class="header" href="#what-bootstrapping-does">What Bootstrapping does</a></h1>
+<ul>
+<li><a href="#stages-of-bootstrapping">Stages of bootstrapping</a>
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#stage-0-the-pre-compiled-compiler">Stage 0: the pre-compiled compiler</a></li>
+<li><a href="#stage-1-from-current-code-by-an-earlier-compiler">Stage 1: from current code, by an earlier compiler</a></li>
+<li><a href="#stage-2-the-truly-current-compiler">Stage 2: the truly current compiler</a></li>
+<li><a href="#stage-3-the-same-result-test">Stage 3: the same-result test</a></li>
+<li><a href="#building-the-stages">Building the stages</a></li>
+</ul>
+</li>
+<li><a href="#complications-of-bootstrapping">Complications of bootstrapping</a></li>
+<li><a href="#understanding-stages-of-bootstrap">Understanding stages of bootstrap</a>
+<ul>
+<li><a href="#overview-1">Overview</a>
+<ul>
+<li><a href="#build-artifacts">Build artifacts</a></li>
+<li><a href="#examples">Examples</a></li>
+<li><a href="#examples-of-what-not-to-do">Examples of what not to do</a></li>
+</ul>
+</li>
+<li><a href="#building-vs-running">Building vs. running</a></li>
+<li><a href="#stages-and-std">Stages and <code>std</code></a></li>
+<li><a href="#cross-compiling-rustc">Cross-compiling rustc</a></li>
+<li><a href="#why-does-only-libstd-use-cfgbootstrap">Why does only libstd use <code>cfg(bootstrap)</code>?</a></li>
+<li><a href="#what-is-a-sysroot">What is a 'sysroot'?</a>
+<ul>
+<li><a href="#-z-force-unstable-if-unmarked">-Z force-unstable-if-unmarked</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#passing-flags-to-commands-invoked-by-bootstrap">Passing flags to commands invoked by <code>bootstrap</code></a></li>
+<li><a href="#environment-variables">Environment Variables</a></li>
+<li><a href="#clarification-of-build-commands-stdout">Clarification of build command's stdout</a>
+<ul>
+<li><a href="#building-stage0-stdcompiler-artifacts">Building stage0 {std,compiler} artifacts</a></li>
+<li><a href="#copying-stage0-stdrustc">Copying stage0 {std,rustc}</a></li>
+<li><a href="#assembling-stage1-compiler">Assembling stage1 compiler</a></li>
+</ul>
+</li>
+</ul>
+<p>Note that this documentation mostly covers user-facing information. See
+<a href="https://github.com/rust-lang/rust/blob/master/src/bootstrap/README.md">bootstrap/README.md</a> to read about bootstrap internals.</p>
+<h2 id="stages-of-bootstrapping"><a class="header" href="#stages-of-bootstrapping">Stages of bootstrapping</a></h2>
+<h3 id="overview"><a class="header" href="#overview">Overview</a></h3>
+<ul>
+<li>Stage 0: the pre-compiled compiler</li>
+<li>Stage 1: from current code, by an earlier compiler</li>
+<li>Stage 2: the truly current compiler</li>
+<li>Stage 3: the same-result test</li>
+</ul>
+<p>Compiling <code>rustc</code> is done in stages. Here's a diagram, adapted from Jynn Nelson's
+<a href="https://www.youtube.com/watch?v=oUIjG-y4zaA">talk on bootstrapping</a> at RustConf 2022, with detailed explanations below.</p>
+<p>The <code>A</code>, <code>B</code>, <code>C</code>, and <code>D</code> show the ordering of the stages of bootstrapping.
+<span style="background-color: lightblue; color: black">Blue</span> nodes are downloaded,
+<span style="background-color: yellow; color: black">yellow</span> nodes are built with the
+stage0 compiler, and
+<span style="background-color: lightgreen; color: black">green</span> nodes are built with the
+stage1 compiler.</p>
+<pre class="mermaid">graph TD
+    s0c[&quot;stage0 compiler (1.63)&quot;]:::downloaded --&gt;|A| s0l(&quot;stage0 std (1.64)&quot;):::with-s0c;
+    s0c &amp; s0l --- stepb[ ]:::empty;
+    stepb --&gt;|B| s0ca[&quot;stage0 compiler artifacts (1.64)&quot;]:::with-s0c;
+    s0ca --&gt;|copy| s1c[&quot;stage1 compiler (1.64)&quot;]:::with-s0c;
+    s1c --&gt;|C| s1l(&quot;stage1 std (1.64)&quot;):::with-s1c;
+    s1c &amp; s1l --- stepd[ ]:::empty;
+    stepd --&gt;|D| s1ca[&quot;stage1 compiler artifacts (1.64)&quot;]:::with-s1c;
+    s1ca --&gt;|copy| s2c[&quot;stage2 compiler&quot;]:::with-s1c;
+
+    classDef empty width:0px,height:0px;
+    classDef downloaded fill: lightblue;
+    classDef with-s0c fill: yellow;
+    classDef with-s1c fill: lightgreen;
+</pre>
+<h3 id="stage-0-the-pre-compiled-compiler"><a class="header" href="#stage-0-the-pre-compiled-compiler">Stage 0: the pre-compiled compiler</a></h3>
+<p>The stage0 compiler is usually the current <em>beta</em> <code>rustc</code> compiler
+and its associated dynamic libraries,
+which <code>x.py</code> will download for you.
+(You can also configure <code>x.py</code> to use something else.)</p>
+<p>The stage0 compiler is then used only to compile <code>src/bootstrap</code>, <code>std</code>, and <code>rustc</code>.
+When assembling the libraries and binaries that will become the stage1 <code>rustc</code>
+compiler, the freshly compiled <code>std</code> and <code>rustc</code> are used.
+There are two concepts at play here:
+a compiler (with its set of dependencies)
+and its 'target' or 'object' libraries (<code>std</code> and <code>rustc</code>).
+Both are staged, but in a staggered manner.</p>
+<h3 id="stage-1-from-current-code-by-an-earlier-compiler"><a class="header" href="#stage-1-from-current-code-by-an-earlier-compiler">Stage 1: from current code, by an earlier compiler</a></h3>
+<p>The rustc source code is then compiled with the stage0 compiler to produce the stage1 compiler.</p>
+<h3 id="stage-2-the-truly-current-compiler"><a class="header" href="#stage-2-the-truly-current-compiler">Stage 2: the truly current compiler</a></h3>
+<p>We then rebuild our stage1 compiler with itself to produce the stage2 compiler.</p>
+<p>In theory, the stage1 compiler is functionally identical to the stage2 compiler,
+but in practice there are subtle differences.
+In particular, the stage1 compiler itself was built by stage0
+and hence not by the source in your working directory.
+This means that the ABI generated by the stage0 compiler may not match the ABI that would have been
+made by the stage1 compiler, which can cause problems for dynamic libraries, tests, and tools using
+<code>rustc_private</code>.</p>
+<p>Note that the <code>proc_macro</code> crate avoids this issue with a C FFI layer called <code>proc_macro::bridge</code>,
+allowing it to be used with stage 1.</p>
+<p>The <code>stage2</code> compiler is the one distributed with <code>rustup</code> and all other install methods.
+However, it takes a very long time to build
+because one must first build the new compiler with an older compiler
+and then use that to build the new compiler with itself.
+For development, you usually only want the <code>stage1</code> compiler,
+which you can build with <code>./x build library</code>.
+See <a href="../how-to-build-and-run.html#building-the-compiler">Building the compiler</a>.</p>
+<h3 id="stage-3-the-same-result-test"><a class="header" href="#stage-3-the-same-result-test">Stage 3: the same-result test</a></h3>
+<p>Stage 3 is optional. To sanity check our new compiler, we
+can build the libraries with the stage2 compiler. The result ought
+to be identical to before, unless something has broken.</p>
+<h3 id="building-the-stages"><a class="header" href="#building-the-stages">Building the stages</a></h3>
+<p><code>x</code> tries to be helpful and pick the stage you most likely meant for each subcommand.
+These defaults are as follows:</p>
+<ul>
+<li><code>check</code>: <code>--stage 0</code></li>
+<li><code>doc</code>: <code>--stage 0</code></li>
+<li><code>build</code>: <code>--stage 1</code></li>
+<li><code>test</code>: <code>--stage 1</code></li>
+<li><code>dist</code>: <code>--stage 2</code></li>
+<li><code>install</code>: <code>--stage 2</code></li>
+<li><code>bench</code>: <code>--stage 2</code></li>
+</ul>
+<p>You can always override the stage by passing <code>--stage N</code> explicitly.</p>
+<p>For more information about stages, <a href="#understanding-stages-of-bootstrap">see below</a>.</p>
+<h2 id="complications-of-bootstrapping"><a class="header" href="#complications-of-bootstrapping">Complications of bootstrapping</a></h2>
+<p>Since the build system uses the current beta compiler to build the stage-1
+bootstrapping compiler, the compiler source code can't use some features
+until they reach beta (because otherwise the beta compiler doesn't support
+them). On the other hand, for <a href="../../appendix/glossary.html#intrinsic">compiler intrinsics</a> and internal
+features, the features <em>have</em> to be used. Additionally, the compiler makes
+heavy use of nightly features (<code>#![feature(...)]</code>). How can we resolve this
+problem?</p>
+<p>There are two methods used:</p>
+<ol>
+<li>The build system sets <code>--cfg bootstrap</code> when building with <code>stage0</code>, so we
+can use <code>cfg(not(bootstrap))</code> to only use features when built with <code>stage1</code>.
+This is useful for e.g. features that were just stabilized, which require
+<code>#![feature(...)]</code> when built with <code>stage0</code>, but not for <code>stage1</code>.</li>
+<li>The build system sets <code>RUSTC_BOOTSTRAP=1</code>. This special variable means to
+<em>break the stability guarantees</em> of rust: Allow using <code>#![feature(...)]</code> with
+a compiler that's not nightly. This should never be used except when
+bootstrapping the compiler.</li>
+</ol>
+<h2 id="understanding-stages-of-bootstrap"><a class="header" href="#understanding-stages-of-bootstrap">Understanding stages of bootstrap</a></h2>
+<h3 id="overview-1"><a class="header" href="#overview-1">Overview</a></h3>
+<p>This is a detailed look into the separate bootstrap stages.</p>
+<p>The convention <code>x</code> uses is that:</p>
+<ul>
+<li>A <code>--stage N</code> flag means to run the stage N compiler (<code>stageN/rustc</code>).</li>
+<li>A &quot;stage N artifact&quot; is a build artifact that is <em>produced</em> by the stage N compiler.</li>
+<li>The stage N+1 compiler is assembled from stage N <em>artifacts</em>. This
+process is called <em>uplifting</em>.</li>
+</ul>
+<h4 id="build-artifacts"><a class="header" href="#build-artifacts">Build artifacts</a></h4>
+<p>Anything you can build with <code>x</code> is a <em>build artifact</em>.
+Build artifacts include, but are not limited to:</p>
+<ul>
+<li>binaries, like <code>stage0-rustc/rustc-main</code></li>
+<li>shared objects, like <code>stage0-sysroot/rustlib/libstd-6fae108520cf72fe.so</code></li>
+<li><a href="../../serialization.html">rlib</a> files, like <code>stage0-sysroot/rustlib/libstd-6fae108520cf72fe.rlib</code></li>
+<li>HTML files generated by rustdoc, like <code>doc/std</code></li>
+</ul>
+<h4 id="examples"><a class="header" href="#examples">Examples</a></h4>
+<ul>
+<li><code>./x build --stage 0</code> means to build with the beta <code>rustc</code>.</li>
+<li><code>./x doc --stage 0</code> means to document using the beta <code>rustdoc</code>.</li>
+<li><code>./x test --stage 0 library/std</code> means to run tests on the standard library
+without building <code>rustc</code> from source ('build with stage 0, then test the
+artifacts'). If you're working on the standard library, this is normally the
+test command you want.</li>
+<li><code>./x test tests/ui</code> means to build the stage 1 compiler and run
+<code>compiletest</code> on it. If you're working on the compiler, this is normally the
+test command you want.</li>
+</ul>
+<h4 id="examples-of-what-not-to-do"><a class="header" href="#examples-of-what-not-to-do">Examples of what <em>not</em> to do</a></h4>
+<ul>
+<li><code>./x test --stage 0 tests/ui</code> is not useful: it runs tests on the
+<em>beta</em> compiler and doesn't build <code>rustc</code> from source. Use <code>test tests/ui</code>
+instead, which builds stage 1 from source.</li>
+<li><code>./x test --stage 0 compiler/rustc</code> builds the compiler but runs no tests:
+it's running <code>cargo test -p rustc</code>, but cargo doesn't understand Rust's
+tests. You shouldn't need to use this, use <code>test</code> instead (without arguments).</li>
+<li><code>./x build --stage 0 compiler/rustc</code> builds the compiler, but does not build
+libstd or even libcore. Most of the time, you'll want <code>./x build library</code> instead, which allows compiling programs without needing to define
+lang items.</li>
+</ul>
+<h3 id="building-vs-running"><a class="header" href="#building-vs-running">Building vs. running</a></h3>
+<p>Note that <code>build --stage N compiler/rustc</code> <strong>does not</strong> build the stage N compiler:
+instead it builds the stage N+1 compiler <em>using</em> the stage N compiler.</p>
+<p>In short, <em>stage 0 uses the stage0 compiler to create stage0 artifacts which
+will later be uplifted to be the stage1 compiler</em>.</p>
+<p>In each stage, two major steps are performed:</p>
+<ol>
+<li><code>std</code> is compiled by the stage N compiler.</li>
+<li>That <code>std</code> is linked to programs built by the stage N compiler,
+including the stage N artifacts (stage N+1 compiler).</li>
+</ol>
+<p>This is somewhat intuitive if one thinks of the stage N artifacts as &quot;just&quot;
+another program we are building with the stage N compiler:
+<code>build --stage N compiler/rustc</code> is linking the stage N artifacts to the <code>std</code>
+built by the stage N compiler.</p>
+<h3 id="stages-and-std"><a class="header" href="#stages-and-std">Stages and <code>std</code></a></h3>
+<p>Note that there are two <code>std</code> libraries in play here:</p>
+<ol>
+<li>The library <em>linked</em> to <code>stageN/rustc</code>, which was built by stage N-1 (stage N-1 <code>std</code>)</li>
+<li>The library <em>used to compile programs</em> with <code>stageN/rustc</code>, which was
+built by stage N (stage N <code>std</code>).</li>
+</ol>
+<p>Stage N <code>std</code> is pretty much necessary for any useful work with the stage N compiler.
+Without it, you can only compile programs with <code>#![no_core]</code> -- not terribly useful!</p>
+<p>The reason these need to be different is because they aren't necessarily ABI-compatible:
+there could be new layout optimizations, changes to MIR, or other changes
+to Rust metadata on nightly that aren't present in beta.</p>
+<p>This is also where <code>--keep-stage 1 library/std</code> comes into play. Since most
+changes to the compiler don't actually change the ABI, once you've produced a
+<code>std</code> in stage 1, you can probably just reuse it with a different compiler.
+If the ABI hasn't changed, you're good to go, no need to spend time
+recompiling that <code>std</code>.
+<code>--keep-stage</code> simply assumes the previous compile is fine and copies those
+artifacts into the appropriate place, skipping the cargo invocation.</p>
+<h3 id="cross-compiling-rustc"><a class="header" href="#cross-compiling-rustc">Cross-compiling rustc</a></h3>
+<p><em>Cross-compiling</em> is the process of compiling code that will run on another architecture.
+For instance, you might want to build an ARM version of rustc using an x86 machine.
+Building stage2 <code>std</code> is different when you are cross-compiling.</p>
+<p>This is because <code>x</code> uses a trick: if <code>HOST</code> and <code>TARGET</code> are the same,
+it will reuse stage1 <code>std</code> for stage2! This is sound because stage1 <code>std</code>
+was compiled with the stage1 compiler, i.e. a compiler using the source code
+you currently have checked out. So it should be identical (and therefore ABI-compatible)
+to the <code>std</code> that <code>stage2/rustc</code> would compile.</p>
+<p>However, when cross-compiling, stage1 <code>std</code> will only run on the host.
+So the stage2 compiler has to recompile <code>std</code> for the target.</p>
+<p>(See in the table how stage2 only builds non-host <code>std</code> targets).</p>
+<h3 id="why-does-only-libstd-use-cfgbootstrap"><a class="header" href="#why-does-only-libstd-use-cfgbootstrap">Why does only libstd use <code>cfg(bootstrap)</code>?</a></h3>
+<p>NOTE: for docs on <code>cfg(bootstrap)</code> itself, see <a href="#complications-of-bootstrapping">Complications of Bootstrapping</a>.</p>
+<p>The <code>rustc</code> generated by the stage0 compiler is linked to the freshly-built
+<code>std</code>, which means that for the most part only <code>std</code> needs to be cfg-gated,
+so that <code>rustc</code> can use features added to std immediately after their addition,
+without need for them to get into the downloaded beta.</p>
+<p>Note this is different from any other Rust program: stage1 <code>rustc</code>
+is built by the <em>beta</em> compiler, but using the <em>master</em> version of libstd!</p>
+<p>The only time <code>rustc</code> uses <code>cfg(bootstrap)</code> is when it adds internal lints
+that use diagnostic items, or when it uses unstable library features that were recently changed.</p>
+<h3 id="what-is-a-sysroot"><a class="header" href="#what-is-a-sysroot">What is a 'sysroot'?</a></h3>
+<p>When you build a project with cargo, the build artifacts for dependencies
+are normally stored in <code>target/debug/deps</code>. This only contains dependencies cargo
+knows about; in particular, it doesn't have the standard library. Where do
+<code>std</code> or <code>proc_macro</code> come from? It comes from the <strong>sysroot</strong>, the root
+of a number of directories where the compiler loads build artifacts at runtime.
+The sysroot doesn't just store the standard library, though - it includes
+anything that needs to be loaded at runtime. That includes (but is not limited
+to):</p>
+<ul>
+<li><code>libstd</code>/<code>libtest</code>/<code>libproc_macro</code></li>
+<li>The compiler crates themselves, when using <code>rustc_private</code>. In-tree these
+are always present; out of tree, you need to install <code>rustc-dev</code> with rustup.</li>
+<li><code>libLLVM.so</code>, the shared object file for the LLVM project. In-tree this is
+either built from source or downloaded from CI; out-of-tree, you need to
+install <code>llvm-tools-preview</code> with rustup.</li>
+</ul>
+<p>All the artifacts listed so far are <em>compiler</em> runtime dependencies. You can
+see them with <code>rustc --print sysroot</code>:</p>
+<pre><code>$ ls $(rustc --print sysroot)/lib
+libchalk_derive-0685d79833dc9b2b.so  libstd-25c6acf8063a3802.so
+libLLVM-11-rust-1.50.0-nightly.so    libtest-57470d2aa8f7aa83.so
+librustc_driver-4f0cc9f50e53f0ba.so  libtracing_attributes-e4be92c35ab2a33b.so
+librustc_macros-5f0ec4a119c6ac86.so  rustlib
+</code></pre>
+<p>There are also runtime dependencies for the standard library! These are in
+<code>lib/rustlib</code>, not <code>lib/</code> directly.</p>
+<pre><code>$ ls $(rustc --print sysroot)/lib/rustlib/x86_64-unknown-linux-gnu/lib | head -n 5
+libaddr2line-6c8e02b8fedc1e5f.rlib
+libadler-9ef2480568df55af.rlib
+liballoc-9c4002b5f79ba0e1.rlib
+libcfg_if-512eb53291f6de7e.rlib
+libcompiler_builtins-ef2408da76957905.rlib
+</code></pre>
+<p><code>rustlib</code> includes libraries like <code>hashbrown</code> and <code>cfg_if</code>, which are not part
+of the public API of the standard library, but are used to implement it.
+<code>rustlib</code> is part of the search path for linkers, but <code>lib</code> will never be part
+of the search path.</p>
+<h4 id="-z-force-unstable-if-unmarked"><a class="header" href="#-z-force-unstable-if-unmarked">-Z force-unstable-if-unmarked</a></h4>
+<p>Since <code>rustlib</code> is part of the search path, it means we have to be careful
+about which crates are included in it. In particular, all crates except for
+the standard library are built with the flag <code>-Z force-unstable-if-unmarked</code>,
+which means that you have to use <code>#![feature(rustc_private)]</code> in order to
+load it (as opposed to the standard library, which is always available).</p>
+<p>The <code>-Z force-unstable-if-unmarked</code> flag has a variety of purposes to help
+enforce that the correct crates are marked as unstable. It was introduced
+primarily to allow rustc and the standard library to link to arbitrary crates
+on crates.io which do not themselves use <code>staged_api</code>. <code>rustc</code> also relies on
+this flag to mark all of its crates as unstable with the <code>rustc_private</code>
+feature so that each crate does not need to be carefully marked with
+<code>unstable</code>.</p>
+<p>This flag is automatically applied to all of <code>rustc</code> and the standard library
+by the bootstrap scripts. This is needed because the compiler and all of its
+dependencies are shipped in the sysroot to all users.</p>
+<p>This flag has the following effects:</p>
+<ul>
+<li>Marks the crate as &quot;unstable&quot; with the <code>rustc_private</code> feature if it is not
+itself marked as stable or unstable.</li>
+<li>Allows these crates to access other forced-unstable crates without any need
+for attributes. Normally a crate would need a <code>#![feature(rustc_private)]</code>
+attribute to use other unstable crates. However, that would make it
+impossible for a crate from crates.io to access its own dependencies since
+that crate won't have a <code>feature(rustc_private)</code> attribute, but <em>everything</em>
+is compiled with <code>-Z force-unstable-if-unmarked</code>.</li>
+</ul>
+<p>Code which does not use <code>-Z force-unstable-if-unmarked</code> should include the
+<code>#![feature(rustc_private)]</code> crate attribute to access these force-unstable
+crates. This is needed for things that link <code>rustc</code>, such as <code>miri</code> or
+<code>clippy</code>.</p>
+<p>You can find more discussion about sysroots in:</p>
+<ul>
+<li>The <a href="https://github.com/rust-lang/rust/pull/76728">rustdoc PR</a> explaining why it uses <code>extern crate</code> for dependencies loaded from sysroot</li>
+<li><a href="https://rust-lang.zulipchat.com/#narrow/stream/182449-t-compiler.2Fhelp/topic/deps.20in.20sysroot/">Discussions about sysroot on Zulip</a></li>
+<li><a href="https://rust-lang.zulipchat.com/#narrow/stream/182449-t-compiler.2Fhelp/topic/How.20to.20create.20an.20executable.20accessing.20.60rustc_private.60.3F">Discussions about building rustdoc out of tree</a></li>
+</ul>
+<h2 id="passing-flags-to-commands-invoked-by-bootstrap"><a class="header" href="#passing-flags-to-commands-invoked-by-bootstrap">Passing flags to commands invoked by <code>bootstrap</code></a></h2>
+<p><code>x</code> allows you to pass stage-specific flags to <code>rustc</code> and <code>cargo</code> when bootstrapping.
+The <code>RUSTFLAGS_BOOTSTRAP</code> environment variable is passed as <code>RUSTFLAGS</code> to the bootstrap stage
+(stage0), and <code>RUSTFLAGS_NOT_BOOTSTRAP</code> is passed when building artifacts for later stages.
+<code>RUSTFLAGS</code> will work, but also affects the build of <code>bootstrap</code> itself, so it will be rare to want
+to use it.
+Finally, <code>MAGIC_EXTRA_RUSTFLAGS</code> bypasses the <code>cargo</code> cache to pass flags to rustc without
+recompiling all dependencies.</p>
+<p><code>RUSTDOCFLAGS</code>, <code>RUSTDOCFLAGS_BOOTSTRAP</code>, and <code>RUSTDOCFLAGS_NOT_BOOTSTRAP</code> are analogous to
+<code>RUSTFLAGS</code>, but for rustdoc.</p>
+<p><code>CARGOFLAGS</code> will pass arguments to cargo itself (e.g. <code>--timings</code>). <code>CARGOFLAGS_BOOTSTRAP</code> and
+<code>CARGOFLAGS_NOT_BOOTSTRAP</code> work analogously to <code>RUSTFLAGS_BOOTSTRAP</code>.</p>
+<p><code>--test-args</code> will pass arguments through to the test runner. For <code>tests/ui</code>, this is
+compiletest; for unit tests and doctests this is the <code>libtest</code> runner. Most test runner accept
+<code>--help</code>, which you can use to find out the options accepted by the runner.</p>
+<h2 id="environment-variables"><a class="header" href="#environment-variables">Environment Variables</a></h2>
+<p>During bootstrapping, there are a bunch of compiler-internal environment
+variables that are used. If you are trying to run an intermediate version of
+<code>rustc</code>, sometimes you may need to set some of these environment variables
+manually. Otherwise, you get an error like the following:</p>
+<pre><code class="language-text">thread 'main' panicked at 'RUSTC_STAGE was not set: NotPresent', library/core/src/result.rs:1165:5
+</code></pre>
+<p>If <code>./stageN/bin/rustc</code> gives an error about environment variables, that
+usually means something is quite wrong -- or you're trying to compile e.g.
+<code>rustc</code> or <code>std</code> or something that depends on environment variables. In
+the unlikely case that you actually need to invoke rustc in such a situation,
+you can tell the bootstrap shim to print all env variables by adding <code>-vvv</code> to your <code>x</code> command.</p>
+<p>Finally, bootstrap makes use of the <a href="https://github.com/rust-lang/cc-rs">cc-rs crate</a> which has <a href="https://docs.rs/cc/latest/cc/#external-configuration-via-environment-variables">its own
+method</a> of configuring C compilers and C flags via environment
+variables.</p>
+<h2 id="clarification-of-build-commands-stdout"><a class="header" href="#clarification-of-build-commands-stdout">Clarification of build command's stdout</a></h2>
+<p>In this part, we will investigate the build command's stdout in an action
+(similar, but more detailed and complete documentation compare to topic above).
+When you execute <code>x build --dry-run</code> command, the build output will be something
+like the following:</p>
+<pre><code class="language-text">Building stage0 library artifacts (x86_64-unknown-linux-gnu -&gt; x86_64-unknown-linux-gnu)
+Copying stage0 library from stage0 (x86_64-unknown-linux-gnu -&gt; x86_64-unknown-linux-gnu / x86_64-unknown-linux-gnu)
+Building stage0 compiler artifacts (x86_64-unknown-linux-gnu -&gt; x86_64-unknown-linux-gnu)
+Copying stage0 rustc from stage0 (x86_64-unknown-linux-gnu -&gt; x86_64-unknown-linux-gnu / x86_64-unknown-linux-gnu)
+Assembling stage1 compiler (x86_64-unknown-linux-gnu)
+Building stage1 library artifacts (x86_64-unknown-linux-gnu -&gt; x86_64-unknown-linux-gnu)
+Copying stage1 library from stage1 (x86_64-unknown-linux-gnu -&gt; x86_64-unknown-linux-gnu / x86_64-unknown-linux-gnu)
+Building stage1 tool rust-analyzer-proc-macro-srv (x86_64-unknown-linux-gnu)
+Building rustdoc for stage1 (x86_64-unknown-linux-gnu)
+</code></pre>
+<h3 id="building-stage0-stdcompiler-artifacts"><a class="header" href="#building-stage0-stdcompiler-artifacts">Building stage0 {std,compiler} artifacts</a></h3>
+<p>These steps use the provided (downloaded, usually) compiler to compile the
+local Rust source into libraries we can use.</p>
+<h3 id="copying-stage0-stdrustc"><a class="header" href="#copying-stage0-stdrustc">Copying stage0 {std,rustc}</a></h3>
+<p>This copies the library and compiler artifacts from Cargo into
+<code>stage0-sysroot/lib/rustlib/{target-triple}/lib</code></p>
+<h3 id="assembling-stage1-compiler"><a class="header" href="#assembling-stage1-compiler">Assembling stage1 compiler</a></h3>
+<p>This copies the libraries we built in &quot;building stage0 ... artifacts&quot; into
+the stage1 compiler's lib directory. These are the host libraries that the
+compiler itself uses to run. These aren't actually used by artifacts the new
+compiler generates. This step also copies the rustc and rustdoc binaries we
+generated into <code>build/$HOST/stage/bin</code>.</p>
+<p>The stage1/bin/rustc is a fully functional compiler, but it doesn't yet have
+any libraries to link built binaries or libraries to. The next 3 steps will
+provide those libraries for it; they are mostly equivalent to constructing
+the stage1/bin compiler so we don't go through them individually.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../building/bootstrapping/intro.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next" href="../../building/bootstrapping/how-bootstrap-does-it.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../building/bootstrapping/intro.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next" href="../../building/bootstrapping/how-bootstrap-does-it.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../../searcher.js" type="text/javascript" charset="utf-8"></script>
+
+        <script src="../../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        <script type="text/javascript" src="../../mermaid.min.js"></script>
+        <script type="text/javascript" src="../../mermaid-init.js"></script>
+
+
+    </body>
+</html>

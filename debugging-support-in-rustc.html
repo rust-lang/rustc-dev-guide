@@ -1,0 +1,532 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Debugging support in the Rust compiler - Rust Compiler Development Guide</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="A guide to developing the Rust compiler (rustc)">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item affix "><a href="getting-started.html">Getting Started</a></li><li class="chapter-item affix "><a href="about-this-guide.html">About this guide</a></li><li class="spacer"></li><li class="chapter-item affix "><li class="part-title">Building and debugging rustc</li><li class="chapter-item "><a href="building/how-to-build-and-run.html"><strong aria-hidden="true">1.</strong> How to build and run the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="building/quickstart.html"><strong aria-hidden="true">1.1.</strong> Quickstart</a></li><li class="chapter-item "><a href="building/prerequisites.html"><strong aria-hidden="true">1.2.</strong> Prerequisites</a></li><li class="chapter-item "><a href="building/suggested.html"><strong aria-hidden="true">1.3.</strong> Suggested Workflows</a></li><li class="chapter-item "><a href="building/build-install-distribution-artifacts.html"><strong aria-hidden="true">1.4.</strong> Distribution artifacts</a></li><li class="chapter-item "><a href="building/compiler-documenting.html"><strong aria-hidden="true">1.5.</strong> Building Documentation</a></li><li class="chapter-item "><a href="rustdoc.html"><strong aria-hidden="true">1.6.</strong> Rustdoc overview</a></li><li class="chapter-item "><a href="building/new-target.html"><strong aria-hidden="true">1.7.</strong> Adding a new target</a></li><li class="chapter-item "><a href="building/optimized-build.html"><strong aria-hidden="true">1.8.</strong> Optimized build</a></li></ol></li><li class="chapter-item "><a href="tests/intro.html"><strong aria-hidden="true">2.</strong> Testing the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="tests/running.html"><strong aria-hidden="true">2.1.</strong> Running tests</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="tests/docker.html"><strong aria-hidden="true">2.1.1.</strong> Testing with Docker</a></li><li class="chapter-item "><a href="tests/ci.html"><strong aria-hidden="true">2.1.2.</strong> Testing with CI</a></li></ol></li><li class="chapter-item "><a href="tests/adding.html"><strong aria-hidden="true">2.2.</strong> Adding new tests</a></li><li class="chapter-item "><a href="tests/compiletest.html"><strong aria-hidden="true">2.3.</strong> Compiletest</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="tests/ui.html"><strong aria-hidden="true">2.3.1.</strong> UI tests</a></li><li class="chapter-item "><a href="tests/headers.html"><strong aria-hidden="true">2.3.2.</strong> Test headers</a></li></ol></li><li class="chapter-item "><a href="tests/integration.html"><strong aria-hidden="true">2.4.</strong> Integration testing</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="tests/crater.html"><strong aria-hidden="true">2.4.1.</strong> Crater</a></li><li class="chapter-item "><a href="tests/fuchsia.html"><strong aria-hidden="true">2.4.2.</strong> Fuchsia</a></li><li class="chapter-item "><a href="tests/rust-for-linux.html"><strong aria-hidden="true">2.4.3.</strong> Rust for Linux</a></li></ol></li><li class="chapter-item "><a href="tests/perf.html"><strong aria-hidden="true">2.5.</strong> Performance testing</a></li><li class="chapter-item "><a href="tests/suggest-tests.html"><strong aria-hidden="true">2.6.</strong> Suggest tests tool</a></li></ol></li><li class="chapter-item "><a href="compiler-debugging.html"><strong aria-hidden="true">3.</strong> Debugging the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="tracing.html"><strong aria-hidden="true">3.1.</strong> Using the tracing/logging instrumentation</a></li></ol></li><li class="chapter-item "><a href="profiling.html"><strong aria-hidden="true">4.</strong> Profiling the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="profiling/with_perf.html"><strong aria-hidden="true">4.1.</strong> with the linux perf tool</a></li><li class="chapter-item "><a href="profiling/wpa_profiling.html"><strong aria-hidden="true">4.2.</strong> with Windows Performance Analyzer</a></li></ol></li><li class="chapter-item "><a href="crates-io.html"><strong aria-hidden="true">5.</strong> crates.io Dependencies</a></li><li class="chapter-item affix "><li class="part-title">Contributing to Rust</li><li class="chapter-item "><a href="contributing.html"><strong aria-hidden="true">6.</strong> Contribution Procedures</a></li><li class="chapter-item "><a href="compiler-team.html"><strong aria-hidden="true">7.</strong> About the compiler team</a></li><li class="chapter-item "><a href="git.html"><strong aria-hidden="true">8.</strong> Using Git</a></li><li class="chapter-item "><a href="rustbot.html"><strong aria-hidden="true">9.</strong> Mastering @rustbot</a></li><li class="chapter-item "><a href="walkthrough.html"><strong aria-hidden="true">10.</strong> Walkthrough: a typical contribution</a></li><li class="chapter-item "><a href="implementing_new_features.html"><strong aria-hidden="true">11.</strong> Implementing new language features</a></li><li class="chapter-item "><a href="stability.html"><strong aria-hidden="true">12.</strong> Stability attributes</a></li><li class="chapter-item "><a href="stabilization_guide.html"><strong aria-hidden="true">13.</strong> Stabilizing Features</a></li><li class="chapter-item "><a href="feature-gates.html"><strong aria-hidden="true">14.</strong> Feature Gates</a></li><li class="chapter-item "><a href="conventions.html"><strong aria-hidden="true">15.</strong> Coding conventions</a></li><li class="chapter-item "><a href="bug-fix-procedure.html"><strong aria-hidden="true">16.</strong> Procedures for Breaking Changes</a></li><li class="chapter-item "><a href="external-repos.html"><strong aria-hidden="true">17.</strong> Using external repositories</a></li><li class="chapter-item "><a href="fuzzing.html"><strong aria-hidden="true">18.</strong> Fuzzing</a></li><li class="chapter-item "><a href="notification-groups/about.html"><strong aria-hidden="true">19.</strong> Notification groups</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="notification-groups/apple.html"><strong aria-hidden="true">19.1.</strong> Apple</a></li><li class="chapter-item "><a href="notification-groups/arm.html"><strong aria-hidden="true">19.2.</strong> ARM</a></li><li class="chapter-item "><a href="notification-groups/cleanup-crew.html"><strong aria-hidden="true">19.3.</strong> Cleanup Crew</a></li><li class="chapter-item "><a href="notification-groups/llvm.html"><strong aria-hidden="true">19.4.</strong> LLVM</a></li><li class="chapter-item "><a href="notification-groups/risc-v.html"><strong aria-hidden="true">19.5.</strong> RISC-V</a></li><li class="chapter-item "><a href="notification-groups/windows.html"><strong aria-hidden="true">19.6.</strong> Windows</a></li><li class="chapter-item "><a href="notification-groups/rust-for-linux.html"><strong aria-hidden="true">19.7.</strong> Rust for Linux</a></li></ol></li><li class="chapter-item "><a href="licenses.html"><strong aria-hidden="true">20.</strong> Licenses</a></li><li class="chapter-item "><a href="guides/editions.html"><strong aria-hidden="true">21.</strong> Editions</a></li><li class="chapter-item affix "><li class="part-title">Bootstrapping</li><li class="chapter-item "><a href="building/bootstrapping/intro.html"><strong aria-hidden="true">22.</strong> Prologue</a></li><li class="chapter-item "><a href="building/bootstrapping/what-bootstrapping-does.html"><strong aria-hidden="true">23.</strong> What Bootstrapping does</a></li><li class="chapter-item "><a href="building/bootstrapping/how-bootstrap-does-it.html"><strong aria-hidden="true">24.</strong> How Bootstrap does it</a></li><li class="chapter-item affix "><li class="part-title">High-level Compiler Architecture</li><li class="chapter-item "><a href="part-2-intro.html"><strong aria-hidden="true">25.</strong> Prologue</a></li><li class="chapter-item "><a href="overview.html"><strong aria-hidden="true">26.</strong> Overview of the compiler</a></li><li class="chapter-item "><a href="compiler-src.html"><strong aria-hidden="true">27.</strong> The compiler source code</a></li><li class="chapter-item "><a href="query.html"><strong aria-hidden="true">28.</strong> Queries: demand-driven compilation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="queries/query-evaluation-model-in-detail.html"><strong aria-hidden="true">28.1.</strong> The Query Evaluation Model in Detail</a></li><li class="chapter-item "><a href="queries/incremental-compilation.html"><strong aria-hidden="true">28.2.</strong> Incremental compilation</a></li><li class="chapter-item "><a href="queries/incremental-compilation-in-detail.html"><strong aria-hidden="true">28.3.</strong> Incremental compilation In Detail</a></li><li class="chapter-item "><a href="incrcomp-debugging.html"><strong aria-hidden="true">28.4.</strong> Debugging and Testing</a></li><li class="chapter-item "><a href="salsa.html"><strong aria-hidden="true">28.5.</strong> Salsa</a></li></ol></li><li class="chapter-item "><a href="memory.html"><strong aria-hidden="true">29.</strong> Memory Management in Rustc</a></li><li class="chapter-item "><a href="serialization.html"><strong aria-hidden="true">30.</strong> Serialization in Rustc</a></li><li class="chapter-item "><a href="parallel-rustc.html"><strong aria-hidden="true">31.</strong> Parallel Compilation</a></li><li class="chapter-item "><a href="rustdoc-internals.html"><strong aria-hidden="true">32.</strong> Rustdoc internals</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="rustdoc-internals/search.html"><strong aria-hidden="true">32.1.</strong> Search</a></li></ol></li><li class="chapter-item "><li class="part-title">Source Code Representation</li><li class="chapter-item "><a href="part-3-intro.html"><strong aria-hidden="true">33.</strong> Prologue</a></li><li class="chapter-item "><a href="cli.html"><strong aria-hidden="true">34.</strong> Command-line arguments</a></li><li class="chapter-item "><a href="rustc-driver.html"><strong aria-hidden="true">35.</strong> rustc_driver and rustc_interface</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="rustc-driver-interacting-with-the-ast.html"><strong aria-hidden="true">35.1.</strong> Example: Type checking</a></li><li class="chapter-item "><a href="rustc-driver-getting-diagnostics.html"><strong aria-hidden="true">35.2.</strong> Example: Getting diagnostics</a></li></ol></li><li class="chapter-item "><a href="syntax-intro.html"><strong aria-hidden="true">36.</strong> Syntax and the AST</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="the-parser.html"><strong aria-hidden="true">36.1.</strong> Lexing and Parsing</a></li><li class="chapter-item "><a href="macro-expansion.html"><strong aria-hidden="true">36.2.</strong> Macro expansion</a></li><li class="chapter-item "><a href="name-resolution.html"><strong aria-hidden="true">36.3.</strong> Name resolution</a></li><li class="chapter-item "><a href="attributes.html"><strong aria-hidden="true">36.4.</strong> Attributes</a></li><li class="chapter-item "><a href="test-implementation.html"><strong aria-hidden="true">36.5.</strong> #[test] Implementation</a></li><li class="chapter-item "><a href="panic-implementation.html"><strong aria-hidden="true">36.6.</strong> Panic Implementation</a></li><li class="chapter-item "><a href="ast-validation.html"><strong aria-hidden="true">36.7.</strong> AST Validation</a></li><li class="chapter-item "><a href="feature-gate-ck.html"><strong aria-hidden="true">36.8.</strong> Feature Gate Checking</a></li><li class="chapter-item "><a href="lang-items.html"><strong aria-hidden="true">36.9.</strong> Lang Items</a></li></ol></li><li class="chapter-item "><a href="hir.html"><strong aria-hidden="true">37.</strong> The HIR (High-level IR)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ast-lowering.html"><strong aria-hidden="true">37.1.</strong> Lowering AST to HIR</a></li><li class="chapter-item "><a href="hir-debugging.html"><strong aria-hidden="true">37.2.</strong> Debugging</a></li></ol></li><li class="chapter-item "><a href="thir.html"><strong aria-hidden="true">38.</strong> The THIR (Typed High-level IR)</a></li><li class="chapter-item "><a href="mir/index.html"><strong aria-hidden="true">39.</strong> The MIR (Mid-level IR)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="mir/construction.html"><strong aria-hidden="true">39.1.</strong> MIR construction</a></li><li class="chapter-item "><a href="mir/visitor.html"><strong aria-hidden="true">39.2.</strong> MIR visitor and traversal</a></li><li class="chapter-item "><a href="mir/passes.html"><strong aria-hidden="true">39.3.</strong> MIR passes: getting the MIR for a function</a></li></ol></li><li class="chapter-item "><a href="identifiers.html"><strong aria-hidden="true">40.</strong> Identifiers in the compiler</a></li><li class="chapter-item "><a href="closure.html"><strong aria-hidden="true">41.</strong> Closure expansion</a></li><li class="chapter-item "><a href="asm.html"><strong aria-hidden="true">42.</strong> Inline assembly</a></li><li class="chapter-item affix "><li class="part-title">Analysis</li><li class="chapter-item "><a href="part-4-intro.html"><strong aria-hidden="true">43.</strong> Prologue</a></li><li class="chapter-item "><a href="generic_parameters_summary.html"><strong aria-hidden="true">44.</strong> Generic parameter definitions</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="what_is_ty_generics.html"><strong aria-hidden="true">44.1.</strong> What is ty::Generics</a></li><li class="chapter-item "><a href="early-late-bound-params/early-late-bound-summary.html"><strong aria-hidden="true">44.2.</strong> Early vs Late bound parameters</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="early-late-bound-params/early-late-bound-implementation-nuances.html"><strong aria-hidden="true">44.2.1.</strong> Implementation nuances of early/late bound parameters</a></li><li class="chapter-item "><a href="early-late-bound-params/turbofishing-and-early-late-bound.html"><strong aria-hidden="true">44.2.2.</strong> Interactions with turbofishing</a></li></ol></li></ol></li><li class="chapter-item "><a href="ty.html"><strong aria-hidden="true">45.</strong> The ty module: representing types</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ty_module/generic_arguments.html"><strong aria-hidden="true">45.1.</strong> ADTs and Generic Arguments</a></li><li class="chapter-item "><a href="ty_module/param_ty_const_regions.html"><strong aria-hidden="true">45.2.</strong> Parameter types/consts/regions</a></li><li class="chapter-item "><a href="ty_module/early_binder.html"><strong aria-hidden="true">45.3.</strong> EarlyBinder and instantiating parameters</a></li><li class="chapter-item "><a href="ty_module/binders.html"><strong aria-hidden="true">45.4.</strong> Binder and Higher ranked regions</a></li><li class="chapter-item "><a href="ty_module/instantiating_binders.html"><strong aria-hidden="true">45.5.</strong> Instantiating binders</a></li><li class="chapter-item "><a href="constants.html"><strong aria-hidden="true">45.6.</strong> Constants in the type system</a></li></ol></li><li class="chapter-item "><a href="ty-fold.html"><strong aria-hidden="true">46.</strong> TypeFolder and TypeFoldable</a></li><li class="chapter-item "><a href="param_env/param_env_summary.html"><strong aria-hidden="true">47.</strong> Parameter Environments</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="param_env/param_env_what_is_it.html"><strong aria-hidden="true">47.1.</strong> What is it?</a></li><li class="chapter-item "><a href="param_env/param_env_construction_internals.html"><strong aria-hidden="true">47.2.</strong> How are ParamEnv's constructed internally</a></li><li class="chapter-item "><a href="param_env/param_env_acquisition.html"><strong aria-hidden="true">47.3.</strong> Which ParamEnv do I use?</a></li></ol></li><li class="chapter-item "><a href="type-inference.html"><strong aria-hidden="true">48.</strong> Type inference</a></li><li class="chapter-item "><a href="traits/resolution.html"><strong aria-hidden="true">49.</strong> Trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="traits/hrtb.html"><strong aria-hidden="true">49.1.</strong> Higher-ranked trait bounds</a></li><li class="chapter-item "><a href="traits/caching.html"><strong aria-hidden="true">49.2.</strong> Caching subtleties</a></li><li class="chapter-item "><a href="traits/implied-bounds.html"><strong aria-hidden="true">49.3.</strong> Implied bounds</a></li><li class="chapter-item "><a href="traits/specialization.html"><strong aria-hidden="true">49.4.</strong> Specialization</a></li><li class="chapter-item "><a href="traits/chalk.html"><strong aria-hidden="true">49.5.</strong> Chalk-based trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="traits/lowering-to-logic.html"><strong aria-hidden="true">49.5.1.</strong> Lowering to logic</a></li><li class="chapter-item "><a href="traits/goals-and-clauses.html"><strong aria-hidden="true">49.5.2.</strong> Goals and clauses</a></li><li class="chapter-item "><a href="traits/canonical-queries.html"><strong aria-hidden="true">49.5.3.</strong> Canonical queries</a></li><li class="chapter-item "><a href="traits/canonicalization.html"><strong aria-hidden="true">49.5.4.</strong> Canonicalization</a></li></ol></li><li class="chapter-item "><a href="solve/trait-solving.html"><strong aria-hidden="true">49.6.</strong> Next-gen trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="solve/invariants.html"><strong aria-hidden="true">49.6.1.</strong> Invariants of the type system</a></li><li class="chapter-item "><a href="solve/the-solver.html"><strong aria-hidden="true">49.6.2.</strong> The solver</a></li><li class="chapter-item "><a href="solve/canonicalization.html"><strong aria-hidden="true">49.6.3.</strong> Canonicalization</a></li><li class="chapter-item "><a href="solve/coinduction.html"><strong aria-hidden="true">49.6.4.</strong> Coinduction</a></li><li class="chapter-item "><a href="solve/caching.html"><strong aria-hidden="true">49.6.5.</strong> Caching</a></li><li class="chapter-item "><a href="solve/proof-trees.html"><strong aria-hidden="true">49.6.6.</strong> Proof trees</a></li><li class="chapter-item "><a href="solve/normalization.html"><strong aria-hidden="true">49.6.7.</strong> Normalization</a></li><li class="chapter-item "><a href="solve/opaque-types.html"><strong aria-hidden="true">49.6.8.</strong> Opaque types</a></li><li class="chapter-item "><a href="solve/significant-changes.html"><strong aria-hidden="true">49.6.9.</strong> Significant changes and quirks</a></li></ol></li><li class="chapter-item "><a href="traits/unsize.html"><strong aria-hidden="true">49.7.</strong> Unsize and CoerceUnsized traits</a></li></ol></li><li class="chapter-item "><a href="type-checking.html"><strong aria-hidden="true">50.</strong> Type checking</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="method-lookup.html"><strong aria-hidden="true">50.1.</strong> Method Lookup</a></li><li class="chapter-item "><a href="variance.html"><strong aria-hidden="true">50.2.</strong> Variance</a></li><li class="chapter-item "><a href="opaque-types-type-alias-impl-trait.html"><strong aria-hidden="true">50.3.</strong> Opaque Types</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="opaque-types-impl-trait-inference.html"><strong aria-hidden="true">50.3.1.</strong> Inference details</a></li><li class="chapter-item "><a href="return-position-impl-trait-in-trait.html"><strong aria-hidden="true">50.3.2.</strong> Return Position Impl Trait In Trait</a></li><li class="chapter-item "><a href="borrow_check/opaque-types-region-inference-restrictions.html"><strong aria-hidden="true">50.3.3.</strong> Region inference restrictions</a></li></ol></li></ol></li><li class="chapter-item "><a href="effects.html"><strong aria-hidden="true">51.</strong> Effect checking</a></li><li class="chapter-item "><a href="pat-exhaustive-checking.html"><strong aria-hidden="true">52.</strong> Pattern and Exhaustiveness Checking</a></li><li class="chapter-item "><a href="unsafety-checking.html"><strong aria-hidden="true">53.</strong> Unsafety Checking</a></li><li class="chapter-item "><a href="mir/dataflow.html"><strong aria-hidden="true">54.</strong> MIR dataflow</a></li><li class="chapter-item "><a href="mir/drop-elaboration.html"><strong aria-hidden="true">55.</strong> Drop elaboration</a></li><li class="chapter-item "><a href="borrow_check.html"><strong aria-hidden="true">56.</strong> The borrow checker</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="borrow_check/moves_and_initialization.html"><strong aria-hidden="true">56.1.</strong> Tracking moves and initialization</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="borrow_check/moves_and_initialization/move_paths.html"><strong aria-hidden="true">56.1.1.</strong> Move paths</a></li></ol></li><li class="chapter-item "><a href="borrow_check/type_check.html"><strong aria-hidden="true">56.2.</strong> MIR type checker</a></li><li class="chapter-item "><a href="borrow_check/drop_check.html"><strong aria-hidden="true">56.3.</strong> Drop check</a></li><li class="chapter-item "><a href="borrow_check/region_inference.html"><strong aria-hidden="true">56.4.</strong> Region inference</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="borrow_check/region_inference/constraint_propagation.html"><strong aria-hidden="true">56.4.1.</strong> Constraint propagation</a></li><li class="chapter-item "><a href="borrow_check/region_inference/lifetime_parameters.html"><strong aria-hidden="true">56.4.2.</strong> Lifetime parameters</a></li><li class="chapter-item "><a href="borrow_check/region_inference/member_constraints.html"><strong aria-hidden="true">56.4.3.</strong> Member constraints</a></li><li class="chapter-item "><a href="borrow_check/region_inference/placeholders_and_universes.html"><strong aria-hidden="true">56.4.4.</strong> Placeholders and universes</a></li><li class="chapter-item "><a href="borrow_check/region_inference/closure_constraints.html"><strong aria-hidden="true">56.4.5.</strong> Closure constraints</a></li><li class="chapter-item "><a href="borrow_check/region_inference/error_reporting.html"><strong aria-hidden="true">56.4.6.</strong> Error reporting</a></li></ol></li><li class="chapter-item "><a href="borrow_check/two_phase_borrows.html"><strong aria-hidden="true">56.5.</strong> Two-phase-borrows</a></li></ol></li><li class="chapter-item "><a href="diagnostics.html"><strong aria-hidden="true">57.</strong> Errors and Lints</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="diagnostics/diagnostic-structs.html"><strong aria-hidden="true">57.1.</strong> Diagnostic and subdiagnostic structs</a></li><li class="chapter-item "><a href="diagnostics/translation.html"><strong aria-hidden="true">57.2.</strong> Translation</a></li><li class="chapter-item "><a href="diagnostics/lintstore.html"><strong aria-hidden="true">57.3.</strong> LintStore</a></li><li class="chapter-item "><a href="diagnostics/error-codes.html"><strong aria-hidden="true">57.4.</strong> Error codes</a></li><li class="chapter-item "><a href="diagnostics/diagnostic-items.html"><strong aria-hidden="true">57.5.</strong> Diagnostic items</a></li><li class="chapter-item "><a href="diagnostics/error-guaranteed.html"><strong aria-hidden="true">57.6.</strong> ErrorGuaranteed</a></li></ol></li><li class="chapter-item "><li class="part-title">MIR to Binaries</li><li class="chapter-item "><a href="part-5-intro.html"><strong aria-hidden="true">58.</strong> Prologue</a></li><li class="chapter-item "><a href="mir/optimizations.html"><strong aria-hidden="true">59.</strong> MIR optimizations</a></li><li class="chapter-item "><a href="mir/debugging.html"><strong aria-hidden="true">60.</strong> Debugging</a></li><li class="chapter-item "><a href="const-eval.html"><strong aria-hidden="true">61.</strong> Constant evaluation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="const-eval/interpret.html"><strong aria-hidden="true">61.1.</strong> Interpreter</a></li></ol></li><li class="chapter-item "><a href="backend/monomorph.html"><strong aria-hidden="true">62.</strong> Monomorphization</a></li><li class="chapter-item "><a href="backend/lowering-mir.html"><strong aria-hidden="true">63.</strong> Lowering MIR</a></li><li class="chapter-item "><a href="backend/codegen.html"><strong aria-hidden="true">64.</strong> Code Generation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="backend/updating-llvm.html"><strong aria-hidden="true">64.1.</strong> Updating LLVM</a></li><li class="chapter-item "><a href="backend/debugging.html"><strong aria-hidden="true">64.2.</strong> Debugging LLVM</a></li><li class="chapter-item "><a href="backend/backend-agnostic.html"><strong aria-hidden="true">64.3.</strong> Backend Agnostic Codegen</a></li><li class="chapter-item "><a href="backend/implicit-caller-location.html"><strong aria-hidden="true">64.4.</strong> Implicit Caller Location</a></li></ol></li><li class="chapter-item "><a href="backend/libs-and-metadata.html"><strong aria-hidden="true">65.</strong> Libraries and Metadata</a></li><li class="chapter-item "><a href="profile-guided-optimization.html"><strong aria-hidden="true">66.</strong> Profile-guided Optimization</a></li><li class="chapter-item "><a href="llvm-coverage-instrumentation.html"><strong aria-hidden="true">67.</strong> LLVM Source-Based Code Coverage</a></li><li class="chapter-item "><a href="sanitizers.html"><strong aria-hidden="true">68.</strong> Sanitizers Support</a></li><li class="chapter-item expanded "><a href="debugging-support-in-rustc.html" class="active"><strong aria-hidden="true">69.</strong> Debugging support in the Rust compiler</a></li><li class="spacer"></li><li class="chapter-item affix "><a href="appendix/background.html">Appendix A: Background topics</a></li><li class="chapter-item affix "><a href="appendix/glossary.html">Appendix B: Glossary</a></li><li class="chapter-item affix "><a href="appendix/code-index.html">Appendix C: Code Index</a></li><li class="chapter-item affix "><a href="appendix/compiler-lecture.html">Appendix D: Compiler Lecture Series</a></li><li class="chapter-item affix "><a href="appendix/bibliography.html">Appendix E: Bibliography</a></li><li class="chapter-item affix "><a href="appendix/humorust.html">Appendix Z: HumorRust</a></li><li class="spacer"></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Compiler Development Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide/edit/master/src/debugging-support-in-rustc.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="debugging-support-in-the-rust-compiler"><a class="header" href="#debugging-support-in-the-rust-compiler">Debugging support in the Rust compiler</a></h1>
+<ul>
+<li><a href="#preliminaries">Preliminaries</a>
+<ul>
+<li><a href="#debuggers">Debuggers</a></li>
+<li><a href="#dwarf">DWARF</a></li>
+<li><a href="#codeviewpdb">CodeView/PDB</a></li>
+</ul>
+</li>
+<li><a href="#supported-debuggers">Supported debuggers</a>
+<ul>
+<li><a href="#gdb">GDB</a>
+<ul>
+<li><a href="#rust-expression-parser">Rust expression parser</a></li>
+<li><a href="#parser-extensions">Parser extensions</a></li>
+</ul>
+</li>
+<li><a href="#lldb">LLDB</a>
+<ul>
+<li><a href="#rust-expression-parser-1">Rust expression parser</a></li>
+<li><a href="#developer-notes">Developer notes</a></li>
+</ul>
+</li>
+<li><a href="#windbgcdb">WinDbg/CDB</a>
+<ul>
+<li><a href="#natvis">Natvis</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#dwarf-and-rustc">DWARF and <code>rustc</code></a>
+<ul>
+<li><a href="#current-limitations-of-dwarf">Current limitations of DWARF</a></li>
+</ul>
+</li>
+<li><a href="#developer-notes-1">Developer notes</a></li>
+<li><a href="#what-is-missing">What is missing</a>
+<ul>
+<li><a href="#code-signing-for-lldb-debug-server-on-macos">Code signing for LLDB debug server on macOS</a></li>
+<li><a href="#dwarf-and-traits">DWARF and Traits</a></li>
+</ul>
+</li>
+<li><a href="#typical-process-for-a-debug-info-change-llvm">Typical process for a Debug Info change (LLVM)</a>
+<ul>
+<li><a href="#procedural-macro-stepping">Procedural macro stepping</a></li>
+</ul>
+</li>
+<li><a href="#source-file-checksums-in-debug-info">Source file checksums in debug info</a>
+<ul>
+<li><a href="#dwarf-5">DWARF 5</a></li>
+<li><a href="#llvm">LLVM</a></li>
+<li><a href="#microsoft-visual-c-compiler-zh-option">Microsoft Visual C++ Compiler /ZH option</a></li>
+<li><a href="#clang">Clang</a></li>
+</ul>
+</li>
+<li><a href="#future-work">Future work</a>
+<ul>
+<li><a href="#name-mangling-changes">Name mangling changes</a></li>
+<li><a href="#reuse-rust-compiler-for-expressions">Reuse Rust compiler for expressions</a></li>
+</ul>
+</li>
+</ul>
+<p>This document explains the state of debugging tools support in the Rust compiler (rustc).
+It gives an overview of GDB, LLDB, WinDbg/CDB,
+as well as infrastructure around Rust compiler to debug Rust code.
+If you want to learn how to debug the Rust compiler itself,
+see <a href="compiler-debugging.html">Debugging the Compiler</a>.</p>
+<p>The material is gathered from the video,
+<a href="https://www.youtube.com/watch?v=elBxMRSNYr4">Tom Tromey discusses debugging support in rustc</a>.</p>
+<h2 id="preliminaries"><a class="header" href="#preliminaries">Preliminaries</a></h2>
+<h3 id="debuggers"><a class="header" href="#debuggers">Debuggers</a></h3>
+<p>According to Wikipedia</p>
+<blockquote>
+<p>A <a href="https://en.wikipedia.org/wiki/Debugger">debugger or debugging tool</a> is a computer program that is used to test and debug
+other programs (the &quot;target&quot; program).</p>
+</blockquote>
+<p>Writing a debugger from scratch for a language requires a lot of work, especially if
+debuggers have to be supported on various platforms. GDB and LLDB, however, can be
+extended to support debugging a language. This is the path that Rust has chosen.
+This document's main goal is to document the said debuggers support in Rust compiler.</p>
+<h3 id="dwarf"><a class="header" href="#dwarf">DWARF</a></h3>
+<p>According to the <a href="http://dwarfstd.org">DWARF</a> standard website</p>
+<blockquote>
+<p>DWARF is a debugging file format used by many compilers and debuggers to support source level
+debugging. It addresses the requirements of a number of procedural languages,
+such as C, C++, and Fortran, and is designed to be extensible to other languages.
+DWARF is architecture independent and applicable to any processor or operating system.
+It is widely used on Unix, Linux and other operating systems,
+as well as in stand-alone environments.</p>
+</blockquote>
+<p>DWARF reader is a program that consumes the DWARF format and creates debugger compatible output.
+This program may live in the compiler itself.  DWARF uses a data structure called
+Debugging Information Entry (DIE) which stores the information as &quot;tags&quot; to denote functions,
+variables etc., e.g., <code>DW_TAG_variable</code>, <code>DW_TAG_pointer_type</code>, <code>DW_TAG_subprogram</code> etc.
+You can also invent your own tags and attributes.</p>
+<h3 id="codeviewpdb"><a class="header" href="#codeviewpdb">CodeView/PDB</a></h3>
+<p><a href="https://llvm.org/docs/PDB/index.html">PDB</a> (Program Database) is a file format created by Microsoft that contains debug information.
+PDBs can be consumed by debuggers such as WinDbg/CDB and other tools to display debug information.
+A PDB contains multiple streams that describe debug information about a specific binary such
+as types, symbols, and source files used to compile the given binary. CodeView is another
+format which defines the structure of <a href="https://llvm.org/docs/PDB/CodeViewSymbols.html">symbol records</a> and <a href="https://llvm.org/docs/PDB/CodeViewTypes.html">type records</a> that appear within
+PDB streams.</p>
+<h2 id="supported-debuggers"><a class="header" href="#supported-debuggers">Supported debuggers</a></h2>
+<h3 id="gdb"><a class="header" href="#gdb">GDB</a></h3>
+<h4 id="rust-expression-parser"><a class="header" href="#rust-expression-parser">Rust expression parser</a></h4>
+<p>To be able to show debug output, we need an expression parser.
+This (GDB) expression parser is written in <a href="https://www.gnu.org/software/bison/">Bison</a>,
+and can parse only a subset of Rust expressions.
+GDB parser was written from scratch and has no relation to any other parser,
+including that of rustc.</p>
+<p>GDB has Rust-like value and type output. It can print values and types in a way
+that look like Rust syntax in the output. Or when you print a type as <a href="https://ftp.gnu.org/old-gnu/Manuals/gdb/html_node/gdb_109.html">ptype</a> in GDB,
+it also looks like Rust source code. Checkout the documentation in the <a href="https://sourceware.org/gdb/onlinedocs/gdb/Rust.html">manual for GDB/Rust</a>.</p>
+<h4 id="parser-extensions"><a class="header" href="#parser-extensions">Parser extensions</a></h4>
+<p>Expression parser has a couple of extensions in it to facilitate features that you cannot do
+with Rust. Some limitations are listed in the <a href="https://sourceware.org/gdb/onlinedocs/gdb/Rust.html">manual for GDB/Rust</a>. There is some special
+code in the DWARF reader in GDB to support the extensions.</p>
+<p>A couple of examples of DWARF reader support needed are as follows:</p>
+<ol>
+<li>
+<p>Enum: Needed for support for enum types.
+The Rust compiler writes the information about enum into DWARF,
+and GDB reads the DWARF to understand where is the tag field,
+or if there is a tag field,
+or if the tag slot is shared with non-zero optimization etc.</p>
+</li>
+<li>
+<p>Dissect trait objects: DWARF extension where the trait object's description in the DWARF
+also points to a stub description of the corresponding vtable which in turn points to the
+concrete type for which this trait object exists. This means that you can do a <code>print *object</code>
+for that trait object, and GDB will understand how to find the correct type of the payload in
+the trait object.</p>
+</li>
+</ol>
+<p><strong>TODO</strong>: Figure out if the following should be mentioned in the GDB-Rust document rather than
+this guide page so there is no duplication. This is regarding the following comments:</p>
+<p><a href="https://github.com/rust-lang/rustc-dev-guide/pull/316#discussion_r284027340">This comment by Tom</a></p>
+<blockquote>
+<p>gdb's Rust extensions and limitations are documented in the gdb manual:
+https://sourceware.org/gdb/onlinedocs/gdb/Rust.html -- however, this neglects to mention that
+gdb convenience variables and registers follow the gdb $ convention, and that the Rust parser
+implements the gdb @ extension.</p>
+</blockquote>
+<p><a href="https://github.com/rust-lang/rustc-dev-guide/pull/316#discussion_r285401353">This question by Aman</a></p>
+<blockquote>
+<p>@tromey do you think we should mention this part in the GDB-Rust document rather than this
+document so there is no duplication etc.?</p>
+</blockquote>
+<h3 id="lldb"><a class="header" href="#lldb">LLDB</a></h3>
+<h4 id="rust-expression-parser-1"><a class="header" href="#rust-expression-parser-1">Rust expression parser</a></h4>
+<p>This expression parser is written in C++. It is a type of <a href="https://en.wikipedia.org/wiki/Recursive_descent_parser">Recursive Descent parser</a>.
+It implements slightly less of the Rust language than GDB.
+LLDB has Rust-like value and type output.</p>
+<h4 id="developer-notes"><a class="header" href="#developer-notes">Developer notes</a></h4>
+<ul>
+<li>LLDB has a plugin architecture but that does not work for language support.</li>
+<li>GDB generally works better on Linux.</li>
+</ul>
+<h3 id="windbgcdb"><a class="header" href="#windbgcdb">WinDbg/CDB</a></h3>
+<p>Microsoft provides <a href="https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/">Windows Debugging Tools</a> such as the Windows Debugger (WinDbg) and
+the Console Debugger (CDB) which both support debugging programs written in Rust. These
+debuggers parse the debug info for a binary from the <code>PDB</code>, if available, to construct a
+visualization to serve up in the debugger.</p>
+<h4 id="natvis"><a class="header" href="#natvis">Natvis</a></h4>
+<p>Both WinDbg and CDB support defining and viewing custom visualizations for any given type
+within the debugger using the Natvis framework. The Rust compiler defines a set of Natvis
+files that define custom visualizations for a subset of types in the standard libraries such
+as, <code>std</code>, <code>core</code>, and <code>alloc</code>. These Natvis files are embedded into <code>PDBs</code> generated by the
+<code>*-pc-windows-msvc</code> target triples to automatically enable these custom visualizations when
+debugging. This default can be overridden by setting the <code>strip</code> rustc flag to either <code>debuginfo</code>
+or <code>symbols</code>.</p>
+<p>Rust has support for embedding Natvis files for crates outside of the standard libraries by
+using the <code>#[debugger_visualizer]</code> attribute.
+For more details on how to embed debugger visualizers,
+please refer to the section on the <a href="https://doc.rust-lang.org/nightly/reference/attributes/debugger.html#the-debugger_visualizer-attribute"><code>debugger_visualizer</code> attribute</a>.</p>
+<h2 id="dwarf-and-rustc"><a class="header" href="#dwarf-and-rustc">DWARF and <code>rustc</code></a></h2>
+<p><a href="http://dwarfstd.org">DWARF</a> is the standard way compilers generate debugging information that debuggers read.
+It is <em>the</em> debugging format on macOS and Linux.
+It is a multi-language and extensible format,
+and is mostly good enough for Rust's purposes.
+Hence, the current implementation reuses DWARF's concepts.
+This is true even if some of the concepts in DWARF do not align with Rust semantically because,
+generally, there can be some kind of mapping between the two.</p>
+<p>We have some DWARF extensions that the Rust compiler emits and the debuggers understand that
+are <em>not</em> in the DWARF standard.</p>
+<ul>
+<li>
+<p>Rust compiler will emit DWARF for a virtual table, and this <code>vtable</code> object will have a
+<code>DW_AT_containing_type</code> that points to the real type. This lets debuggers dissect a trait object
+pointer to correctly find the payload. E.g., here's such a DIE, from a test case in the gdb
+repository:</p>
+<pre><code class="language-asm">&lt;1&gt;&lt;1a9&gt;: Abbrev Number: 3 (DW_TAG_structure_type)
+   &lt;1aa&gt;   DW_AT_containing_type: &lt;0x1b4&gt;
+   &lt;1ae&gt;   DW_AT_name        : (indirect string, offset: 0x23d): vtable
+   &lt;1b2&gt;   DW_AT_byte_size   : 0
+   &lt;1b3&gt;   DW_AT_alignment   : 8
+</code></pre>
+</li>
+<li>
+<p>The other extension is that the Rust compiler can emit a tagless discriminated union.
+See <a href="http://dwarfstd.org/ShowIssue.php?issue=180517.2">DWARF feature request</a> for this item.</p>
+</li>
+</ul>
+<h3 id="current-limitations-of-dwarf"><a class="header" href="#current-limitations-of-dwarf">Current limitations of DWARF</a></h3>
+<ul>
+<li>Traits - require a bigger change than normal to DWARF, on how to represent Traits in DWARF.</li>
+<li>DWARF provides no way to differentiate between Structs and Tuples. Rust compiler emits
+fields with <code>__0</code> and debuggers look for a sequence of such names to overcome this limitation.
+For example, in this case the debugger would look at a field via <code>x.__0</code> instead of <code>x.0</code>.
+This is resolved via the Rust parser in the debugger so now you can do <code>x.0</code>.</li>
+</ul>
+<p>DWARF relies on debuggers to know some information about platform ABI.
+Rust does not do that all the time.</p>
+<h2 id="developer-notes-1"><a class="header" href="#developer-notes-1">Developer notes</a></h2>
+<p>This section is from the talk about certain aspects of development.</p>
+<h2 id="what-is-missing"><a class="header" href="#what-is-missing">What is missing</a></h2>
+<h3 id="code-signing-for-lldb-debug-server-on-macos"><a class="header" href="#code-signing-for-lldb-debug-server-on-macos">Code signing for LLDB debug server on macOS</a></h3>
+<p>According to Wikipedia, <a href="https://en.wikipedia.org/wiki/System_Integrity_Protection">System Integrity Protection</a> is</p>
+<blockquote>
+<p>System Integrity Protection (SIP, sometimes referred to as rootless) is a security feature
+of Apple's macOS operating system introduced in OS X El Capitan. It comprises a number of
+mechanisms that are enforced by the kernel. A centerpiece is the protection of system-owned
+files and directories against modifications by processes without a specific &quot;entitlement&quot;,
+even when executed by the root user or a user with root privileges (sudo).</p>
+</blockquote>
+<p>It prevents processes using <code>ptrace</code> syscall. If a process wants to use <code>ptrace</code> it has to be
+code signed. The certificate that signs it has to be trusted on your machine.</p>
+<p>See <a href="https://developer.apple.com/library/archive/releasenotes/MacOSX/WhatsNewInOSX/Articles/MacOSX10_11.html#//apple_ref/doc/uid/TP40016227-SW11">Apple developer documentation for System Integrity Protection</a>.</p>
+<p>We may need to sign up with Apple and get the keys to do this signing. Tom has looked into if
+Mozilla cannot do this because it is at the maximum number of
+keys it is allowed to sign. Tom does not know if Mozilla could get more keys.</p>
+<p>Alternatively, Tom suggests that maybe a Rust legal entity is needed to get the keys via Apple.
+This problem is not technical in nature. If we had such a key we could sign GDB as well and
+ship that.</p>
+<h3 id="dwarf-and-traits"><a class="header" href="#dwarf-and-traits">DWARF and Traits</a></h3>
+<p>Rust traits are not emitted into DWARF at all. The impact of this is calling a method <code>x.method()</code>
+does not work as is. The reason being that method is implemented by a trait, as opposed
+to a type. That information is not present so finding trait methods is missing.</p>
+<p>DWARF has a notion of interface types (possibly added for Java). Tom's idea was to use this
+interface type as traits.</p>
+<p>DWARF only deals with concrete names, not the reference types. So, a given implementation of a
+trait for a type would be one of these interfaces (<code>DW_tag_interface</code> type). Also, the type for
+which it is implemented would describe all the interfaces this type implements. This requires a
+DWARF extension.</p>
+<p>Issue on Github: <a href="https://github.com/rust-lang/rust/issues/33014">https://github.com/rust-lang/rust/issues/33014</a></p>
+<h2 id="typical-process-for-a-debug-info-change-llvm"><a class="header" href="#typical-process-for-a-debug-info-change-llvm">Typical process for a Debug Info change (LLVM)</a></h2>
+<p>LLVM has Debug Info (DI) builders. This is the primary thing that Rust calls into.
+This is why we need to change LLVM first because that is emitted first and not DWARF directly.
+This is a kind of metadata that you construct and hand-off to LLVM. For the Rustc/LLVM hand-off
+some LLVM DI builder methods are called to construct representation of a type.</p>
+<p>The steps of this process are as follows:</p>
+<ol>
+<li>
+<p>LLVM needs changing.</p>
+<p>LLVM does not emit Interface types at all, so this needs to be implemented in the LLVM first.</p>
+<p>Get sign off on LLVM maintainers that this is a good idea.</p>
+</li>
+<li>
+<p>Change the DWARF extension.</p>
+</li>
+<li>
+<p>Update the debuggers.</p>
+<p>Update DWARF readers, expression evaluators.</p>
+</li>
+<li>
+<p>Update Rust compiler.</p>
+<p>Change it to emit this new information.</p>
+</li>
+</ol>
+<h3 id="procedural-macro-stepping"><a class="header" href="#procedural-macro-stepping">Procedural macro stepping</a></h3>
+<p>A deeply profound question is that how do you actually debug a procedural macro?
+What is the location you emit for a macro expansion? Consider some of the following cases -</p>
+<ul>
+<li>You can emit location of the invocation of the macro.</li>
+<li>You can emit the location of the definition of the macro.</li>
+<li>You can emit locations of the content of the macro.</li>
+</ul>
+<p>RFC: <a href="https://github.com/rust-lang/rfcs/pull/2117">https://github.com/rust-lang/rfcs/pull/2117</a></p>
+<p>Focus is to let macros decide what to do. This can be achieved by having some kind of attribute
+that lets the macro tell the compiler where the line marker should be. This affects where you
+set the breakpoints and what happens when you step it.</p>
+<h2 id="source-file-checksums-in-debug-info"><a class="header" href="#source-file-checksums-in-debug-info">Source file checksums in debug info</a></h2>
+<p>Both DWARF and CodeView (PDB) support embedding a cryptographic hash of each source file that
+contributed to the associated binary.</p>
+<p>The cryptographic hash can be used by a debugger to verify that the source file matches the
+executable. If the source file does not match, the debugger can provide a warning to the user.</p>
+<p>The hash can also be used to prove that a given source file has not been modified since it was
+used to compile an executable. Because MD5 and SHA1 both have demonstrated vulnerabilities,
+using SHA256 is recommended for this application.</p>
+<p>The Rust compiler stores the hash for each source file in the corresponding <code>SourceFile</code> in
+the <code>SourceMap</code>. The hashes of input files to external crates are stored in <code>rlib</code> metadata.</p>
+<p>A default hashing algorithm is set in the target specification. This allows the target to
+specify the best hash available, since not all targets support all hash algorithms.</p>
+<p>The hashing algorithm for a target can also be overridden with the <code>-Z source-file-checksum=</code>
+command-line option.</p>
+<h4 id="dwarf-5"><a class="header" href="#dwarf-5">DWARF 5</a></h4>
+<p>DWARF version 5 supports embedding an MD5 hash to validate the source file version in use.
+DWARF 5 - Section 6.2.4.1 opcode DW_LNCT_MD5</p>
+<h4 id="llvm"><a class="header" href="#llvm">LLVM</a></h4>
+<p>LLVM IR supports MD5 and SHA1 (and SHA256 in LLVM 11+) source file checksums in the DIFile node.</p>
+<p><a href="https://llvm.org/docs/LangRef.html#difile">LLVM DIFile documentation</a></p>
+<h4 id="microsoft-visual-c-compiler-zh-option"><a class="header" href="#microsoft-visual-c-compiler-zh-option">Microsoft Visual C++ Compiler /ZH option</a></h4>
+<p>The MSVC compiler supports embedding MD5, SHA1, or SHA256 hashes in the PDB using the <code>/ZH</code>
+compiler option.</p>
+<p><a href="https://docs.microsoft.com/en-us/cpp/build/reference/zh">MSVC /ZH documentation</a></p>
+<h4 id="clang"><a class="header" href="#clang">Clang</a></h4>
+<p>Clang always embeds an MD5 checksum, though this does not appear in documentation.</p>
+<h2 id="future-work"><a class="header" href="#future-work">Future work</a></h2>
+<h4 id="name-mangling-changes"><a class="header" href="#name-mangling-changes">Name mangling changes</a></h4>
+<ul>
+<li>New demangler in <code>libiberty</code> (gcc source tree).</li>
+<li>New demangler in LLVM or LLDB.</li>
+</ul>
+<p><strong>TODO</strong>: Check the location of the demangler source. <a href="https://github.com/rust-lang/rustc-dev-guide/issues/1157">#1157</a></p>
+<h4 id="reuse-rust-compiler-for-expressions"><a class="header" href="#reuse-rust-compiler-for-expressions">Reuse Rust compiler for expressions</a></h4>
+<p>This is an important idea because debuggers by and large do not try to implement type
+inference. You need to be much more explicit when you type into the debugger than your
+actual source code. So, you cannot just copy and paste an expression from your source
+code to debugger and expect the same answer but this would be nice. This can be helped
+by using compiler.</p>
+<p>It is certainly doable but it is a large project. You certainly need a bridge to the
+debugger because the debugger alone has access to the memory. Both GDB (gcc) and LLDB (clang)
+have this feature. LLDB uses Clang to compile code to JIT and GDB can do the same with GCC.</p>
+<p>Both debuggers expression evaluation implement both a superset and a subset of Rust.
+They implement just the expression language,
+but they also add some extensions like GDB has convenience variables.
+Therefore, if you are taking this route,
+then you not only need to do this bridge,
+but may have to add some mode to let the compiler understand some extensions.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="sanitizers.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next" href="appendix/background.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="sanitizers.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next" href="appendix/background.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        <script type="text/javascript" src="mermaid.min.js"></script>
+        <script type="text/javascript" src="mermaid-init.js"></script>
+
+
+    </body>
+</html>

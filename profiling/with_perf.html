@@ -1,0 +1,457 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>with the linux perf tool - Rust Compiler Development Guide</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="A guide to developing the Rust compiler (rustc)">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item affix "><a href="../getting-started.html">Getting Started</a></li><li class="chapter-item affix "><a href="../about-this-guide.html">About this guide</a></li><li class="spacer"></li><li class="chapter-item affix "><li class="part-title">Building and debugging rustc</li><li class="chapter-item "><a href="../building/how-to-build-and-run.html"><strong aria-hidden="true">1.</strong> How to build and run the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../building/quickstart.html"><strong aria-hidden="true">1.1.</strong> Quickstart</a></li><li class="chapter-item "><a href="../building/prerequisites.html"><strong aria-hidden="true">1.2.</strong> Prerequisites</a></li><li class="chapter-item "><a href="../building/suggested.html"><strong aria-hidden="true">1.3.</strong> Suggested Workflows</a></li><li class="chapter-item "><a href="../building/build-install-distribution-artifacts.html"><strong aria-hidden="true">1.4.</strong> Distribution artifacts</a></li><li class="chapter-item "><a href="../building/compiler-documenting.html"><strong aria-hidden="true">1.5.</strong> Building Documentation</a></li><li class="chapter-item "><a href="../rustdoc.html"><strong aria-hidden="true">1.6.</strong> Rustdoc overview</a></li><li class="chapter-item "><a href="../building/new-target.html"><strong aria-hidden="true">1.7.</strong> Adding a new target</a></li><li class="chapter-item "><a href="../building/optimized-build.html"><strong aria-hidden="true">1.8.</strong> Optimized build</a></li></ol></li><li class="chapter-item "><a href="../tests/intro.html"><strong aria-hidden="true">2.</strong> Testing the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../tests/running.html"><strong aria-hidden="true">2.1.</strong> Running tests</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../tests/docker.html"><strong aria-hidden="true">2.1.1.</strong> Testing with Docker</a></li><li class="chapter-item "><a href="../tests/ci.html"><strong aria-hidden="true">2.1.2.</strong> Testing with CI</a></li></ol></li><li class="chapter-item "><a href="../tests/adding.html"><strong aria-hidden="true">2.2.</strong> Adding new tests</a></li><li class="chapter-item "><a href="../tests/compiletest.html"><strong aria-hidden="true">2.3.</strong> Compiletest</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../tests/ui.html"><strong aria-hidden="true">2.3.1.</strong> UI tests</a></li><li class="chapter-item "><a href="../tests/headers.html"><strong aria-hidden="true">2.3.2.</strong> Test headers</a></li></ol></li><li class="chapter-item "><a href="../tests/integration.html"><strong aria-hidden="true">2.4.</strong> Integration testing</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../tests/crater.html"><strong aria-hidden="true">2.4.1.</strong> Crater</a></li><li class="chapter-item "><a href="../tests/fuchsia.html"><strong aria-hidden="true">2.4.2.</strong> Fuchsia</a></li><li class="chapter-item "><a href="../tests/rust-for-linux.html"><strong aria-hidden="true">2.4.3.</strong> Rust for Linux</a></li></ol></li><li class="chapter-item "><a href="../tests/perf.html"><strong aria-hidden="true">2.5.</strong> Performance testing</a></li><li class="chapter-item "><a href="../tests/suggest-tests.html"><strong aria-hidden="true">2.6.</strong> Suggest tests tool</a></li></ol></li><li class="chapter-item "><a href="../compiler-debugging.html"><strong aria-hidden="true">3.</strong> Debugging the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../tracing.html"><strong aria-hidden="true">3.1.</strong> Using the tracing/logging instrumentation</a></li></ol></li><li class="chapter-item expanded "><a href="../profiling.html"><strong aria-hidden="true">4.</strong> Profiling the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../profiling/with_perf.html" class="active"><strong aria-hidden="true">4.1.</strong> with the linux perf tool</a></li><li class="chapter-item "><a href="../profiling/wpa_profiling.html"><strong aria-hidden="true">4.2.</strong> with Windows Performance Analyzer</a></li></ol></li><li class="chapter-item "><a href="../crates-io.html"><strong aria-hidden="true">5.</strong> crates.io Dependencies</a></li><li class="chapter-item affix "><li class="part-title">Contributing to Rust</li><li class="chapter-item "><a href="../contributing.html"><strong aria-hidden="true">6.</strong> Contribution Procedures</a></li><li class="chapter-item "><a href="../compiler-team.html"><strong aria-hidden="true">7.</strong> About the compiler team</a></li><li class="chapter-item "><a href="../git.html"><strong aria-hidden="true">8.</strong> Using Git</a></li><li class="chapter-item "><a href="../rustbot.html"><strong aria-hidden="true">9.</strong> Mastering @rustbot</a></li><li class="chapter-item "><a href="../walkthrough.html"><strong aria-hidden="true">10.</strong> Walkthrough: a typical contribution</a></li><li class="chapter-item "><a href="../implementing_new_features.html"><strong aria-hidden="true">11.</strong> Implementing new language features</a></li><li class="chapter-item "><a href="../stability.html"><strong aria-hidden="true">12.</strong> Stability attributes</a></li><li class="chapter-item "><a href="../stabilization_guide.html"><strong aria-hidden="true">13.</strong> Stabilizing Features</a></li><li class="chapter-item "><a href="../feature-gates.html"><strong aria-hidden="true">14.</strong> Feature Gates</a></li><li class="chapter-item "><a href="../conventions.html"><strong aria-hidden="true">15.</strong> Coding conventions</a></li><li class="chapter-item "><a href="../bug-fix-procedure.html"><strong aria-hidden="true">16.</strong> Procedures for Breaking Changes</a></li><li class="chapter-item "><a href="../external-repos.html"><strong aria-hidden="true">17.</strong> Using external repositories</a></li><li class="chapter-item "><a href="../fuzzing.html"><strong aria-hidden="true">18.</strong> Fuzzing</a></li><li class="chapter-item "><a href="../notification-groups/about.html"><strong aria-hidden="true">19.</strong> Notification groups</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../notification-groups/apple.html"><strong aria-hidden="true">19.1.</strong> Apple</a></li><li class="chapter-item "><a href="../notification-groups/arm.html"><strong aria-hidden="true">19.2.</strong> ARM</a></li><li class="chapter-item "><a href="../notification-groups/cleanup-crew.html"><strong aria-hidden="true">19.3.</strong> Cleanup Crew</a></li><li class="chapter-item "><a href="../notification-groups/llvm.html"><strong aria-hidden="true">19.4.</strong> LLVM</a></li><li class="chapter-item "><a href="../notification-groups/risc-v.html"><strong aria-hidden="true">19.5.</strong> RISC-V</a></li><li class="chapter-item "><a href="../notification-groups/windows.html"><strong aria-hidden="true">19.6.</strong> Windows</a></li><li class="chapter-item "><a href="../notification-groups/rust-for-linux.html"><strong aria-hidden="true">19.7.</strong> Rust for Linux</a></li></ol></li><li class="chapter-item "><a href="../licenses.html"><strong aria-hidden="true">20.</strong> Licenses</a></li><li class="chapter-item "><a href="../guides/editions.html"><strong aria-hidden="true">21.</strong> Editions</a></li><li class="chapter-item affix "><li class="part-title">Bootstrapping</li><li class="chapter-item "><a href="../building/bootstrapping/intro.html"><strong aria-hidden="true">22.</strong> Prologue</a></li><li class="chapter-item "><a href="../building/bootstrapping/what-bootstrapping-does.html"><strong aria-hidden="true">23.</strong> What Bootstrapping does</a></li><li class="chapter-item "><a href="../building/bootstrapping/how-bootstrap-does-it.html"><strong aria-hidden="true">24.</strong> How Bootstrap does it</a></li><li class="chapter-item affix "><li class="part-title">High-level Compiler Architecture</li><li class="chapter-item "><a href="../part-2-intro.html"><strong aria-hidden="true">25.</strong> Prologue</a></li><li class="chapter-item "><a href="../overview.html"><strong aria-hidden="true">26.</strong> Overview of the compiler</a></li><li class="chapter-item "><a href="../compiler-src.html"><strong aria-hidden="true">27.</strong> The compiler source code</a></li><li class="chapter-item "><a href="../query.html"><strong aria-hidden="true">28.</strong> Queries: demand-driven compilation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../queries/query-evaluation-model-in-detail.html"><strong aria-hidden="true">28.1.</strong> The Query Evaluation Model in Detail</a></li><li class="chapter-item "><a href="../queries/incremental-compilation.html"><strong aria-hidden="true">28.2.</strong> Incremental compilation</a></li><li class="chapter-item "><a href="../queries/incremental-compilation-in-detail.html"><strong aria-hidden="true">28.3.</strong> Incremental compilation In Detail</a></li><li class="chapter-item "><a href="../incrcomp-debugging.html"><strong aria-hidden="true">28.4.</strong> Debugging and Testing</a></li><li class="chapter-item "><a href="../salsa.html"><strong aria-hidden="true">28.5.</strong> Salsa</a></li></ol></li><li class="chapter-item "><a href="../memory.html"><strong aria-hidden="true">29.</strong> Memory Management in Rustc</a></li><li class="chapter-item "><a href="../serialization.html"><strong aria-hidden="true">30.</strong> Serialization in Rustc</a></li><li class="chapter-item "><a href="../parallel-rustc.html"><strong aria-hidden="true">31.</strong> Parallel Compilation</a></li><li class="chapter-item "><a href="../rustdoc-internals.html"><strong aria-hidden="true">32.</strong> Rustdoc internals</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../rustdoc-internals/search.html"><strong aria-hidden="true">32.1.</strong> Search</a></li></ol></li><li class="chapter-item "><li class="part-title">Source Code Representation</li><li class="chapter-item "><a href="../part-3-intro.html"><strong aria-hidden="true">33.</strong> Prologue</a></li><li class="chapter-item "><a href="../cli.html"><strong aria-hidden="true">34.</strong> Command-line arguments</a></li><li class="chapter-item "><a href="../rustc-driver.html"><strong aria-hidden="true">35.</strong> rustc_driver and rustc_interface</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../rustc-driver-interacting-with-the-ast.html"><strong aria-hidden="true">35.1.</strong> Example: Type checking</a></li><li class="chapter-item "><a href="../rustc-driver-getting-diagnostics.html"><strong aria-hidden="true">35.2.</strong> Example: Getting diagnostics</a></li></ol></li><li class="chapter-item "><a href="../syntax-intro.html"><strong aria-hidden="true">36.</strong> Syntax and the AST</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../the-parser.html"><strong aria-hidden="true">36.1.</strong> Lexing and Parsing</a></li><li class="chapter-item "><a href="../macro-expansion.html"><strong aria-hidden="true">36.2.</strong> Macro expansion</a></li><li class="chapter-item "><a href="../name-resolution.html"><strong aria-hidden="true">36.3.</strong> Name resolution</a></li><li class="chapter-item "><a href="../attributes.html"><strong aria-hidden="true">36.4.</strong> Attributes</a></li><li class="chapter-item "><a href="../test-implementation.html"><strong aria-hidden="true">36.5.</strong> #[test] Implementation</a></li><li class="chapter-item "><a href="../panic-implementation.html"><strong aria-hidden="true">36.6.</strong> Panic Implementation</a></li><li class="chapter-item "><a href="../ast-validation.html"><strong aria-hidden="true">36.7.</strong> AST Validation</a></li><li class="chapter-item "><a href="../feature-gate-ck.html"><strong aria-hidden="true">36.8.</strong> Feature Gate Checking</a></li><li class="chapter-item "><a href="../lang-items.html"><strong aria-hidden="true">36.9.</strong> Lang Items</a></li></ol></li><li class="chapter-item "><a href="../hir.html"><strong aria-hidden="true">37.</strong> The HIR (High-level IR)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../ast-lowering.html"><strong aria-hidden="true">37.1.</strong> Lowering AST to HIR</a></li><li class="chapter-item "><a href="../hir-debugging.html"><strong aria-hidden="true">37.2.</strong> Debugging</a></li></ol></li><li class="chapter-item "><a href="../thir.html"><strong aria-hidden="true">38.</strong> The THIR (Typed High-level IR)</a></li><li class="chapter-item "><a href="../mir/index.html"><strong aria-hidden="true">39.</strong> The MIR (Mid-level IR)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../mir/construction.html"><strong aria-hidden="true">39.1.</strong> MIR construction</a></li><li class="chapter-item "><a href="../mir/visitor.html"><strong aria-hidden="true">39.2.</strong> MIR visitor and traversal</a></li><li class="chapter-item "><a href="../mir/passes.html"><strong aria-hidden="true">39.3.</strong> MIR passes: getting the MIR for a function</a></li></ol></li><li class="chapter-item "><a href="../identifiers.html"><strong aria-hidden="true">40.</strong> Identifiers in the compiler</a></li><li class="chapter-item "><a href="../closure.html"><strong aria-hidden="true">41.</strong> Closure expansion</a></li><li class="chapter-item "><a href="../asm.html"><strong aria-hidden="true">42.</strong> Inline assembly</a></li><li class="chapter-item affix "><li class="part-title">Analysis</li><li class="chapter-item "><a href="../part-4-intro.html"><strong aria-hidden="true">43.</strong> Prologue</a></li><li class="chapter-item "><a href="../generic_parameters_summary.html"><strong aria-hidden="true">44.</strong> Generic parameter definitions</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../what_is_ty_generics.html"><strong aria-hidden="true">44.1.</strong> What is ty::Generics</a></li><li class="chapter-item "><a href="../early-late-bound-params/early-late-bound-summary.html"><strong aria-hidden="true">44.2.</strong> Early vs Late bound parameters</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../early-late-bound-params/early-late-bound-implementation-nuances.html"><strong aria-hidden="true">44.2.1.</strong> Implementation nuances of early/late bound parameters</a></li><li class="chapter-item "><a href="../early-late-bound-params/turbofishing-and-early-late-bound.html"><strong aria-hidden="true">44.2.2.</strong> Interactions with turbofishing</a></li></ol></li></ol></li><li class="chapter-item "><a href="../ty.html"><strong aria-hidden="true">45.</strong> The ty module: representing types</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../ty_module/generic_arguments.html"><strong aria-hidden="true">45.1.</strong> ADTs and Generic Arguments</a></li><li class="chapter-item "><a href="../ty_module/param_ty_const_regions.html"><strong aria-hidden="true">45.2.</strong> Parameter types/consts/regions</a></li><li class="chapter-item "><a href="../ty_module/early_binder.html"><strong aria-hidden="true">45.3.</strong> EarlyBinder and instantiating parameters</a></li><li class="chapter-item "><a href="../ty_module/binders.html"><strong aria-hidden="true">45.4.</strong> Binder and Higher ranked regions</a></li><li class="chapter-item "><a href="../ty_module/instantiating_binders.html"><strong aria-hidden="true">45.5.</strong> Instantiating binders</a></li><li class="chapter-item "><a href="../constants.html"><strong aria-hidden="true">45.6.</strong> Constants in the type system</a></li></ol></li><li class="chapter-item "><a href="../ty-fold.html"><strong aria-hidden="true">46.</strong> TypeFolder and TypeFoldable</a></li><li class="chapter-item "><a href="../param_env/param_env_summary.html"><strong aria-hidden="true">47.</strong> Parameter Environments</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../param_env/param_env_what_is_it.html"><strong aria-hidden="true">47.1.</strong> What is it?</a></li><li class="chapter-item "><a href="../param_env/param_env_construction_internals.html"><strong aria-hidden="true">47.2.</strong> How are ParamEnv's constructed internally</a></li><li class="chapter-item "><a href="../param_env/param_env_acquisition.html"><strong aria-hidden="true">47.3.</strong> Which ParamEnv do I use?</a></li></ol></li><li class="chapter-item "><a href="../type-inference.html"><strong aria-hidden="true">48.</strong> Type inference</a></li><li class="chapter-item "><a href="../traits/resolution.html"><strong aria-hidden="true">49.</strong> Trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../traits/hrtb.html"><strong aria-hidden="true">49.1.</strong> Higher-ranked trait bounds</a></li><li class="chapter-item "><a href="../traits/caching.html"><strong aria-hidden="true">49.2.</strong> Caching subtleties</a></li><li class="chapter-item "><a href="../traits/implied-bounds.html"><strong aria-hidden="true">49.3.</strong> Implied bounds</a></li><li class="chapter-item "><a href="../traits/specialization.html"><strong aria-hidden="true">49.4.</strong> Specialization</a></li><li class="chapter-item "><a href="../traits/chalk.html"><strong aria-hidden="true">49.5.</strong> Chalk-based trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../traits/lowering-to-logic.html"><strong aria-hidden="true">49.5.1.</strong> Lowering to logic</a></li><li class="chapter-item "><a href="../traits/goals-and-clauses.html"><strong aria-hidden="true">49.5.2.</strong> Goals and clauses</a></li><li class="chapter-item "><a href="../traits/canonical-queries.html"><strong aria-hidden="true">49.5.3.</strong> Canonical queries</a></li><li class="chapter-item "><a href="../traits/canonicalization.html"><strong aria-hidden="true">49.5.4.</strong> Canonicalization</a></li></ol></li><li class="chapter-item "><a href="../solve/trait-solving.html"><strong aria-hidden="true">49.6.</strong> Next-gen trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../solve/invariants.html"><strong aria-hidden="true">49.6.1.</strong> Invariants of the type system</a></li><li class="chapter-item "><a href="../solve/the-solver.html"><strong aria-hidden="true">49.6.2.</strong> The solver</a></li><li class="chapter-item "><a href="../solve/canonicalization.html"><strong aria-hidden="true">49.6.3.</strong> Canonicalization</a></li><li class="chapter-item "><a href="../solve/coinduction.html"><strong aria-hidden="true">49.6.4.</strong> Coinduction</a></li><li class="chapter-item "><a href="../solve/caching.html"><strong aria-hidden="true">49.6.5.</strong> Caching</a></li><li class="chapter-item "><a href="../solve/proof-trees.html"><strong aria-hidden="true">49.6.6.</strong> Proof trees</a></li><li class="chapter-item "><a href="../solve/normalization.html"><strong aria-hidden="true">49.6.7.</strong> Normalization</a></li><li class="chapter-item "><a href="../solve/opaque-types.html"><strong aria-hidden="true">49.6.8.</strong> Opaque types</a></li><li class="chapter-item "><a href="../solve/significant-changes.html"><strong aria-hidden="true">49.6.9.</strong> Significant changes and quirks</a></li></ol></li><li class="chapter-item "><a href="../traits/unsize.html"><strong aria-hidden="true">49.7.</strong> Unsize and CoerceUnsized traits</a></li></ol></li><li class="chapter-item "><a href="../type-checking.html"><strong aria-hidden="true">50.</strong> Type checking</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../method-lookup.html"><strong aria-hidden="true">50.1.</strong> Method Lookup</a></li><li class="chapter-item "><a href="../variance.html"><strong aria-hidden="true">50.2.</strong> Variance</a></li><li class="chapter-item "><a href="../opaque-types-type-alias-impl-trait.html"><strong aria-hidden="true">50.3.</strong> Opaque Types</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../opaque-types-impl-trait-inference.html"><strong aria-hidden="true">50.3.1.</strong> Inference details</a></li><li class="chapter-item "><a href="../return-position-impl-trait-in-trait.html"><strong aria-hidden="true">50.3.2.</strong> Return Position Impl Trait In Trait</a></li><li class="chapter-item "><a href="../borrow_check/opaque-types-region-inference-restrictions.html"><strong aria-hidden="true">50.3.3.</strong> Region inference restrictions</a></li></ol></li></ol></li><li class="chapter-item "><a href="../effects.html"><strong aria-hidden="true">51.</strong> Effect checking</a></li><li class="chapter-item "><a href="../pat-exhaustive-checking.html"><strong aria-hidden="true">52.</strong> Pattern and Exhaustiveness Checking</a></li><li class="chapter-item "><a href="../unsafety-checking.html"><strong aria-hidden="true">53.</strong> Unsafety Checking</a></li><li class="chapter-item "><a href="../mir/dataflow.html"><strong aria-hidden="true">54.</strong> MIR dataflow</a></li><li class="chapter-item "><a href="../mir/drop-elaboration.html"><strong aria-hidden="true">55.</strong> Drop elaboration</a></li><li class="chapter-item "><a href="../borrow_check.html"><strong aria-hidden="true">56.</strong> The borrow checker</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../borrow_check/moves_and_initialization.html"><strong aria-hidden="true">56.1.</strong> Tracking moves and initialization</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../borrow_check/moves_and_initialization/move_paths.html"><strong aria-hidden="true">56.1.1.</strong> Move paths</a></li></ol></li><li class="chapter-item "><a href="../borrow_check/type_check.html"><strong aria-hidden="true">56.2.</strong> MIR type checker</a></li><li class="chapter-item "><a href="../borrow_check/drop_check.html"><strong aria-hidden="true">56.3.</strong> Drop check</a></li><li class="chapter-item "><a href="../borrow_check/region_inference.html"><strong aria-hidden="true">56.4.</strong> Region inference</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../borrow_check/region_inference/constraint_propagation.html"><strong aria-hidden="true">56.4.1.</strong> Constraint propagation</a></li><li class="chapter-item "><a href="../borrow_check/region_inference/lifetime_parameters.html"><strong aria-hidden="true">56.4.2.</strong> Lifetime parameters</a></li><li class="chapter-item "><a href="../borrow_check/region_inference/member_constraints.html"><strong aria-hidden="true">56.4.3.</strong> Member constraints</a></li><li class="chapter-item "><a href="../borrow_check/region_inference/placeholders_and_universes.html"><strong aria-hidden="true">56.4.4.</strong> Placeholders and universes</a></li><li class="chapter-item "><a href="../borrow_check/region_inference/closure_constraints.html"><strong aria-hidden="true">56.4.5.</strong> Closure constraints</a></li><li class="chapter-item "><a href="../borrow_check/region_inference/error_reporting.html"><strong aria-hidden="true">56.4.6.</strong> Error reporting</a></li></ol></li><li class="chapter-item "><a href="../borrow_check/two_phase_borrows.html"><strong aria-hidden="true">56.5.</strong> Two-phase-borrows</a></li></ol></li><li class="chapter-item "><a href="../diagnostics.html"><strong aria-hidden="true">57.</strong> Errors and Lints</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../diagnostics/diagnostic-structs.html"><strong aria-hidden="true">57.1.</strong> Diagnostic and subdiagnostic structs</a></li><li class="chapter-item "><a href="../diagnostics/translation.html"><strong aria-hidden="true">57.2.</strong> Translation</a></li><li class="chapter-item "><a href="../diagnostics/lintstore.html"><strong aria-hidden="true">57.3.</strong> LintStore</a></li><li class="chapter-item "><a href="../diagnostics/error-codes.html"><strong aria-hidden="true">57.4.</strong> Error codes</a></li><li class="chapter-item "><a href="../diagnostics/diagnostic-items.html"><strong aria-hidden="true">57.5.</strong> Diagnostic items</a></li><li class="chapter-item "><a href="../diagnostics/error-guaranteed.html"><strong aria-hidden="true">57.6.</strong> ErrorGuaranteed</a></li></ol></li><li class="chapter-item "><li class="part-title">MIR to Binaries</li><li class="chapter-item "><a href="../part-5-intro.html"><strong aria-hidden="true">58.</strong> Prologue</a></li><li class="chapter-item "><a href="../mir/optimizations.html"><strong aria-hidden="true">59.</strong> MIR optimizations</a></li><li class="chapter-item "><a href="../mir/debugging.html"><strong aria-hidden="true">60.</strong> Debugging</a></li><li class="chapter-item "><a href="../const-eval.html"><strong aria-hidden="true">61.</strong> Constant evaluation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../const-eval/interpret.html"><strong aria-hidden="true">61.1.</strong> Interpreter</a></li></ol></li><li class="chapter-item "><a href="../backend/monomorph.html"><strong aria-hidden="true">62.</strong> Monomorphization</a></li><li class="chapter-item "><a href="../backend/lowering-mir.html"><strong aria-hidden="true">63.</strong> Lowering MIR</a></li><li class="chapter-item "><a href="../backend/codegen.html"><strong aria-hidden="true">64.</strong> Code Generation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../backend/updating-llvm.html"><strong aria-hidden="true">64.1.</strong> Updating LLVM</a></li><li class="chapter-item "><a href="../backend/debugging.html"><strong aria-hidden="true">64.2.</strong> Debugging LLVM</a></li><li class="chapter-item "><a href="../backend/backend-agnostic.html"><strong aria-hidden="true">64.3.</strong> Backend Agnostic Codegen</a></li><li class="chapter-item "><a href="../backend/implicit-caller-location.html"><strong aria-hidden="true">64.4.</strong> Implicit Caller Location</a></li></ol></li><li class="chapter-item "><a href="../backend/libs-and-metadata.html"><strong aria-hidden="true">65.</strong> Libraries and Metadata</a></li><li class="chapter-item "><a href="../profile-guided-optimization.html"><strong aria-hidden="true">66.</strong> Profile-guided Optimization</a></li><li class="chapter-item "><a href="../llvm-coverage-instrumentation.html"><strong aria-hidden="true">67.</strong> LLVM Source-Based Code Coverage</a></li><li class="chapter-item "><a href="../sanitizers.html"><strong aria-hidden="true">68.</strong> Sanitizers Support</a></li><li class="chapter-item "><a href="../debugging-support-in-rustc.html"><strong aria-hidden="true">69.</strong> Debugging support in the Rust compiler</a></li><li class="spacer"></li><li class="chapter-item affix "><a href="../appendix/background.html">Appendix A: Background topics</a></li><li class="chapter-item affix "><a href="../appendix/glossary.html">Appendix B: Glossary</a></li><li class="chapter-item affix "><a href="../appendix/code-index.html">Appendix C: Code Index</a></li><li class="chapter-item affix "><a href="../appendix/compiler-lecture.html">Appendix D: Compiler Lecture Series</a></li><li class="chapter-item affix "><a href="../appendix/bibliography.html">Appendix E: Bibliography</a></li><li class="chapter-item affix "><a href="../appendix/humorust.html">Appendix Z: HumorRust</a></li><li class="spacer"></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Compiler Development Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide/edit/master/src/profiling/with_perf.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="profiling-with-perf"><a class="header" href="#profiling-with-perf">Profiling with perf</a></h1>
+<p>This is a guide for how to profile rustc with <a href="https://perf.wiki.kernel.org/index.php/Main_Page">perf</a>.</p>
+<h2 id="initial-steps"><a class="header" href="#initial-steps">Initial steps</a></h2>
+<ul>
+<li>Get a clean checkout of rust-lang/master, or whatever it is you want
+to profile.</li>
+<li>Set the following settings in your <code>config.toml</code>:
+<ul>
+<li><code>debuginfo-level = 1</code> - enables line debuginfo</li>
+<li><code>jemalloc = false</code> - lets you do memory use profiling with valgrind</li>
+<li>leave everything else the defaults</li>
+</ul>
+</li>
+<li>Run <code>./x build</code> to get a full build</li>
+<li>Make a rustup toolchain pointing to that result
+<ul>
+<li>see <a href="../building/how-to-build-and-run.html#toolchain">the &quot;build and run&quot; section for instructions</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="gathering-a-perf-profile"><a class="header" href="#gathering-a-perf-profile">Gathering a perf profile</a></h2>
+<p>perf is an excellent tool on linux that can be used to gather and
+analyze all kinds of information. Mostly it is used to figure out
+where a program spends its time. It can also be used for other sorts
+of events, though, like cache misses and so forth.</p>
+<h3 id="the-basics"><a class="header" href="#the-basics">The basics</a></h3>
+<p>The basic <code>perf</code> command is this:</p>
+<pre><code class="language-bash">perf record -F99 --call-graph dwarf XXX
+</code></pre>
+<p>The <code>-F99</code> tells perf to sample at 99 Hz, which avoids generating too
+much data for longer runs (why 99 Hz you ask? It is often chosen
+because it is unlikely to be in lockstep with other periodic
+activity). The <code>--call-graph dwarf</code> tells perf to get call-graph
+information from debuginfo, which is accurate. The <code>XXX</code> is the
+command you want to profile. So, for example, you might do:</p>
+<pre><code class="language-bash">perf record -F99 --call-graph dwarf cargo +&lt;toolchain&gt; rustc
+</code></pre>
+<p>to run <code>cargo</code> -- here <code>&lt;toolchain&gt;</code> should be the name of the toolchain
+you made in the beginning. But there are some things to be aware of:</p>
+<ul>
+<li>You probably don't want to profile the time spend building
+dependencies. So something like <code>cargo build; cargo clean -p $C</code> may
+be helpful (where <code>$C</code> is the crate name)
+<ul>
+<li>Though usually I just do <code>touch src/lib.rs</code> and rebuild instead. =)</li>
+</ul>
+</li>
+<li>You probably don't want incremental messing about with your
+profile. So something like <code>CARGO_INCREMENTAL=0</code> can be helpful.</li>
+</ul>
+<h3 id="gathering-a-perf-profile-from-a-perfrust-langorg-test"><a class="header" href="#gathering-a-perf-profile-from-a-perfrust-langorg-test">Gathering a perf profile from a <code>perf.rust-lang.org</code> test</a></h3>
+<p>Often we want to analyze a specific test from <code>perf.rust-lang.org</code>. To
+do that, the first step is to clone
+<a href="https://github.com/rust-lang/rustc-perf">the rustc-perf repository</a>:</p>
+<pre><code class="language-bash">git clone https://github.com/rust-lang/rustc-perf
+</code></pre>
+<h4 id="doing-it-the-easy-way"><a class="header" href="#doing-it-the-easy-way">Doing it the easy way</a></h4>
+<p>Once you've cloned the repo, you can use the <code>collector</code> executable to
+do profiling for you! You can find
+<a href="https://github.com/rust-lang/rustc-perf/blob/master/collector/README.md#profiling">instructions in the rustc-perf readme</a>.</p>
+<p>For example, to measure the clap-rs test, you might do:</p>
+<pre><code class="language-bash">./target/release/collector                                      \
+  --output-repo /path/to/place/output                           \
+  profile perf-record                                           \
+  --rustc /path/to/rustc/executable/from/your/build/directory   \
+  --cargo `which cargo`                                         \
+  --filter clap-rs                                              \
+  --builds Check                                                \
+</code></pre>
+<p>You can also use that same command to use cachegrind or other profiling tools.</p>
+<h4 id="doing-it-the-hard-way"><a class="header" href="#doing-it-the-hard-way">Doing it the hard way</a></h4>
+<p>If you prefer to run things manually, that is also possible. You first
+need to find the source for the test you want. Sources for the tests
+are found in <a href="https://github.com/rust-lang/rustc-perf/tree/master/collector/compile-benchmarks">the <code>collector/compile-benchmarks</code> directory</a>
+and <a href="https://github.com/rust-lang/rustc-perf/tree/master/collector/runtime-benchmarks">the <code>collector/runtime-benchmarks</code> directory</a>. So let's
+go into the directory of a specific test; we'll use <code>clap-rs</code> as an example:</p>
+<pre><code class="language-bash">cd collector/compile-benchmarks/clap-3.1.6
+</code></pre>
+<p>In this case, let's say we want to profile the <code>cargo check</code>
+performance. In that case, I would first run some basic commands to
+build the dependencies:</p>
+<pre><code class="language-bash"># Setup: first clean out any old results and build the dependencies:
+cargo +&lt;toolchain&gt; clean
+CARGO_INCREMENTAL=0 cargo +&lt;toolchain&gt; check
+</code></pre>
+<p>(Again, <code>&lt;toolchain&gt;</code> should be replaced with the name of the
+toolchain we made in the first step.)</p>
+<p>Next: we want record the execution time for <em>just</em> the clap-rs crate,
+running cargo check. I tend to use <code>cargo rustc</code> for this, since it
+also allows me to add explicit flags, which we'll do later on.</p>
+<pre><code class="language-bash">touch src/lib.rs
+CARGO_INCREMENTAL=0 perf record -F99 --call-graph dwarf cargo rustc --profile check --lib
+</code></pre>
+<p>Note that final command: it's a doozy! It uses the <code>cargo rustc</code>
+command, which executes rustc with (potentially) additional options;
+the <code>--profile check</code> and <code>--lib</code> options specify that we are doing a
+<code>cargo check</code> execution, and that this is a library (not a binary).</p>
+<p>At this point, we can use <code>perf</code> tooling to analyze the results. For example:</p>
+<pre><code class="language-bash">perf report
+</code></pre>
+<p>will open up an interactive TUI program. In simple cases, that can be
+helpful. For more detailed examination, the <a href="https://github.com/nikomatsakis/perf-focus"><code>perf-focus</code> tool</a>
+can be helpful; it is covered below.</p>
+<p><strong>A note of caution.</strong> Each of the rustc-perf tests is its own special
+snowflake. In particular, some of them are not libraries, in which
+case you would want to do <code>touch src/main.rs</code> and avoid passing
+<code>--lib</code>. I'm not sure how best to tell which test is which to be
+honest.</p>
+<h3 id="gathering-nll-data"><a class="header" href="#gathering-nll-data">Gathering NLL data</a></h3>
+<p>If you want to profile an NLL run, you can just pass extra options to
+the <code>cargo rustc</code> command, like so:</p>
+<pre><code class="language-bash">touch src/lib.rs
+CARGO_INCREMENTAL=0 perf record -F99 --call-graph dwarf cargo rustc --profile check --lib -- -Z borrowck=mir
+</code></pre>
+<h2 id="analyzing-a-perf-profile-with-perf-focus"><a class="header" href="#analyzing-a-perf-profile-with-perf-focus">Analyzing a perf profile with <code>perf focus</code></a></h2>
+<p>Once you've gathered a perf profile, we want to get some information
+about it. For this, I personally use <a href="https://github.com/nikomatsakis/perf-focus">perf focus</a>. It's a kind of
+simple but useful tool that lets you answer queries like:</p>
+<ul>
+<li>&quot;how much time was spent in function F&quot; (no matter where it was called from)</li>
+<li>&quot;how much time was spent in function F when it was called from G&quot;</li>
+<li>&quot;how much time was spent in function F <em>excluding</em> time spent in G&quot;</li>
+<li>&quot;what functions does F call and how much time does it spend in them&quot;</li>
+</ul>
+<p>To understand how it works, you have to know just a bit about
+perf. Basically, perf works by <em>sampling</em> your process on a regular
+basis (or whenever some event occurs). For each sample, perf gathers a
+backtrace. <code>perf focus</code> lets you write a regular expression that tests
+which functions appear in that backtrace, and then tells you which
+percentage of samples had a backtrace that met the regular
+expression. It's probably easiest to explain by walking through how I
+would analyze NLL performance.</p>
+<h3 id="installing-perf-focus"><a class="header" href="#installing-perf-focus">Installing <code>perf-focus</code></a></h3>
+<p>You can install perf-focus using <code>cargo install</code>:</p>
+<pre><code class="language-bash">cargo install perf-focus
+</code></pre>
+<h3 id="example-how-much-time-is-spent-in-mir-borrowck"><a class="header" href="#example-how-much-time-is-spent-in-mir-borrowck">Example: How much time is spent in MIR borrowck?</a></h3>
+<p>Let's say we've gathered the NLL data for a test. We'd like to know
+how much time it is spending in the MIR borrow-checker. The &quot;main&quot;
+function of the MIR borrowck is called <code>do_mir_borrowck</code>, so we can do
+this command:</p>
+<pre><code class="language-bash">$ perf focus '{do_mir_borrowck}'
+Matcher    : {do_mir_borrowck}
+Matches    : 228
+Not Matches: 542
+Percentage : 29%
+</code></pre>
+<p>The <code>'{do_mir_borrowck}'</code> argument is called the <strong>matcher</strong>. It
+specifies the test to be applied on the backtrace. In this case, the
+<code>{X}</code> indicates that there must be <em>some</em> function on the backtrace
+that meets the regular expression <code>X</code>. In this case, that regex is
+just the name of the function we want (in fact, it's a subset of the name;
+the full name includes a bunch of other stuff, like the module
+path). In this mode, perf-focus just prints out the percentage of
+samples where <code>do_mir_borrowck</code> was on the stack: in this case, 29%.</p>
+<p><strong>A note about c++filt.</strong> To get the data from <code>perf</code>, <code>perf focus</code>
+currently executes <code>perf script</code> (perhaps there is a better
+way...). I've sometimes found that <code>perf script</code> outputs C++ mangled
+names. This is annoying. You can tell by running <code>perf script | head</code> yourself — if you see names like <code>5rustc6middle</code> instead of
+<code>rustc::middle</code>, then you have the same problem. You can solve this
+by doing:</p>
+<pre><code class="language-bash">perf script | c++filt | perf focus --from-stdin ...
+</code></pre>
+<p>This will pipe the output from <code>perf script</code> through <code>c++filt</code> and
+should mostly convert those names into a more friendly format. The
+<code>--from-stdin</code> flag to <code>perf focus</code> tells it to get its data from
+stdin, rather than executing <code>perf focus</code>. We should make this more
+convenient (at worst, maybe add a <code>c++filt</code> option to <code>perf focus</code>, or
+just always use it — it's pretty harmless).</p>
+<h3 id="example-how-much-time-does-mir-borrowck-spend-solving-traits"><a class="header" href="#example-how-much-time-does-mir-borrowck-spend-solving-traits">Example: How much time does MIR borrowck spend solving traits?</a></h3>
+<p>Perhaps we'd like to know how much time MIR borrowck spends in the
+trait checker. We can ask this using a more complex regex:</p>
+<pre><code class="language-bash">$ perf focus '{do_mir_borrowck}..{^rustc::traits}'
+Matcher    : {do_mir_borrowck},..{^rustc::traits}
+Matches    : 12
+Not Matches: 1311
+Percentage : 0%
+</code></pre>
+<p>Here we used the <code>..</code> operator to ask &quot;how often do we have
+<code>do_mir_borrowck</code> on the stack and then, later, some function whose
+name begins with <code>rustc::traits</code>?&quot; (basically, code in that module). It
+turns out the answer is &quot;almost never&quot; — only 12 samples fit that
+description (if you ever see <em>no</em> samples, that often indicates your
+query is messed up).</p>
+<p>If you're curious, you can find out exactly which samples by using the
+<code>--print-match</code> option. This will print out the full backtrace for
+each sample. The <code>|</code> at the front of the line indicates the part that
+the regular expression matched.</p>
+<h3 id="example-where-does-mir-borrowck-spend-its-time"><a class="header" href="#example-where-does-mir-borrowck-spend-its-time">Example: Where does MIR borrowck spend its time?</a></h3>
+<p>Often we want to do more &quot;explorational&quot; queries. Like, we know that
+MIR borrowck is 29% of the time, but where does that time get spent?
+For that, the <code>--tree-callees</code> option is often the best tool. You
+usually also want to give <code>--tree-min-percent</code> or
+<code>--tree-max-depth</code>. The result looks like this:</p>
+<pre><code class="language-bash">$ perf focus '{do_mir_borrowck}' --tree-callees --tree-min-percent 3
+Matcher    : {do_mir_borrowck}
+Matches    : 577
+Not Matches: 746
+Percentage : 43%
+
+Tree
+| matched `{do_mir_borrowck}` (43% total, 0% self)
+: | rustc_borrowck::nll::compute_regions (20% total, 0% self)
+: : | rustc_borrowck::nll::type_check::type_check_internal (13% total, 0% self)
+: : : | core::ops::function::FnOnce::call_once (5% total, 0% self)
+: : : : | rustc_borrowck::nll::type_check::liveness::generate (5% total, 3% self)
+: : : | &lt;rustc_borrowck::nll::type_check::TypeVerifier&lt;'a, 'b, 'tcx&gt; as rustc::mir::visit::Visitor&lt;'tcx&gt;&gt;::visit_mir (3% total, 0% self)
+: | rustc::mir::visit::Visitor::visit_mir (8% total, 6% self)
+: | &lt;rustc_borrowck::MirBorrowckCtxt&lt;'cx, 'tcx&gt; as rustc_mir_dataflow::DataflowResultsConsumer&lt;'cx, 'tcx&gt;&gt;::visit_statement_entry (5% total, 0% self)
+: | rustc_mir_dataflow::do_dataflow (3% total, 0% self)
+</code></pre>
+<p>What happens with <code>--tree-callees</code> is that</p>
+<ul>
+<li>we find each sample matching the regular expression</li>
+<li>we look at the code that occurs <em>after</em> the regex match and try
+to build up a call tree</li>
+</ul>
+<p>The <code>--tree-min-percent 3</code> option says &quot;only show me things that take
+more than 3% of the time. Without this, the tree often gets really
+noisy and includes random stuff like the innards of
+malloc. <code>--tree-max-depth</code> can be useful too, it just limits how many
+levels we print.</p>
+<p>For each line, we display the percent of time in that function
+altogether (&quot;total&quot;) and the percent of time spent in <strong>just that
+function and not some callee of that function</strong> (self). Usually
+&quot;total&quot; is the more interesting number, but not always.</p>
+<h3 id="relative-percentages"><a class="header" href="#relative-percentages">Relative percentages</a></h3>
+<p>By default, all in perf-focus are relative to the <strong>total program
+execution</strong>. This is useful to help you keep perspective — often as
+we drill down to find hot spots, we can lose sight of the fact that,
+in terms of overall program execution, this &quot;hot spot&quot; is actually not
+important. It also ensures that percentages between different queries
+are easily compared against one another.</p>
+<p>That said, sometimes it's useful to get relative percentages, so <code>perf focus</code> offers a <code>--relative</code> option. In this case, the percentages are
+listed only for samples that match (vs all samples). So for example we
+could get our percentages relative to the borrowck itself
+like so:</p>
+<pre><code class="language-bash">$ perf focus '{do_mir_borrowck}' --tree-callees --relative --tree-max-depth 1 --tree-min-percent 5
+Matcher    : {do_mir_borrowck}
+Matches    : 577
+Not Matches: 746
+Percentage : 100%
+
+Tree
+| matched `{do_mir_borrowck}` (100% total, 0% self)
+: | rustc_borrowck::nll::compute_regions (47% total, 0% self) [...]
+: | rustc::mir::visit::Visitor::visit_mir (19% total, 15% self) [...]
+: | &lt;rustc_borrowck::MirBorrowckCtxt&lt;'cx, 'tcx&gt; as rustc_mir_dataflow::DataflowResultsConsumer&lt;'cx, 'tcx&gt;&gt;::visit_statement_entry (13% total, 0% self) [...]
+: | rustc_mir_dataflow::do_dataflow (8% total, 1% self) [...]
+</code></pre>
+<p>Here you see that <code>compute_regions</code> came up as &quot;47% total&quot; — that
+means that 47% of <code>do_mir_borrowck</code> is spent in that function. Before,
+we saw 20% — that's because <code>do_mir_borrowck</code> itself is only 43% of
+the total time (and <code>.47 * .43 = .20</code>).</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../profiling.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next" href="../profiling/wpa_profiling.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../profiling.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next" href="../profiling/wpa_profiling.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        <script type="text/javascript" src="../mermaid.min.js"></script>
+        <script type="text/javascript" src="../mermaid-init.js"></script>
+
+
+    </body>
+</html>

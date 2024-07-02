@@ -1,0 +1,436 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>The ty module: representing types - Rust Compiler Development Guide</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="A guide to developing the Rust compiler (rustc)">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item affix "><a href="getting-started.html">Getting Started</a></li><li class="chapter-item affix "><a href="about-this-guide.html">About this guide</a></li><li class="spacer"></li><li class="chapter-item affix "><li class="part-title">Building and debugging rustc</li><li class="chapter-item "><a href="building/how-to-build-and-run.html"><strong aria-hidden="true">1.</strong> How to build and run the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="building/quickstart.html"><strong aria-hidden="true">1.1.</strong> Quickstart</a></li><li class="chapter-item "><a href="building/prerequisites.html"><strong aria-hidden="true">1.2.</strong> Prerequisites</a></li><li class="chapter-item "><a href="building/suggested.html"><strong aria-hidden="true">1.3.</strong> Suggested Workflows</a></li><li class="chapter-item "><a href="building/build-install-distribution-artifacts.html"><strong aria-hidden="true">1.4.</strong> Distribution artifacts</a></li><li class="chapter-item "><a href="building/compiler-documenting.html"><strong aria-hidden="true">1.5.</strong> Building Documentation</a></li><li class="chapter-item "><a href="rustdoc.html"><strong aria-hidden="true">1.6.</strong> Rustdoc overview</a></li><li class="chapter-item "><a href="building/new-target.html"><strong aria-hidden="true">1.7.</strong> Adding a new target</a></li><li class="chapter-item "><a href="building/optimized-build.html"><strong aria-hidden="true">1.8.</strong> Optimized build</a></li></ol></li><li class="chapter-item "><a href="tests/intro.html"><strong aria-hidden="true">2.</strong> Testing the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="tests/running.html"><strong aria-hidden="true">2.1.</strong> Running tests</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="tests/docker.html"><strong aria-hidden="true">2.1.1.</strong> Testing with Docker</a></li><li class="chapter-item "><a href="tests/ci.html"><strong aria-hidden="true">2.1.2.</strong> Testing with CI</a></li></ol></li><li class="chapter-item "><a href="tests/adding.html"><strong aria-hidden="true">2.2.</strong> Adding new tests</a></li><li class="chapter-item "><a href="tests/compiletest.html"><strong aria-hidden="true">2.3.</strong> Compiletest</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="tests/ui.html"><strong aria-hidden="true">2.3.1.</strong> UI tests</a></li><li class="chapter-item "><a href="tests/headers.html"><strong aria-hidden="true">2.3.2.</strong> Test headers</a></li></ol></li><li class="chapter-item "><a href="tests/integration.html"><strong aria-hidden="true">2.4.</strong> Integration testing</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="tests/crater.html"><strong aria-hidden="true">2.4.1.</strong> Crater</a></li><li class="chapter-item "><a href="tests/fuchsia.html"><strong aria-hidden="true">2.4.2.</strong> Fuchsia</a></li><li class="chapter-item "><a href="tests/rust-for-linux.html"><strong aria-hidden="true">2.4.3.</strong> Rust for Linux</a></li></ol></li><li class="chapter-item "><a href="tests/perf.html"><strong aria-hidden="true">2.5.</strong> Performance testing</a></li><li class="chapter-item "><a href="tests/suggest-tests.html"><strong aria-hidden="true">2.6.</strong> Suggest tests tool</a></li></ol></li><li class="chapter-item "><a href="compiler-debugging.html"><strong aria-hidden="true">3.</strong> Debugging the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="tracing.html"><strong aria-hidden="true">3.1.</strong> Using the tracing/logging instrumentation</a></li></ol></li><li class="chapter-item "><a href="profiling.html"><strong aria-hidden="true">4.</strong> Profiling the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="profiling/with_perf.html"><strong aria-hidden="true">4.1.</strong> with the linux perf tool</a></li><li class="chapter-item "><a href="profiling/wpa_profiling.html"><strong aria-hidden="true">4.2.</strong> with Windows Performance Analyzer</a></li></ol></li><li class="chapter-item "><a href="crates-io.html"><strong aria-hidden="true">5.</strong> crates.io Dependencies</a></li><li class="chapter-item affix "><li class="part-title">Contributing to Rust</li><li class="chapter-item "><a href="contributing.html"><strong aria-hidden="true">6.</strong> Contribution Procedures</a></li><li class="chapter-item "><a href="compiler-team.html"><strong aria-hidden="true">7.</strong> About the compiler team</a></li><li class="chapter-item "><a href="git.html"><strong aria-hidden="true">8.</strong> Using Git</a></li><li class="chapter-item "><a href="rustbot.html"><strong aria-hidden="true">9.</strong> Mastering @rustbot</a></li><li class="chapter-item "><a href="walkthrough.html"><strong aria-hidden="true">10.</strong> Walkthrough: a typical contribution</a></li><li class="chapter-item "><a href="implementing_new_features.html"><strong aria-hidden="true">11.</strong> Implementing new language features</a></li><li class="chapter-item "><a href="stability.html"><strong aria-hidden="true">12.</strong> Stability attributes</a></li><li class="chapter-item "><a href="stabilization_guide.html"><strong aria-hidden="true">13.</strong> Stabilizing Features</a></li><li class="chapter-item "><a href="feature-gates.html"><strong aria-hidden="true">14.</strong> Feature Gates</a></li><li class="chapter-item "><a href="conventions.html"><strong aria-hidden="true">15.</strong> Coding conventions</a></li><li class="chapter-item "><a href="bug-fix-procedure.html"><strong aria-hidden="true">16.</strong> Procedures for Breaking Changes</a></li><li class="chapter-item "><a href="external-repos.html"><strong aria-hidden="true">17.</strong> Using external repositories</a></li><li class="chapter-item "><a href="fuzzing.html"><strong aria-hidden="true">18.</strong> Fuzzing</a></li><li class="chapter-item "><a href="notification-groups/about.html"><strong aria-hidden="true">19.</strong> Notification groups</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="notification-groups/apple.html"><strong aria-hidden="true">19.1.</strong> Apple</a></li><li class="chapter-item "><a href="notification-groups/arm.html"><strong aria-hidden="true">19.2.</strong> ARM</a></li><li class="chapter-item "><a href="notification-groups/cleanup-crew.html"><strong aria-hidden="true">19.3.</strong> Cleanup Crew</a></li><li class="chapter-item "><a href="notification-groups/llvm.html"><strong aria-hidden="true">19.4.</strong> LLVM</a></li><li class="chapter-item "><a href="notification-groups/risc-v.html"><strong aria-hidden="true">19.5.</strong> RISC-V</a></li><li class="chapter-item "><a href="notification-groups/windows.html"><strong aria-hidden="true">19.6.</strong> Windows</a></li><li class="chapter-item "><a href="notification-groups/rust-for-linux.html"><strong aria-hidden="true">19.7.</strong> Rust for Linux</a></li></ol></li><li class="chapter-item "><a href="licenses.html"><strong aria-hidden="true">20.</strong> Licenses</a></li><li class="chapter-item "><a href="guides/editions.html"><strong aria-hidden="true">21.</strong> Editions</a></li><li class="chapter-item affix "><li class="part-title">Bootstrapping</li><li class="chapter-item "><a href="building/bootstrapping/intro.html"><strong aria-hidden="true">22.</strong> Prologue</a></li><li class="chapter-item "><a href="building/bootstrapping/what-bootstrapping-does.html"><strong aria-hidden="true">23.</strong> What Bootstrapping does</a></li><li class="chapter-item "><a href="building/bootstrapping/how-bootstrap-does-it.html"><strong aria-hidden="true">24.</strong> How Bootstrap does it</a></li><li class="chapter-item affix "><li class="part-title">High-level Compiler Architecture</li><li class="chapter-item "><a href="part-2-intro.html"><strong aria-hidden="true">25.</strong> Prologue</a></li><li class="chapter-item "><a href="overview.html"><strong aria-hidden="true">26.</strong> Overview of the compiler</a></li><li class="chapter-item "><a href="compiler-src.html"><strong aria-hidden="true">27.</strong> The compiler source code</a></li><li class="chapter-item "><a href="query.html"><strong aria-hidden="true">28.</strong> Queries: demand-driven compilation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="queries/query-evaluation-model-in-detail.html"><strong aria-hidden="true">28.1.</strong> The Query Evaluation Model in Detail</a></li><li class="chapter-item "><a href="queries/incremental-compilation.html"><strong aria-hidden="true">28.2.</strong> Incremental compilation</a></li><li class="chapter-item "><a href="queries/incremental-compilation-in-detail.html"><strong aria-hidden="true">28.3.</strong> Incremental compilation In Detail</a></li><li class="chapter-item "><a href="incrcomp-debugging.html"><strong aria-hidden="true">28.4.</strong> Debugging and Testing</a></li><li class="chapter-item "><a href="salsa.html"><strong aria-hidden="true">28.5.</strong> Salsa</a></li></ol></li><li class="chapter-item "><a href="memory.html"><strong aria-hidden="true">29.</strong> Memory Management in Rustc</a></li><li class="chapter-item "><a href="serialization.html"><strong aria-hidden="true">30.</strong> Serialization in Rustc</a></li><li class="chapter-item "><a href="parallel-rustc.html"><strong aria-hidden="true">31.</strong> Parallel Compilation</a></li><li class="chapter-item "><a href="rustdoc-internals.html"><strong aria-hidden="true">32.</strong> Rustdoc internals</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="rustdoc-internals/search.html"><strong aria-hidden="true">32.1.</strong> Search</a></li></ol></li><li class="chapter-item "><li class="part-title">Source Code Representation</li><li class="chapter-item "><a href="part-3-intro.html"><strong aria-hidden="true">33.</strong> Prologue</a></li><li class="chapter-item "><a href="cli.html"><strong aria-hidden="true">34.</strong> Command-line arguments</a></li><li class="chapter-item "><a href="rustc-driver.html"><strong aria-hidden="true">35.</strong> rustc_driver and rustc_interface</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="rustc-driver-interacting-with-the-ast.html"><strong aria-hidden="true">35.1.</strong> Example: Type checking</a></li><li class="chapter-item "><a href="rustc-driver-getting-diagnostics.html"><strong aria-hidden="true">35.2.</strong> Example: Getting diagnostics</a></li></ol></li><li class="chapter-item "><a href="syntax-intro.html"><strong aria-hidden="true">36.</strong> Syntax and the AST</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="the-parser.html"><strong aria-hidden="true">36.1.</strong> Lexing and Parsing</a></li><li class="chapter-item "><a href="macro-expansion.html"><strong aria-hidden="true">36.2.</strong> Macro expansion</a></li><li class="chapter-item "><a href="name-resolution.html"><strong aria-hidden="true">36.3.</strong> Name resolution</a></li><li class="chapter-item "><a href="attributes.html"><strong aria-hidden="true">36.4.</strong> Attributes</a></li><li class="chapter-item "><a href="test-implementation.html"><strong aria-hidden="true">36.5.</strong> #[test] Implementation</a></li><li class="chapter-item "><a href="panic-implementation.html"><strong aria-hidden="true">36.6.</strong> Panic Implementation</a></li><li class="chapter-item "><a href="ast-validation.html"><strong aria-hidden="true">36.7.</strong> AST Validation</a></li><li class="chapter-item "><a href="feature-gate-ck.html"><strong aria-hidden="true">36.8.</strong> Feature Gate Checking</a></li><li class="chapter-item "><a href="lang-items.html"><strong aria-hidden="true">36.9.</strong> Lang Items</a></li></ol></li><li class="chapter-item "><a href="hir.html"><strong aria-hidden="true">37.</strong> The HIR (High-level IR)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ast-lowering.html"><strong aria-hidden="true">37.1.</strong> Lowering AST to HIR</a></li><li class="chapter-item "><a href="hir-debugging.html"><strong aria-hidden="true">37.2.</strong> Debugging</a></li></ol></li><li class="chapter-item "><a href="thir.html"><strong aria-hidden="true">38.</strong> The THIR (Typed High-level IR)</a></li><li class="chapter-item "><a href="mir/index.html"><strong aria-hidden="true">39.</strong> The MIR (Mid-level IR)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="mir/construction.html"><strong aria-hidden="true">39.1.</strong> MIR construction</a></li><li class="chapter-item "><a href="mir/visitor.html"><strong aria-hidden="true">39.2.</strong> MIR visitor and traversal</a></li><li class="chapter-item "><a href="mir/passes.html"><strong aria-hidden="true">39.3.</strong> MIR passes: getting the MIR for a function</a></li></ol></li><li class="chapter-item "><a href="identifiers.html"><strong aria-hidden="true">40.</strong> Identifiers in the compiler</a></li><li class="chapter-item "><a href="closure.html"><strong aria-hidden="true">41.</strong> Closure expansion</a></li><li class="chapter-item "><a href="asm.html"><strong aria-hidden="true">42.</strong> Inline assembly</a></li><li class="chapter-item affix "><li class="part-title">Analysis</li><li class="chapter-item "><a href="part-4-intro.html"><strong aria-hidden="true">43.</strong> Prologue</a></li><li class="chapter-item "><a href="generic_parameters_summary.html"><strong aria-hidden="true">44.</strong> Generic parameter definitions</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="what_is_ty_generics.html"><strong aria-hidden="true">44.1.</strong> What is ty::Generics</a></li><li class="chapter-item "><a href="early-late-bound-params/early-late-bound-summary.html"><strong aria-hidden="true">44.2.</strong> Early vs Late bound parameters</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="early-late-bound-params/early-late-bound-implementation-nuances.html"><strong aria-hidden="true">44.2.1.</strong> Implementation nuances of early/late bound parameters</a></li><li class="chapter-item "><a href="early-late-bound-params/turbofishing-and-early-late-bound.html"><strong aria-hidden="true">44.2.2.</strong> Interactions with turbofishing</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="ty.html" class="active"><strong aria-hidden="true">45.</strong> The ty module: representing types</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="ty_module/generic_arguments.html"><strong aria-hidden="true">45.1.</strong> ADTs and Generic Arguments</a></li><li class="chapter-item "><a href="ty_module/param_ty_const_regions.html"><strong aria-hidden="true">45.2.</strong> Parameter types/consts/regions</a></li><li class="chapter-item "><a href="ty_module/early_binder.html"><strong aria-hidden="true">45.3.</strong> EarlyBinder and instantiating parameters</a></li><li class="chapter-item "><a href="ty_module/binders.html"><strong aria-hidden="true">45.4.</strong> Binder and Higher ranked regions</a></li><li class="chapter-item "><a href="ty_module/instantiating_binders.html"><strong aria-hidden="true">45.5.</strong> Instantiating binders</a></li><li class="chapter-item "><a href="constants.html"><strong aria-hidden="true">45.6.</strong> Constants in the type system</a></li></ol></li><li class="chapter-item "><a href="ty-fold.html"><strong aria-hidden="true">46.</strong> TypeFolder and TypeFoldable</a></li><li class="chapter-item "><a href="param_env/param_env_summary.html"><strong aria-hidden="true">47.</strong> Parameter Environments</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="param_env/param_env_what_is_it.html"><strong aria-hidden="true">47.1.</strong> What is it?</a></li><li class="chapter-item "><a href="param_env/param_env_construction_internals.html"><strong aria-hidden="true">47.2.</strong> How are ParamEnv's constructed internally</a></li><li class="chapter-item "><a href="param_env/param_env_acquisition.html"><strong aria-hidden="true">47.3.</strong> Which ParamEnv do I use?</a></li></ol></li><li class="chapter-item "><a href="type-inference.html"><strong aria-hidden="true">48.</strong> Type inference</a></li><li class="chapter-item "><a href="traits/resolution.html"><strong aria-hidden="true">49.</strong> Trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="traits/hrtb.html"><strong aria-hidden="true">49.1.</strong> Higher-ranked trait bounds</a></li><li class="chapter-item "><a href="traits/caching.html"><strong aria-hidden="true">49.2.</strong> Caching subtleties</a></li><li class="chapter-item "><a href="traits/implied-bounds.html"><strong aria-hidden="true">49.3.</strong> Implied bounds</a></li><li class="chapter-item "><a href="traits/specialization.html"><strong aria-hidden="true">49.4.</strong> Specialization</a></li><li class="chapter-item "><a href="traits/chalk.html"><strong aria-hidden="true">49.5.</strong> Chalk-based trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="traits/lowering-to-logic.html"><strong aria-hidden="true">49.5.1.</strong> Lowering to logic</a></li><li class="chapter-item "><a href="traits/goals-and-clauses.html"><strong aria-hidden="true">49.5.2.</strong> Goals and clauses</a></li><li class="chapter-item "><a href="traits/canonical-queries.html"><strong aria-hidden="true">49.5.3.</strong> Canonical queries</a></li><li class="chapter-item "><a href="traits/canonicalization.html"><strong aria-hidden="true">49.5.4.</strong> Canonicalization</a></li></ol></li><li class="chapter-item "><a href="solve/trait-solving.html"><strong aria-hidden="true">49.6.</strong> Next-gen trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="solve/invariants.html"><strong aria-hidden="true">49.6.1.</strong> Invariants of the type system</a></li><li class="chapter-item "><a href="solve/the-solver.html"><strong aria-hidden="true">49.6.2.</strong> The solver</a></li><li class="chapter-item "><a href="solve/canonicalization.html"><strong aria-hidden="true">49.6.3.</strong> Canonicalization</a></li><li class="chapter-item "><a href="solve/coinduction.html"><strong aria-hidden="true">49.6.4.</strong> Coinduction</a></li><li class="chapter-item "><a href="solve/caching.html"><strong aria-hidden="true">49.6.5.</strong> Caching</a></li><li class="chapter-item "><a href="solve/proof-trees.html"><strong aria-hidden="true">49.6.6.</strong> Proof trees</a></li><li class="chapter-item "><a href="solve/normalization.html"><strong aria-hidden="true">49.6.7.</strong> Normalization</a></li><li class="chapter-item "><a href="solve/opaque-types.html"><strong aria-hidden="true">49.6.8.</strong> Opaque types</a></li><li class="chapter-item "><a href="solve/significant-changes.html"><strong aria-hidden="true">49.6.9.</strong> Significant changes and quirks</a></li></ol></li><li class="chapter-item "><a href="traits/unsize.html"><strong aria-hidden="true">49.7.</strong> Unsize and CoerceUnsized traits</a></li></ol></li><li class="chapter-item "><a href="type-checking.html"><strong aria-hidden="true">50.</strong> Type checking</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="method-lookup.html"><strong aria-hidden="true">50.1.</strong> Method Lookup</a></li><li class="chapter-item "><a href="variance.html"><strong aria-hidden="true">50.2.</strong> Variance</a></li><li class="chapter-item "><a href="opaque-types-type-alias-impl-trait.html"><strong aria-hidden="true">50.3.</strong> Opaque Types</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="opaque-types-impl-trait-inference.html"><strong aria-hidden="true">50.3.1.</strong> Inference details</a></li><li class="chapter-item "><a href="return-position-impl-trait-in-trait.html"><strong aria-hidden="true">50.3.2.</strong> Return Position Impl Trait In Trait</a></li><li class="chapter-item "><a href="borrow_check/opaque-types-region-inference-restrictions.html"><strong aria-hidden="true">50.3.3.</strong> Region inference restrictions</a></li></ol></li></ol></li><li class="chapter-item "><a href="effects.html"><strong aria-hidden="true">51.</strong> Effect checking</a></li><li class="chapter-item "><a href="pat-exhaustive-checking.html"><strong aria-hidden="true">52.</strong> Pattern and Exhaustiveness Checking</a></li><li class="chapter-item "><a href="unsafety-checking.html"><strong aria-hidden="true">53.</strong> Unsafety Checking</a></li><li class="chapter-item "><a href="mir/dataflow.html"><strong aria-hidden="true">54.</strong> MIR dataflow</a></li><li class="chapter-item "><a href="mir/drop-elaboration.html"><strong aria-hidden="true">55.</strong> Drop elaboration</a></li><li class="chapter-item "><a href="borrow_check.html"><strong aria-hidden="true">56.</strong> The borrow checker</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="borrow_check/moves_and_initialization.html"><strong aria-hidden="true">56.1.</strong> Tracking moves and initialization</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="borrow_check/moves_and_initialization/move_paths.html"><strong aria-hidden="true">56.1.1.</strong> Move paths</a></li></ol></li><li class="chapter-item "><a href="borrow_check/type_check.html"><strong aria-hidden="true">56.2.</strong> MIR type checker</a></li><li class="chapter-item "><a href="borrow_check/drop_check.html"><strong aria-hidden="true">56.3.</strong> Drop check</a></li><li class="chapter-item "><a href="borrow_check/region_inference.html"><strong aria-hidden="true">56.4.</strong> Region inference</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="borrow_check/region_inference/constraint_propagation.html"><strong aria-hidden="true">56.4.1.</strong> Constraint propagation</a></li><li class="chapter-item "><a href="borrow_check/region_inference/lifetime_parameters.html"><strong aria-hidden="true">56.4.2.</strong> Lifetime parameters</a></li><li class="chapter-item "><a href="borrow_check/region_inference/member_constraints.html"><strong aria-hidden="true">56.4.3.</strong> Member constraints</a></li><li class="chapter-item "><a href="borrow_check/region_inference/placeholders_and_universes.html"><strong aria-hidden="true">56.4.4.</strong> Placeholders and universes</a></li><li class="chapter-item "><a href="borrow_check/region_inference/closure_constraints.html"><strong aria-hidden="true">56.4.5.</strong> Closure constraints</a></li><li class="chapter-item "><a href="borrow_check/region_inference/error_reporting.html"><strong aria-hidden="true">56.4.6.</strong> Error reporting</a></li></ol></li><li class="chapter-item "><a href="borrow_check/two_phase_borrows.html"><strong aria-hidden="true">56.5.</strong> Two-phase-borrows</a></li></ol></li><li class="chapter-item "><a href="diagnostics.html"><strong aria-hidden="true">57.</strong> Errors and Lints</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="diagnostics/diagnostic-structs.html"><strong aria-hidden="true">57.1.</strong> Diagnostic and subdiagnostic structs</a></li><li class="chapter-item "><a href="diagnostics/translation.html"><strong aria-hidden="true">57.2.</strong> Translation</a></li><li class="chapter-item "><a href="diagnostics/lintstore.html"><strong aria-hidden="true">57.3.</strong> LintStore</a></li><li class="chapter-item "><a href="diagnostics/error-codes.html"><strong aria-hidden="true">57.4.</strong> Error codes</a></li><li class="chapter-item "><a href="diagnostics/diagnostic-items.html"><strong aria-hidden="true">57.5.</strong> Diagnostic items</a></li><li class="chapter-item "><a href="diagnostics/error-guaranteed.html"><strong aria-hidden="true">57.6.</strong> ErrorGuaranteed</a></li></ol></li><li class="chapter-item "><li class="part-title">MIR to Binaries</li><li class="chapter-item "><a href="part-5-intro.html"><strong aria-hidden="true">58.</strong> Prologue</a></li><li class="chapter-item "><a href="mir/optimizations.html"><strong aria-hidden="true">59.</strong> MIR optimizations</a></li><li class="chapter-item "><a href="mir/debugging.html"><strong aria-hidden="true">60.</strong> Debugging</a></li><li class="chapter-item "><a href="const-eval.html"><strong aria-hidden="true">61.</strong> Constant evaluation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="const-eval/interpret.html"><strong aria-hidden="true">61.1.</strong> Interpreter</a></li></ol></li><li class="chapter-item "><a href="backend/monomorph.html"><strong aria-hidden="true">62.</strong> Monomorphization</a></li><li class="chapter-item "><a href="backend/lowering-mir.html"><strong aria-hidden="true">63.</strong> Lowering MIR</a></li><li class="chapter-item "><a href="backend/codegen.html"><strong aria-hidden="true">64.</strong> Code Generation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="backend/updating-llvm.html"><strong aria-hidden="true">64.1.</strong> Updating LLVM</a></li><li class="chapter-item "><a href="backend/debugging.html"><strong aria-hidden="true">64.2.</strong> Debugging LLVM</a></li><li class="chapter-item "><a href="backend/backend-agnostic.html"><strong aria-hidden="true">64.3.</strong> Backend Agnostic Codegen</a></li><li class="chapter-item "><a href="backend/implicit-caller-location.html"><strong aria-hidden="true">64.4.</strong> Implicit Caller Location</a></li></ol></li><li class="chapter-item "><a href="backend/libs-and-metadata.html"><strong aria-hidden="true">65.</strong> Libraries and Metadata</a></li><li class="chapter-item "><a href="profile-guided-optimization.html"><strong aria-hidden="true">66.</strong> Profile-guided Optimization</a></li><li class="chapter-item "><a href="llvm-coverage-instrumentation.html"><strong aria-hidden="true">67.</strong> LLVM Source-Based Code Coverage</a></li><li class="chapter-item "><a href="sanitizers.html"><strong aria-hidden="true">68.</strong> Sanitizers Support</a></li><li class="chapter-item "><a href="debugging-support-in-rustc.html"><strong aria-hidden="true">69.</strong> Debugging support in the Rust compiler</a></li><li class="spacer"></li><li class="chapter-item affix "><a href="appendix/background.html">Appendix A: Background topics</a></li><li class="chapter-item affix "><a href="appendix/glossary.html">Appendix B: Glossary</a></li><li class="chapter-item affix "><a href="appendix/code-index.html">Appendix C: Code Index</a></li><li class="chapter-item affix "><a href="appendix/compiler-lecture.html">Appendix D: Compiler Lecture Series</a></li><li class="chapter-item affix "><a href="appendix/bibliography.html">Appendix E: Bibliography</a></li><li class="chapter-item affix "><a href="appendix/humorust.html">Appendix Z: HumorRust</a></li><li class="spacer"></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Compiler Development Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide/edit/master/src/ty.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="the-ty-module-representing-types"><a class="header" href="#the-ty-module-representing-types">The <code>ty</code> module: representing types</a></h1>
+<ul>
+<li><a href="#tyty"><code>ty::Ty</code></a></li>
+<li><a href="#rustc_hirty-vs-tyty"><code>rustc_hir::Ty</code> vs <code>ty::Ty</code></a></li>
+<li><a href="#tyty-implementation"><code>ty::Ty</code> implementation</a></li>
+<li><a href="#allocating-and-working-with-types">Allocating and working with types</a></li>
+<li><a href="#comparing-types">Comparing types</a></li>
+<li><a href="#tytykind-variants"><code>ty::TyKind</code> Variants</a></li>
+<li><a href="#import-conventions">Import conventions</a></li>
+<li><a href="#type-errors">Type errors</a></li>
+</ul>
+<p>The <code>ty</code> module defines how the Rust compiler represents types internally. It also defines the
+<em>typing context</em> (<code>tcx</code> or <code>TyCtxt</code>), which is the central data structure in the compiler.</p>
+<h2 id="tyty"><a class="header" href="#tyty"><code>ty::Ty</code></a></h2>
+<p>When we talk about how rustc represents types,  we usually refer to a type called <code>Ty</code> . There are
+quite a few modules and types for <code>Ty</code> in the compiler (<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/index.html">Ty documentation</a>).</p>
+<p>The specific <code>Ty</code> we are referring to is <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.Ty.html"><code>rustc_middle::ty::Ty</code></a> (and not
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/struct.Ty.html"><code>rustc_hir::Ty</code></a>). The distinction is important, so we will discuss it first before going
+into the details of <code>ty::Ty</code>.</p>
+<h2 id="rustc_hirty-vs-tyty"><a class="header" href="#rustc_hirty-vs-tyty"><code>rustc_hir::Ty</code> vs <code>ty::Ty</code></a></h2>
+<p>The HIR in rustc can be thought of as the high-level intermediate representation. It is more or less
+the AST (see <a href="hir.html">this chapter</a>) as it represents the
+syntax that the user wrote, and is obtained after parsing and some <em>desugaring</em>. It has a
+representation of types, but in reality it reflects more of what the user wrote, that is, what they
+wrote so as to represent that type.</p>
+<p>In contrast, <code>ty::Ty</code> represents the semantics of a type, that is, the <em>meaning</em> of what the user
+wrote. For example, <code>rustc_hir::Ty</code> would record the fact that a user used the name <code>u32</code> twice
+in their program, but the <code>ty::Ty</code> would record the fact that both usages refer to the same type.</p>
+<p><strong>Example: <code>fn foo(x: u32) → u32 { x }</code></strong></p>
+<p>In this function, we see that <code>u32</code> appears twice. We know
+that that is the same type,
+i.e. the function takes an argument and returns an argument of the same type,
+but from the point of view of the HIR,
+there would be two distinct type instances because these
+are occurring in two different places in the program.
+That is, they have two different <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_span/struct.Span.html"><code>Span</code>s</a> (locations).</p>
+<p><strong>Example: <code>fn foo(x: &amp;u32) -&gt; &amp;u32</code></strong></p>
+<p>In addition, HIR might have information left out. This type
+<code>&amp;u32</code> is incomplete, since in the full Rust type there is actually a lifetime, but we didn’t need
+to write those lifetimes. There are also some elision rules that insert information. The result may
+look like  <code>fn foo&lt;'a&gt;(x: &amp;'a u32) -&gt; &amp;'a u32</code>.</p>
+<p>In the HIR level, these things are not spelled out and you can say the picture is rather incomplete.
+However, at the <code>ty::Ty</code> level, these details are added and it is complete. Moreover, we will have
+exactly one <code>ty::Ty</code> for a given type, like <code>u32</code>, and that <code>ty::Ty</code> is used for all <code>u32</code>s in the
+whole program, not a specific usage, unlike <code>rustc_hir::Ty</code>.</p>
+<p>Here is a summary:</p>
+<div class="table-wrapper"><table><thead><tr><th><a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/struct.Ty.html"><code>rustc_hir::Ty</code></a></th><th><a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.Ty.html"><code>ty::Ty</code></a></th></tr></thead><tbody>
+<tr><td>Describe the <em>syntax</em> of a type: what the user wrote (with some desugaring).</td><td>Describe the <em>semantics</em> of a type: the meaning of what the user wrote.</td></tr>
+<tr><td>Each <code>rustc_hir::Ty</code> has its own spans corresponding to the appropriate place in the program.</td><td>Doesn’t correspond to a single place in the user’s program.</td></tr>
+<tr><td><code>rustc_hir::Ty</code> has generics and lifetimes; however, some of those lifetimes are special markers like <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/enum.LifetimeName.html#variant.Implicit"><code>LifetimeName::Implicit</code></a>.</td><td><code>ty::Ty</code> has the full type, including generics and lifetimes, even if the user left them out</td></tr>
+<tr><td><code>fn foo(x: u32) → u32 { }</code> - Two <code>rustc_hir::Ty</code> representing each usage of <code>u32</code>, each has its own <code>Span</code>s, and <code>rustc_hir::Ty</code> doesn’t tell us that both are the same type</td><td><code>fn foo(x: u32) → u32 { }</code> - One <code>ty::Ty</code> for all instances of <code>u32</code> throughout the program, and <code>ty::Ty</code> tells us that both usages of <code>u32</code> mean the same type.</td></tr>
+<tr><td><code>fn foo(x: &amp;u32) -&gt; &amp;u32)</code> - Two <code>rustc_hir::Ty</code> again. Lifetimes for the references show up in the <code>rustc_hir::Ty</code>s using a special marker, <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/enum.LifetimeName.html#variant.Implicit"><code>LifetimeName::Implicit</code></a>.</td><td><code>fn foo(x: &amp;u32) -&gt; &amp;u32)</code>- A single <code>ty::Ty</code>. The <code>ty::Ty</code> has the hidden lifetime param.</td></tr>
+</tbody></table>
+</div>
+<p><strong>Order</strong></p>
+<p>HIR is built directly from the AST, so it happens before any <code>ty::Ty</code> is produced. After
+HIR is built, some basic type inference and type checking is done. During the type inference, we
+figure out what the <code>ty::Ty</code> of everything is and we also check if the type of something is
+ambiguous. The <code>ty::Ty</code> is then used for type checking while making sure everything has the
+expected type. The <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_analysis/hir_ty_lowering/index.html"><code>hir_ty_lowering</code> module</a> is where the code responsible for
+lowering a <code>rustc_hir::Ty</code> to a <code>ty::Ty</code> is located. The main routine used is <code>lower_ty</code>.
+This occurs during the type-checking phase, but also in other parts of the compiler that want to ask
+questions like &quot;what argument types does this function expect?&quot;</p>
+<p><strong>How semantics drive the two instances of <code>Ty</code></strong></p>
+<p>You can think of HIR as the perspective
+of the type information that assumes the least. We assume two things are distinct until they are
+proven to be the same thing. In other words, we know less about them, so we should assume less about
+them.</p>
+<p>They are syntactically two strings: <code>&quot;u32&quot;</code> at line N column 20 and <code>&quot;u32&quot;</code> at line N column 35. We
+don’t know that they are the same yet. So, in the HIR we treat them as if they are different. Later,
+we determine that they semantically are the same type and that’s the <code>ty::Ty</code> we use.</p>
+<p>Consider another example: <code>fn foo&lt;T&gt;(x: T) -&gt; u32</code>. Suppose that someone invokes <code>foo::&lt;u32&gt;(0)</code>.
+This means that <code>T</code> and <code>u32</code> (in this invocation) actually turns out to be the same type, so we
+would eventually end up with the same <code>ty::Ty</code> in the end, but we have distinct <code>rustc_hir::Ty</code>.
+(This is a bit over-simplified, though, since during type checking, we would check the function
+generically and would still have a <code>T</code> distinct from <code>u32</code>. Later, when doing code generation,
+we would always be handling &quot;monomorphized&quot; (fully substituted) versions of each function,
+and hence we would know what <code>T</code> represents (and specifically that it is <code>u32</code>).)</p>
+<p>Here is one more example:</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>mod a {
+    type X = u32;
+    pub fn foo(x: X) -&gt; u32 { 22 }
+}
+mod b {
+    type X = i32;
+    pub fn foo(x: X) -&gt; i32 { x }
+}
+<span class="boring">}
+</span></code></pre></pre>
+<p>Here the type <code>X</code> will vary depending on context, clearly. If you look at the <code>rustc_hir::Ty</code>,
+you will get back that <code>X</code> is an alias in both cases (though it will be mapped via name resolution
+to distinct aliases). But if you look at the <code>ty::Ty</code> signature, it will be either <code>fn(u32) -&gt; u32</code>
+or <code>fn(i32) -&gt; i32</code> (with type aliases fully expanded).</p>
+<h2 id="tyty-implementation"><a class="header" href="#tyty-implementation"><code>ty::Ty</code> implementation</a></h2>
+<p><a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.Ty.html"><code>rustc_middle::ty::Ty</code></a> is actually a wrapper around
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_type_ir/ty_kind/enum.TyKind.html"><code>Interned&lt;WithCachedTypeInfo&lt;TyKind&gt;&gt;</code></a>.
+You can ignore <code>Interned</code> in general; you will basically never access it explicitly.
+We always hide them within <code>Ty</code> and skip over it via <code>Deref</code> impls or methods.
+<code>TyKind</code> is a big enum
+with variants to represent many different Rust types
+(e.g. primitives, references, algebraic data types, generics, lifetimes, etc).
+<code>WithCachedTypeInfo</code> has a few cached values like <code>flags</code> and <code>outer_exclusive_binder</code>. They
+are convenient hacks for efficiency and summarize information about the type that we may want to
+know, but they don’t come into the picture as much here. Finally, <a href="./memory.html"><code>Interned</code></a> allows
+the <code>ty::Ty</code> to be a thin pointer-like
+type. This allows us to do cheap comparisons for equality, along with the other
+benefits of interning.</p>
+<h2 id="allocating-and-working-with-types"><a class="header" href="#allocating-and-working-with-types">Allocating and working with types</a></h2>
+<p>To allocate a new type, you can use the various <code>new_*</code> methods defined on
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.Ty.html"><code>Ty</code></a>.
+These have names
+that correspond mostly to the various kinds of types. For example:</p>
+<pre><code class="language-rust ignore">let array_ty = Ty::new_array_with_const_len(tcx, ty, count);
+</code></pre>
+<p>These methods all return a <code>Ty&lt;'tcx&gt;</code> – note that the lifetime you get back is the lifetime of the
+arena that this <code>tcx</code> has access to. Types are always canonicalized and interned (so we never
+allocate exactly the same type twice).</p>
+<p>You can also find various common types in the <code>tcx</code> itself by accessing its fields:
+<code>tcx.types.bool</code>, <code>tcx.types.char</code>, etc. (See <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/context/struct.CommonTypes.html"><code>CommonTypes</code></a> for more.)</p>
+<!-- N.B: This section is linked from the type comparison internal lint. -->
+<h2 id="comparing-types"><a class="header" href="#comparing-types">Comparing types</a></h2>
+<p>Because types are interned, it is possible to compare them for equality efficiently using <code>==</code>
+– however, this is almost never what you want to do unless you happen to be hashing and looking
+for duplicates. This is because often in Rust there are multiple ways to represent the same type,
+particularly once inference is involved.</p>
+<p>For example, the type <code>{integer}</code> (<code>ty::Infer(ty::IntVar(..))</code> an integer inference variable,
+the type of an integer literal like <code>0</code>) and <code>u8</code> (<code>ty::UInt(..)</code>) should often be treated as
+equal when testing whether they can be assigned to each other (which is a common operation in
+diagnostics code). <code>==</code> on them will return <code>false</code> though, since they are different types.</p>
+<p>The simplest way to compare two types correctly requires an inference context (<code>infcx</code>).
+If you have one, you can use <code>infcx.can_eq(param_env, ty1, ty2)</code>
+to check whether the types can be made equal.
+This is typically what you want to check during diagnostics, which is concerned with questions such
+as whether two types can be assigned to each other, not whether they're represented identically in
+the compiler's type-checking layer.</p>
+<p>When working with an inference context, you have to be careful to ensure that potential inference
+variables inside the types actually belong to that inference context. If you are in a function
+that has access to an inference context already, this should be the case. Specifically, this is the
+case during HIR type checking or MIR borrow checking.</p>
+<p>Another consideration is normalization. Two types may actually be the same, but one is behind an
+associated type. To compare them correctly, you have to normalize the types first. This is
+primarily a concern during HIR type checking and with all types from a <code>TyCtxt</code> query
+(for example from <code>tcx.type_of()</code>).</p>
+<p>When a <code>FnCtxt</code> or an <code>ObligationCtxt</code> is available during type checking, <code>.normalize(ty)</code>
+should be used on them to normalize the type. After type checking, diagnostics code can use
+<code>tcx.normalize_erasing_regions(ty)</code>.</p>
+<p>There are also cases where using <code>==</code> on <code>Ty</code> is fine. This is for example the case in late lints
+or after monomorphization, since type checking has been completed, meaning all inference variables
+are resolved and all regions have been erased. In these cases, if you know that inference variables
+or normalization won't be a concern, <code>#[allow]</code> or <code>#[expect]</code>ing the lint is recommended.</p>
+<p>When diagnostics code does not have access to an inference context, it should be threaded through
+the function calls if one is available in some place (like during type checking).</p>
+<p>If no inference context is available at all, then one can be created as described in
+<a href="./type-inference.html#creating-an-inference-context">type-inference</a>. But this is only useful when the involved types (for example, if
+they came from a query like <code>tcx.type_of()</code>) are actually substituted with fresh
+inference variables using <a href="https://doc.rust-lang.org/beta/nightly-rustc/rustc_infer/infer/struct.InferCtxt.html#method.fresh_substs_for_item"><code>fresh_args_for_item</code></a>. This can be used to answer questions
+like &quot;can <code>Vec&lt;T&gt;</code> for any <code>T</code> be unified with <code>Vec&lt;u32&gt;</code>?&quot;.</p>
+<h2 id="tytykind-variants"><a class="header" href="#tytykind-variants"><code>ty::TyKind</code> Variants</a></h2>
+<p>Note: <code>TyKind</code> is <strong>NOT</strong> the functional programming concept of <em>Kind</em>.</p>
+<p>Whenever working with a <code>Ty</code> in the compiler, it is common to match on the kind of type:</p>
+<pre><code class="language-rust ignore">fn foo(x: Ty&lt;'tcx&gt;) {
+  match x.kind {
+    ...
+  }
+}
+</code></pre>
+<p>The <code>kind</code> field is of type <code>TyKind&lt;'tcx&gt;</code>, which is an enum defining all of the different kinds of
+types in the compiler.</p>
+<blockquote>
+<p>N.B. inspecting the <code>kind</code> field on types during type inference can be risky, as there may be
+inference variables and other things to consider, or sometimes types are not yet known and will
+become known later.</p>
+</blockquote>
+<p>There are a lot of related types, and we’ll cover them in time (e.g regions/lifetimes,
+“substitutions”, etc).</p>
+<p>There are many variants on the <code>TyKind</code> enum, which you can see by looking at its
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_type_ir/ty_kind/enum.TyKind.html">documentation</a>. Here is a sampling:</p>
+<ul>
+<li><a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_type_ir/ty_kind/enum.TyKind.html#variant.Adt"><strong>Algebraic Data Types (ADTs)</strong></a> An <a href="https://en.wikipedia.org/wiki/Algebraic_data_type"><em>algebraic data type</em></a> is a  <code>struct</code>,
+<code>enum</code> or <code>union</code>.  Under the hood, <code>struct</code>, <code>enum</code> and <code>union</code> are actually implemented
+the same way: they are all <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_type_ir/ty_kind/enum.TyKind.html#variant.Adt"><code>ty::TyKind::Adt</code></a>.  It’s basically a user defined type.
+We will talk more about these later.</li>
+<li><a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_type_ir/ty_kind/enum.TyKind.html#variant.Foreign"><strong>Foreign</strong></a> Corresponds to <code>extern type T</code>.</li>
+<li><a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_type_ir/ty_kind/enum.TyKind.html#variant.Str"><strong>Str</strong></a> Is the type str. When the user writes <code>&amp;str</code>, <code>Str</code> is the how we represent the
+<code>str</code> part of that type.</li>
+<li><a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_type_ir/ty_kind/enum.TyKind.html#variant.Slice"><strong>Slice</strong></a> Corresponds to <code>[T]</code>.</li>
+<li><a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_type_ir/ty_kind/enum.TyKind.html#variant.Array"><strong>Array</strong></a> Corresponds to <code>[T; n]</code>.</li>
+<li><a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_type_ir/ty_kind/enum.TyKind.html#variant.RawPtr"><strong>RawPtr</strong></a> Corresponds to <code>*mut T</code> or <code>*const T</code>.</li>
+<li><a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_type_ir/ty_kind/enum.TyKind.html#variant.Ref"><strong>Ref</strong></a> <code>Ref</code> stands for safe references, <code>&amp;'a mut T</code> or <code>&amp;'a T</code>. <code>Ref</code> has some
+associated parts, like <code>Ty&lt;'tcx&gt;</code> which is the type that the reference references.
+<code>Region&lt;'tcx&gt;</code> is the lifetime or region of the reference and <code>Mutability</code> if the reference
+is mutable or not.</li>
+<li><a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_type_ir/ty_kind/enum.TyKind.html#variant.Param"><strong>Param</strong></a> Represents a type parameter (e.g. the <code>T</code> in <code>Vec&lt;T&gt;</code>).</li>
+<li><a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_type_ir/ty_kind/enum.TyKind.html#variant.Error"><strong>Error</strong></a> Represents a type error somewhere so that we can print better diagnostics. We
+will discuss this more later.</li>
+<li><a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_type_ir/ty_kind/enum.TyKind.html#variants"><strong>And many more</strong>...</a></li>
+</ul>
+<h2 id="import-conventions"><a class="header" href="#import-conventions">Import conventions</a></h2>
+<p>Although there is no hard and fast rule, the <code>ty</code> module tends to be used like so:</p>
+<pre><code class="language-rust ignore">use ty::{self, Ty, TyCtxt};
+</code></pre>
+<p>In particular, since they are so common, the <code>Ty</code> and <code>TyCtxt</code> types are imported directly. Other
+types are often referenced with an explicit <code>ty::</code> prefix (e.g. <code>ty::TraitRef&lt;'tcx&gt;</code>). But some
+modules choose to import a larger or smaller set of names explicitly.</p>
+<h2 id="type-errors"><a class="header" href="#type-errors">Type errors</a></h2>
+<p>There is a <code>TyKind::Error</code> that is produced when the user makes a type error. The idea is that
+we would propagate this type and suppress other errors that come up due to it so as not to overwhelm
+the user with cascading compiler error messages.</p>
+<p>There is an <strong>important invariant</strong> for <code>TyKind::Error</code>. The compiler should
+<strong>never</strong> produce <code>Error</code> unless we <strong>know</strong> that an error has already been
+reported to the user. This is usually
+because (a) you just reported it right there or (b) you are propagating an existing Error type (in
+which case the error should've been reported when that error type was produced).</p>
+<p>It's important to maintain this invariant because the whole point of the <code>Error</code> type is to suppress
+other errors -- i.e., we don't report them. If we were to produce an <code>Error</code> type without actually
+emitting an error to the user, then this could cause later errors to be suppressed, and the
+compilation might inadvertently succeed!</p>
+<p>Sometimes there is a third case. You believe that an error has been reported, but you believe it
+would've been reported earlier in the compilation, not locally. In that case, you can create a
+&quot;delayed bug&quot; with <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/struct.DiagCtxt.html#method.delayed_bug"><code>delayed_bug</code></a> or <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/struct.DiagCtxt.html#method.span_delayed_bug"><code>span_delayed_bug</code></a>. This will make a note that you expect
+compilation to yield an error -- if however compilation should succeed, then it will trigger a
+compiler bug report.</p>
+<p>For added safety, it's not actually possible to produce a <code>TyKind::Error</code> value
+outside of <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/index.html"><code>rustc_middle::ty</code></a>; there is a private member of
+<code>TyKind::Error</code> that prevents it from being constructable elsewhere. Instead,
+one should use the <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.Ty.html#method.new_error"><code>Ty::new_error</code></a> or
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.Ty.html#method.new_error_with_message"><code>Ty::new_error_with_message</code></a> methods. These methods either take an <code>ErrorGuaranteed</code>
+or call <code>span_delayed_bug</code> before returning an interned <code>Ty</code> of kind <code>Error</code>. If you
+were already planning to use <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/struct.DiagCtxt.html#method.span_delayed_bug"><code>span_delayed_bug</code></a>, then you can just pass the
+span and message to <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.Ty.html#method.new_error_with_message"><code>ty_error_with_message</code></a> instead to avoid
+a redundant delayed bug.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="early-late-bound-params/turbofishing-and-early-late-bound.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next" href="ty_module/generic_arguments.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="early-late-bound-params/turbofishing-and-early-late-bound.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next" href="ty_module/generic_arguments.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        <script type="text/javascript" src="mermaid.min.js"></script>
+        <script type="text/javascript" src="mermaid-init.js"></script>
+
+
+    </body>
+</html>

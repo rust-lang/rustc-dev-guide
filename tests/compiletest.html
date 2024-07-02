@@ -1,0 +1,798 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Compiletest - Rust Compiler Development Guide</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="A guide to developing the Rust compiler (rustc)">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item affix "><a href="../getting-started.html">Getting Started</a></li><li class="chapter-item affix "><a href="../about-this-guide.html">About this guide</a></li><li class="spacer"></li><li class="chapter-item affix "><li class="part-title">Building and debugging rustc</li><li class="chapter-item "><a href="../building/how-to-build-and-run.html"><strong aria-hidden="true">1.</strong> How to build and run the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../building/quickstart.html"><strong aria-hidden="true">1.1.</strong> Quickstart</a></li><li class="chapter-item "><a href="../building/prerequisites.html"><strong aria-hidden="true">1.2.</strong> Prerequisites</a></li><li class="chapter-item "><a href="../building/suggested.html"><strong aria-hidden="true">1.3.</strong> Suggested Workflows</a></li><li class="chapter-item "><a href="../building/build-install-distribution-artifacts.html"><strong aria-hidden="true">1.4.</strong> Distribution artifacts</a></li><li class="chapter-item "><a href="../building/compiler-documenting.html"><strong aria-hidden="true">1.5.</strong> Building Documentation</a></li><li class="chapter-item "><a href="../rustdoc.html"><strong aria-hidden="true">1.6.</strong> Rustdoc overview</a></li><li class="chapter-item "><a href="../building/new-target.html"><strong aria-hidden="true">1.7.</strong> Adding a new target</a></li><li class="chapter-item "><a href="../building/optimized-build.html"><strong aria-hidden="true">1.8.</strong> Optimized build</a></li></ol></li><li class="chapter-item expanded "><a href="../tests/intro.html"><strong aria-hidden="true">2.</strong> Testing the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../tests/running.html"><strong aria-hidden="true">2.1.</strong> Running tests</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../tests/docker.html"><strong aria-hidden="true">2.1.1.</strong> Testing with Docker</a></li><li class="chapter-item "><a href="../tests/ci.html"><strong aria-hidden="true">2.1.2.</strong> Testing with CI</a></li></ol></li><li class="chapter-item "><a href="../tests/adding.html"><strong aria-hidden="true">2.2.</strong> Adding new tests</a></li><li class="chapter-item expanded "><a href="../tests/compiletest.html" class="active"><strong aria-hidden="true">2.3.</strong> Compiletest</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../tests/ui.html"><strong aria-hidden="true">2.3.1.</strong> UI tests</a></li><li class="chapter-item "><a href="../tests/headers.html"><strong aria-hidden="true">2.3.2.</strong> Test headers</a></li></ol></li><li class="chapter-item "><a href="../tests/integration.html"><strong aria-hidden="true">2.4.</strong> Integration testing</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../tests/crater.html"><strong aria-hidden="true">2.4.1.</strong> Crater</a></li><li class="chapter-item "><a href="../tests/fuchsia.html"><strong aria-hidden="true">2.4.2.</strong> Fuchsia</a></li><li class="chapter-item "><a href="../tests/rust-for-linux.html"><strong aria-hidden="true">2.4.3.</strong> Rust for Linux</a></li></ol></li><li class="chapter-item "><a href="../tests/perf.html"><strong aria-hidden="true">2.5.</strong> Performance testing</a></li><li class="chapter-item "><a href="../tests/suggest-tests.html"><strong aria-hidden="true">2.6.</strong> Suggest tests tool</a></li></ol></li><li class="chapter-item "><a href="../compiler-debugging.html"><strong aria-hidden="true">3.</strong> Debugging the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../tracing.html"><strong aria-hidden="true">3.1.</strong> Using the tracing/logging instrumentation</a></li></ol></li><li class="chapter-item "><a href="../profiling.html"><strong aria-hidden="true">4.</strong> Profiling the compiler</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../profiling/with_perf.html"><strong aria-hidden="true">4.1.</strong> with the linux perf tool</a></li><li class="chapter-item "><a href="../profiling/wpa_profiling.html"><strong aria-hidden="true">4.2.</strong> with Windows Performance Analyzer</a></li></ol></li><li class="chapter-item "><a href="../crates-io.html"><strong aria-hidden="true">5.</strong> crates.io Dependencies</a></li><li class="chapter-item affix "><li class="part-title">Contributing to Rust</li><li class="chapter-item "><a href="../contributing.html"><strong aria-hidden="true">6.</strong> Contribution Procedures</a></li><li class="chapter-item "><a href="../compiler-team.html"><strong aria-hidden="true">7.</strong> About the compiler team</a></li><li class="chapter-item "><a href="../git.html"><strong aria-hidden="true">8.</strong> Using Git</a></li><li class="chapter-item "><a href="../rustbot.html"><strong aria-hidden="true">9.</strong> Mastering @rustbot</a></li><li class="chapter-item "><a href="../walkthrough.html"><strong aria-hidden="true">10.</strong> Walkthrough: a typical contribution</a></li><li class="chapter-item "><a href="../implementing_new_features.html"><strong aria-hidden="true">11.</strong> Implementing new language features</a></li><li class="chapter-item "><a href="../stability.html"><strong aria-hidden="true">12.</strong> Stability attributes</a></li><li class="chapter-item "><a href="../stabilization_guide.html"><strong aria-hidden="true">13.</strong> Stabilizing Features</a></li><li class="chapter-item "><a href="../feature-gates.html"><strong aria-hidden="true">14.</strong> Feature Gates</a></li><li class="chapter-item "><a href="../conventions.html"><strong aria-hidden="true">15.</strong> Coding conventions</a></li><li class="chapter-item "><a href="../bug-fix-procedure.html"><strong aria-hidden="true">16.</strong> Procedures for Breaking Changes</a></li><li class="chapter-item "><a href="../external-repos.html"><strong aria-hidden="true">17.</strong> Using external repositories</a></li><li class="chapter-item "><a href="../fuzzing.html"><strong aria-hidden="true">18.</strong> Fuzzing</a></li><li class="chapter-item "><a href="../notification-groups/about.html"><strong aria-hidden="true">19.</strong> Notification groups</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../notification-groups/apple.html"><strong aria-hidden="true">19.1.</strong> Apple</a></li><li class="chapter-item "><a href="../notification-groups/arm.html"><strong aria-hidden="true">19.2.</strong> ARM</a></li><li class="chapter-item "><a href="../notification-groups/cleanup-crew.html"><strong aria-hidden="true">19.3.</strong> Cleanup Crew</a></li><li class="chapter-item "><a href="../notification-groups/llvm.html"><strong aria-hidden="true">19.4.</strong> LLVM</a></li><li class="chapter-item "><a href="../notification-groups/risc-v.html"><strong aria-hidden="true">19.5.</strong> RISC-V</a></li><li class="chapter-item "><a href="../notification-groups/windows.html"><strong aria-hidden="true">19.6.</strong> Windows</a></li><li class="chapter-item "><a href="../notification-groups/rust-for-linux.html"><strong aria-hidden="true">19.7.</strong> Rust for Linux</a></li></ol></li><li class="chapter-item "><a href="../licenses.html"><strong aria-hidden="true">20.</strong> Licenses</a></li><li class="chapter-item "><a href="../guides/editions.html"><strong aria-hidden="true">21.</strong> Editions</a></li><li class="chapter-item affix "><li class="part-title">Bootstrapping</li><li class="chapter-item "><a href="../building/bootstrapping/intro.html"><strong aria-hidden="true">22.</strong> Prologue</a></li><li class="chapter-item "><a href="../building/bootstrapping/what-bootstrapping-does.html"><strong aria-hidden="true">23.</strong> What Bootstrapping does</a></li><li class="chapter-item "><a href="../building/bootstrapping/how-bootstrap-does-it.html"><strong aria-hidden="true">24.</strong> How Bootstrap does it</a></li><li class="chapter-item affix "><li class="part-title">High-level Compiler Architecture</li><li class="chapter-item "><a href="../part-2-intro.html"><strong aria-hidden="true">25.</strong> Prologue</a></li><li class="chapter-item "><a href="../overview.html"><strong aria-hidden="true">26.</strong> Overview of the compiler</a></li><li class="chapter-item "><a href="../compiler-src.html"><strong aria-hidden="true">27.</strong> The compiler source code</a></li><li class="chapter-item "><a href="../query.html"><strong aria-hidden="true">28.</strong> Queries: demand-driven compilation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../queries/query-evaluation-model-in-detail.html"><strong aria-hidden="true">28.1.</strong> The Query Evaluation Model in Detail</a></li><li class="chapter-item "><a href="../queries/incremental-compilation.html"><strong aria-hidden="true">28.2.</strong> Incremental compilation</a></li><li class="chapter-item "><a href="../queries/incremental-compilation-in-detail.html"><strong aria-hidden="true">28.3.</strong> Incremental compilation In Detail</a></li><li class="chapter-item "><a href="../incrcomp-debugging.html"><strong aria-hidden="true">28.4.</strong> Debugging and Testing</a></li><li class="chapter-item "><a href="../salsa.html"><strong aria-hidden="true">28.5.</strong> Salsa</a></li></ol></li><li class="chapter-item "><a href="../memory.html"><strong aria-hidden="true">29.</strong> Memory Management in Rustc</a></li><li class="chapter-item "><a href="../serialization.html"><strong aria-hidden="true">30.</strong> Serialization in Rustc</a></li><li class="chapter-item "><a href="../parallel-rustc.html"><strong aria-hidden="true">31.</strong> Parallel Compilation</a></li><li class="chapter-item "><a href="../rustdoc-internals.html"><strong aria-hidden="true">32.</strong> Rustdoc internals</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../rustdoc-internals/search.html"><strong aria-hidden="true">32.1.</strong> Search</a></li></ol></li><li class="chapter-item "><li class="part-title">Source Code Representation</li><li class="chapter-item "><a href="../part-3-intro.html"><strong aria-hidden="true">33.</strong> Prologue</a></li><li class="chapter-item "><a href="../cli.html"><strong aria-hidden="true">34.</strong> Command-line arguments</a></li><li class="chapter-item "><a href="../rustc-driver.html"><strong aria-hidden="true">35.</strong> rustc_driver and rustc_interface</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../rustc-driver-interacting-with-the-ast.html"><strong aria-hidden="true">35.1.</strong> Example: Type checking</a></li><li class="chapter-item "><a href="../rustc-driver-getting-diagnostics.html"><strong aria-hidden="true">35.2.</strong> Example: Getting diagnostics</a></li></ol></li><li class="chapter-item "><a href="../syntax-intro.html"><strong aria-hidden="true">36.</strong> Syntax and the AST</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../the-parser.html"><strong aria-hidden="true">36.1.</strong> Lexing and Parsing</a></li><li class="chapter-item "><a href="../macro-expansion.html"><strong aria-hidden="true">36.2.</strong> Macro expansion</a></li><li class="chapter-item "><a href="../name-resolution.html"><strong aria-hidden="true">36.3.</strong> Name resolution</a></li><li class="chapter-item "><a href="../attributes.html"><strong aria-hidden="true">36.4.</strong> Attributes</a></li><li class="chapter-item "><a href="../test-implementation.html"><strong aria-hidden="true">36.5.</strong> #[test] Implementation</a></li><li class="chapter-item "><a href="../panic-implementation.html"><strong aria-hidden="true">36.6.</strong> Panic Implementation</a></li><li class="chapter-item "><a href="../ast-validation.html"><strong aria-hidden="true">36.7.</strong> AST Validation</a></li><li class="chapter-item "><a href="../feature-gate-ck.html"><strong aria-hidden="true">36.8.</strong> Feature Gate Checking</a></li><li class="chapter-item "><a href="../lang-items.html"><strong aria-hidden="true">36.9.</strong> Lang Items</a></li></ol></li><li class="chapter-item "><a href="../hir.html"><strong aria-hidden="true">37.</strong> The HIR (High-level IR)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../ast-lowering.html"><strong aria-hidden="true">37.1.</strong> Lowering AST to HIR</a></li><li class="chapter-item "><a href="../hir-debugging.html"><strong aria-hidden="true">37.2.</strong> Debugging</a></li></ol></li><li class="chapter-item "><a href="../thir.html"><strong aria-hidden="true">38.</strong> The THIR (Typed High-level IR)</a></li><li class="chapter-item "><a href="../mir/index.html"><strong aria-hidden="true">39.</strong> The MIR (Mid-level IR)</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../mir/construction.html"><strong aria-hidden="true">39.1.</strong> MIR construction</a></li><li class="chapter-item "><a href="../mir/visitor.html"><strong aria-hidden="true">39.2.</strong> MIR visitor and traversal</a></li><li class="chapter-item "><a href="../mir/passes.html"><strong aria-hidden="true">39.3.</strong> MIR passes: getting the MIR for a function</a></li></ol></li><li class="chapter-item "><a href="../identifiers.html"><strong aria-hidden="true">40.</strong> Identifiers in the compiler</a></li><li class="chapter-item "><a href="../closure.html"><strong aria-hidden="true">41.</strong> Closure expansion</a></li><li class="chapter-item "><a href="../asm.html"><strong aria-hidden="true">42.</strong> Inline assembly</a></li><li class="chapter-item affix "><li class="part-title">Analysis</li><li class="chapter-item "><a href="../part-4-intro.html"><strong aria-hidden="true">43.</strong> Prologue</a></li><li class="chapter-item "><a href="../generic_parameters_summary.html"><strong aria-hidden="true">44.</strong> Generic parameter definitions</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../what_is_ty_generics.html"><strong aria-hidden="true">44.1.</strong> What is ty::Generics</a></li><li class="chapter-item "><a href="../early-late-bound-params/early-late-bound-summary.html"><strong aria-hidden="true">44.2.</strong> Early vs Late bound parameters</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../early-late-bound-params/early-late-bound-implementation-nuances.html"><strong aria-hidden="true">44.2.1.</strong> Implementation nuances of early/late bound parameters</a></li><li class="chapter-item "><a href="../early-late-bound-params/turbofishing-and-early-late-bound.html"><strong aria-hidden="true">44.2.2.</strong> Interactions with turbofishing</a></li></ol></li></ol></li><li class="chapter-item "><a href="../ty.html"><strong aria-hidden="true">45.</strong> The ty module: representing types</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../ty_module/generic_arguments.html"><strong aria-hidden="true">45.1.</strong> ADTs and Generic Arguments</a></li><li class="chapter-item "><a href="../ty_module/param_ty_const_regions.html"><strong aria-hidden="true">45.2.</strong> Parameter types/consts/regions</a></li><li class="chapter-item "><a href="../ty_module/early_binder.html"><strong aria-hidden="true">45.3.</strong> EarlyBinder and instantiating parameters</a></li><li class="chapter-item "><a href="../ty_module/binders.html"><strong aria-hidden="true">45.4.</strong> Binder and Higher ranked regions</a></li><li class="chapter-item "><a href="../ty_module/instantiating_binders.html"><strong aria-hidden="true">45.5.</strong> Instantiating binders</a></li><li class="chapter-item "><a href="../constants.html"><strong aria-hidden="true">45.6.</strong> Constants in the type system</a></li></ol></li><li class="chapter-item "><a href="../ty-fold.html"><strong aria-hidden="true">46.</strong> TypeFolder and TypeFoldable</a></li><li class="chapter-item "><a href="../param_env/param_env_summary.html"><strong aria-hidden="true">47.</strong> Parameter Environments</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../param_env/param_env_what_is_it.html"><strong aria-hidden="true">47.1.</strong> What is it?</a></li><li class="chapter-item "><a href="../param_env/param_env_construction_internals.html"><strong aria-hidden="true">47.2.</strong> How are ParamEnv's constructed internally</a></li><li class="chapter-item "><a href="../param_env/param_env_acquisition.html"><strong aria-hidden="true">47.3.</strong> Which ParamEnv do I use?</a></li></ol></li><li class="chapter-item "><a href="../type-inference.html"><strong aria-hidden="true">48.</strong> Type inference</a></li><li class="chapter-item "><a href="../traits/resolution.html"><strong aria-hidden="true">49.</strong> Trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../traits/hrtb.html"><strong aria-hidden="true">49.1.</strong> Higher-ranked trait bounds</a></li><li class="chapter-item "><a href="../traits/caching.html"><strong aria-hidden="true">49.2.</strong> Caching subtleties</a></li><li class="chapter-item "><a href="../traits/implied-bounds.html"><strong aria-hidden="true">49.3.</strong> Implied bounds</a></li><li class="chapter-item "><a href="../traits/specialization.html"><strong aria-hidden="true">49.4.</strong> Specialization</a></li><li class="chapter-item "><a href="../traits/chalk.html"><strong aria-hidden="true">49.5.</strong> Chalk-based trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../traits/lowering-to-logic.html"><strong aria-hidden="true">49.5.1.</strong> Lowering to logic</a></li><li class="chapter-item "><a href="../traits/goals-and-clauses.html"><strong aria-hidden="true">49.5.2.</strong> Goals and clauses</a></li><li class="chapter-item "><a href="../traits/canonical-queries.html"><strong aria-hidden="true">49.5.3.</strong> Canonical queries</a></li><li class="chapter-item "><a href="../traits/canonicalization.html"><strong aria-hidden="true">49.5.4.</strong> Canonicalization</a></li></ol></li><li class="chapter-item "><a href="../solve/trait-solving.html"><strong aria-hidden="true">49.6.</strong> Next-gen trait solving</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../solve/invariants.html"><strong aria-hidden="true">49.6.1.</strong> Invariants of the type system</a></li><li class="chapter-item "><a href="../solve/the-solver.html"><strong aria-hidden="true">49.6.2.</strong> The solver</a></li><li class="chapter-item "><a href="../solve/canonicalization.html"><strong aria-hidden="true">49.6.3.</strong> Canonicalization</a></li><li class="chapter-item "><a href="../solve/coinduction.html"><strong aria-hidden="true">49.6.4.</strong> Coinduction</a></li><li class="chapter-item "><a href="../solve/caching.html"><strong aria-hidden="true">49.6.5.</strong> Caching</a></li><li class="chapter-item "><a href="../solve/proof-trees.html"><strong aria-hidden="true">49.6.6.</strong> Proof trees</a></li><li class="chapter-item "><a href="../solve/normalization.html"><strong aria-hidden="true">49.6.7.</strong> Normalization</a></li><li class="chapter-item "><a href="../solve/opaque-types.html"><strong aria-hidden="true">49.6.8.</strong> Opaque types</a></li><li class="chapter-item "><a href="../solve/significant-changes.html"><strong aria-hidden="true">49.6.9.</strong> Significant changes and quirks</a></li></ol></li><li class="chapter-item "><a href="../traits/unsize.html"><strong aria-hidden="true">49.7.</strong> Unsize and CoerceUnsized traits</a></li></ol></li><li class="chapter-item "><a href="../type-checking.html"><strong aria-hidden="true">50.</strong> Type checking</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../method-lookup.html"><strong aria-hidden="true">50.1.</strong> Method Lookup</a></li><li class="chapter-item "><a href="../variance.html"><strong aria-hidden="true">50.2.</strong> Variance</a></li><li class="chapter-item "><a href="../opaque-types-type-alias-impl-trait.html"><strong aria-hidden="true">50.3.</strong> Opaque Types</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../opaque-types-impl-trait-inference.html"><strong aria-hidden="true">50.3.1.</strong> Inference details</a></li><li class="chapter-item "><a href="../return-position-impl-trait-in-trait.html"><strong aria-hidden="true">50.3.2.</strong> Return Position Impl Trait In Trait</a></li><li class="chapter-item "><a href="../borrow_check/opaque-types-region-inference-restrictions.html"><strong aria-hidden="true">50.3.3.</strong> Region inference restrictions</a></li></ol></li></ol></li><li class="chapter-item "><a href="../effects.html"><strong aria-hidden="true">51.</strong> Effect checking</a></li><li class="chapter-item "><a href="../pat-exhaustive-checking.html"><strong aria-hidden="true">52.</strong> Pattern and Exhaustiveness Checking</a></li><li class="chapter-item "><a href="../unsafety-checking.html"><strong aria-hidden="true">53.</strong> Unsafety Checking</a></li><li class="chapter-item "><a href="../mir/dataflow.html"><strong aria-hidden="true">54.</strong> MIR dataflow</a></li><li class="chapter-item "><a href="../mir/drop-elaboration.html"><strong aria-hidden="true">55.</strong> Drop elaboration</a></li><li class="chapter-item "><a href="../borrow_check.html"><strong aria-hidden="true">56.</strong> The borrow checker</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../borrow_check/moves_and_initialization.html"><strong aria-hidden="true">56.1.</strong> Tracking moves and initialization</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../borrow_check/moves_and_initialization/move_paths.html"><strong aria-hidden="true">56.1.1.</strong> Move paths</a></li></ol></li><li class="chapter-item "><a href="../borrow_check/type_check.html"><strong aria-hidden="true">56.2.</strong> MIR type checker</a></li><li class="chapter-item "><a href="../borrow_check/drop_check.html"><strong aria-hidden="true">56.3.</strong> Drop check</a></li><li class="chapter-item "><a href="../borrow_check/region_inference.html"><strong aria-hidden="true">56.4.</strong> Region inference</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../borrow_check/region_inference/constraint_propagation.html"><strong aria-hidden="true">56.4.1.</strong> Constraint propagation</a></li><li class="chapter-item "><a href="../borrow_check/region_inference/lifetime_parameters.html"><strong aria-hidden="true">56.4.2.</strong> Lifetime parameters</a></li><li class="chapter-item "><a href="../borrow_check/region_inference/member_constraints.html"><strong aria-hidden="true">56.4.3.</strong> Member constraints</a></li><li class="chapter-item "><a href="../borrow_check/region_inference/placeholders_and_universes.html"><strong aria-hidden="true">56.4.4.</strong> Placeholders and universes</a></li><li class="chapter-item "><a href="../borrow_check/region_inference/closure_constraints.html"><strong aria-hidden="true">56.4.5.</strong> Closure constraints</a></li><li class="chapter-item "><a href="../borrow_check/region_inference/error_reporting.html"><strong aria-hidden="true">56.4.6.</strong> Error reporting</a></li></ol></li><li class="chapter-item "><a href="../borrow_check/two_phase_borrows.html"><strong aria-hidden="true">56.5.</strong> Two-phase-borrows</a></li></ol></li><li class="chapter-item "><a href="../diagnostics.html"><strong aria-hidden="true">57.</strong> Errors and Lints</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../diagnostics/diagnostic-structs.html"><strong aria-hidden="true">57.1.</strong> Diagnostic and subdiagnostic structs</a></li><li class="chapter-item "><a href="../diagnostics/translation.html"><strong aria-hidden="true">57.2.</strong> Translation</a></li><li class="chapter-item "><a href="../diagnostics/lintstore.html"><strong aria-hidden="true">57.3.</strong> LintStore</a></li><li class="chapter-item "><a href="../diagnostics/error-codes.html"><strong aria-hidden="true">57.4.</strong> Error codes</a></li><li class="chapter-item "><a href="../diagnostics/diagnostic-items.html"><strong aria-hidden="true">57.5.</strong> Diagnostic items</a></li><li class="chapter-item "><a href="../diagnostics/error-guaranteed.html"><strong aria-hidden="true">57.6.</strong> ErrorGuaranteed</a></li></ol></li><li class="chapter-item "><li class="part-title">MIR to Binaries</li><li class="chapter-item "><a href="../part-5-intro.html"><strong aria-hidden="true">58.</strong> Prologue</a></li><li class="chapter-item "><a href="../mir/optimizations.html"><strong aria-hidden="true">59.</strong> MIR optimizations</a></li><li class="chapter-item "><a href="../mir/debugging.html"><strong aria-hidden="true">60.</strong> Debugging</a></li><li class="chapter-item "><a href="../const-eval.html"><strong aria-hidden="true">61.</strong> Constant evaluation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../const-eval/interpret.html"><strong aria-hidden="true">61.1.</strong> Interpreter</a></li></ol></li><li class="chapter-item "><a href="../backend/monomorph.html"><strong aria-hidden="true">62.</strong> Monomorphization</a></li><li class="chapter-item "><a href="../backend/lowering-mir.html"><strong aria-hidden="true">63.</strong> Lowering MIR</a></li><li class="chapter-item "><a href="../backend/codegen.html"><strong aria-hidden="true">64.</strong> Code Generation</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../backend/updating-llvm.html"><strong aria-hidden="true">64.1.</strong> Updating LLVM</a></li><li class="chapter-item "><a href="../backend/debugging.html"><strong aria-hidden="true">64.2.</strong> Debugging LLVM</a></li><li class="chapter-item "><a href="../backend/backend-agnostic.html"><strong aria-hidden="true">64.3.</strong> Backend Agnostic Codegen</a></li><li class="chapter-item "><a href="../backend/implicit-caller-location.html"><strong aria-hidden="true">64.4.</strong> Implicit Caller Location</a></li></ol></li><li class="chapter-item "><a href="../backend/libs-and-metadata.html"><strong aria-hidden="true">65.</strong> Libraries and Metadata</a></li><li class="chapter-item "><a href="../profile-guided-optimization.html"><strong aria-hidden="true">66.</strong> Profile-guided Optimization</a></li><li class="chapter-item "><a href="../llvm-coverage-instrumentation.html"><strong aria-hidden="true">67.</strong> LLVM Source-Based Code Coverage</a></li><li class="chapter-item "><a href="../sanitizers.html"><strong aria-hidden="true">68.</strong> Sanitizers Support</a></li><li class="chapter-item "><a href="../debugging-support-in-rustc.html"><strong aria-hidden="true">69.</strong> Debugging support in the Rust compiler</a></li><li class="spacer"></li><li class="chapter-item affix "><a href="../appendix/background.html">Appendix A: Background topics</a></li><li class="chapter-item affix "><a href="../appendix/glossary.html">Appendix B: Glossary</a></li><li class="chapter-item affix "><a href="../appendix/code-index.html">Appendix C: Code Index</a></li><li class="chapter-item affix "><a href="../appendix/compiler-lecture.html">Appendix D: Compiler Lecture Series</a></li><li class="chapter-item affix "><a href="../appendix/bibliography.html">Appendix E: Bibliography</a></li><li class="chapter-item affix "><a href="../appendix/humorust.html">Appendix Z: HumorRust</a></li><li class="spacer"></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Compiler Development Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide/edit/master/src/tests/compiletest.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="compiletest"><a class="header" href="#compiletest">Compiletest</a></h1>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#test-suites">Test suites</a>
+<ul>
+<li><a href="#pretty-printer-tests">Pretty-printer tests</a></li>
+<li><a href="#incremental-tests">Incremental tests</a></li>
+<li><a href="#debuginfo-tests">Debuginfo tests</a></li>
+<li><a href="#codegen-tests">Codegen tests</a></li>
+<li><a href="#assembly-tests">Assembly tests</a></li>
+<li><a href="#codegen-units-tests">Codegen-units tests</a></li>
+<li><a href="#mir-opt-tests">Mir-opt tests</a></li>
+<li><a href="#run-make-tests"><code>run-make</code> tests</a>
+<ul>
+<li><a href="#using-rust-recipes">Using Rust recipes</a></li>
+<li><a href="#quickly-check-if-rmakers-tests-can-be-compiled">Quickly check if <code>rmake.rs</code> tests can be compiled</a></li>
+<li><a href="#using-makefiles-legacy">Using Makefiles (legacy)</a></li>
+</ul>
+</li>
+<li><a href="#valgrind-tests">Valgrind tests</a></li>
+<li><a href="#coverage-tests">Coverage tests</a></li>
+</ul>
+</li>
+<li><a href="#building-auxiliary-crates">Building auxiliary crates</a>
+<ul>
+<li><a href="#auxiliary-proc-macro">Auxiliary proc-macro</a></li>
+</ul>
+</li>
+<li><a href="#revisions">Revisions</a>
+<ul>
+<li><a href="#ignoring-unused-revision-names">Ignoring unused revision names</a></li>
+</ul>
+</li>
+<li><a href="#compare-modes">Compare modes</a></li>
+</ul>
+<h2 id="introduction"><a class="header" href="#introduction">Introduction</a></h2>
+<p><code>compiletest</code> is the main test harness of the Rust test suite.
+It allows test authors to organize large numbers of tests
+(the Rust compiler has many thousands),
+efficient test execution (parallel execution is supported),
+and allows the test author to configure behavior and expected results of both
+individual and groups of tests.</p>
+<blockquote>
+<p>NOTE:
+For macOS users, <code>SIP</code> (System Integrity Protection) <a href="https://rust-lang.zulipchat.com/#narrow/stream/182449-t-compiler.2Fhelp/topic/.E2.9C.94.20Is.20there.20any.20performance.20issue.20for.20MacOS.3F">may consistently
+check the compiled binary by sending network requests to Apple</a>,
+so you may get a huge performance degradation when running tests.</p>
+<p>You can resolve it by tweaking the following settings:
+<code>Privacy &amp; Security -&gt; Developer Tools -&gt; Add Terminal (Or VsCode, etc.)</code>.</p>
+</blockquote>
+<p><code>compiletest</code> may check test code for success, for runtime failure,
+or for compile-time failure.
+Tests are typically organized as a Rust source file with annotations in
+comments before and/or within the test code.
+These comments serve to direct <code>compiletest</code> on if or how to run the test,
+what behavior to expect, and more.
+See <a href="headers.html">header commands</a> and the test suite documentation below
+for more details on these annotations.</p>
+<p>See the <a href="adding.html">Adding new tests</a> chapter for a tutorial on creating a new
+test, and the <a href="running.html">Running tests</a> chapter on how to run the test
+suite.</p>
+<p>Compiletest itself tries to avoid running tests when the artifacts
+that are involved (mainly the compiler) haven't changed. You can use
+<code>x test --test-args --force-rerun</code> to rerun a test even when none of the
+inputs have changed.</p>
+<h2 id="test-suites"><a class="header" href="#test-suites">Test suites</a></h2>
+<p>All of the tests are in the <a href="https://github.com/rust-lang/rust/blob/master/tests"><code>tests</code></a> directory.
+The tests are organized into &quot;suites&quot;, with each suite in a separate subdirectory.
+Each test suite behaves a little differently, with different compiler behavior
+and different checks for correctness.
+For example, the <a href="https://github.com/rust-lang/rust/tree/master/tests/incremental"><code>tests/incremental</code></a> directory contains tests for
+incremental compilation.
+The various suites are defined in <a href="https://github.com/rust-lang/rust/tree/master/src/tools/compiletest/src/common.rs"><code>src/tools/compiletest/src/common.rs</code></a> in
+the <code>pub enum Mode</code> declaration.</p>
+<p>The following test suites are available, with links for more information:</p>
+<ul>
+<li><a href="ui.html"><code>ui</code></a> — tests that check the stdout/stderr from the compilation
+and/or running the resulting executable</li>
+<li><code>ui-fulldeps</code> — <code>ui</code> tests which require a linkable build of <code>rustc</code> (such
+as using <code>extern crate rustc_span;</code> or used as a plugin)</li>
+<li><a href="#pretty-printer-tests"><code>pretty</code></a> — tests for pretty printing</li>
+<li><a href="#incremental-tests"><code>incremental</code></a> — tests incremental compilation behavior</li>
+<li><a href="#debuginfo-tests"><code>debuginfo</code></a> — tests for debuginfo generation running debuggers</li>
+<li><a href="#codegen-tests"><code>codegen</code></a> — tests for code generation</li>
+<li><a href="#codegen-units-tests"><code>codegen-units</code></a> — tests for codegen unit partitioning</li>
+<li><a href="#assembly-tests"><code>assembly</code></a> — verifies assembly output</li>
+<li><a href="#mir-opt-tests"><code>mir-opt</code></a> — tests for MIR generation</li>
+<li><a href="#run-make-tests"><code>run-make</code></a> — general purpose tests using Rust programs (or
+Makefiles (legacy))</li>
+<li><code>run-make-fulldeps</code> — <code>run-make</code> tests which require a linkable build of <code>rustc</code>,
+or the rust demangler</li>
+<li><a href="#valgrind-tests"><code>run-pass-valgrind</code></a> — tests run with Valgrind</li>
+<li><a href="#coverage-tests"><code>coverage</code></a> - tests for coverage instrumentation</li>
+<li><a href="#coverage-tests"><code>coverage-run-rustdoc</code></a> - coverage tests that also run
+instrumented doctests</li>
+<li><a href="../rustdoc.html#tests">Rustdoc tests</a>:
+<ul>
+<li><code>rustdoc</code> — tests for rustdoc, making sure that the generated files
+contain the expected documentation.</li>
+<li><code>rustdoc-gui</code> — tests for rustdoc's GUI using a web browser.</li>
+<li><code>rustdoc-js</code> — tests to ensure the rustdoc search is working as expected.</li>
+<li><code>rustdoc-js-std</code> — tests to ensure the rustdoc search is working as expected
+(run specifically on the std docs).</li>
+<li><code>rustdoc-json</code> — tests on the JSON output of rustdoc.</li>
+<li><code>rustdoc-ui</code> — tests on the terminal output of rustdoc.</li>
+</ul>
+</li>
+</ul>
+<h3 id="pretty-printer-tests"><a class="header" href="#pretty-printer-tests">Pretty-printer tests</a></h3>
+<p>The tests in <a href="https://github.com/rust-lang/rust/tree/master/tests/pretty"><code>tests/pretty</code></a> exercise the &quot;pretty-printing&quot; functionality of <code>rustc</code>.
+The <code>-Z unpretty</code> CLI option for <code>rustc</code> causes it to translate the input source
+into various different formats, such as the Rust source after macro expansion.</p>
+<p>The pretty-printer tests have several <a href="headers.html">header commands</a> described below.
+These commands can significantly change the behavior of the test, but the
+default behavior without any commands is to:</p>
+<ol>
+<li>Run <code>rustc -Zunpretty=normal</code> on the source file</li>
+<li>Run <code>rustc -Zunpretty=normal</code> on the output of the previous step</li>
+<li>The output of the previous two steps should be the same.</li>
+<li>Run <code>rustc -Zno-codegen</code> on the output to make sure that it can type check
+(this is similar to running <code>cargo check</code>)</li>
+</ol>
+<p>If any of the commands above fail, then the test fails.</p>
+<p>The header commands for pretty-printing tests are:</p>
+<ul>
+<li>
+<p><code>pretty-mode</code> specifies the mode pretty-print tests should run in
+(that is, the argument to <code>-Zunpretty</code>).
+The default is <code>normal</code> if not specified.</p>
+</li>
+<li>
+<p><code>pretty-compare-only</code> causes a pretty test to only compare the pretty-printed output
+(stopping after step 3 from above).
+It will not try to compile the expanded output to type check it.
+This is needed for a pretty-mode that does not expand to valid
+Rust, or for other situations where the expanded output cannot be compiled.</p>
+</li>
+<li>
+<p><code>pretty-expanded</code> allows a pretty test to also check that the expanded
+output can be type checked.
+That is, after the steps above, it does two more steps:</p>
+<blockquote>
+<ol start="5">
+<li>Run <code>rustc -Zunpretty=expanded</code> on the original source</li>
+<li>Run <code>rustc -Zno-codegen</code> on the expanded output to make sure that it can type check</li>
+</ol>
+</blockquote>
+<p>This is needed because not all code can be compiled after being expanded.
+Pretty tests should specify this if they can.
+An example where this cannot be used is if the test includes <code>println!</code>.
+That macro expands to reference private internal functions of the standard
+library that cannot be called directly without the <code>fmt_internals</code> feature
+gate.</p>
+<p>More history about this may be found in
+<a href="https://github.com/rust-lang/rust/issues/23616#issuecomment-484999901">#23616</a>.</p>
+</li>
+<li>
+<p><code>pp-exact</code> is used to ensure a pretty-print test results in specific output.
+If specified without a value, then it means the pretty-print output should
+match the original source.
+If specified with a value, as in <code>// pp-exact:foo.pp</code>,
+it will ensure that the pretty-printed output matches the contents of the given file.
+Otherwise, if <code>pp-exact</code> is not specified, then the pretty-printed output
+will be pretty-printed one more time, and the output of the two
+pretty-printing rounds will be compared to ensure that the pretty-printed
+output converges to a steady state.</p>
+</li>
+</ul>
+<h3 id="incremental-tests"><a class="header" href="#incremental-tests">Incremental tests</a></h3>
+<p>The tests in <a href="https://github.com/rust-lang/rust/tree/master/tests/incremental"><code>tests/incremental</code></a> exercise incremental compilation.
+They use <a href="#revisions">revision headers</a> to tell compiletest to run the
+compiler in a series of steps.
+Compiletest starts with an empty directory with the <code>-C incremental</code> flag, and
+then runs the compiler for each revision, reusing the incremental results from
+previous steps.
+The revisions should start with:</p>
+<ul>
+<li><code>rpass</code> — the test should compile and run successfully</li>
+<li><code>rfail</code> — the test should compile successfully, but the executable should fail to run</li>
+<li><code>cfail</code> — the test should fail to compile</li>
+</ul>
+<p>To make the revisions unique, you should add a suffix like <code>rpass1</code> and <code>rpass2</code>.</p>
+<p>To simulate changing the source, compiletest also passes a <code>--cfg</code> flag with
+the current revision name.
+For example, this will run twice, simulating changing a function:</p>
+<pre><code class="language-rust ignore">//@ revisions: rpass1 rpass2
+
+#[cfg(rpass1)]
+fn foo() {
+    println!(&quot;one&quot;);
+}
+
+#[cfg(rpass2)]
+fn foo() {
+    println!(&quot;two&quot;);
+}
+
+fn main() { foo(); }
+</code></pre>
+<p><code>cfail</code> tests support the <code>forbid-output</code> header to specify that a certain
+substring must not appear anywhere in the compiler output.
+This can be useful to ensure certain errors do not appear, but this can be
+fragile as error messages change over time, and a test may no longer be
+checking the right thing but will still pass.</p>
+<p><code>cfail</code> tests support the <code>should-ice</code> header to specify that a test should
+cause an Internal Compiler Error (ICE).
+This is a highly specialized header to check that the incremental cache
+continues to work after an ICE.</p>
+<h3 id="debuginfo-tests"><a class="header" href="#debuginfo-tests">Debuginfo tests</a></h3>
+<p>The tests in <a href="https://github.com/rust-lang/rust/tree/master/tests/debuginfo"><code>tests/debuginfo</code></a> test debuginfo generation.
+They build a program, launch a debugger, and issue commands to the debugger.
+A single test can work with cdb, gdb, and lldb.</p>
+<p>Most tests should have the <code>// compile-flags: -g</code> header or something similar
+to generate the appropriate debuginfo.</p>
+<p>To set a breakpoint on a line, add a <code>// #break</code> comment on the line.</p>
+<p>The debuginfo tests consist of a series of debugger commands along with
+&quot;check&quot; lines which specify output that is expected from the debugger.</p>
+<p>The commands are comments of the form <code>// $DEBUGGER-command:$COMMAND</code> where
+<code>$DEBUGGER</code> is the debugger being used and <code>$COMMAND</code> is the debugger command
+to execute.
+The debugger values can be:</p>
+<ul>
+<li><code>cdb</code></li>
+<li><code>gdb</code></li>
+<li><code>gdbg</code> — GDB without Rust support (versions older than 7.11)</li>
+<li><code>gdbr</code> — GDB with Rust support</li>
+<li><code>lldb</code></li>
+<li><code>lldbg</code> — LLDB without Rust support</li>
+<li><code>lldbr</code> — LLDB with Rust support (this no longer exists)</li>
+</ul>
+<p>The command to check the output are of the form <code>// $DEBUGGER-check:$OUTPUT</code>
+where <code>$OUTPUT</code> is the output to expect.</p>
+<p>For example, the following will build the test, start the debugger, set a
+breakpoint, launch the program, inspect a value, and check what the debugger
+prints:</p>
+<pre><code class="language-rust ignore">//@ compile-flags: -g
+
+//@ lldb-command: run
+//@ lldb-command: print foo
+//@ lldb-check: $0 = 123
+
+fn main() {
+    let foo = 123;
+    b(); // #break
+}
+
+fn b() {}
+</code></pre>
+<p>The following <a href="headers.html">header commands</a> are available to disable a
+test based on the debugger currently being used:</p>
+<ul>
+<li><code>min-cdb-version: 10.0.18317.1001</code> — ignores the test if the version of cdb
+is below the given version</li>
+<li><code>min-gdb-version: 8.2</code> — ignores the test if the version of gdb is below the
+given version</li>
+<li><code>ignore-gdb-version: 9.2</code> — ignores the test if the version of gdb is equal
+to the given version</li>
+<li><code>ignore-gdb-version: 7.11.90 - 8.0.9</code> — ignores the test if the version of
+gdb is in a range (inclusive)</li>
+<li><code>min-lldb-version: 310</code> — ignores the test if the version of lldb is below
+the given version</li>
+<li><code>rust-lldb</code> — ignores the test if lldb is not contain the Rust plugin.
+NOTE: The &quot;Rust&quot; version of LLDB doesn't exist anymore, so this will always be ignored.
+This should probably be removed.</li>
+</ul>
+<h3 id="codegen-tests"><a class="header" href="#codegen-tests">Codegen tests</a></h3>
+<p>The tests in <a href="https://github.com/rust-lang/rust/tree/master/tests/codegen"><code>tests/codegen</code></a> test LLVM code generation.
+They compile the test with the <code>--emit=llvm-ir</code> flag to emit LLVM IR.
+They then run the LLVM <a href="https://llvm.org/docs/CommandGuide/FileCheck.html">FileCheck</a> tool.
+The test is annotated with various <code>// CHECK</code> comments to check the generated code.
+See the FileCheck documentation for a tutorial and more information.</p>
+<p>See also the <a href="#assembly-tests">assembly tests</a> for a similar set of tests.</p>
+<h3 id="assembly-tests"><a class="header" href="#assembly-tests">Assembly tests</a></h3>
+<p>The tests in <a href="https://github.com/rust-lang/rust/tree/master/tests/assembly"><code>tests/assembly</code></a> test LLVM assembly output.
+They compile the test with the <code>--emit=asm</code> flag to emit a <code>.s</code> file with the
+assembly output.
+They then run the LLVM <a href="https://llvm.org/docs/CommandGuide/FileCheck.html">FileCheck</a> tool.</p>
+<p>Each test should be annotated with the <code>// assembly-output:</code> header
+with a value of either <code>emit-asm</code> or <code>ptx-linker</code> to indicate
+the type of assembly output.</p>
+<p>Then, they should be annotated with various <code>// CHECK</code> comments to check the
+assembly output.
+See the FileCheck documentation for a tutorial and more information.</p>
+<p>See also the <a href="#codegen-tests">codegen tests</a> for a similar set of tests.</p>
+<h3 id="codegen-units-tests"><a class="header" href="#codegen-units-tests">Codegen-units tests</a></h3>
+<p>The tests in <a href="https://github.com/rust-lang/rust/tree/master/tests/codegen-units"><code>tests/codegen-units</code></a> test the
+<a href="../backend/monomorph.html">monomorphization</a> collector and CGU partitioning.</p>
+<p>These tests work by running <code>rustc</code> with a flag to print the result of the
+monomorphization collection pass, and then special annotations in the file are
+used to compare against that.</p>
+<p>Each test should be annotated with the <code>// compile-flags:-Zprint-mono-items=VAL</code>
+header with the appropriate VAL to instruct <code>rustc</code> to print the
+monomorphization information.</p>
+<p>Then, the test should be annotated with comments of the form <code>//~ MONO_ITEM name</code>
+where <code>name</code> is the monomorphized string printed by rustc like <code>fn &lt;u32 as Trait&gt;::foo</code>.</p>
+<p>To check for CGU partitioning, a comment of the form <code>//~ MONO_ITEM name @@ cgu</code>
+where <code>cgu</code> is a space separated list of the CGU names and the linkage
+information in brackets.
+For example: <code>//~ MONO_ITEM static function::FOO @@ statics[Internal]</code></p>
+<h3 id="mir-opt-tests"><a class="header" href="#mir-opt-tests">Mir-opt tests</a></h3>
+<p>The tests in <a href="https://github.com/rust-lang/rust/tree/master/tests/mir-opt"><code>tests/mir-opt</code></a> check parts of the generated MIR to make
+sure it is generated correctly and is doing the expected optimizations.
+Check out the <a href="../mir/optimizations.html">MIR Optimizations</a> chapter for more.</p>
+<p>Compiletest will build the test with several flags to dump the MIR output and
+set a baseline for optimizations:</p>
+<ul>
+<li><code>-Copt-level=1</code></li>
+<li><code>-Zdump-mir=all</code></li>
+<li><code>-Zmir-opt-level=4</code></li>
+<li><code>-Zvalidate-mir</code></li>
+<li><code>-Zdump-mir-exclude-pass-number</code></li>
+</ul>
+<p>The test should be annotated with <code>// EMIT_MIR</code> comments that specify files that
+will contain the expected MIR output.
+You can use <code>x test --bless</code> to create the initial expected files.</p>
+<p>There are several forms the <code>EMIT_MIR</code> comment can take:</p>
+<ul>
+<li>
+<p><code>// EMIT_MIR $MIR_PATH.mir</code> — This will check that the given filename
+matches the exact output from the MIR dump.
+For example, <code>my_test.main.SimplifyCfg-elaborate-drops.after.mir</code> will load
+that file from the test directory, and compare it against the dump from
+rustc.</p>
+<p>Checking the &quot;after&quot; file (which is after optimization) is useful if you are
+interested in the final state after an optimization.
+Some rare cases may want to use the &quot;before&quot; file for completeness.</p>
+</li>
+<li>
+<p><code>// EMIT_MIR $MIR_PATH.diff</code> — where <code>$MIR_PATH</code> is the filename of the MIR
+dump, such as <code>my_test_name.my_function.EarlyOtherwiseBranch</code>.
+Compiletest will diff the <code>.before.mir</code> and <code>.after.mir</code> files, and compare
+the diff output to the expected <code>.diff</code> file from the <code>EMIT_MIR</code> comment.</p>
+<p>This is useful if you want to see how an optimization changes the MIR.</p>
+</li>
+<li>
+<p><code>// EMIT_MIR $MIR_PATH.dot</code> — When using specific flags that dump additional
+MIR data (e.g. <code>-Z dump-mir-graphviz</code> to produce <code>.dot</code> files), this will
+check that the output matches the given file.</p>
+</li>
+</ul>
+<p>By default 32 bit and 64 bit targets use the same dump files, which can be
+problematic in the presence of pointers in constants or other bit width
+dependent things. In that case you can add <code>// EMIT_MIR_FOR_EACH_BIT_WIDTH</code> to
+your test, causing separate files to be generated for 32bit and 64bit systems.</p>
+<h3 id="run-make-tests"><a class="header" href="#run-make-tests"><code>run-make</code> tests</a></h3>
+<blockquote>
+<p>NOTE:
+We are planning to migrate all existing Makefile-based <code>run-make</code> tests
+to Rust recipes. You should not be adding new Makefile-based <code>run-make</code>
+tests.</p>
+</blockquote>
+<p>The tests in <a href="https://github.com/rust-lang/rust/tree/master/tests/run-make"><code>tests/run-make</code></a> are general-purpose tests using Rust <em>recipes</em>,
+which are small programs allowing arbitrary Rust code such as <code>rustc</code>
+invocations, and is supported by a <a href="https://github.com/rust-lang/rust/tree/master/src/tools/run-make-support"><code>run_make_support</code></a> library. Using Rust
+recipes provide the ultimate in flexibility.</p>
+<p><em>These should be used as a last resort</em>. If possible, you should use one of the
+other test suites.</p>
+<p>If there is some minor feature missing which you need for your test,
+consider extending compiletest to add a header command for what you need.
+However, if running a bunch of commands is really what you need,
+<code>run-make</code> is here to the rescue!</p>
+<h4 id="using-rust-recipes"><a class="header" href="#using-rust-recipes">Using Rust recipes</a></h4>
+<p>Each test should be in a separate directory with a <code>rmake.rs</code> Rust program,
+called the <em>recipe</em>. A recipe will be compiled and executed by compiletest
+with the <code>run_make_support</code> library linked in.</p>
+<p>If you need new utilities or functionality, consider extending and improving
+the <a href="https://github.com/rust-lang/rust/tree/master/src/tools/run-make-support"><code>run_make_support</code></a> library.</p>
+<p>Compiletest directives like <code>//@ only-&lt;target&gt;</code> or <code>//@ ignore-&lt;target&gt;</code> are supported in
+<code>rmake.rs</code>, like in UI tests.</p>
+<p>Two <code>run-make</code> tests are ported over to Rust recipes as examples:</p>
+<ul>
+<li><a href="https://github.com/rust-lang/rust/tree/master/tests/run-make/CURRENT_RUSTC_VERSION">https://github.com/rust-lang/rust/tree/master/tests/run-make/CURRENT_RUSTC_VERSION</a></li>
+<li><a href="https://github.com/rust-lang/rust/tree/master/tests/run-make/a-b-a-linker-guard">https://github.com/rust-lang/rust/tree/master/tests/run-make/a-b-a-linker-guard</a></li>
+</ul>
+<h4 id="quickly-check-if-rmakers-tests-can-be-compiled"><a class="header" href="#quickly-check-if-rmakers-tests-can-be-compiled">Quickly check if <code>rmake.rs</code> tests can be compiled</a></h4>
+<p>You can quickly check if <code>rmake.rs</code> tests can be compiled without having to
+build stage1 rustc by forcing <code>rmake.rs</code> to be compiled with the stage0
+compiler:</p>
+<pre><code class="language-bash">$ COMPILETEST_FORCE_STAGE0=1 x test --stage 0 tests/run-make/&lt;test-name&gt;
+</code></pre>
+<p>Of course, some tests will not successfully <em>run</em> in this way.</p>
+<h4 id="using-makefiles-legacy"><a class="header" href="#using-makefiles-legacy">Using Makefiles (legacy)</a></h4>
+<blockquote>
+<p>NOTE:
+You should avoid writing new Makefile-based <code>run-make</code> tests.</p>
+</blockquote>
+<p>Each test should be in a separate directory with a <code>Makefile</code> indicating the
+commands to run.
+There is a <a href="https://github.com/rust-lang/rust/blob/master/tests/run-make/tools.mk"><code>tools.mk</code></a> Makefile which you can include which provides a bunch of
+utilities to make it easier to run commands and compare outputs.
+Take a look at some of the other tests for some examples on how to get started.</p>
+<h3 id="valgrind-tests"><a class="header" href="#valgrind-tests">Valgrind tests</a></h3>
+<p>The tests in <a href="https://github.com/rust-lang/rust/tree/master/tests/run-pass-valgrind"><code>tests/run-pass-valgrind</code></a> are for use with <a href="https://valgrind.org/">Valgrind</a>.
+These are currently vestigial, as Valgrind is no longer used in CI.
+These may be removed in the future.</p>
+<h3 id="coverage-tests"><a class="header" href="#coverage-tests">Coverage tests</a></h3>
+<p>The tests in <a href="https://github.com/rust-lang/rust/tree/master/tests/coverage"><code>tests/coverage</code></a> are shared by multiple test modes that test
+coverage instrumentation in different ways.
+Running the <code>coverage</code> test suite will automatically run each test in all of
+the different coverage modes.</p>
+<p>Each mode also has an alias to run the coverage tests in just that mode:</p>
+<pre><code class="language-bash">./x test coverage # runs all of tests/coverage in all coverage modes
+./x test tests/coverage # same as above
+
+./x test tests/coverage/if.rs # runs the specified test in all coverage modes
+
+./x test coverage-map # runs all of tests/coverage in &quot;coverage-map&quot; mode only
+./x test coverage-run # runs all of tests/coverage in &quot;coverage-run&quot; mode only
+
+./x test coverage-map -- tests/coverage/if.rs # runs the specified test in &quot;coverage-map&quot; mode only
+</code></pre>
+<hr />
+<p>In <code>coverage-map</code> mode, these tests verify the mappings between source code
+regions and coverage counters that are emitted by LLVM.
+They compile the test with <code>--emit=llvm-ir</code>,
+then use a custom tool (<a href="https://github.com/rust-lang/rust/tree/master/src/tools/coverage-dump"><code>src/tools/coverage-dump</code></a>)
+to extract and pretty-print the coverage mappings embedded in the IR.
+These tests don't require the profiler runtime, so they run in PR CI jobs and
+are easy to run/bless locally.</p>
+<p>These coverage map tests can be sensitive to changes in MIR lowering or MIR
+optimizations, producing mappings that are different but produce identical
+coverage reports.</p>
+<p>As a rule of thumb, any PR that doesn't change coverage-specific
+code should <strong>feel free to re-bless</strong> the <code>coverage-map</code> tests as necessary,
+without worrying about the actual changes, as long as the <code>coverage-run</code> tests
+still pass.</p>
+<hr />
+<p>In <code>coverage-run</code> mode, these tests perform an end-to-end test of coverage reporting.
+They compile a test program with coverage instrumentation, run that program to
+produce raw coverage data, and then use LLVM tools to process that data into a
+human-readable code coverage report.</p>
+<p>Instrumented binaries need to be linked against the LLVM profiler runtime,
+so <code>coverage-run</code> tests are <strong>automatically skipped</strong>
+unless the profiler runtime is enabled in <code>config.toml</code>:</p>
+<pre><code class="language-toml"># config.toml
+[build]
+profiler = true
+</code></pre>
+<p>This also means that they typically don't run in PR CI jobs,
+though they do run as part of the full set of CI jobs used for merging.</p>
+<hr />
+<p>The tests in <a href="https://github.com/rust-lang/rust/tree/master/tests/coverage-run-rustdoc"><code>tests/coverage-run-rustdoc</code></a> also run instrumented doctests and
+include them in the coverage report. This avoids having to build rustdoc when
+only running the main <code>coverage</code> suite.</p>
+<h2 id="building-auxiliary-crates"><a class="header" href="#building-auxiliary-crates">Building auxiliary crates</a></h2>
+<p>It is common that some tests require additional auxiliary crates to be compiled.
+There are multiple <a href="headers.html">headers</a> to assist with that:</p>
+<ul>
+<li><code>aux-build</code></li>
+<li><code>aux-crate</code></li>
+<li><code>aux-bin</code></li>
+<li><code>aux-codegen-backend</code></li>
+</ul>
+<p><code>aux-build</code> will build a separate crate from the named source file.
+The source file should be in a directory called <code>auxiliary</code> beside the test file.</p>
+<pre><code class="language-rust ignore">//@ aux-build: my-helper.rs
+
+extern crate my_helper;
+// ... You can use my_helper.
+</code></pre>
+<p>The aux crate will be built as a dylib if possible (unless on a platform that
+does not support them, or the <code>no-prefer-dynamic</code> header is specified in the
+aux file).
+The <code>-L</code> flag is used to find the extern crates.</p>
+<p><code>aux-crate</code> is very similar to <code>aux-build</code>; however, it uses the <code>--extern</code>
+flag to link to the extern crate.
+That allows you to specify the additional syntax of the <code>--extern</code> flag, such
+as renaming a dependency.
+For example, <code>// aux-crate:foo=bar.rs</code> will compile <code>auxiliary/bar.rs</code> and
+make it available under then name <code>foo</code> within the test.
+This is similar to how Cargo does dependency renaming.</p>
+<p><code>aux-bin</code> is similar to <code>aux-build</code> but will build a binary instead of a
+library. The binary will be available in <code>auxiliary/bin</code> relative to the working
+directory of the test.</p>
+<p><code>aux-codegen-backend</code> is similar to <code>aux-build</code>, but will then pass the compiled
+dylib to <code>-Zcodegen-backend</code> when building the main file. This will only work
+for tests in <code>tests/ui-fulldeps</code>, since it requires the use of compiler crates.</p>
+<h3 id="auxiliary-proc-macro"><a class="header" href="#auxiliary-proc-macro">Auxiliary proc-macro</a></h3>
+<p>If you want a proc-macro dependency, then there currently is some ceremony
+needed.
+Place the proc-macro itself in a file like <code>auxiliary/my-proc-macro.rs</code>
+with the following structure:</p>
+<pre><code class="language-rust ignore">//@ force-host
+//@ no-prefer-dynamic
+
+#![crate_type = &quot;proc-macro&quot;]
+
+extern crate proc_macro;
+use proc_macro::TokenStream;
+
+#[proc_macro]
+pub fn foo(input: TokenStream) -&gt; TokenStream {
+    &quot;&quot;.parse().unwrap()
+}
+</code></pre>
+<p>The <code>force-host</code> is needed because proc-macros are loaded in the host
+compiler, and <code>no-prefer-dynamic</code> is needed to tell compiletest to not use
+<code>prefer-dynamic</code> which is not compatible with proc-macros.
+The <code>#![crate_type]</code> attribute is needed to specify the correct crate-type.</p>
+<p>Then in your test, you can build with <code>aux-build</code>:</p>
+<pre><code class="language-rust ignore">//@ aux-build: my-proc-macro.rs
+
+extern crate my_proc_macro;
+
+fn main() {
+    my_proc_macro::foo!();
+}
+</code></pre>
+<h2 id="revisions"><a class="header" href="#revisions">Revisions</a></h2>
+<p>Revisions allow a single test file to be used for multiple tests.
+This is done by adding a special header at the top of the file:</p>
+<pre><code class="language-rust ignore">//@ revisions: foo bar baz
+</code></pre>
+<p>This will result in the test being compiled (and tested) three times,
+once with <code>--cfg foo</code>, once with <code>--cfg bar</code>, and once with <code>--cfg baz</code>.
+You can therefore use <code>#[cfg(foo)]</code> etc within the test to tweak
+each of these results.</p>
+<p>You can also customize headers and expected error messages to a particular
+revision. To do this, add <code>[revision-name]</code> after the <code>//</code> comment, like so:</p>
+<pre><code class="language-rust ignore">// A flag to pass in only for cfg `foo`:
+//@[foo]compile-flags: -Z verbose-internals
+
+#[cfg(foo)]
+fn test_foo() {
+    let x: usize = 32_u32; //[foo]~ ERROR mismatched types
+}
+</code></pre>
+<p>Multiple revisions can be specified in a comma-separated list, such as
+<code>//[foo,bar,baz]~^</code>.</p>
+<p>In test suites that use the LLVM <a href="https://llvm.org/docs/CommandGuide/FileCheck.html">FileCheck</a> tool, the current revision name is
+also registered as an additional prefix for FileCheck directives:</p>
+<pre><code class="language-rust ignore">//@ revisions: NORMAL COVERAGE
+//@ [COVERAGE] compile-flags: -Cinstrument-coverage
+//@ [COVERAGE] needs-profiler-support
+
+// COVERAGE:   @__llvm_coverage_mapping
+// NORMAL-NOT: @__llvm_coverage_mapping
+
+// CHECK: main
+fn main() {}
+</code></pre>
+<p>Note that not all headers have meaning when customized to a revision.
+For example, the <code>ignore-test</code> header (and all &quot;ignore&quot; headers)
+currently only apply to the test as a whole, not to particular
+revisions. The only headers that are intended to really work when
+customized to a revision are error patterns and compiler flags.</p>
+<!-- date-check jul 2023 -->
+<p>Following is classes of tests that support revisions:</p>
+<ul>
+<li>UI</li>
+<li>assembly</li>
+<li>codegen</li>
+<li>coverage</li>
+<li>debuginfo</li>
+<li>rustdoc UI tests</li>
+<li>incremental (these are special in that they inherently cannot be run in parallel)</li>
+</ul>
+<h3 id="ignoring-unused-revision-names"><a class="header" href="#ignoring-unused-revision-names">Ignoring unused revision names</a></h3>
+<p>Normally, revision names mentioned in other headers and error annotations must
+correspond to an actual revision declared in a <code>revisions</code> header. This is
+enforced by an <code>./x test tidy</code> check.</p>
+<p>If a revision name needs to be temporarily removed from the revision list for
+some reason, the above check can be suppressed by adding the revision name to
+an <code>//@ unused-revision-names:</code> header instead.</p>
+<p>Specifying an unused name of <code>*</code> (i.e. <code>//@ unused-revision-names: *</code>) will
+permit any unused revision name to be mentioned.</p>
+<h2 id="compare-modes"><a class="header" href="#compare-modes">Compare modes</a></h2>
+<p>Compiletest can be run in different modes, called <em>compare modes</em>, which can
+be used to compare the behavior of all tests with different compiler flags
+enabled.
+This can help highlight what differences might appear with certain flags, and
+check for any problems that might arise.</p>
+<p>To run the tests in a different mode, you need to pass the <code>--compare-mode</code>
+CLI flag:</p>
+<pre><code class="language-bash">./x test tests/ui --compare-mode=chalk
+</code></pre>
+<p>The possible compare modes are:</p>
+<ul>
+<li><code>polonius</code> — Runs with Polonius with <code>-Zpolonius</code>.</li>
+<li><code>chalk</code> — Runs with Chalk with <code>-Zchalk</code>.</li>
+<li><code>split-dwarf</code> — Runs with unpacked split-DWARF with <code>-Csplit-debuginfo=unpacked</code>.</li>
+<li><code>split-dwarf-single</code> — Runs with packed split-DWARF with <code>-Csplit-debuginfo=packed</code>.</li>
+</ul>
+<p>See <a href="ui.html#compare-modes">UI compare modes</a> for more information about how UI
+tests support different output for different modes.</p>
+<p>In CI, compare modes are only used in one Linux builder, and only with the
+following settings:</p>
+<ul>
+<li><code>tests/debuginfo</code>: Uses <code>split-dwarf</code> mode.
+This helps ensure that none of the debuginfo tests are affected when
+enabling split-DWARF.</li>
+</ul>
+<p>Note that compare modes are separate to <a href="#revisions">revisions</a>.
+All revisions are tested when running <code>./x test tests/ui</code>, however
+compare-modes must be manually run individually via the <code>--compare-mode</code> flag.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../tests/adding.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next" href="../tests/ui.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../tests/adding.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next" href="../tests/ui.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        <script type="text/javascript" src="../mermaid.min.js"></script>
+        <script type="text/javascript" src="../mermaid-init.js"></script>
+
+
+    </body>
+</html>
