@@ -6,7 +6,7 @@ parallel implementations, such as query evaluation, type check and
 monomorphization, but the general version of the compiler does not include 
 these parallelization functions. **To try out the current parallel compiler**, 
 one can install rustc from source code with `parallel-compiler = true` in 
-the `config.toml`.
+the `bootstrap.toml`.
 
 The lack of parallelism at other stages (for example, macro expansion) also 
 represents an opportunity for improving compiler performance.

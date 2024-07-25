@@ -33,7 +33,7 @@ able to configure Rust to treat your build as the system LLVM to avoid
 redundant builds.
 
 You can tell Rust to use a pre-built version of LLVM using the `target` section
-of `config.toml`:
+of `bootstrap.toml`:
 
 ```toml
 [target.x86_64-unknown-linux-gnu]
@@ -51,8 +51,8 @@ for codegen tests. This tool is normally built with LLVM, but if you use your
 own preinstalled LLVM, you will need to provide `FileCheck` in some other way.
 On Debian-based systems, you can install the `llvm-N-tools` package (where `N`
 is the LLVM version number, e.g. `llvm-8-tools`). Alternately, you can specify
-the path to `FileCheck` with the `llvm-filecheck` config item in `config.toml`
-or you can disable codegen test with the `codegen-tests` item in `config.toml`.
+the path to `FileCheck` with the `llvm-filecheck` config item in `bootstrap.toml`
+or you can disable codegen test with the `codegen-tests` item in `bootstrap.toml`.
 
 ## Creating a target specification
 
@@ -137,7 +137,7 @@ After this, run `cargo update -p libc` to update the lockfiles.
 
 Beware that if you patch to a local `path` dependency, this will enable
 warnings for that dependency. Some dependencies are not warning-free, and due
-to the `deny-warnings` setting in `config.toml`, the build may suddenly start
+to the `deny-warnings` setting in `bootstrap.toml`, the build may suddenly start
 to fail. To work around the warnings, you may want to disable `deny-warnings`
 in the config, or modify the dependency to remove the warnings.
 

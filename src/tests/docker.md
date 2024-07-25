@@ -24,7 +24,7 @@ Alternatively, you can run individual commands to do specific tasks. For
 example, you can run `../x test tests/ui` to just run UI tests.
 Note that there is some configuration in the [`src/ci/run.sh`] script that you
 may need to recreate. Particularly, set `submodules = false` in your
-`config.toml` so that it doesn't attempt to modify the read-only directory.
+`bootstrap.toml` so that it doesn't attempt to modify the read-only directory.
 
 Some additional notes about using the Docker images:
 
