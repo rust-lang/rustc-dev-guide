@@ -54,7 +54,7 @@ If they occur later, that is a compiler bug.
 
 [`FieldDef::ty`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.FieldDef.html#method.ty
 [field_def_ty_src]: https://github.com/rust-lang/rust/blob/44d679b9021f03a79133021b94e6d23e9b55b3ab/compiler/rustc_middle/src/ty/mod.rs#L1421-L1426
-[`EarlyBinder`]: https://doc.rust-lang.org/nightly/nightly-rustc/stable_mir/ty/struct.EarlyBinder.html
+[`EarlyBinder`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/type.EarlyBinder.html
 [`EarlyBinder::instantiate`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_infer/infer/canonical/ir/struct.EarlyBinder.html#method.instantiate
 
 ---
