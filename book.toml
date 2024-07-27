@@ -42,9 +42,9 @@ exclude = [
     "marketplace\\.visualstudio\\.com",
     "objects\\.githubusercontent\\.com",
     # The bug listing URL works only if an user is logged in.
-    "github\\.com\\/issues\\?",
+    "github\\.com/issues\\?",
     # Handle: connection closed before message completed
-    "microsoft\\.com\\/en-us\\/research\\/publication\\/",
+    "microsoft\\.com/en-us/research/publication/",
 ]
 cache-timeout = 86400
 warning-policy = "error"
