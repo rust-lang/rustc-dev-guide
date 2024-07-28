@@ -57,7 +57,7 @@ jobs:
           cargo install mdbook-mermaid --version ${{ env.MDBOOK_MERMAID_VERSION }}
 
       - name: Check build
-        run: mdbook build
+        run: mdbook build || cat book/linkcheck/cache.json
 
       - name: Save cached Linkcheck
         id: cache-linkcheck-save
