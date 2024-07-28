@@ -39,24 +39,14 @@ jobs:
         id: cache-linkcheck-restore
         uses: actions/cache/restore@v4
         with:
-          path: |
-            ~/book/linkcheck
-          key: ${{ runner.os }}-${{ hashFiles('./book/linkcheck') }}
+          path: ~/book/linkcheck
+          key: linkcheck
 
       - name: Install latest nightly Rust toolchain
         if: steps.mdbook-cache.outputs.cache-hit != 'true'
         run: |
           rustup update nightly
           rustup override set nightly
-
-      - name: Save cached Linkcheck
-        id: cache-linkcheck-save
-        if: always() && steps.cache-linkcheck-restore.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
-        with:
-          path: |
-            ~/book/linkcheck
-          key: ${{ runner.os }}-${{ hashFiles('./book/linkcheck') }}
 
       - name: Install Dependencies
         if: steps.mdbook-cache.outputs.cache-hit != 'true'
@@ -68,6 +58,14 @@ jobs:
 
       - name: Check build
         run: mdbook build
+
+      - name: Save cached Linkcheck
+        id: cache-linkcheck-save
+        if: always() && steps.cache-linkcheck-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ~/book/linkcheck
+          key: linkcheck
 
       - name: Deploy to gh-pages
         if: github.event_name == 'push'
