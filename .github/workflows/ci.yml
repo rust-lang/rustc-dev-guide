@@ -41,6 +41,7 @@ jobs:
           path: |
             ~/book/linkcheck
           key: ${{ runner.os }}-${{ hashFiles('./book/linkcheck') }}
+          save-always: true
 
       - name: Install latest nightly Rust toolchain
         if: steps.mdbook-cache.outputs.cache-hit != 'true'

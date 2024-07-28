@@ -8,7 +8,7 @@ set_github_token() {
 }
 
 # https://docs.github.com/en/actions/reference/environment-variables
-if [ "$GITHUB_EVENT_NAME" = "schedule" ] ; then # running in scheduled job
+if [ yes ] ; then # running in scheduled job
   FLAGS=""
   USE_TOKEN=1
 
