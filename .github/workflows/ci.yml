@@ -39,7 +39,7 @@ jobs:
         id: cache-linkcheck-restore
         uses: actions/cache/restore@v4
         with:
-          path: ~/book/linkcheck
+          path: book/linkcheck/cache.json
           key: linkcheck
 
       - name: Install latest nightly Rust toolchain
@@ -61,10 +61,10 @@ jobs:
 
       - name: Save cached Linkcheck
         id: cache-linkcheck-save
-        if: always() && steps.cache-linkcheck-restore.outputs.cache-hit != 'true'
+        if: always()
         uses: actions/cache/save@v4
         with:
-          path: ~/book/linkcheck
+          path: book/linkcheck/cache.json
           key: linkcheck
 
       - name: Deploy to gh-pages
