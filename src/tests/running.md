@@ -160,7 +160,7 @@ all tests. Of course you can also target just specific tests with the
 
 There are a few options for running tests:
 
-* `config.toml` has the `rust.verbose-tests` option.
+* `bootstrap.toml` has the `rust.verbose-tests` option.
   If `false`, each test will print a single dot (the default).
   If `true`, the name of every test will be printed.
   This is equivalent to the `--quiet` option in the [Rust test
@@ -341,7 +341,7 @@ communicate with the server to coordinate running tests (see
 First thing to know is that it only supports linux x86_64 at the moment. We will
 extend its support later on.
 
-You need to update `codegen-backends` value in your `config.toml` file in the
+You need to update `codegen-backends` value in your `bootstrap.toml` file in the
 `[rust]` section and add "gcc" in the array:
 
 ```toml
