@@ -61,13 +61,7 @@ show you the MIR for your program. Try putting this program into play
 (or [clicking on this link][sample-play]), and then clicking the "MIR"
 button on the top:
 
-[sample-play]: https://play.rust-lang.org/?gist=30074856e62e74e91f06abd19bd72ece&version=stable
-MIR shown by above link is optimized.
-Some statements like `StorageLive` are removed in optimization.
-This happens because the compiler notices the value is never accessed in the code.
-We can use `rustc [filename].rs -Z mir-opt-level=0 --emit mir` to view unoptimized MIR.
-This requires the nightly toolchain.
-
+[sample-play]: https://play.rust-lang.org/?gist=30074856e62e74e91f06abd19bd72ece&version=stable&edition=2021
 
 ```rust
 fn main() {
@@ -88,6 +82,12 @@ fn main() -> () {
 ```
 
 This is the MIR format for the `main` function.
+MIR shown by above link is optimized.
+Some statements like `StorageLive` are removed in optimization.
+This happens because the compiler notices the value is never accessed in the code.
+We can use `rustc [filename].rs -Z mir-opt-level=0 --emit mir` to view unoptimized MIR.
+This requires the nightly toolchain.
+
 
 **Variable declarations.** If we drill in a bit, we'll see it begins
 with a bunch of variable declarations. They look like this:
