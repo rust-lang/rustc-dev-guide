@@ -2,7 +2,7 @@
 
 <!-- toc -->
 
-<!-- date-check: Jul 2023 -->
+<!-- date-check: Aug 2024 -->
 Rust supports building against multiple LLVM versions:
 
 * Tip-of-tree for the current LLVM development branch is usually supported
@@ -11,8 +11,10 @@ Rust supports building against multiple LLVM versions:
 * The one or two preceding major versions are usually supported.
 
 By default, Rust uses its own fork in the [rust-lang/llvm-project repository].
-This fork is based on a `release/NN.x` branch of the upstream project, rather
-than the `main` development branch.
+This fork is based on a `release/$N.x` branch of the upstream project, where
+`$N` is either the latest released major version, or the current major version
+in release candidate phase. The fork is never based on the `main` development
+branch.
 
 Our LLVM fork only accepts:
 
@@ -48,7 +50,7 @@ Rust fork.
 6. Add a remote for the upstream repository using
    `git remote add upstream https://github.com/llvm/llvm-project.git` and
    fetch it using `git fetch upstream`.
-7. Merge the `upstream/release/NN.x` branch.
+7. Merge the `upstream/release/$N.x` branch.
 8. Push this branch to your fork.
 9. Send a Pull Request to rust-lang/llvm-project to the same branch as before.
    Be sure to reference the Rust and/or LLVM issue that you're fixing in the PR
