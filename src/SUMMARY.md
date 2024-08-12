@@ -137,6 +137,7 @@
     - [Caching subtleties](./traits/caching.md)
     - [Implied bounds](./traits/implied-bounds.md)
     - [Specialization](./traits/specialization.md)
+    - [Overlap checks](./traits/overlap.md)
     - [Chalk-based trait solving](./traits/chalk.md)
         - [Lowering to logic](./traits/lowering-to-logic.md)
         - [Goals and clauses](./traits/goals-and-clauses.md)
