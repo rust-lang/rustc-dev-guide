@@ -1,14 +1,14 @@
 # Overlap checks
 
 As part of checking items (specifically: structs, enums, traits, unions),
-the compiler checks whether its impl blocks overlap, for example because they define the same functions.
+the compiler checks whether impl blocks overlap, for example because they define the same functions.
 This is an example an overlap check.
 The same overlap check is done when constructing a [specialization graph](./specialization.md).
-Here, traits implementations could overlap because of a conflicting blanket implementation overlapping with some specific implementation. 
+Here, trait implementations could overlap, for example because of a conflicting blanket implementation overlapping with some specific implementation. 
 
 The overlap check always compares two impls.
-In the case of inherent impl blocks, this means that for small n, 
-rustc quite literally compares each impl to each other impl block in an n^2 loop 
+In the case of inherent impl blocks, this means that at least for small n, 
+rustc quite literally compares each impl to each other impl block in an `n^2` loop 
 (see `fn check_item` in coherence/inherent_impls_overlap.rs).
 
 Overlapping is sometimes partially allowed:
