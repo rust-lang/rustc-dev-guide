@@ -267,10 +267,34 @@ for debugging by dumping extra compiler-internal information. These are prefixed
 are gated behind the internal feature `rustc_attrs` (enabled via e.g. `#![feature(rustc_attrs)]`).
 
 For a complete and up to date list, see [`builtin_attrs`]. More specifically, the ones marked `TEST`.
+Here are some notable ones:
+
+| Attribute | Description |
+|----------------|-------------|
+| `rustc_def_path` | Dumps the [`def_path_str`] of an item. |
+| `rustc_dump_def_parents` | Dumps the chain of `DefId` parents of certain definitions. |
+| `rustc_dump_item_bounds` | Dumps the [`item_bounds`] of an item. |
+| `rustc_dump_predicates` | Dumps the [`predicates_of`] an item. |
+| `rustc_dump_vtable` |  |
+| `rustc_hidden_type_of_opaques` | Dumps the [hidden type of all opaque types][opaq] in the crate. |
+| `rustc_layout` | [See this section](#debugging-type-layouts). |
+| `rustc_object_lifetime_default` | Dumps the [object lifetime defaults] of an item. |
+| `rustc_outlives` | Dumps implied bounds of an item. More precisely, the [`inferred_outlives_of`] an item. |
+| `rustc_regions` | Dumps NLL closure region requirements. |
+| `rustc_symbol_name` | Dumps the mangled & demangled [`symbol_name`] of an item. |
+| `rustc_variances` | Dumps the [variances] of an item. |
 
 Right below you can find elaborate explainers on a selected few.
 
 [`builtin_attrs`]: https://github.com/rust-lang/rust/blob/master/compiler/rustc_feature/src/builtin_attrs.rs
+[`def_path_str`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/context/struct.TyCtxt.html#method.def_path_str
+[`inferred_outlives_of`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/context/struct.TyCtxt.html#method.inferred_outlives_of
+[`item_bounds`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/context/struct.TyCtxt.html#method.item_bounds
+[`predicates_of`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/context/struct.TyCtxt.html#method.predicates_of
+[`symbol_name`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/context/struct.TyCtxt.html#method.symbol_name
+[object lifetime defaults]: https://doc.rust-lang.org/reference/lifetime-elision.html#default-trait-object-lifetimes
+[opaq]: ./opaque-types-impl-trait-inference.md
+[variances]: ./variance.md
 
 ### Formatting Graphviz output (.dot files)
 [formatting-graphviz-output]: #formatting-graphviz-output
