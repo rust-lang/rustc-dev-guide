@@ -182,6 +182,7 @@
         - [Closure constraints](./borrow_check/region_inference/closure_constraints.md)
         - [Error reporting](./borrow_check/region_inference/error_reporting.md)
     - [Two-phase-borrows](./borrow_check/two_phase_borrows.md)
+    - [Debugging the borrow checker](./borrow_check/debugging.md)
 - [Errors and Lints](diagnostics.md)
     - [Diagnostic and subdiagnostic structs](./diagnostics/diagnostic-structs.md)
     - [Translation](./diagnostics/translation.md)
