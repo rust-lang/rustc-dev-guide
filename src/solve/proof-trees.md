@@ -22,7 +22,7 @@ in a nested `?0: Debug` goal which is ambiguous.
 
 We compute proof trees by passing a [`ProofTreeBuilder`] to the search graph which is
 converting the evaluation steps of the trait solver into a tree. When storing any
-data reference state local to the current `InferCtxt` it canonicalizes it together
+data whcih references state local to the current `InferCtxt` it canonicalizes it together
 with the list of all unconstrained inference variables created during this computation.
 This [`CanonicalState`] is then instantiated in the parent inference context while
 walking the proof tree, using the list of inference variables to connect all the
