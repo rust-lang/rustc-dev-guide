@@ -42,7 +42,7 @@ but normally isn't.
 
 The overlap check has various modes (see [`OverlapMode`]).
 Importantly, there's the explicit negative impl check, and the implicit negative impl check.
-Both try to apply negative reasoning to prove that an overlap is definitely impossible.
+Both try to prove that an overlap is definitely impossible.
 
 [`OverlapMode`]: https://doc.rust-lang.org/beta/nightly-rustc/rustc_middle/traits/specialization_graph/enum.OverlapMode.html
 
@@ -54,15 +54,15 @@ This check tries to find a negative trait implementation.
 For example:
 
 ```rust
-struct MyCustomBox<T: ?Sized>(Box<T>)
+struct MyCustomErrorType;
 
 // both in your own crate
-impl From<&str> for MyCustomBox<dyn Error> {}
-impl<E> From<E> for MyCustomBox<dyn Error> where E: Error {}
+impl From<&str> for MyCustomErrorType {}
+impl<E> From<E> for MyCustomErrorType where E: Error {}
 ```
 
 In this example, we'd get:
-`MyCustomBox<dyn Error>: From<&str>` and `MyCustomBox<dyn Error>: From<?E>`, giving `?E = &str`.
+`MyCustomErrorType: From<&str>` and `MyCustomErrorType: From<?E>`, giving `?E = &str`.
 
 And thus, these two implementations would overlap.
 However, libstd provides `&str: !Error`, and therefore guarantees that there 
@@ -71,7 +71,7 @@ will never be a positive implementation of `&str: Error`, and thus there is no o
 Note that for this kind of negative impl check, we must have explicit negative implementations provided.
 This is not currently stable.
 
-[`impl_intersection_has_negative_obligation`]: https://doc.rust-lang.org/beta/nightly-rustc/rustc_trait_selection/traits/coherence/fn.impl_intersection_has_impossible_obligation.htmlhttps://doc.rust-lang.org/beta/nightly-rustc/rustc_trait_selection/traits/coherence/fn.impl_intersection_has_negative_obligation.html
+[`impl_intersection_has_negative_obligation`]: https://doc.rust-lang.org/beta/nightly-rustc/rustc_trait_selection/traits/coherence/fn.impl_intersection_has_negative_obligation.html
 
 ### The implicit negative impl check
 
@@ -92,6 +92,4 @@ Therefore, these two impls do not overlap.
 Importantly, this works even if there isn't a `impl !Error for MyLocalType`.
 
 [`impl_intersection_has_impossible_obligation`]: https://doc.rust-lang.org/beta/nightly-rustc/rustc_trait_selection/traits/coherence/fn.impl_intersection_has_impossible_obligation.html
-
-
 
