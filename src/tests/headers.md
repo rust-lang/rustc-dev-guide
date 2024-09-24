@@ -150,9 +150,9 @@ The following header commands will check rustc build settings and target setting
 * `needs-asm-support` — ignores if it is running on a target that doesn't have
   stable support for `asm!`
 * `needs-profiler-support` — ignores if profiler support was not enabled for
-  the target (`profiler = true` in rustc's `config.toml`)
+  the target (`profiler = true` in rustc's `bootstrap.toml`)
 * `needs-sanitizer-support` — ignores if the sanitizer support was not enabled
-  for the target (`sanitizers = true` in rustc's `config.toml`)
+  for the target (`sanitizers = true` in rustc's `bootstrap.toml`)
 * `needs-sanitizer-{address,hwaddress,leak,memory,thread}` — ignores
   if the corresponding sanitizer is not enabled for the target
   (AddressSanitizer, hardware-assisted AddressSanitizer, LeakSanitizer,
@@ -162,7 +162,7 @@ The following header commands will check rustc build settings and target setting
   --run=never` flag, or running on fuchsia.
 * `needs-unwind` — ignores if the target does not support unwinding
 * `needs-rust-lld` — ignores if the rust lld support is not enabled
-  (`rust.lld = true` in `config.toml`)
+  (`rust.lld = true` in `bootstrap.toml`)
 * `needs-threads` — ignores if the target does not have threading support
 * `needs-symlink` — ignores if the target does not support symlinks. This can be the case on Windows
   if the developer did not enable privileged symlink permissions.
