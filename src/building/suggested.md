@@ -21,19 +21,18 @@ You can also install the hook as a step of running `./x setup`!
 
 ## Configuring `rust-analyzer` for `rustc`
 
-### Visual Studio Code
+### Project-local rust-analyzer setup
 
 `rust-analyzer` can help you check and format your code whenever you save
 a file. By default, `rust-analyzer` runs the `cargo check` and `rustfmt`
 commands, but you can override these commands to use more adapted versions
-of these tools when hacking on `rustc`. For example, `x setup vscode` will prompt
-you to create a `.vscode/settings.json` file which will configure Visual Studio code.
-This will ask `rust-analyzer` to use `./x check` to check the sources, and the
-stage 0 rustfmt to format them.
-The recommended `rust-analyzer` settings live at [`src/etc/rust_analyzer_settings.json`].
+of these tools when hacking on `rustc`. 
+With custom setup, `rust-analyzer` can use `./x check` to check the sources,
+and the stage 0 rustfmt to format them.
 
-The default `rust-analyzer.check.overrideCommand` command line will check all the crates and tools
-in the repository. If you are working on a specific part, you can override the command to only 
+The default `rust-analyzer.check.overrideCommand` command line will check all
+the crates and tools in the repository.
+If you are working on a specific part, you can override the command to only 
 check the part you are working on to save checking time. For example, if you are working on 
 the compiler, you can override the command to `x check compiler --json-output` to only 
 check the compiler part. You can run `x check --help --verbose` to see the available parts.
@@ -41,6 +40,12 @@ check the compiler part. You can run `x check --help --verbose` to see the avail
 If you have enough free disk space and you would like to be able to run `x` commands while
 rust-analyzer runs in the background, you can also add `--build-dir build-rust-analyzer` to the
 `overrideCommand` to avoid x locking.
+
+### Visual Studio Code
+
+Running `./x setup vscode` will prompt you to create a `.vscode/settings.json`
+file which will configure Visual Studio code.
+The recommended `rust-analyzer` settings live at [`src/etc/rust_analyzer_settings.json`].
 
 If running `./x check` on save is inconvenient, in VS Code you can use a [Build
 Task] instead:
@@ -92,6 +97,21 @@ command in your config, or you can install a plugin such as
 [overseer.nvim](https://github.com/stevearc/overseer.nvim) that can [read VSCode's `task.json` 
 files](https://github.com/stevearc/overseer.nvim/blob/master/doc/guides.md#vs-code-tasks), and 
 follow the same instructions as above.
+
+### Emacs
+
+Emacs provides support for rust-analyzer with project-local configuration through [Eglot](https://www.gnu.org/software/emacs/manual/html_node/eglot/).  
+Steps for setting up Eglot with rust-analyzer can be [found here](https://rust-analyzer.github.io/manual.html#eglot).  
+Having set up Emacs & Eglot for Rust development in general, you can use the configuration for rustc provided in [`src/etc/rust_analyzer_eglot.el`].  
+Simply copy the provided file to `.dir-locals.el` in the project root directory.  
+For more information on project-specific Eglot configuration, consult [the manual](https://www.gnu.org/software/emacs/manual/html_node/eglot/Project_002dspecific-configuration.html).
+
+### Helix
+
+Helix comes with built-in LSP and rust-analyzer support.  
+It can be configured through `languages.toml`, as described [here](https://docs.helix-editor.com/languages.html).  
+You can use the configuration for rustc provided in [`src/etc/rust_analyzer_helix.toml`].  
+Simply copy the provided file to `.helix/languages.toml` in the project root directory.
 
 ## Check, check, and check again
 
