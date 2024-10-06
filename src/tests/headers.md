@@ -177,12 +177,14 @@ The following header commands will check LLVM support:
 * `ignore-llvm-version: 7.0 - 9.9.9` — ignores LLVM versions in a range (inclusive)
 * `needs-llvm-components: powerpc` — ignores if the specific LLVM component was not built.
   Note: The test will fail on CI (when `COMPILETEST_REQUIRE_ALL_LLVM_COMPONENTS` is set) if the component does not exist.
-* `needs-forced-clang-based-tests` —
-  test is ignored unless the environment variable `RUSTBUILD_FORCE_CLANG_BASED_TESTS`
-  is set, which enables building clang alongside LLVM
-  - This is only set in one CI job ([`x86_64-gnu-debug`]), which only runs a tiny
-    subset of `run-make` tests. Other tests with this header will not run at all,
-    which is usually not what you want.
+* `needs-force-clang-based-tests` — test is ignored unless the environment
+  variable `RUSTBUILD_FORCE_CLANG_BASED_TESTS` is set, which enables building
+  clang alongside LLVM
+  - This is only set in two CI jobs ([`x86_64-gnu-debug`] and
+    `aarch64-gnu-debug`), which only runs a tiny subset of `run-make` tests that
+    contain `clang` in the test name, e.g.
+    `tests/run-make/cross-lang-lto-clang`. Other tests with this header will not
+    run at all, which is usually not what you want.
 
 See also [Debuginfo tests](compiletest.md#debuginfo-tests) for headers for
 ignoring debuggers.
