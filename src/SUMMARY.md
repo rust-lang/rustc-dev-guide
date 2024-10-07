@@ -21,6 +21,7 @@
         - [Testing with Docker](./tests/docker.md)
         - [Testing with CI](./tests/ci.md)
     - [Adding new tests](./tests/adding.md)
+    - [Best practices](./tests/best-practices.md)
     - [Compiletest](./tests/compiletest.md)
         - [UI tests](./tests/ui.md)
         - [Test headers](./tests/headers.md)
