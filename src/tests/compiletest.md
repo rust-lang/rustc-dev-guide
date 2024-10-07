@@ -717,8 +717,8 @@ The following test suites support revisions:
 
 ### Ignoring unused revision names
 
-Normally, revision names mentioned in other headers and error annotations must
-correspond to an actual revision declared in a `revisions` header. This is
+Normally, revision names mentioned in other directives and error annotations
+must correspond to an actual revision declared in a `revisions` directive. This is
 enforced by an `./x test tidy` check.
 
 If a revision name needs to be temporarily removed from the revision list for
