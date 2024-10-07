@@ -147,8 +147,8 @@ can be found in the [toolstate documentation].
 
 Rust tests integration with real-world code to catch regressions and make
 informed decisions about the evolution of the language. There are several kinds
-of ecosystem tests, including Crater. See the [Integration testing
-chapter](integration.md) for more details.
+of ecosystem tests, including Crater. See the [Ecosystem testing
+chapter](ecosystem.md) for more details.
 
 ### Performance testing
 

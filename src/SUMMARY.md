@@ -25,7 +25,7 @@
     - [Compiletest](./tests/compiletest.md)
         - [UI tests](./tests/ui.md)
         - [Test headers](./tests/headers.md)
-    - [Integration testing](./tests/integration.md)
+    - [Ecosystem testing](./tests/ecosystem.md)
         - [Crater](./tests/crater.md)
         - [Fuchsia](./tests/fuchsia.md)
         - [Rust for Linux](./tests/rust-for-linux.md)
