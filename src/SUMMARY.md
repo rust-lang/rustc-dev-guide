@@ -24,7 +24,7 @@
     - [Best practices](./tests/best-practices.md)
     - [Compiletest](./tests/compiletest.md)
         - [UI tests](./tests/ui.md)
-        - [Test headers](./tests/headers.md)
+        - [Test headers](./tests/directives.md)
     - [Ecosystem testing](./tests/ecosystem.md)
         - [Crater](./tests/crater.md)
         - [Fuchsia](./tests/fuchsia.md)

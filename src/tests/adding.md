@@ -73,7 +73,7 @@ A few things to notice about our test:
 
 - The top should start with a short comment that [explains what the test is
   for](#explanatory_comment).
-- The `//@ edition:2018` comment is called a [directive](headers.md) which
+- The `//@ edition:2018` comment is called a [directive](directives.md) which
   provides instructions to compiletest on how to build the test. Here we need to
   set the edition for `async` to work (the default is edition 2015).
 - Following that is the source of the test. Try to keep it succinct and to the

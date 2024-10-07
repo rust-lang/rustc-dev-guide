@@ -26,7 +26,7 @@ individual and groups of tests.
 Tests are typically organized as a Rust source file with annotations in comments
 before and/or within the test code. These comments serve to direct `compiletest`
 on if or how to run the test, what behavior to expect, and more. See
-[directives](headers.md) and the test suite documentation below for more details
+[directives](directives.md) and the test suite documentation below for more details
 on these annotations.
 
 See the [Adding new tests](adding.md) and [Best practies](best-practiecs.md)
@@ -93,7 +93,7 @@ The tests in [`tests/pretty`] exercise the "pretty-printing" functionality of
 input source into various different formats, such as the Rust source after macro
 expansion.
 
-The pretty-printer tests have several [directives](headers.md) described below.
+The pretty-printer tests have several [directives](directives.md) described below.
 These commands can significantly change the behavior of the test, but the
 default behavior without any commands is to:
 
@@ -242,7 +242,7 @@ fn main() {
 fn b() {}
 ```
 
-The following [directives](headers.md) are available to disable a test based on
+The following [directives](directives.md) are available to disable a test based on
 the debugger currently being used:
 
 - `min-cdb-version: 10.0.18317.1001` — ignores the test if the version of cdb
@@ -575,7 +575,7 @@ known-bug` directive inside the test file.
 ## Building auxiliary crates
 
 It is common that some tests require additional auxiliary crates to be compiled.
-There are multiple [directives](headers.md) to assist with that:
+There are multiple [directives](directives.md) to assist with that:
 
 - `aux-build`
 - `aux-crate`

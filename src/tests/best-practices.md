@@ -183,6 +183,6 @@ See [LLVM FileCheck guide][FileCheck] for details.
 > Pending concrete advice.
 
 [compiletest]: ./compiletest.md
-[compiletest directives]: ./headers.md
+[compiletest directives]: ./directives.md
 [`run-make`]: ./compiletest.md#run-make-tests
 [FileCheck]: https://llvm.org/docs/CommandGuide/FileCheck.html

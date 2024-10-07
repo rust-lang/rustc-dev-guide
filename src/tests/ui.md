@@ -28,7 +28,7 @@ next to the test. See [Output comparison](#output-comparison) for more.
 Additionally, errors and warnings should be annotated with comments within the
 source file. See [Error annotations](#error-annotations) for more.
 
-Compiletest [directives](headers.md) in the form of special comments prefixed
+Compiletest [directives](directives.md) in the form of special comments prefixed
 with `//@` control how the test is compiled and what the expected behavior is.
 
 Tests are expected to fail to compile, since most tests are testing compiler
@@ -78,7 +78,7 @@ There can be multiple stdout/stderr files. The general form is:
 A simple example would be `foo.stderr` next to a `foo.rs` test.
 A more complex example would be `foo.my-revision.polonius.stderr`.
 
-There are several [directives](headers.md) which will change how compiletest
+There are several [directives](directives.md) which will change how compiletest
 will check for output files:
 
 - `stderr-per-bitwidth` — checks separate output files based on the target
@@ -168,7 +168,7 @@ usage example.
 [`main.stderr`]: https://github.com/rust-lang/rust/blob/master/tests/ui/transmute/main.stderr
 
 Besides `normalize-stderr-32bit` and `-64bit`, one may use any target
-information or stage supported by [`ignore-X`](headers.md#ignoring-tests) here
+information or stage supported by [`ignore-X`](directives.md#ignoring-tests) here
 as well (e.g. `normalize-stderr-windows` or simply `normalize-stderr-test` for
 unconditional replacement).
 
@@ -276,7 +276,7 @@ fn main() {
 
 ### `error-pattern`
 
-The `error-pattern` [directive](headers.md) can be used for messages that don't
+The `error-pattern` [directive](directives.md) can be used for messages that don't
 have a specific span.
 
 Let's think about this test:
@@ -366,7 +366,7 @@ By default, a UI test is expected to **generate a compile error** because most
 of the tests are checking for invalid input and error diagnostics. However, you
 can also make UI tests where compilation is expected to succeed, and you can
 even run the resulting program. Just add one of the following
-[directives](headers.md):
+[directives](directives.md):
 
 - Pass directives:
   - `//@ check-pass` — compilation should succeed but skip codegen
