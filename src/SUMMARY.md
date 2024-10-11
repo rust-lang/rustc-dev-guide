@@ -25,6 +25,7 @@
     - [Compiletest](./tests/compiletest.md)
         - [UI tests](./tests/ui.md)
         - [Test directives](./tests/directives.md)
+        - [Minicore](./tests/minicore.md)
     - [Ecosystem testing](./tests/ecosystem.md)
         - [Crater](./tests/crater.md)
         - [Fuchsia](./tests/fuchsia.md)
