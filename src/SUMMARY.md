@@ -58,7 +58,7 @@
     - [Apple](notification-groups/apple.md)
     - [ARM](notification-groups/arm.md)
     - [Cleanup Crew](notification-groups/cleanup-crew.md)
-    - [Emscripten](notification-groups/emscripte.md)
+    - [Emscripten](notification-groups/emscripten.md)
     - [LLVM](notification-groups/llvm.md)
     - [RISC-V](notification-groups/risc-v.md)
     - [WASI](notification-groups/wasi.md)
