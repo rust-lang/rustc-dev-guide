@@ -65,11 +65,11 @@ Example PRs:
 * [Example of adding yourself to the Apple group.](https://github.com/rust-lang/team/pull/1434)
 * [Example of adding yourself to the ARM group.](https://github.com/rust-lang/team/pull/358)
 * [Example of adding yourself to the Cleanup Crew.](https://github.com/rust-lang/team/pull/221)
-* [Example of adding yourself to the Emscripten group.](TODO)
+* [Example of adding yourself to the Emscripten group.](https://github.com/rust-lang/team/pull/1579)
 * [Example of adding yourself to the LLVM group.](https://github.com/rust-lang/team/pull/140)
 * [Example of adding yourself to the RISC-V group.](https://github.com/rust-lang/team/pull/394)
-* [Example of adding yourself to the WASI group.](TODO)
-* [Example of adding yourself to the WebAssembly group.](TODO)
+* [Example of adding yourself to the WASI group.](https://github.com/rust-lang/team/pull/1580)
+* [Example of adding yourself to the WebAssembly group.](https://github.com/rust-lang/team/pull/1581)
 * [Example of adding yourself to the Windows group.](https://github.com/rust-lang/team/pull/348)
 
 ## Tagging an issue for a notification group
