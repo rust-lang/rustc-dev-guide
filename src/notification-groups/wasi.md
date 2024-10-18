@@ -20,4 +20,4 @@ your own!
 
 [`#t-compiler/wasi`]: TODO
 [rust-lang/team]: https://github.com/rust-lang/team
-[eg]: TODO
+[eg]: https://github.com/rust-lang/team/pull/1580
