@@ -1,0 +1,16 @@
+[package]
+name = "semantic-line-breaks"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1"
+ignore = "0.4"
+
+[dependencies.regex]
+version = "1"
+features = ["pattern"]
+
+[dependencies.clap]
+version = "4"
+features = ["derive"]
