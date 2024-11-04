@@ -2,7 +2,7 @@
 
 <!-- date-check Oct 2024 -->
 
-[`tests/auxiliary/minicore.rs`][`minicore`] is a test auxiliary for
+[`minicore`] is a test auxiliary for
 ui/codegen/assembly test suites. It provides `core` stubs for tests that need to
 build for cross-compiled targets but do not need/want to run.
 
@@ -24,6 +24,8 @@ Please note that [`minicore`] is only intended for `core` items, and explicitly
 **not** `std` or `alloc` items because `core` items are applicable to a wider
 range of tests.
 </div>
+
+[`minicore`]: https://github.com/rust-lang/rust/blob/master/tests/auxiliary/minicore.rs
 
 ## Example codegen test that uses `minicore`
 
