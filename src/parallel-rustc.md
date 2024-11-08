@@ -1,18 +1,29 @@
 # Parallel Compilation
 
-As of <!-- date-check --> August 2022, the only stage of the compiler that is
-parallel is [code generation stage][codegen] (codegen). Some parts of the
-compiler have parallel implementations, such as query evaluation, type check
-and [monomorphization][monomorphization], but the general version of the
-compiler does not include parallelization functions. **To try out the current
-parallel compiler**, install `rustc` from source code with `parallel-compiler =
-true` in the `Config.toml`.
+<div class="warning">
+Parallel front-end is currently (as of 2024 November) undergoing significant
+changes, this page contains quite a bit of outdated information.
 
-The lack of parallelism at other stages (for example, macro expansion) also 
-represents an opportunity for improving compiler performance.
+Tracking issue: <https://github.com/rust-lang/rust/issues/113349>
+</div>
 
-These next few sections describe where and how parallelism is currently used,
-and the current status of making parallel compilation the default in `rustc`.
+As of <!-- date-check --> November 2024, most of the rust compiler is now
+parallelized.
+
+- The codegen part is executed concurrently by default. You can use the `-C
+  codegen-units=n` option to control the number of concurrent tasks.
+- The parts after HIR lowering to codegen such as type checking, borrowing
+  checking, and mir optimization are parallelized in the nightly version.
+  Currently, they are executed in serial by default, and parallelization is
+  manually enabled by the user using the `-Z threads = n` option.
+- Other parts, such as lexical parsing, HIR lowering, and macro expansion, are
+  still executed in serial mode.
+
+<div class="warning">
+The follow sections are kept for now but are quite outdated.
+</div>
+
+---
 
 [codegen]: backend/codegen.md
 
