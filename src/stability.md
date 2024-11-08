@@ -21,6 +21,11 @@ The `issue` field specifies the associated GitHub [issue number]. This field is
 required and all unstable features should have an associated tracking issue. In
 rare cases where there is no sensible value `issue = "none"` is used.
 
+An item may be annotated with multiple `#[unstable]` attributes if its
+stabilization depends on multiple features being stabilized.
+In that case, it cannot be used without enabling each feature present in its
+`#[unstable]` attributes.
+
 The `unstable` attribute infects all sub-items, where the attribute doesn't
 have to be reapplied. So if you apply this to a module, all items in the module
 will be unstable.
@@ -47,7 +52,12 @@ prevents breaking dependencies by leveraging Cargo's lint capping.
 
 ## stable
 The `#[stable(feature = "foo", since = "1.420.69")]` attribute explicitly
-marks an item as stabilized. Note that stable functions may use unstable things in their body.
+marks an item as stabilized. However, `#[unstable]` attributes take precedence:
+an item with both `#[stable]` and `#[unstable]` attributes is unstable.
+A stable item with multiple `#[stable]` attributes is treated as stabilized in
+the most recent version present in the attributes' `since` fields.
+
+Note that stable functions may use unstable things in their body.
 
 ## rustc_const_unstable
 
