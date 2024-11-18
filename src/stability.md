@@ -57,7 +57,7 @@ ipsum")]` has the same interface as the `unstable` attribute. It is used to mark
 - If a `const fn` makes use of unstable language features or intrinsics.
   (The compiler will tell you to add the attribute if you run into this.)
 - If a `const fn` is `#[stable]` but not yet intended to be const-stable.
-- To change the feature get that is required to call a const-unstable intrinsic.
+- To change the feature gate that is required to call a const-unstable intrinsic.
 
 Const-stability differs from regular stability in that it is *recursive*: a
 `#[rustc_const_unstable(...)]` function cannot even be indirectly called from stable code. This is
