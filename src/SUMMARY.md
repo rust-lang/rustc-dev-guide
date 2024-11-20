@@ -226,6 +226,7 @@
 [Appendix C: Code Index](./appendix/code-index.md)
 [Appendix D: Compiler Lecture Series](./appendix/compiler-lecture.md)
 [Appendix E: Bibliography](./appendix/bibliography.md)
+[Appendix F: Compiler Rewrite](./appendix/compiler-rewrite.md)
 
 [Appendix Z: HumorRust](./appendix/humorust.md)
 
