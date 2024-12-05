@@ -129,6 +129,7 @@
     - [Error codes](./diagnostics/error-codes.md)
     - [Diagnostic items](./diagnostics/diagnostic-items.md)
     - [`ErrorGuaranteed`](./diagnostics/error-guaranteed.md)
+    - [Making diagnostics translatable](diagnostics/making-diagnostics-translatable.md)
 
 # Analysis
 
