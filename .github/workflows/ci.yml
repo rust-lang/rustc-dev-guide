@@ -35,12 +35,12 @@ jobs:
             ~/.cargo/bin
           key: ${{ runner.os }}-${{ env.MDBOOK_VERSION }}--${{ env.MDBOOK_LINKCHECK_VERSION }}--${{ env.MDBOOK_TOC_VERSION }}--${{ env.MDBOOK_MERMAID_VERSION }}
 
-      - name: Cache linkcheck
-        uses: actions/cache@v4
+      - name: Restore cached Linkcheck
+        id: cache-linkcheck-restore
+        uses: actions/cache/restore@v4
         with:
-          path: |
-            ~/book/linkcheck
-          key: ${{ runner.os }}-${{ hashFiles('./book/linkcheck') }}
+          path: book/linkcheck/cache.json
+          key: linkcheck
 
       - name: Install latest nightly Rust toolchain
         if: steps.mdbook-cache.outputs.cache-hit != 'true'
@@ -57,7 +57,15 @@ jobs:
           cargo install mdbook-mermaid --version ${{ env.MDBOOK_MERMAID_VERSION }}
 
       - name: Check build
-        run: mdbook build
+        run: mdbook build || cat book/linkcheck/cache.json
+
+      - name: Save cached Linkcheck
+        id: cache-linkcheck-save
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: book/linkcheck/cache.json
+          key: linkcheck
 
       - name: Deploy to gh-pages
         if: github.event_name == 'push'
