@@ -7,6 +7,11 @@ set_github_token() {
   jq '.config.output.linkcheck."http-headers"."github\\.com" = ["Authorization: Bearer $GITHUB_TOKEN"]'
 }
 
+if [ ! -z "$SKIP_LINKCHECK" ] ; then
+  echo "Skipping link check."
+  exec mdbook-linkcheck -f ""
+fi
+
 # https://docs.github.com/en/actions/reference/environment-variables
 if [ "$GITHUB_EVENT_NAME" = "schedule" ] ; then # running in scheduled job
   FLAGS=""
