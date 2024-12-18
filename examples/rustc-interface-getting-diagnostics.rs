@@ -16,7 +16,7 @@ use rustc_session::config;
 use rustc_span::source_map::SourceMap;
 
 use std::{
-    path, process, str,
+    path, str,
     sync::{Arc, Mutex},
 };
 
@@ -46,19 +46,10 @@ impl Emitter for DebugEmitter {
 }
 
 fn main() {
-    let out = process::Command::new("rustc")
-        .arg("--print=sysroot")
-        .current_dir(".")
-        .output()
-        .unwrap();
-    let sysroot = str::from_utf8(&out.stdout).unwrap().trim();
     let buffer: Arc<Mutex<Vec<DiagInner>>> = Arc::default();
     let diagnostics = buffer.clone();
     let config = rustc_interface::Config {
-        opts: config::Options {
-            maybe_sysroot: Some(path::PathBuf::from(sysroot)),
-            ..config::Options::default()
-        },
+        opts: config::Options::default(),
         // This program contains a type error.
         input: config::Input::Str {
             name: rustc_span::FileName::Custom("main.rs".into()),
@@ -92,11 +83,10 @@ fn main() {
         using_internal_features: Arc::default(),
     };
     rustc_interface::run_compiler(config, |compiler| {
-        compiler.enter(|queries| {
-            queries.global_ctxt().unwrap().enter(|tcx| {
-                // Run the analysis phase on the local crate to trigger the type error.
-                let _ = tcx.analysis(());
-            });
+        let krate = rustc_interface::passes::parse(&compiler.sess);
+        rustc_interface::create_and_enter_global_ctxt(&compiler, krate, |tcx| {
+            // Run the analysis phase on the local crate to trigger the type error.
+            let _ = tcx.analysis(());
         });
         // If the compiler has encountered errors when this closure returns, it will abort (!) the program.
         // We avoid this by resetting the error count before returning
