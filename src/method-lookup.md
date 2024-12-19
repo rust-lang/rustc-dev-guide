@@ -42,20 +42,39 @@ inference variables or other information.
 The first thing that the probe phase does is to create a series of
 *steps*. This is done by progressively dereferencing the receiver type
 until it cannot be deref'd anymore, as well as applying an optional
-"unsize" step. So if the receiver has type `Rc<Box<[T; 3]>>`, this
+"unsize" step. This "dereferencing" in fact uses the `Receiver` trait
+rather than the normal `Deref` trait. There's a blanket implementation
+of `Receiver` for `T: Deref` so the answer is often the same.
+
+So if the receiver has type `Rc<Box<[T; 3]>>`, this
 might yield:
 
-1. `Rc<Box<[T; 3]>>`
-2. `Box<[T; 3]>`
-3. `[T; 3]`
-4. `[T]`
+1. `Rc<Box<[T; 3]>>` *
+2. `Box<[T; 3]>` *
+3. `[T; 3]` *
+4. `[T]` *
+
+Some types might implement `Receiver` but not `Deref`. Imagine that
+`SmartPtr<T>` does this. If the receiver has type `&Rc<SmartPtr<T>>`
+the steps would be:
+
+1. `&Rc<SmartPtr<T>>` *
+2. `Rc<SmartPtr<T>>` *
+3. `SmartPtr<T>` *
+4. `T`
+
+The first three of those steps, marked with a *, can be reached using
+`Deref` as well as by `Receiver`. This fact is recorded against each step.
 
 ### Candidate assembly
 
-We then search along those steps to create a list of *candidates*. A
-`Candidate` is a method item that might plausibly be the method being
-invoked. For each candidate, we'll derive a "transformed self type"
-that takes into account explicit self.
+We then search along these candidate steps to create a list of
+*candidates*. A `Candidate` is a method item that might plausibly be the
+method being invoked. For each candidate, we'll derive a "transformed self
+type" that takes into account explicit self.
+
+At this point, we consider the whole list - all the steps reachable via
+`Receiver`, not just the shorter list reachable via `Deref`.
 
 Candidates are grouped into two kinds, inherent and extension.
 
@@ -97,9 +116,14 @@ might have two candidates:
 
 ### Candidate search
 
-Finally, to actually pick the method, we will search down the steps,
-trying to match the receiver type against the candidate types. At
-each step, we also consider an auto-ref and auto-mut-ref to see whether
+Finally, to actually pick the method, we will search down the steps again,
+trying to match the receiver type against the candidate types. This time,
+we consider only the steps which can be reached via `Deref`, since we
+actually need to convert the receiver type to match the `self` type.
+In the examples above, that means we consider only the steps marked with
+an asterisk.
+
+At each step, we also consider an auto-ref and auto-mut-ref to see whether
 that makes any of the candidates match. For each resulting receiver
 type, we consider inherent candidates before extension candidates.
 If there are multiple matching candidates in a group, we report an
@@ -113,3 +137,68 @@ recursively consider all where-clauses that appear on the impl: if
 those match (or we cannot rule out that they do), then this is the
 method we would pick. Otherwise, we would continue down the series of
 steps.
+
+### `Deref` vs `Receiver`
+
+Why have longer and shorter lists here? The use-case is smart pointers.
+For example:
+
+```
+struct Inner;
+
+// Assume this cannot implement Deref for some reason, e.g. because
+// we know other code may be accessing T and it's not safe to make
+// a reference to it
+struct Ptr<T>;
+
+impl<T> Receiver for Ptr<T> {
+   type Target = T;
+}
+
+impl Inner {
+   fn method1(self: &Ptr<Self>) {
+   }
+
+   fn method2(&self) {}
+}
+
+fn main() {
+   let ptr = Ptr(Inner);
+   ptr.method1();
+   // ptr.method2();
+}
+```
+
+In this case, the step list for the `method1` call would be:
+
+1. `Ptr<Inner>` *
+2. `Inner`
+
+Because the list of types reached via `Receiver` includes `Inner`, we can
+look for methods in the `impl Inner` block during candidate search.
+But, we can't dereference a `&Receiver` to make a `&Inner`, so the picking
+process won't allow us to call `method2` on a `Ptr<Inner>`.
+
+### Deshadowing
+
+Once we've made a pick, code in `pick_all_method` also checks for a couple
+of cases where one method may shadow another. That is, in the code example
+above, imagine there also exists:
+
+```
+impl Inner {
+   fn method3(self: &Ptr<Self>) {}
+}
+
+impl<T> Ptr<T> {
+   fn method3(self) {}
+}
+```
+
+These can both be called using `ptr.method3()`. Without special care, we'd
+automatically use `Ptr::self` because we pick by value before even looking
+at by-reference candidates. This could be a problem if the caller previously
+was using `Inner::method3`: they'd get an unexpected behavior change.
+So, if we pick a by-value candidate we'll check to see if we might be
+shadowing a by-value candidate, and error if so. The same applies
+if a by-mut-ref candidate shadows a by-reference candidate.
