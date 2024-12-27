@@ -1,5 +1,6 @@
 #![feature(rustc_private)]
 
+extern crate rustc_data_structures;
 extern crate rustc_driver;
 extern crate rustc_error_codes;
 extern crate rustc_errors;
@@ -9,16 +10,14 @@ extern crate rustc_interface;
 extern crate rustc_session;
 extern crate rustc_span;
 
-use rustc_errors::{
-    emitter::Emitter, registry, translation::Translate, DiagCtxt, DiagInner, FluentBundle,
-};
+use rustc_errors::emitter::Emitter;
+use rustc_errors::registry::{self, Registry};
+use rustc_errors::translation::Translate;
+use rustc_errors::{DiagCtxt, DiagInner, FluentBundle};
 use rustc_session::config;
 use rustc_span::source_map::SourceMap;
 
-use std::{
-    path, str,
-    sync::{Arc, Mutex},
-};
+use std::sync::{Arc, Mutex};
 
 struct DebugEmitter {
     source_map: Arc<SourceMap>,
@@ -26,7 +25,7 @@ struct DebugEmitter {
 }
 
 impl Translate for DebugEmitter {
-    fn fluent_bundle(&self) -> Option<&Arc<FluentBundle>> {
+    fn fluent_bundle(&self) -> Option<&FluentBundle> {
         None
     }
 
@@ -36,11 +35,11 @@ impl Translate for DebugEmitter {
 }
 
 impl Emitter for DebugEmitter {
-    fn emit_diagnostic(&mut self, diag: DiagInner) {
+    fn emit_diagnostic(&mut self, diag: DiagInner, _: &Registry) {
         self.diagnostics.lock().unwrap().push(diag);
     }
 
-    fn source_map(&self) -> Option<&Arc<SourceMap>> {
+    fn source_map(&self) -> Option<&SourceMap> {
         Some(&self.source_map)
     }
 }
@@ -65,7 +64,7 @@ fn main() {
         output_dir: None,
         output_file: None,
         file_loader: None,
-        locale_resources: rustc_driver::DEFAULT_LOCALE_RESOURCES,
+        locale_resources: rustc_driver::DEFAULT_LOCALE_RESOURCES.to_owned(),
         lint_caps: rustc_hash::FxHashMap::default(),
         psess_created: Some(Box::new(|parse_sess| {
             parse_sess.set_dcx(DiagCtxt::new(Box::new(DebugEmitter {

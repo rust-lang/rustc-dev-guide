@@ -9,7 +9,7 @@ extern crate rustc_interface;
 extern crate rustc_session;
 extern crate rustc_span;
 
-use std::{path, str, sync::Arc};
+use std::sync::Arc;
 
 use rustc_errors::registry;
 use rustc_hash::FxHashMap;
@@ -35,7 +35,7 @@ fn main() {
         output_dir: None,  // Option<PathBuf>
         output_file: None, // Option<PathBuf>
         file_loader: None, // Option<Box<dyn FileLoader + Send + Sync>>
-        locale_resources: rustc_driver::DEFAULT_LOCALE_RESOURCES,
+        locale_resources: rustc_driver::DEFAULT_LOCALE_RESOURCES.to_owned(),
         lint_caps: FxHashMap::default(), // FxHashMap<lint::LintId, lint::Level>
         // This is a callback from the driver that is called when [`ParseSess`] is created.
         psess_created: None, //Option<Box<dyn FnOnce(&mut ParseSess) + Send>>
@@ -60,8 +60,8 @@ fn main() {
     };
     rustc_interface::run_compiler(config, |compiler| {
         // Parse the program and print the syntax tree.
-        let parse = rustc_interface::passes::parse(&compiler.sess);
-        println!("{parse:?}");
+        let krate = rustc_interface::passes::parse(&compiler.sess);
+        println!("{krate:?}");
         // Analyze the program and inspect the types of definitions.
         rustc_interface::create_and_enter_global_ctxt(&compiler, krate, |tcx| {
             for id in tcx.hir().items() {
