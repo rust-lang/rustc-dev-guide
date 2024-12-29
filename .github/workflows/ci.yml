@@ -63,6 +63,7 @@ jobs:
       - name: Save cached Linkcheck
         id: cache-linkcheck-save
         if: github.event_name == 'schedule'
+        continue-on-error: true
         uses: actions/cache/save@v4
         with:
           path: book/linkcheck/cache.json
