@@ -36,7 +36,7 @@ jobs:
           key: ${{ runner.os }}-${{ env.MDBOOK_VERSION }}--${{ env.MDBOOK_LINKCHECK2_VERSION }}--${{ env.MDBOOK_TOC_VERSION }}--${{ env.MDBOOK_MERMAID_VERSION }}
 
       - name: Restore cached Linkcheck
-        if: github.event_name == 'schedule'
+        if: github.event_name != 'schedule'
         id: cache-linkcheck-restore
         uses: actions/cache/restore@v4
         with:
@@ -62,7 +62,7 @@ jobs:
 
       - name: Save cached Linkcheck
         id: cache-linkcheck-save
-        if: github.event_name == 'schedule'
+        if: github.event_name != 'schedule'
         continue-on-error: true
         uses: actions/cache/save@v4
         with:
