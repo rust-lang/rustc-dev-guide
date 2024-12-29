@@ -36,6 +36,7 @@ jobs:
           key: ${{ runner.os }}-${{ env.MDBOOK_VERSION }}--${{ env.MDBOOK_LINKCHECK2_VERSION }}--${{ env.MDBOOK_TOC_VERSION }}--${{ env.MDBOOK_MERMAID_VERSION }}
 
       - name: Restore cached Linkcheck
+        if: github.event_name == 'schedule'
         id: cache-linkcheck-restore
         uses: actions/cache/restore@v4
         with:
@@ -57,11 +58,11 @@ jobs:
           cargo install mdbook-mermaid --version ${{ env.MDBOOK_MERMAID_VERSION }}
 
       - name: Check build
-        run: mdbook build || cat book/linkcheck/cache.json
+        run: mdbook build
 
       - name: Save cached Linkcheck
         id: cache-linkcheck-save
-        if: always()
+        if: github.event_name == 'schedule'
         uses: actions/cache/save@v4
         with:
           path: book/linkcheck/cache.json
