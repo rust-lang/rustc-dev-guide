@@ -11,7 +11,7 @@ set_github_token() {
 
 if [ ! -z "$SKIP_LINKCHECK" ] ; then
   echo "Skipping link check."
-  exec $LINKCHECK_BINARY -f ""
+  exit 0
 fi
 
 # https://docs.github.com/en/actions/reference/environment-variables
