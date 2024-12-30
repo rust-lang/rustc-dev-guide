@@ -9,7 +9,7 @@ set_github_token() {
   jq '.config.output.linkcheck."http-headers"."github\\.com" = ["Authorization: Bearer $GITHUB_TOKEN"]'
 }
 
-if ! which $LINKCHECK_BINARY &>/dev/null ; then
+if ! which $LINKCHECK_BINARY &>/dev/null && [ -z "$GITHUB_EVENT_NAME" ] ; then
   echo "WARNING: Skipping link check. Consider running 'cargo install $LINKCHECK_BINARY'."
   exit 0
 fi
