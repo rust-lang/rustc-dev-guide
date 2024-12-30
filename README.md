@@ -57,13 +57,8 @@ The build files are found in the `book/html` directory.
 ### Link Validations
 
 We use `mdbook-linkcheck2` to validate URLs included in our documentation. Link
-checking is **not** run by default locally, though it is in CI. To enable it
-locally, set the environment variable `ENABLE_LINKCHECK=1` like in the
-following example.
-
-```console
-$ ENABLE_LINKCHECK=1 mdbook serve
-```
+checking is run locally only if the `mdbook-linkcheck2` crate is installed. Otherwise,
+a warning is printed to the user.
 
 ### Table of Contents
 
