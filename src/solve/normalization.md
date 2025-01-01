@@ -1,5 +1,8 @@
 # Normalization in the new solver
 
+> **NOTE**: FIXME: The content of this chapter has some been changed quite
+significantly since it was written.
+
 With the new solver we've made some fairly significant changes to normalization when compared
 to the existing implementation.
 
