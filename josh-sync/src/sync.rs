@@ -81,11 +81,18 @@ impl GitSync {
         };
         let num_roots_before = num_roots()?;
 
+        let sha = cmd!(sh, "git rev-parse HEAD").run().context("FAILED to get current commit")?;
+
         // Merge the fetched commit.
         const MERGE_COMMIT_MESSAGE: &str = "Merge from rustc";
         cmd!(sh, "git merge FETCH_HEAD --no-verify --no-ff -m {MERGE_COMMIT_MESSAGE}")
             .run()
             .context("FAILED to merge new commits, something went wrong")?;
+
+        let current_sha = cmd!(sh, "git rev-parse HEAD").run().context("FAILED to get current commit")?;
+        if current_sha == sha {
+            return Err(anyhow::anyhow!("No merge was performed, nothing to pull"));
+        }
 
         // Check that the number of roots did not increase.
         if num_roots()? != num_roots_before {
