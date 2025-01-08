@@ -1,5 +1,6 @@
 [![CI](https://github.com/rust-lang/rustc-dev-guide/actions/workflows/ci.yml/badge.svg)](https://github.com/rust-lang/rustc-dev-guide/actions/workflows/ci.yml)
 
+# Update RDG
 
 This is a collaborative effort to build a guide that explains how rustc
 works. The aim of the guide is to help new contributors get oriented
