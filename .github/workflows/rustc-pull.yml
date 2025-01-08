@@ -1,0 +1,44 @@
+name: rustc-pull
+
+on:
+  workflow_dispatch:
+  pull_request:
+  schedule:
+    # Run at 04:00 UTC every Monday
+    - cron: '0 4 * * 1'
+
+jobs:
+  pull:
+    #if: github.repository == 'rust-lang/rustc-dev-guide'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: '0'
+      - name: Install stable Rust toolchain
+        run: rustup update stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "josh-sync"
+          cache-directories: "/home/runner/.cache/rustc-dev-guide-josh"
+      - name: Install Josh
+        run: RUSTFLAGS="--cap-lints warn" cargo +stable install josh-proxy --git https://github.com/josh-project/josh --tag r24.10.04
+      - name: Setup bot git name and email
+        run: |
+          git config --global user.name 'The rustc-dev-guide Cronjob Bot'
+          git config --global user.email 'rustc-dev-guide@cron.bot'
+      - name: Perform rustc-pull
+        run: cargo run --manifest-path josh-sync/Cargo.toml -- rustc-pull
+      - name: Push changes to a branch
+        run: |
+          BRANCH="rustc-pull"
+          git switch -c $BRANCH
+          git push -u origin $BRANCH --force
+      - name: Create pull request
+        run: |
+          gh pr create -B master --title 'Rustc pull update' --body 'Latest update from rustc.'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
