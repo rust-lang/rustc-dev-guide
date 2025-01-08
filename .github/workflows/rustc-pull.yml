@@ -1,4 +1,4 @@
-name: rustc-pull
+name: rustc-pullx
 
 on:
   workflow_dispatch:
