@@ -81,7 +81,7 @@ impl GitSync {
         };
         let num_roots_before = num_roots()?;
 
-        let sha = cmd!(sh, "git rev-parse HEAD").run().context("FAILED to get current commit")?;
+        let sha = cmd!(sh, "git rev-parse HEAD").output().context("FAILED to get current commit")?.stdout;
 
         // Merge the fetched commit.
         const MERGE_COMMIT_MESSAGE: &str = "Merge from rustc";
@@ -89,7 +89,7 @@ impl GitSync {
             .run()
             .context("FAILED to merge new commits, something went wrong")?;
 
-        let current_sha = cmd!(sh, "git rev-parse HEAD").run().context("FAILED to get current commit")?;
+        let current_sha = cmd!(sh, "git rev-parse HEAD").output().context("FAILED to get current commit")?.stdout;
         if current_sha == sha {
             cmd!(sh, "git reset --hard HEAD^")
                 .run()
