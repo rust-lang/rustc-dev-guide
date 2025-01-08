@@ -91,7 +91,10 @@ impl GitSync {
 
         let current_sha = cmd!(sh, "git rev-parse HEAD").run().context("FAILED to get current commit")?;
         if current_sha == sha {
-            return Err(anyhow::anyhow!("No merge was performed, nothing to pull"));
+            cmd!(sh, "git reset --hard HEAD^")
+                .run()
+                .expect("FAILED to clean up after creating the preparation commit");
+            return Err(anyhow::anyhow!("No merge was performed, nothing to pull. Rolled back the preparation commit."));
         }
 
         // Check that the number of roots did not increase.
