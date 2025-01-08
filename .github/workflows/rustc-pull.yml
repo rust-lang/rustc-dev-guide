@@ -34,9 +34,9 @@ jobs:
         run: cargo run --manifest-path josh-sync/Cargo.toml -- rustc-pull
       - name: Push changes to a branch
         run: |
-          BRANCH="rustc-pull-$(date -u +%Y-%m-%d)"
+          BRANCH="rustc-pull"
           git switch -c $BRANCH
-          git push -u origin $BRANCH
+          git push -u origin $BRANCH --force
       - name: Create pull request
         run: |
           gh pr create -B master --title 'Rustc pull update' --body 'Latest update from rustc.'
