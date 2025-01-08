@@ -1,4 +1,4 @@
-name: rustc-pullx
+name: rustc-pull
 
 on:
   workflow_dispatch:
@@ -12,15 +12,18 @@ jobs:
     #if: github.repository == 'rust-lang/rustc-dev-guide'
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       pull-requests: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: '0'
       - name: Install stable Rust toolchain
         run: rustup update stable
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: "josh-sync"
+          cache-directories: "/home/runner/.cache/rustc-dev-guide-josh"
       - name: Install Josh
         run: RUSTFLAGS="--cap-lints warn" cargo +stable install josh-proxy --git https://github.com/josh-project/josh --tag r24.10.04
       - name: Setup bot git name and email
@@ -37,5 +40,5 @@ jobs:
       - name: Create pull request
         run: |
           gh pr create -B master --title 'Rustc pull update' --body 'Latest update from rustc.'
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

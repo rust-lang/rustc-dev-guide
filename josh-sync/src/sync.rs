@@ -9,7 +9,7 @@ use xshell::{cmd, Shell};
 /// Used for rustc syncs.
 const JOSH_FILTER: &str = ":/src/doc/rustc-dev-guide";
 const JOSH_PORT: u16 = 42042;
-const UPSTREAM_REPO: &str = "rust-lang/rust";
+const UPSTREAM_REPO: &str = "kobzol/rust";
 
 pub struct GitSync {
     dir: PathBuf,
@@ -184,6 +184,7 @@ impl GitSync {
                 directories::ProjectDirs::from("org", "rust-lang", "rustc-dev-guide-josh").unwrap();
             user_dirs.cache_dir().to_owned()
         };
+        eprintln!("Using cache dir at {}", local_dir.display());
 
         // Start josh, silencing its output.
         let mut cmd = process::Command::new("josh-proxy");
