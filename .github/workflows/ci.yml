@@ -6,8 +6,8 @@ on:
       - master
   pull_request:
   schedule:
-    # Run at 18:00 UTC every day
-    - cron: '0 18 * * *'
+    # Run 4 times a day so that the link expiration turn over is relatively small
+    - cron: '0 */6 * * *'
 
 jobs:
   ci:
