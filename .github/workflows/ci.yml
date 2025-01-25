@@ -57,7 +57,7 @@ jobs:
           cargo install mdbook-linkcheck2 --version ${{ env.MDBOOK_LINKCHECK2_VERSION }}
           cargo install mdbook-toc --version ${{ env.MDBOOK_TOC_VERSION }}
           cargo install mdbook-mermaid --version ${{ env.MDBOOK_MERMAID_VERSION }}
-  
+
       - name: Check build
         run: ENABLE_LINKCHECK=1 mdbook build
 
