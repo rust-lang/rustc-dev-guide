@@ -15,7 +15,7 @@ if [ -z "$ENABLE_LINKCHECK" ] ; then
 fi
 
 # https://docs.github.com/en/actions/reference/environment-variables
-if [ "$GITHUB_EVENT_NAME" = "schedule" ] ; then # running in scheduled job
+if [ "$GITHUB_EVENT_NAME" = "pull_request" ] ; then # running in scheduled job
   FLAGS=""
   USE_TOKEN=1
 

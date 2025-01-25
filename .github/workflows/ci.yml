@@ -62,7 +62,7 @@ jobs:
 
       - name: Save cached Linkcheck
         id: cache-linkcheck-save
-        if: ${{ !cancelled() && github.event_name == 'schedule' }}
+        if: ${{ !cancelled() }}
         uses: actions/cache/save@v4
         with:
           path: book/linkcheck/cache.json
