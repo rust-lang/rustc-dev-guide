@@ -59,7 +59,6 @@ jobs:
       - name: Check build
         run: ENABLE_LINKCHECK=1 mdbook build
 
-
       - name: Save cached Linkcheck
         id: cache-linkcheck-save
         if: ${{ !cancelled() }}
