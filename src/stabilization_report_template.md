@@ -42,7 +42,7 @@ An example for async closures: https://rustc-dev-guide.rust-lang.org/coroutine-c
 
 (Be sure to link to tests demonstrating that these tests are being done.)
 
-### Can users use this feature to introduce undefined behavior? (Describe.)
+### Can users use this feature to introduce undefined behavior, or use this feature to break the abstraction of Rust and expose the underlying assembly-level implementation? (Describe.)
 
 ### What updates are needed to the reference/specification? (link to PRs when they exist)
 
