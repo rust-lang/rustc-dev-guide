@@ -38,7 +38,7 @@ Unicode character encoding.
 
 The token stream passes through a higher-level lexer located in
 [`rustc_parse`] to prepare for the next stage of the compile process. The
-[`StringReader`] `struct` is used at this stage to perform a set of validations
+[`Lexer`] `struct` is used at this stage to perform a set of validations
 and turn strings into interned symbols (_interning_ is discussed later).
 [String interning] is a way of storing only one immutable
 copy of each distinct string value.
@@ -142,6 +142,7 @@ the final binary.
 [`expect`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_parse/parser/struct.Parser.html#method.expect
 [`Expr`]: https://doc.rust-lang.org/beta/nightly-rustc/rustc_ast/ast/struct.Expr.html
 [`hir::Ty`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/hir/struct.Ty.html
+[`Lexer`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_parse/lexer/struct.Lexer.html
 [`look_ahead`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_parse/parser/struct.Parser.html#method.look_ahead
 [`Parser`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_parse/parser/struct.Parser.html
 [`Pat`]: https://doc.rust-lang.org/beta/nightly-rustc/rustc_ast/ast/struct.Pat.html
@@ -153,7 +154,6 @@ the final binary.
 [`rustc_parse::parser::Parser`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_parse/parser/struct.Parser.html
 [`rustc_parse`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_parse/index.html
 [`simplify_try`]: https://github.com/rust-lang/rust/pull/66282
-[`StringReader`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_parse/lexer/struct.StringReader.html
 [`Ty<'tcx>`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.Ty.html
 [borrow checking]: borrow_check.md
 [codegen]: backend/codegen.md
