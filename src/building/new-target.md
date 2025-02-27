@@ -119,7 +119,12 @@ const STAGE0_MISSING_TARGETS: &[&str] = &[
 ## Patching crates
 
 You may need to make changes to crates that the compiler depends on,
-such as [`libc`][] or [`cc`][]. If so, you can use Cargo's
+such as [`libc`][] or [`cc`][]. 
+
+For instance, [`cc`][] only supports a hardcoded list of targets, if your target is not known to [`cc`][],
+you will need to maintain a fork of [`cc`][] until it lands in nightly and the auto-generated list has been updated.
+
+If so, you can use Cargo's
 [`[patch]`][patch] ability. For example, if you want to use an
 unreleased version of `libc`, you can add it to the top-level
 `Cargo.toml` file:
