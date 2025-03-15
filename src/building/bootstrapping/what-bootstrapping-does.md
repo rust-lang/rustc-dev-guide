@@ -372,6 +372,7 @@ You can find more discussion about sysroots in:
   Zulip](https://rust-lang.zulipchat.com/#narrow/stream/182449-t-compiler.2Fhelp/topic/deps.20in.20sysroot/)
 - [Discussions about building rustdoc out of
   tree](https://rust-lang.zulipchat.com/#narrow/stream/182449-t-compiler.2Fhelp/topic/How.20to.20create.20an.20executable.20accessing.20.60rustc_private.60.3F)
+- [This issue](https://github.com/rust-lang/rust/issues/137421) explaining that `rustc_private` linker fails sometimes because llvm-tools is not installed.
 
 [rustdoc PR]: https://github.com/rust-lang/rust/pull/76728
 
