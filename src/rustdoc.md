@@ -81,6 +81,8 @@ does is call the `main()` that's in this crate's `lib.rs`, though.)
 
 ## Tests
 
+<!-- FIXME(fmease): Also mention `tests/ui/rustdoc/`! -->
+
 * Tests on search engine and index are located in `tests/rustdoc-js` and `tests/rustdoc-js-std`.
   The format is specified
   [in the search guide](rustdoc-internals/search.md#testing-the-search-engine).
