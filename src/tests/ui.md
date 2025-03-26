@@ -415,6 +415,12 @@ reasons, including:
    can alert the developer so they know that the associated issue has been fixed
    and can possibly be closed.
 
+This directive takes comma-separated issue numbers as arguments,
+each prefixed with a `#`.
+Examples are `//@ known-bug: #12345` and `//@ known-bug: #123, #456`.
+Arbitrary text before the `#` is also accepted,
+example being `rust-lang/rust#12345`.
+
 Do not include [error annotations](#error-annotations) in a test with
 `known-bug`. The test should still include other normal directives and
 stdout/stderr files.
