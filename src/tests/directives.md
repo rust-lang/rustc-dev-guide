@@ -129,6 +129,19 @@ means the test won't be compiled or run.
 
 Some examples of `X` in `ignore-X` or `only-X`:
 
+> NOTE:
+>
+> There's a current compiletest implementation limitation that an allow list is used
+> to help check for unknown directives (`src/tools/compiletest/src/directive-list.rs`).
+> The target triples and target archs for `//@ {ignore,only}-$target_triple` and
+> `//@ {ignore,only}-$target_arch` are computed based on all the builtin target specs,
+> such that they may be functional directives but are not listed in the known directives
+> allow list. In that case, you can `//@ {ignore,only}-{$target_triple,$target_arch}` to
+> the directives allow list.
+>
+> We would like to rework directive handling to make this allow list unnecessary in the
+> future.
+
 - A full target triple: `aarch64-apple-ios`
 - Architecture: `aarch64`, `arm`, `mips`, `wasm32`, `x86_64`, `x86`,
   ...
