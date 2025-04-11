@@ -565,8 +565,9 @@ $ COMPILETEST_VERBOSE_CRASHES=1 ./x test tests/crashes/999999.rs --stage 1
 ```
 
 When adding crashes from <https://github.com/rust-lang/rust/issues>, the issue
-number should be noted in the file name (`12345.rs` should suffice) and also
-inside the file include a `//@ known-bug: #4321` directive.
+number should be appended to the end of the file name (e.g.
+`calling-undefined-fn-12345.rs`), and a `//@ known-bug: #12345` directive
+should be added inside the test file itself.
 
 If you happen to fix one of the crashes, please move it to a fitting
 subdirectory in `tests/ui` and give it a meaningful name. Please add a doc
