@@ -1,7 +1,7 @@
 # Summary
 
-[Getting Started](./getting-started.md)
-[About this guide](./about-this-guide.md)
+- [Getting Started](./getting-started.md)
+- [About this guide](./about-this-guide.md)
 
 ---
 
@@ -229,13 +229,12 @@
 
 ---
 
-[Appendix A: Background topics](./appendix/background.md)
-[Appendix B: Glossary](./appendix/glossary.md)
-[Appendix C: Code Index](./appendix/code-index.md)
-[Appendix D: Compiler Lecture Series](./appendix/compiler-lecture.md)
-[Appendix E: Bibliography](./appendix/bibliography.md)
-
-[Appendix Z: HumorRust](./appendix/humorust.md)
+- [Appendix A: Background topics](./appendix/background.md)
+- [Appendix B: Glossary](./appendix/glossary.md)
+- [Appendix C: Code Index](./appendix/code-index.md)
+- [Appendix D: Compiler Lecture Series](./appendix/compiler-lecture.md)
+- [Appendix E: Bibliography](./appendix/bibliography.md)
+- [Appendix Z: HumorRust](./appendix/humorust.md)
 
 ---
 
