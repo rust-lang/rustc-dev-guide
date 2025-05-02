@@ -264,8 +264,8 @@ default).
 
 Once you have successfully built `rustc`, you will have created a bunch
 of files in your `build` directory. In order to actually run the
-resulting `rustc`, we recommend creating rustup toolchains. The first
-one will run the stage1 compiler (which we built above). The second
+resulting `rustc`, we recommend creating rustup toolchains. The second
+one will run the stage1 compiler (which we built above). The third
 will execute the stage2 compiler (which we did not build, but which
 you will likely need to build at some point; for example, if you want
 to run the entire test suite).
