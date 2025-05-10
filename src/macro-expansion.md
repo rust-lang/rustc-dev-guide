@@ -2,7 +2,7 @@
 
 <!-- toc -->
 
-> N.B. [`rustc_ast`], [`rustc_expand`], and [`rustc_builtin_macros`] are all
+> N.B. as of Nov 2019 [`rustc_ast`], [`rustc_expand`], and [`rustc_builtin_macros`] are all
 > undergoing refactoring, so some of the links in this chapter may be broken.
 
 Rust has a very powerful macro system. In the previous chapter, we saw how
