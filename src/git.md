@@ -25,6 +25,33 @@ please [open an issue] so we can document how to fix it.
 [documentation]: https://docs.github.com/en/get-started/quickstart/set-up-git
 [guides]: https://guides.github.com/introduction/git-handbook/
 
+## Quick Reference
+
+Here are the most common Git commands you'll use when contributing to Rust:
+
+- [Set up repository](#prerequisites)
+  ```sh
+  # Setup: Add upstream remote to your fork
+  git remote add upstream https://github.com/rust-lang/rust.git
+  ```
+- [Start new work, and Keep up to date with upstream](#keeping-things-up-to-date)
+  ```
+  # Start new work
+  git checkout master
+  git pull upstream master --ff-only
+  git checkout -b my-feature-branch
+  ```
+- [After resolving conflicts during rebase](#rebasing-and-conflicts)
+  ```
+  git add <resolved-files>
+  git rebase --continue
+  git push --force-with-lease  # Update your remote branch
+  ```
+- [Prevent creating merge commits (recommended)](#no-merge-policy)
+  ```
+  git config pull.ff only
+  ```
+
 ## Prerequisites
 
 We'll assume that you've installed Git, forked [rust-lang/rust], and cloned the
