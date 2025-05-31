@@ -1,0 +1,359 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Debugging bootstrap - Rust Compiler Development Guide</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A guide to developing the Rust compiler (rustc)">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon.svg">
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Compiler Development Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide/edit/master/src/building/bootstrapping/debugging-bootstrap.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="debugging-bootstrap"><a class="header" href="#debugging-bootstrap">Debugging bootstrap</a></h1>
+<p>There are two main ways to debug bootstrap itself. The first is through println logging, and the second is through the <code>tracing</code> feature.</p>
+<blockquote>
+<p>FIXME: this section should be expanded</p>
+</blockquote>
+<h2 id="println-logging"><a class="header" href="#println-logging"><code>println</code> logging</a></h2>
+<p>Bootstrap has extensive unstructured logging. Most of it is gated behind the <code>--verbose</code> flag (pass <code>-vv</code> for even more detail).</p>
+<p>If you want to know which <code>Step</code> ran a command, you could invoke bootstrap like so:</p>
+<pre><code>$ ./x dist rustc --dry-run -vv
+learning about cargo
+running: RUSTC_BOOTSTRAP="1" "/home/jyn/src/rust2/build/x86_64-unknown-linux-gnu/stage0/bin/cargo" "metadata" "--format-version" "1" "--no-deps" "--manifest-path" "/home/jyn/src/rust2/Cargo.toml" (failure_mode=Exit) (created at src/bootstrap/src/core/metadata.rs:81:25, executed at src/bootstrap/src/core/metadata.rs:92:50)
+running: RUSTC_BOOTSTRAP="1" "/home/jyn/src/rust2/build/x86_64-unknown-linux-gnu/stage0/bin/cargo" "metadata" "--format-version" "1" "--no-deps" "--manifest-path" "/home/jyn/src/rust2/library/Cargo.toml" (failure_mode=Exit) (created at src/bootstrap/src/core/metadata.rs:81:25, executed at src/bootstrap/src/core/metadata.rs:92:50)
+&gt; Assemble { target_compiler: Compiler { stage: 1, host: x86_64-unknown-linux-gnu } }
+  &gt; Libdir { compiler: Compiler { stage: 1, host: x86_64-unknown-linux-gnu }, target: x86_64-unknown-linux-gnu }
+    &gt; Sysroot { compiler: Compiler { stage: 1, host: x86_64-unknown-linux-gnu }, force_recompile: false }
+Removing sysroot /home/jyn/src/rust2/build/tmp-dry-run/x86_64-unknown-linux-gnu/stage1 to avoid caching bugs
+    &lt; Sysroot { compiler: Compiler { stage: 1, host: x86_64-unknown-linux-gnu }, force_recompile: false }
+  &lt; Libdir { compiler: Compiler { stage: 1, host: x86_64-unknown-linux-gnu }, target: x86_64-unknown-linux-gnu }
+...
+</code></pre>
+<p>This will go through all the recursive dependency calculations, where <code>Step</code>s internally call <code>builder.ensure()</code>, without actually running cargo or the compiler.</p>
+<p>In some cases, even this may not be enough logging (if so, please add more!). In that case, you can omit <code>--dry-run</code>, which will show the normal output inline with the debug logging:</p>
+<pre><code>      c Sysroot { compiler: Compiler { stage: 0, host: x86_64-unknown-linux-gnu }, force_recompile: false }
+using sysroot /home/jyn/src/rust2/build/x86_64-unknown-linux-gnu/stage0-sysroot
+Building stage0 library artifacts (x86_64-unknown-linux-gnu)
+running: cd "/home/jyn/src/rust2" &amp;&amp; env ... RUSTC_VERBOSE="2" RUSTC_WRAPPER="/home/jyn/src/rust2/build/bootstrap/debug/rustc" "/home/jyn/src/rust2/build/x86_64-unknown-linux-gnu/stage0/bin/cargo" "build" "--target" "x86_64-unknown-linux-gnu" "-Zbinary-dep-depinfo" "-Zroot-dir=/home/jyn/src/rust2" "-v" "-v" "--manifest-path" "/home/jyn/src/rust2/library/sysroot/Cargo.toml" "--message-format" "json-render-diagnostics"
+   0.293440230s  INFO prepare_target{force=false package_id=sysroot v0.0.0 (/home/jyn/src/rust2/library/sysroot) target="sysroot"}: cargo::core::compiler::fingerprint: fingerprint error for sysroot v0.0.0 (/home/jyn/src/rust2/library/sysroot)/Build/TargetInner { name_inferred: true, ..: lib_target("sysroot", ["lib"], "/home/jyn/src/rust2/library/sysroot/src/lib.rs", Edition2021) }
+...
+</code></pre>
+<p>In most cases this should not be necessary.</p>
+<p>TODO: we should convert all this to structured logging so it's easier to control precisely.</p>
+<h2 id="tracing-in-bootstrap"><a class="header" href="#tracing-in-bootstrap"><code>tracing</code> in bootstrap</a></h2>
+<p>Bootstrap has conditional <a href="https://docs.rs/tracing/0.1.41/tracing/index.html"><code>tracing</code></a> setup to provide structured logging.</p>
+<h3 id="enabling-tracing-output"><a class="header" href="#enabling-tracing-output">Enabling <code>tracing</code> output</a></h3>
+<p>Bootstrap will conditionally build <code>tracing</code> support and enable <code>tracing</code> output if the <code>BOOTSTRAP_TRACING</code> env var is set.</p>
+<h4 id="basic-usage"><a class="header" href="#basic-usage">Basic usage</a></h4>
+<p>Example basic usage<sup class="footnote-reference" id="fr-just-trace-1"><a href="#footnote-just-trace">1</a></sup>:</p>
+<pre><code class="language-bash">$ BOOTSTRAP_TRACING=bootstrap=TRACE ./x build library --stage 1
+</code></pre>
+<p>Example output<sup class="footnote-reference" id="fr-unstable-1"><a href="#footnote-unstable">2</a></sup>:</p>
+<pre><code>$ BOOTSTRAP_TRACING=bootstrap=TRACE ./x check src/bootstrap/
+Building bootstrap
+   Compiling bootstrap v0.0.0 (/home/joe/repos/rust/src/bootstrap)
+    Finished `dev` profile [unoptimized] target(s) in 2.74s
+ DEBUG bootstrap parsing flags
+ bootstrap::core::config::flags::Flags::parse args=["check", "src/bootstrap/"]
+ DEBUG bootstrap parsing config based on flags
+ DEBUG bootstrap creating new build based on config
+ bootstrap::Build::build
+  TRACE bootstrap setting up job management
+  TRACE bootstrap downloading rustfmt early
+   bootstrap::handling hardcoded subcommands (Format, Suggest, Perf)
+    DEBUG bootstrap not a hardcoded subcommand; returning to normal handling, cmd=Check { all_targets: false }
+  DEBUG bootstrap handling subcommand normally
+   bootstrap::executing real run
+     bootstrap::(1) executing dry-run sanity-check
+     bootstrap::(2) executing actual run
+Checking stage0 library artifacts (x86_64-unknown-linux-gnu)
+    Finished `release` profile [optimized + debuginfo] target(s) in 0.04s
+Checking stage0 compiler artifacts {rustc-main, rustc_abi, rustc_arena, rustc_ast, rustc_ast_ir, rustc_ast_lowering, rustc_ast_passes, rustc_ast_pretty, rustc_attr_data_structures, rustc_attr_parsing, rustc_baked_icu_data, rustc_borrowck, rustc_builtin_macros, rustc_codegen_llvm, rustc_codegen_ssa, rustc_const_eval, rustc_data_structures, rustc_driver, rustc_driver_impl, rustc_error_codes, rustc_error_messages, rustc_errors, rustc_expand, rustc_feature, rustc_fluent_macro, rustc_fs_util, rustc_graphviz, rustc_hir, rustc_hir_analysis, rustc_hir_pretty, rustc_hir_typeck, rustc_incremental, rustc_index, rustc_index_macros, rustc_infer, rustc_interface, rustc_lexer, rustc_lint, rustc_lint_defs, rustc_llvm, rustc_log, rustc_macros, rustc_metadata, rustc_middle, rustc_mir_build, rustc_mir_dataflow, rustc_mir_transform, rustc_monomorphize, rustc_next_trait_solver, rustc_parse, rustc_parse_format, rustc_passes, rustc_pattern_analysis, rustc_privacy, rustc_query_impl, rustc_query_system, rustc_resolve, rustc_sanitizers, rustc_serialize, rustc_session, rustc_smir, rustc_span, rustc_symbol_mangling, rustc_target, rustc_trait_selection, rustc_traits, rustc_transmute, rustc_ty_utils, rustc_type_ir, rustc_type_ir_macros, stable_mir} (x86_64-unknown-linux-gnu)
+    Finished `release` profile [optimized + debuginfo] target(s) in 0.23s
+Checking stage0 bootstrap artifacts (x86_64-unknown-linux-gnu)
+    Checking bootstrap v0.0.0 (/home/joe/repos/rust/src/bootstrap)
+    Finished `release` profile [optimized + debuginfo] target(s) in 0.64s
+  DEBUG bootstrap checking for postponed test failures from `test  --no-fail-fast`
+Build completed successfully in 0:00:08
+</code></pre>
+<h4 id="controlling-tracing-output"><a class="header" href="#controlling-tracing-output">Controlling tracing output</a></h4>
+<p>The env var <code>BOOTSTRAP_TRACING</code> accepts a <a href="https://docs.rs/tracing-subscriber/0.3.19/tracing_subscriber/filter/struct.EnvFilter.html"><code>tracing</code> env-filter</a>.</p>
+<p>There are two orthogonal ways to control which kind of tracing logs you want:</p>
+<ol>
+<li>You can specify the log <strong>level</strong>, e.g. <code>DEBUG</code> or <code>TRACE</code>.</li>
+<li>You can also control the log <strong>target</strong>, e.g. <code>bootstrap</code> or <code>bootstrap::core::config</code> vs custom targets like <code>CONFIG_HANDLING</code>.
+<ul>
+<li>Custom targets are used to limit what is output when <code>BOOTSTRAP_TRACING=bootstrap=TRACE</code> is used, as they can be too verbose even for <code>TRACE</code> level by default. Currently used custom targets:
+<ul>
+<li><code>CONFIG_HANDLING</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p>The <code>TRACE</code> filter will enable <em>all</em> <code>trace</code> level or less verbose level tracing output.</p>
+<p>You can of course combine them (custom target logs are typically gated behind <code>TRACE</code> log level additionally):</p>
+<pre><code class="language-bash">$ BOOTSTRAP_TRACING=CONFIG_HANDLING=TRACE ./x build library --stage 1
+</code></pre>
+<h5 id="fixme96176-specific-tracing-for-compiler-vs-compiler_for"><a class="header" href="#fixme96176-specific-tracing-for-compiler-vs-compiler_for">FIXME(#96176): specific tracing for <code>compiler()</code> vs <code>compiler_for()</code></a></h5>
+<p>The additional targets <code>COMPILER</code> and <code>COMPILER_FOR</code> are used to help trace what
+<code>builder.compiler()</code> and <code>builder.compiler_for()</code> does. They should be removed
+if <a href="https://github.com/rust-lang/rust/issues/96176">#96176</a> is resolved.</p>
+<h3 id="using-tracing-in-bootstrap"><a class="header" href="#using-tracing-in-bootstrap">Using <code>tracing</code> in bootstrap</a></h3>
+<p>Both <code>tracing::*</code> macros and the <code>tracing::instrument</code> proc-macro attribute need to be gated behind <code>tracing</code> feature. Examples:</p>
+<pre><code class="language-rs">#[cfg(feature = "tracing")]
+use tracing::instrument;
+
+struct Foo;
+
+impl Step for Foo {
+    type Output = ();
+
+    #[cfg_attr(feature = "tracing", instrument(level = "trace", name = "Foo::should_run", skip_all))]
+    fn should_run(run: ShouldRun&lt;'_&gt;) -&gt; ShouldRun&lt;'_&gt; {
+        trace!(?run, "entered Foo::should_run");
+
+        todo!()
+    }
+
+    #[cfg_attr(
+        feature = "tracing",
+        instrument(
+            level = "trace",
+            name = "Foo::run",
+            skip_all,
+            fields(compiler = ?builder.compiler),
+        ),
+    )]
+    fn run(self, builder: &amp;Builder&lt;'_&gt;) -&gt; Self::Output {
+        trace!(?run, "entered Foo::run");
+
+        todo!()
+    }    
+}
+</code></pre>
+<p>For <code>#[instrument]</code>, it's recommended to:</p>
+<ul>
+<li>Gate it behind <code>trace</code> level for fine-granularity, possibly <code>debug</code> level for core functions.</li>
+<li>Explicitly pick an instrumentation name via <code>name = ".."</code> to distinguish between e.g. <code>run</code> of different steps.</li>
+<li>Take care to not cause diverging behavior via tracing, e.g. building extra things only when tracing infra is enabled.</li>
+</ul>
+<h3 id="profiling-bootstrap"><a class="header" href="#profiling-bootstrap">Profiling bootstrap</a></h3>
+<p>You can use the <code>COMMAND</code> tracing target to trace execution of most commands spawned by bootstrap. If you also use the <code>BOOTSTRAP_PROFILE=1</code> environment variable, bootstrap will generate a Chrome JSON trace file, which can be visualized in Chrome's <code>chrome://tracing</code> page or on https://ui.perfetto.dev.</p>
+<pre><code class="language-bash">$ BOOTSTRAP_TRACING=COMMAND=trace BOOTSTRAP_PROFILE=1 ./x build library
+</code></pre>
+<h3 id="rust-analyzer-integration"><a class="header" href="#rust-analyzer-integration">rust-analyzer integration?</a></h3>
+<p>Unfortunately, because bootstrap is a <code>rust-analyzer.linkedProjects</code>, you can't ask r-a to check/build bootstrap itself with <code>tracing</code> feature enabled to get relevant completions, due to lack of support as described in <a href="https://github.com/rust-lang/rust-analyzer/issues/8521">https://github.com/rust-lang/rust-analyzer/issues/8521</a>.</p>
+<hr>
+<ol class="footnote-definition"><li id="footnote-just-trace">
+<p>It is not recommend to use <em>just</em> <code>BOOTSTRAP_TRACING=TRACE</code> because that will dump <em>everything</em> at <code>TRACE</code> level, including logs intentionally gated behind custom targets as they are too verbose even for <code>TRACE</code> level by default. <a href="#fr-just-trace-1">↩</a></p>
+</li>
+<li id="footnote-unstable">
+<p>This output is always subject to further changes. <a href="#fr-unstable-1">↩</a></p>
+</li>
+</ol>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../building/bootstrapping/writing-tools-in-bootstrap.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../building/bootstrapping/bootstrap-in-dependencies.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../building/bootstrapping/writing-tools-in-bootstrap.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../building/bootstrapping/bootstrap-in-dependencies.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr.min.js"></script>
+        <script src="../../mark.min.js"></script>
+        <script src="../../searcher.js"></script>
+
+        <script src="../../clipboard.min.js"></script>
+        <script src="../../highlight.js"></script>
+        <script src="../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../../mermaid.min.js"></script>
+        <script src="../../mermaid-init.js"></script>
+
+
+    </div>
+    </body>
+</html>
