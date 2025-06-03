@@ -31,6 +31,8 @@ new_pr = true
 # Documentation at: https://forge.rust-lang.org/triagebot/transfer.html
 [transfer]
 
+# test
+
 [relabel]
 allow-unauthenticated = [
     "-Z*",
