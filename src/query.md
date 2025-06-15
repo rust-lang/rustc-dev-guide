@@ -168,7 +168,7 @@ Suppose you want to add a new query called `fubar`. You would:
 
 1. Implement the provider function:
     ```rust,ignore
-    fn fubar<'tcx>(tcx: TyCtxt<'tcx>, key: DefId) -> Fubar<'tcx> { ... }
+    fn fubar<'tcx>(tcx: TyCtxt<'tcx>, key: LocalDefId) -> Fubar<'tcx> { ... }
     ```
 2. Register it in the `provide` function:
     ```rust,ignore
