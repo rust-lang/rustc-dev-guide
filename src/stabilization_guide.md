@@ -56,7 +56,6 @@ The [*Stabilization Template*][srt] includes a series of questions that aim to s
 [srt]: ./stabilization_report_template.md
 
 The stabilization report is typically posted as the main comment on the stabilization PR (see the next section).
-If you'd like to develop the stabilization report incrementally, we recommend adding it to 
 
 ## Stabilization PR for a language feature
 
