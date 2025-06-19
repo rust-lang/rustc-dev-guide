@@ -116,8 +116,7 @@ same `compiler/rustc_ast_passes/src/feature_gate.rs`.
 For example, you might see code like this:
 
 ```rust,ignore
-gate_feature_post!(&self, pub_restricted, span,
- "`pub(restricted)` syntax is experimental");
+gate_all!(pub_restricted, "`pub(restricted)` syntax is experimental");
 ```
 
 This `gate_feature_post!` macro prints an error if the
@@ -127,7 +126,7 @@ now that `#[pub_restricted]` is stable.
 For more subtle features, you may find code like this:
 
 ```rust,ignore
-if self.tcx.sess.features.borrow().pub_restricted { /* XXX */ }
+if self.tcx.features().async_fn_in_dyn_trait() { /* XXX */ }
 ```
 
 This `pub_restricted` field (obviously named after the feature)
