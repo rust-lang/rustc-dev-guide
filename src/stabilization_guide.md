@@ -165,14 +165,16 @@ if something { /* XXX */ }
 [`Unstable Book`]: https://doc.rust-lang.org/unstable-book/index.html
 [`src/doc/unstable-book`]: https://github.com/rust-lang/rust/tree/master/src/doc/unstable-book
 
-## Lang team nomination
+## Team nominations
 
-When you feel the PR is ready for consideration by the lang team, you can [nominate the PR](https://lang-team.rust-lang.org/how_to/nominate.html) to get it on the list for discussion in the next meeting. You should also cc the other interacting teams to review the report:
+After the stabilization PR is opened with the stabilization report, wait a bit for potential immediate comments. When such immediate comments "simmer down" and you feel the PR is ready for consideration by the lang team, you can [nominate the PR](https://lang-team.rust-lang.org/how_to/nominate.html) to get it on the list for discussion in the next meeting. You should also cc the other interacting teams when applicable to review the language feature being stabilized and the stabilization report:
 
 * `@rust-lang/types`, to look for type system interactions
-* `@rust-lang/compiler`, to vouch for implementation quality
-* `@rust-lang/opsem`, but only if this feature interacts with unsafe code and can create undefined behavior
-* `@rust-lang/libs-api`, but only if there are additions to the standard library
+* `@rust-lang/compiler`, to review implementation robustness
+* `@rust-lang/opsem`, if this feature interacts with unsafe code and can create undefined behavior
+* `@rust-lang/libs-api`, if there are additions to the standard library that affects standard library API or their guarantees
+
+If you are not an organization member, you can simply ask your assigned reviewer to cc the relevant teams on your behalf.
 
 ## FCP proposed on the PR
 
