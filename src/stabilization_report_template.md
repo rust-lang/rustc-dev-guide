@@ -43,10 +43,14 @@
 > Within each test, include a comment at the top describing the purpose of the test and what set of invariants it intends to demonstrate. This is a great help to those reviewing the tests at stabilization time.
 >
 > - What does the test coverage landscape for this feature look like?
->   - (Positive/negative) Behavioral tests?
->   - (Positive/negative) Interface tests? (e.g. compiler cli interface)
->   - Maybe link to test folders or individual tests (ui/codegen/assembly/run-make tests, etc.)
->   - Are there any (intentional/unintentional) gaps in test coverage?
+>   - Tests for compiler errors when you use the feature wrongly or make mistakes?
+>   - Tests for the feature itself:
+>       - Limits of the feature (so failing compilation)
+>       - Exercises of edge cases of the feature
+>       - Tests that checks the feature works as expected (where applicable, `//@ run-pass`).
+>   - Are there any intentional gaps in test coverage?
+>
+> Link to test folders or individual tests (ui/codegen/assembly/run-make tests, etc.).
 
 *TODO*
 
