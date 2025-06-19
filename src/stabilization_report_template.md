@@ -37,7 +37,11 @@
 *TODO*
 
 > ### Summarize existing test coverage of this feature
-> 
+>
+> Consider what the "edges" of this feature are.  We're particularly interested in seeing tests that assure us about exactly what nearby things we're not stabilizing.
+>
+> Within each test, include a comment at the top describing the purpose of the test and what set of invariants it intends to demonstrate. This is a great help to those reviewing the tests at stabilization time.
+>
 > - What does the test coverage landscape for this feature look like?
 >   - (Positive/negative) Behavioral tests?
 >   - (Positive/negative) Interface tests? (e.g. compiler cli interface)
