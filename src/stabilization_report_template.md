@@ -1,6 +1,8 @@
 # Stabilization report template
 
-> **What is this?** This is a template to use for [stabilization reports](./stabilization_guide.md). It consists of a series of questions that aim to provide the information most commonly needed and to help reviewers be more likely to identify potential problems up front. Not all parts of the template will apply to all stabilizations. Feel free to put N/A if a question doesn't seem to apply to your case.
+> **What is this?**
+>
+> This is a template to use for [stabilization reports](./stabilization_guide.md) of **language features**. It consists of a series of questions that aim to provide the information most commonly needed and to help reviewers be more likely to identify potential problems up front. Not all parts of the template will apply to all stabilizations. Feel free to put N/A if a question doesn't seem to apply to your case.
 >
 > You can copy the following template after the separator and edit it as Markdown, replacing the *TODO* placeholders with answers. 
 
