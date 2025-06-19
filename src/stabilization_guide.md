@@ -57,11 +57,6 @@ If you'd like to develop the stabilization report incrementally, we recommend ad
 *This is for stabilizing language features.  If you are stabilizing a library
 feature, see [the stabilization chapter of the std dev guide][std-guide-stabilization] instead.*
 
-Once we have decided to stabilize a feature, we need to have
-a PR that actually makes that stabilization happen. These kinds
-of PRs are a great way to get involved in Rust, as they take
-you on a little tour through the source code.
-
 Here is a general guide to how to stabilize a feature --
 every feature is different, of course, so some features may
 require steps beyond what this guide talks about.
