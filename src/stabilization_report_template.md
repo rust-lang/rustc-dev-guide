@@ -76,7 +76,11 @@
 
 *TODO*
 
-> ### Can users use this feature to introduce undefined behavior, or use this feature to break the abstraction >  of Rust and expose the underlying assembly-level implementation? (Describe.)
+> ### Does the feature's implementation need checks to prevent UB or is it sound by default and needs opt in in places to perform the dangerous/unsafe operations? If it is not sound by default, what is the rationale?
+
+*TODO*
+
+> ### Can users use this feature to introduce undefined behavior, or use this feature to break the abstraction of Rust and expose the underlying assembly-level implementation? (Describe.)
 
 *TODO*
 
