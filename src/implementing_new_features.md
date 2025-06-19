@@ -223,18 +223,23 @@ Which option to choose might depend on how significant the language change is, t
 
 ## Affiliated work
 
-Once the feature is supported by rustc, there is other associated work that needs to be done to give users a complete experience:
+Once the feature is supported by rustc, there is other associated work that needs to be done to give users a complete experience. Think of it as the *language toolchain* developer experience, which doesn't only comprise of the language or compiler in isolation.
 
-* Extending rustfmt to format any new syntax;
-* Extending rust-analyzer;
-* Documenting the feature in the Rust reference;
-* ...
+- Documenting the language feature in the [Rust Reference][reference].
+- (If applicable) Extending [`rustfmt`] to format any new syntax.
+- (If applicable) Extending [`rust-analyzer`]. This can depend on the nature of the language feature, as some features don't need to be blocked on *full* support.
+   - A blocking concern is when a language feature degrades the user experience simply by existing before its support is implemented in [`rust-analyzer`].
+   - Example blocking concern: new syntax that [`rust-analyzer`] can't parse -> bogus diagnostics, type inference changes -> bogus diagnostics.
 
 ## Stabilization
 
 The final step in the feature lifecycle is [stabilization][stab], which is when the feature becomes available to all Rust users. At this point, backwards incompatible changes are no longer permitted (modulo soundness bugs and inference changes; see the lang team's [defined semver policies](https://rust-lang.github.io/rfcs/1122-language-semver.html) for full details). To learn more about stabilization, see the [stabilization guide][stab].
 
+
 [stab]: ./stabilization_guide.md
 [rust-blog]: https://github.com/rust-lang/blog.rust-lang.org/
 [twir]: https://github.com/rust-lang/this-week-in-rust
 [twir-cft]: https://this-week-in-rust.org/blog/2025/01/22/this-week-in-rust-583/#calls-for-testing
+[`rustfmt`]: https://github.com/rust-lang/rustfmt
+[`rust-analyzer`]: https://github.com/rust-lang/rust-analyzer
+[reference]: https://github.com/rust-lang/reference
