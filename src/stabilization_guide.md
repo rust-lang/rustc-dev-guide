@@ -44,8 +44,14 @@ has completed. Meanwhile, we can proceed to the next step.
 ## Write a stabilization report
 
 Author a stabilization report using the [template found in this repository][srt].
-Stabilization reports summarize the work that has been done since the RFC.
-The [template][srt] includes a series of questions that aim to surface interconnections between this feature and the various Rust teams (lang, types, etc) and also to identify items that are commonly overlooked.
+
+Stabilization reports summarize:
+
+- The main design decisions and deviations since the RFC was accepted, particularly decisions that were FCP'd or otherwise accepted by the language team.
+    - Quite often, the final stabilized language feature can have significant design deviations from the original RFC text.
+- The work that has been done since the RFC was accepted, acknowledging the main contributors that helped drive the language feature forward.
+
+The [*Stabilization Template*][srt] includes a series of questions that aim to surface interconnections between this feature and the various Rust teams (lang, types, etc) and also to identify items that are commonly overlooked.
 
 [srt]: ./stabilization_report_template.md
 
