@@ -207,7 +207,19 @@ tests/ui/feature-gates/ --bless`.
 
 ## Call for testing
 
-Once the implementation is complete, the feature will be available to nightly users, but not yet part of stable Rust. This is a good time to write a blog post on [one of the Rust blogs](https://github.com/rust-lang/blog.rust-lang.org/) and issue a call for testing (here are three [example](https://blog.rust-lang.org/2021/08/03/GATs-stabilization-push.html) [blog](https://blog.rust-lang.org/inside-rust/2024/08/09/async-closures-call-for-testing.html) [posts](https://blog.rust-lang.org/2024/09/05/impl-trait-capture-rules.html) to give you the idea). The post should highlight how the feature works, what areas you'd like people to play with, and how they can supply feedback.
+Once the implementation is complete, the feature will be available to nightly users, but not yet part of stable Rust. This is a good time to write a blog post on [the main Rust blog][rust-blog] and issue a **Call for Testing**.
+
+Some example Call for Testing blog posts:
+
+1. [The push for GATs stabilization](https://blog.rust-lang.org/2021/08/03/GATs-stabilization-push/)
+2. [Changes to `impl Trait` in Rust 2024](https://blog.rust-lang.org/2024/09/05/impl-trait-capture-rules.html)
+3. [Async Closures MVP: Call for Testing!](https://blog.rust-lang.org/inside-rust/2024/08/09/async-closures-call-for-testing/)
+
+Alternatively, [*This Week in Rust*][twir] has a [call-for-testing section][twir-cft]. Example:
+
+- [Call for testing on boolean literals as cfg predicates](https://github.com/rust-lang/rust/issues/131204#issuecomment-2569314526).
+
+Which option to choose might depend on how significant the language change is, though note that [*This Week in Rust*][twir]'s Call for Testing section might be less visible than a dedicated post on the main Rust blog.
 
 ## Affiliated work
 
@@ -223,3 +235,6 @@ Once the feature is supported by rustc, there is other associated work that need
 The final step in the feature lifecycle is [stabilization][stab], which is when the feature becomes available to all Rust users. At this point, backwards incompatible changes are no longer permitted (modulo soundness bugs and inference changes; see the lang team's [defined semver policies](https://rust-lang.github.io/rfcs/1122-language-semver.html) for full details). To learn more about stabilization, see the [stabilization guide][stab].
 
 [stab]: ./stabilization_guide.md
+[rust-blog]: https://github.com/rust-lang/blog.rust-lang.org/
+[twir]: https://github.com/rust-lang/this-week-in-rust
+[twir-cft]: https://this-week-in-rust.org/blog/2025/01/22/this-week-in-rust-583/#calls-for-testing
