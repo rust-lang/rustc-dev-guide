@@ -23,6 +23,8 @@
 *TODO*
 
 > ## Has a Call for Testing period been conducted? If so, what feedback was received?
+>
+> Does any OSS nightly users use this feature? For instance, a useful indication might be "search <grep.app> for `#![feature(FEATURE_NAME)]` and had `N` results".
 
 *TODO*
 
