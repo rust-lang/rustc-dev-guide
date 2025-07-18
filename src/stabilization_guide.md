@@ -43,54 +43,24 @@ has completed. Meanwhile, we can proceed to the next step.
 
 ## Write a stabilization report
 
-Find the tracking issue of the feature, and create a short
-stabilization report. Essentially this would be a brief summary
-of the feature plus some links to test cases showing it works
-as expected, along with a list of edge cases that came up
-and were considered. This is a minimal "due diligence" that
-we do before stabilizing.
+Author a stabilization report using the [template found in this repository][srt].
 
-The report should contain:
+Stabilization reports summarize:
 
-- A summary, showing examples (e.g. code snippets) what is
-  enabled by this feature.
-- Links to test cases in our test suite regarding this feature
-  and describe the feature's behavior on encountering edge cases.
-- Links to the documentations (the PRs we have made in the
-  previous steps).
-- Any other relevant information.
-- The resolutions of any unresolved questions if the stabilization
-  is for an RFC.
+- The main design decisions and deviations since the RFC was accepted, particularly decisions that were FCP'd or otherwise accepted by the language team.
+    - Quite often, the final stabilized language feature can have significant design deviations from the original RFC text.
+- The work that has been done since the RFC was accepted, acknowledging the main contributors that helped drive the language feature forward.
 
-Examples of stabilization reports can be found in
-[rust-lang/rust#44494][report1] and [rust-lang/rust#28237][report2] (these links
-will bring you directly to the comment containing the stabilization report).
+The [*Stabilization Template*][srt] includes a series of questions that aim to surface interconnections between this feature and the various Rust teams (lang, types, etc) and also to identify items that are commonly overlooked.
 
-[report1]: https://github.com/rust-lang/rust/issues/44494#issuecomment-360191474
-[report2]: https://github.com/rust-lang/rust/issues/28237#issuecomment-363374130
+[srt]: ./stabilization_report_template.md
 
-## FCP
+The stabilization report is typically posted as the main comment on the stabilization PR (see the next section).
 
-If any member of the team responsible for tracking this
-feature agrees with stabilizing this feature, they will
-start the FCP (final-comment-period) process by commenting
-
-```text
-@rfcbot fcp merge
-```
-
-The rest of the team members will review the proposal. If the final
-decision is to stabilize, we proceed to do the actual code modification.
-
-## Stabilization PR
+## Stabilization PR for a language feature
 
 *This is for stabilizing language features.  If you are stabilizing a library
 feature, see [the stabilization chapter of the std dev guide][std-guide-stabilization] instead.*
-
-Once we have decided to stabilize a feature, we need to have
-a PR that actually makes that stabilization happen. These kinds
-of PRs are a great way to get involved in Rust, as they take
-you on a little tour through the source code.
 
 Here is a general guide to how to stabilize a feature --
 every feature is different, of course, so some features may
@@ -151,8 +121,7 @@ same `compiler/rustc_ast_passes/src/feature_gate.rs`.
 For example, you might see code like this:
 
 ```rust,ignore
-gate_feature_post!(&self, pub_restricted, span,
- "`pub(restricted)` syntax is experimental");
+gate_all!(pub_restricted, "`pub(restricted)` syntax is experimental");
 ```
 
 This `gate_feature_post!` macro prints an error if the
@@ -162,7 +131,7 @@ now that `#[pub_restricted]` is stable.
 For more subtle features, you may find code like this:
 
 ```rust,ignore
-if self.tcx.sess.features.borrow().pub_restricted { /* XXX */ }
+if self.tcx.features().async_fn_in_dyn_trait() { /* XXX */ }
 ```
 
 This `pub_restricted` field (obviously named after the feature)
@@ -194,3 +163,25 @@ if something { /* XXX */ }
 [Rust by Example]: https://github.com/rust-lang/rust-by-example
 [`Unstable Book`]: https://doc.rust-lang.org/unstable-book/index.html
 [`src/doc/unstable-book`]: https://github.com/rust-lang/rust/tree/master/src/doc/unstable-book
+
+## Team nominations
+
+After the stabilization PR is opened with the stabilization report, wait a bit for potential immediate comments. When such immediate comments "simmer down" and you feel the PR is ready for consideration by the lang team, you can [nominate the PR](https://lang-team.rust-lang.org/how_to/nominate.html) to get it on the list for discussion in the next meeting. You should also cc the other interacting teams when applicable to review the language feature being stabilized and the stabilization report:
+
+* `@rust-lang/types`, to look for type system interactions
+* `@rust-lang/compiler`, to review implementation robustness
+* `@rust-lang/opsem`, if this feature interacts with unsafe code and can create undefined behavior
+* `@rust-lang/libs-api`, if there are additions to the standard library that affects standard library API or their guarantees
+
+If you are not an organization member, you can simply ask your assigned reviewer to cc the relevant teams on your behalf.
+
+## FCP proposed on the PR
+
+Finally, some member of the team responsible for tracking this feature agrees with stabilizing this feature, will
+start the FCP (final-comment-period) process by commenting
+
+```text
+@rfcbot fcp merge
+```
+
+The rest of the team members will review the proposal. If the final decision is to stabilize, the PR will be reviewed by the compiler team like any other PR.
