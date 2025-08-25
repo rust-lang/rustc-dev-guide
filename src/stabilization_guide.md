@@ -79,25 +79,25 @@ Also, remove those strings from any tests (e.g. under `tests/`). If there are te
 Most importantly, remove the code which flags an error if the feature-gate is not present (since the feature is now considered stable). If the feature can be detected because it employs some new syntax, then a common place for that code to be is in `compiler/rustc_ast_passes/src/feature_gate.rs`. For example, you might see code like this:
 
 ```rust,ignore
-gate_all!(pub_restricted, "`pub(restricted)` syntax is experimental");
+gate_feature_post!(box_patterns, span, "box pattern syntax is experimental");
 ```
 
-This `gate_feature_post!` macro prints an error if the `pub_restricted` feature is not enabled. It is not needed now that `#[pub_restricted]` is stable.
+This `gate_feature_post!` macro prints an error if the `box_patterns` feature is not enabled. It would not be needed once box pattern syntax becomes stable.
 
 For more subtle features, you may find code like this:
 
 ```rust,ignore
-if self.tcx.features().async_fn_in_dyn_trait() { /* XXX */ }
+if self.tcx.features().box_patterns() { /* XXX */ }
 ```
 
-This `pub_restricted` field (named after the feature) would ordinarily be false if the feature flag is not present and true if it is. So transform the code to assume that the field is true. In this case, that would mean removing the `if` and leaving just the `/* XXX */`.
+This `box_patterns` field (named after the feature) would ordinarily be false if the feature flag is not present and true if it is. So transform the code to assume that the field is true. In this case, that would mean removing the `if` and leaving just the `/* XXX */`.
 
 ```rust,ignore
-if self.tcx.sess.features.borrow().pub_restricted { /* XXX */ }
+if self.tcx.sess.features.borrow().box_patterns { /* XXX */ }
 becomes
 /* XXX */
 
-if self.tcx.sess.features.borrow().pub_restricted && something { /* XXX */ }
+if self.tcx.sess.features.borrow().box_patterns && something { /* XXX */ }
  becomes
 if something { /* XXX */ }
 ```
