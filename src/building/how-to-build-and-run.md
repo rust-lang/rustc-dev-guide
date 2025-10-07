@@ -224,29 +224,25 @@ You may want to have upwards of 10 or 15 gigabytes available to build the compil
 
 Once you've created a `bootstrap.toml`, you are now ready to run
 `x`. There are a lot of options here, but let's start with what is
-probably the best "go to" command for building a local compiler:
+probably the best "go to" command:
 
 ```console
-./x build rustc
+./x build library
 ```
 
-What this command does is build `rustc` using the stage0 compiler and stage0 `std`.
+What this command does is the following:
+- Build in-tree rustc using stage0[^stage0] rustc and std, producing stage1 rustc.
+- Build in-tree std using that (stage1) rustc, producing stage std.
 
-To build `rustc` with the in-tree `std`, use this command instead:
+This final product, stage1 rustc + std,
+is what you need to build other Rust programs
+(unless you use `#![no_std]` or `#![no_core]`).
+
+If your changes are only to rustc, you would save build time by using this hack:
 
 ```console
-./x build rustc --stage 2
+./x build library --keep-stage-std 1
 ```
-
-This final product (stage1 compiler + libs built using that compiler)
-is what you need to build other Rust programs (unless you use `#![no_std]` or
-`#![no_core]`).
-
-You will probably find that building the stage1 `std` is a bottleneck for you,
-but fear not, there is a (hacky) workaround...
-see [the section on avoiding rebuilds for std][keep-stage].
-
-[keep-stage]: ./suggested.md#faster-builds-with---keep-stage
 
 Sometimes you don't need a full build. When doing some kind of
 "type-based refactoring", like renaming a method, or changing the
@@ -254,7 +250,7 @@ signature of some function, you can use `./x check` instead for a much faster bu
 
 Note that this whole command just gives you a subset of the full `rustc`
 build. The **full** `rustc` build (what you get with `./x build
---stage 2 rustc`) has quite a few more steps:
+--stage 2 compiler`) has quite a few more steps:
 
 - Build `rustc` with the stage1 compiler.
   - The resulting compiler here is called the "stage2" compiler, which uses stage1 std from the previous command.
@@ -416,3 +412,4 @@ for each user, but this also applies to local development as well. Occasionally,
   are installed with `rustup toolchain list`.
 
 [^1]: issue[#1707](https://github.com/rust-lang/rustc-dev-guide/issues/1707)
+[^stage0]: _stage0_ means something already built, typically downloaded
