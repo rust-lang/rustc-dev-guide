@@ -230,7 +230,7 @@ probably the best "go to" command:
 ./x build library
 ```
 
-What this command does is the following:
+This command does the following:
 - Build in-tree rustc using stage0[^stage0] rustc and std, producing stage1 rustc.
 - Build in-tree std using that (stage1) rustc, producing stage std.
 
