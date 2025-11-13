@@ -426,7 +426,7 @@ You can then use that rust2 folder as a separate workspace for modifying and bui
 
 Several nix configurations are defined in `src/tools/nix-dev-shell`.
 
-If you're using direnv, you can create a symbol link to `src/tools/nix-dev-shell/envrc-flake` or `src/tools/nix-dev-shell/envrc-shell`
+If you're using direnv, you can create a symbolic link to `src/tools/nix-dev-shell/envrc-flake` or `src/tools/nix-dev-shell/envrc-shell`
 
 ```bash
 ln -s ./src/tools/nix-dev-shell/envrc-flake ./.envrc # Use flake
@@ -434,6 +434,12 @@ ln -s ./src/tools/nix-dev-shell/envrc-flake ./.envrc # Use flake
 or
 ```bash
 ln -s ./src/tools/nix-dev-shell/envrc-shell ./.envrc # Use nix-shell
+```
+
+If you're using the flake, make sure to also update it with the following command:
+
+```
+nix flake update --flake ./src/tools/nix-dev-shell
 ```
 
 ### Note
