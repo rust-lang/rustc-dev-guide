@@ -4,6 +4,7 @@ This feature is work-in-progress, and not ready for usage. The instructions here
 We currently work on launching the following Rust kernel on the GPU. To follow along, copy it to a `src/lib.rs` file.
 
 ```rust
+#![feature(link_llvm_intrinsics)]
 #![feature(abi_gpu_kernel)]
 #![feature(rustc_attrs)]
 #![feature(core_intrinsics)]
@@ -39,9 +40,52 @@ fn main() {
         };
         libc::printf(val, (*array_c)[0]);
     }
+    let mut div = [1.0, 2.0, 3.0, 4.0];
+    let x1 = [1.0, 2.0, 3.0, 4.0];
+    let x2 = [1.0, 2.0, 3.0, 4.0];
+    let x3 = [1.0, 2.0, 3.0, 4.0];
+    let x4 = [1.0, 2.0, 3.0, 4.0];
+    let y1 = [1.0, 2.0, 3.0, 4.0];
+    let y2 = [1.0, 2.0, 3.0, 4.0];
+    let y3 = [1.0, 2.0, 3.0, 4.0];
+    let y4 = [1.0, 2.0, 3.0, 4.0];
+    let fx1 = [1.0, 2.0, 3.0, 4.0];
+    let fx2 = [1.0, 2.0, 3.0, 4.0];
+    let fx3 = [1.0, 2.0, 3.0, 4.0];
+    let fx4 = [1.0, 2.0, 3.0, 4.0];
+    let fy1 = [1.0, 2.0, 3.0, 4.0];
+    let fy2 = [1.0, 2.0, 3.0, 4.0];
+    let fy3 = [1.0, 2.0, 3.0, 4.0];
+    let fy4 = [1.0, 2.0, 3.0, 4.0];
+    let real_zones = [0, 0, 0, 0];
+    let half = 1.0;
+    let ptiny = 0.001;
+    let iend = 4;
 
     unsafe {
-        kernel(array_c);
+        kernel(
+            &mut div,
+            &x1,
+            &x2,
+            &x3,
+            &x4,
+            &y1,
+            &y2,
+            &y3,
+            &y4,
+            &fx1,
+            &fx2,
+            &fx3,
+            &fx4,
+            &fy1,
+            &fy2,
+            &fy3,
+            &fy4,
+            &real_zones,
+            &half,
+            &ptiny,
+            &iend,
+        );
     }
     core::hint::black_box(&array_c);
     unsafe {
@@ -56,21 +100,133 @@ fn main() {
 }
 
 #[inline(never)]
-unsafe fn kernel(x: *mut [f64; 256]) {
-    core::intrinsics::offload(kernel_1, (x,))
+unsafe fn kernel(
+    div: &mut [f32; 4],
+    x1: &[f32; 4],
+    x2: &[f32; 4],
+    x3: &[f32; 4],
+    x4: &[f32; 4],
+    y1: &[f32; 4],
+    y2: &[f32; 4],
+    y3: &[f32; 4],
+    y4: &[f32; 4],
+    fx1: &[f32; 4],
+    fx2: &[f32; 4],
+    fx3: &[f32; 4],
+    fx4: &[f32; 4],
+    fy1: &[f32; 4],
+    fy2: &[f32; 4],
+    fy3: &[f32; 4],
+    fy4: &[f32; 4],
+    real_zones: &[usize; 4],
+    half: &f32,
+    ptiny: &f32,
+    iend: &usize,
+) {
+    core::intrinsics::offload(
+        kernel_1,
+        (
+            div, x1, x2, x3, x4, y1, y2, y3, y4, fx1, fx2, fx3, fx4, fy1, fy2, fy3, fy4,
+            real_zones, half, ptiny, iend,
+        ),
+    )
 }
 
 #[cfg(target_os = "linux")]
 unsafe extern "C" {
-    pub fn kernel_1(array_b: *mut [f64; 256]);
+    pub fn kernel_1(
+        div: &mut [f32; 4],
+        x1: &[f32; 4],
+        x2: &[f32; 4],
+        x3: &[f32; 4],
+        x4: &[f32; 4],
+        y1: &[f32; 4],
+        y2: &[f32; 4],
+        y3: &[f32; 4],
+        y4: &[f32; 4],
+        fx1: &[f32; 4],
+        fx2: &[f32; 4],
+        fx3: &[f32; 4],
+        fx4: &[f32; 4],
+        fy1: &[f32; 4],
+        fy2: &[f32; 4],
+        fy3: &[f32; 4],
+        fy4: &[f32; 4],
+        real_zones: &[usize; 4],
+        half: &f32,
+        ptiny: &f32,
+        iend: &usize,
+    );
+}
+
+#[allow(improper_ctypes)]
+unsafe extern "C" {
+    //#[link_name = "llvm.nvvm.barrier0"]
+    //fn syncthreads() -> ();
+    //#[link_name = "llvm.amdgcn.workitem.size.x"]
+    //fn block_dim_x() -> i32;
+    #[link_name = "llvm.amdgcn.workgroup.id.x"]
+    fn block_idx_x() -> i32;
+    #[link_name = "llvm.amdgcn.workgroup.size.x"]
+    fn grid_dim_x() -> i32;
+    #[link_name = "llvm.amdgcn.workitem.id.x"]
+    fn thread_idx_x() -> i32;
 }
 
 #[cfg(not(target_os = "linux"))]
 #[unsafe(no_mangle)]
 #[inline(never)]
 #[rustc_offload_kernel]
-pub extern "gpu-kernel" fn kernel_1(x: *mut [f64; 256]) {
-    unsafe { (*x)[0] = 21.0 };
+pub extern "gpu-kernel" fn kernel_1(
+    div: &mut [f32],
+    x1: &[f32],
+    x2: &[f32],
+    x3: &[f32],
+    x4: &[f32],
+    y1: &[f32],
+    y2: &[f32],
+    y3: &[f32],
+    y4: &[f32],
+    fx1: &[f32],
+    fx2: &[f32],
+    fx3: &[f32],
+    fx4: &[f32],
+    fy1: &[f32],
+    fy2: &[f32],
+    fy3: &[f32],
+    fy4: &[f32],
+    real_zones: &[usize],
+    half: &f32,
+    ptiny: &f32,
+    iend: &usize,
+) {
+    let ii = unsafe { block_idx_x() + thread_idx_x() } as usize;
+    //let ii = unsafe { block_dim_x() * block_idx_x() + thread_idx_x() } as usize;
+    if ii < *iend {
+        let i = real_zones[ii];
+
+        let xi: f32 = half * (x1[i] + x2[i] - x3[i] - x4[i]);
+        let xj = half * (x2[i] + x3[i] - x4[i] - x1[i]);
+
+        let yi = half * (y1[i] + y2[i] - y3[i] - y4[i]);
+        let yj = half * (y2[i] + y3[i] - y4[i] - y1[i]);
+
+        let fxi = half * (fx1[i] + fx2[i] - fx3[i] - fx4[i]);
+        let fxj = half * (fx2[i] + fx3[i] - fx4[i] - fx1[i]);
+
+        let fyi = half * (fy1[i] + fy2[i] - fy3[i] - fy4[i]);
+        let fyj = half * (fy2[i] + fy3[i] - fy4[i] - fy1[i]);
+
+        let rarea = 1.0 / (xi * yj - xj * yi + ptiny);
+
+        let dfxdx = rarea * (fxi * yj - fxj * yi);
+
+        let dfydy = rarea * (fyj * xi - fyi * xj);
+
+        let affine = (fy1[i] + fy2[i] + fy3[i] + fy4[i]) / (y1[i] + y2[i] + y3[i] + y4[i]);
+
+        div[i] = dfxdx + dfydy + affine;
+    }
 }
 ```
 
