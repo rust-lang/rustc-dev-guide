@@ -4,7 +4,7 @@
 
 [About this guide](./about-this-guide.md)
 
----
+
 
 # Building and debugging `rustc`
 
@@ -236,7 +236,113 @@
 - [Sanitizers support](./sanitizers.md)
 - [Debugging support in the Rust compiler](./debugging-support-in-rustc.md)
 
----
+# Testing
+
+- [Prologue](./__testing/prologue.md)
+- [How to use this section](./__testing/how-to-use.md)
+- [Tutorials](./__testing/tutorials/intro.md)
+    - [Writing a `assembly-llvm` test]()
+    - [Writing a `codegen-llvm` test]()
+    - [Writing a `codegen-units` test]()
+    - [Writing a `coverage-run` test]()
+    - [Writing a `coverage-map` test]()
+    - [Writing a `crashes` test]()
+    - [Writing a `debuginfo` test]()
+    - [Writing a `mir-opt` test]()
+    - [Writing a `incremental` test]()
+    - [Writing a `pretty` test]()
+    - [Writing a `run-make` test]()
+    - [Writing a `run-make-cargo` test]()
+    - [Writing a `ui` test]()
+    - [Writing a `ui-fulldeps` test]()
+    - [Normalizing an unwanted string in a `ui` test]()
+    - [Only running a `ui` test under the nightly channel]()
+    - [Forcing a `rustc` to pretend to be stable in a `run-make` test]()
+- [How-to guides](./__testing/how-to-guides/intro.md)
+- [Reference](./__testing/reference/intro.md)
+    - [Local development]()
+    - [CI]()
+    - [compiletest]()
+        - [Interactions between bootstrap and compiletest]()
+        - [Interactions between rustc and compiletest]()
+        - [compiletest and staging]()
+        - [Test modes and test suites]()
+            - [The `assembly` test mode]()
+                - [The `assembly-llvm` test suite]()
+            - [The `codegen` test mode]()
+                - [The `codegen-llvm` test suite]()
+            - [The `codegen-units` test mode and test suite]()
+            - [The `crashes` test mode and test suite]()
+            - [The `coverage-map` and `coverage-run` test modes, and the `coverage` test suite]()
+            - [The `debuginfo` test mode and test suite]()
+            - [The `mir-opt` test mode and test suite]()
+            - [The `incremental` test mode and test suite]()
+            - [The `pretty` test mode and test suite]()
+            - [The `run-make` test mode]()
+                - [The `run-make` test suite]()
+                - [The `run-make-cargo` test suite]()
+            - [The `rustdoc` test mode]()
+                - [The `rustdoc-js` test suite]()
+                - [The `rustdoc-gui` test suite]()
+                - [The `rustdoc-json` test suite]()
+            - [The `ui` test mode]()
+                - [The `ui` test suite]()
+                - [The `ui-fulldeps` test suite]()
+                - [The `rustdoc-ui` test suite]()
+        - [Output snapshots]()
+            - [Error annotations]()
+        - [Normalizations]()
+        - [Controlling outcome expectations]()
+        - [Directives](./__testing/reference/directives.md)
+        - [run-make test infrastructure]()
+            - [run-make `rmake.rs` test recipes]()
+            - [`run-make-support` library]()
+        - [Remote testing and runners]()
+        - [Debuginfo test annotations]()
+        - [Pass modes]()
+        - [Compare modes]()
+        - [Clang-based tests]()
+        - [External dependencies]()
+            - [`nodejs`]()
+            - [`npm`]()
+            - [Debuggers]()
+            - [LLVM FileCheck]()
+    - [Auxiliary test support tools]()
+        - [`remote-test-client` and `remote-test-server`]()
+        - [jsondocck]()
+        - [jsondoclint]()
+        - [rustdoc-gui-tool]()
+        - [mir-opt-test-tool]()
+- [Explanations](./__testing/explanations/intro.md)
+    - [Qualities of a good test]()
+    - [Writing good FileCheck assertions]()
+    - [Why does my `ui` test `//@ build-pass` but not `//@ check-pass`?](./__testing/explanations/build-pass-not-check-pass.md)
+- [Frequently asked questions (FAQs)]()
+- [Known problems and pain points]()
+    - [Debuginfo test infrastructure and test suite]()
+- [Design notes]()
+- [Additional notes and resources]()
+    - [Test case minimization]()
+
+# Tidy
+
+- [Prologue](./__tidy/prologue.md)
+- [How to use this section](./__tidy/how-to-use.md)
+- [Tutorials]()
+- [How-to guides]()
+- [Reference]()
+- [Explanations]()
+
+# `rust-lang/rust` CI
+
+- [Prologue](./__ci/prologue.md)
+- [How to use this section](./__ci/how-to-use.md)
+- [Tutorials]()
+- [How-to guides]()
+- [Reference]()
+- [Explanations]()
+
+
 
 [Appendix A: Background topics](./appendix/background.md)
 
@@ -250,7 +356,7 @@
 
 [Appendix Z: HumorRust](./appendix/humorust.md)
 
----
+
 
 [pau]: ./borrow_check/region_inference/placeholders_and_universes.md
 [opaque-infer]: ./borrow_check/opaque-types-region-inference-restrictions.md
