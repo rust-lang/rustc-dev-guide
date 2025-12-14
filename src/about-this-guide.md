@@ -105,13 +105,13 @@ You might also find the following sites useful:
 [tlgba]: https://tomlee.co/2014/04/a-more-detailed-tour-of-the-rust-compiler/
 [ro]: https://www.rustaceans.org/
 [rctd]: tests/intro.md
-[cheatsheet]: https://bors.rust-lang.org/
-[Miri]: https://github.com/rust-lang/miri
-[@bors]: https://github.com/bors
-[a GitHub repository]: https://github.com/rust-lang/rustc-dev-guide/
-[rustc API docs]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle
+- [rust-analyzer book] -- documentation for the rust-analyzer.
+- [The t-compiler Zulip][z]
+- The [Rust Internals forum][rif], a place to ask questions and
+discuss Rust's internals
+@@ -112,4 +113,5 @@ You might also find the following sites useful:
 [Forge]: https://forge.rust-lang.org/
 [compiler-team]: https://github.com/rust-lang/compiler-team/
 [std-dev-guide]: https://std-dev-guide.rust-lang.org/
-[r-a book]: https://rust-analyzer.github.io/book/
+[rust-analyzer book]: https://rust-analyzer.github.io/book/
 [z]: https://rust-lang.zulipchat.com/#narrow/stream/131828-t-compiler
