@@ -22,8 +22,8 @@ specifically designed to make analyzing rustc easier.
 
 You can install WPR and WPA as part of the Windows Performance Toolkit which itself is an option as
 part of downloading the Windows Assessment and Deployment Kit (ADK). You can download the ADK
-installer [here](https://go.microsoft.com/fwlink/?linkid=2086042). Make sure to select the Windows
-Performance Toolkit (you don't need to select anything else).
+installer [here](https://learn.microsoft.com/en-us/windows-hardware/get-started/adk-install). Make
+sure to select the Windows Performance Toolkit (you don't need to select anything else).
 
 ## Recording
 
