@@ -788,16 +788,9 @@ only apply to the test as a whole, not to particular revisions.
 The only directives that are intended to really work when customized to a revision are
 error patterns and compiler flags.
 
-<!-- date-check jul 2023 -->
-The following test suites support revisions:
-
-- ui
-- assembly
-- codegen
-- coverage
-- debuginfo
-- rustdoc UI tests
-- incremental (these are special in that they inherently cannot be run in parallel)
+<!-- date-check Jan 2026 -->
+> [!NOTE]
+> The only test suite that does not support revisions is `run-make`.
 
 ### Ignoring unused revision names
 
