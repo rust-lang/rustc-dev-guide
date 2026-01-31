@@ -6,16 +6,15 @@ The primary goal of our CI system is to ensure that the `main` branch of
 From a high-level point of view, when you open a pull request at
 `rust-lang/rust`, the following will happen:
 
-- A small [subset](#pull-request-builds) of tests and checks are run after each
-  push to the PR.
+- A small [subset](#pull-request-builds) of tests and checks are run after each push to the PR.
   This should help catch common errors.
 - When the PR is approved, the [bors] bot enqueues the PR into a [merge queue].
 - Once the PR gets to the front of the queue, bors will create a merge commit
   and run the [full test suite](#auto-builds) on it.
   The merge commit either contains only one specific PR or it can be a ["rollup"](#rollups) which
   combines multiple PRs together, to reduce CI costs and merge delays.
-- Once the whole test suite finishes, two things can happen. Either CI fails
-  with an error that needs to be addressed by the developer, or CI succeeds and
+- Once the whole test suite finishes, two things can happen.
+  Either CI fails with an error that needs to be addressed by the developer, or CI succeeds and
   the merge commit is then pushed to the `main` branch.
 
 If you want to modify what gets executed on CI, see [Modifying CI jobs](#modifying-ci-jobs).
@@ -198,7 +197,7 @@ to help make the perf comparison as fair as possible.
 >
 > 3. Run the prescribed try jobs with `@bors try`. As aforementioned, this
 >    requires the user to either (1) have `try` permissions or (2) be delegated
->    with `try` permissions by `@bors delegate` by someone who has `try`
+>    with `try` permissions by `@bors delegate=try` by someone who has `try`
 >    permissions.
 >
 > Note that this is usually easier to do than manually edit [`jobs.yml`].
@@ -213,10 +212,7 @@ the corresponding PR.
 Multiple try builds can execute concurrently across different PRs, but there can be at most
 a single try build running on a single PR at any given time.
 
-Note that try builds are handled using the [new bors] implementation.
-
 [rustc-perf]: https://github.com/rust-lang/rustc-perf
-[new bors]: https://github.com/rust-lang/bors
 
 ### Modifying CI jobs
 
@@ -281,8 +277,7 @@ Breakages like these usually happen when another, incompatible PR is merged
 after the build happened.
 
 To ensure a `main` branch that works all the time, we forbid manual merges.
-Instead, all PRs have to be approved through our bot, [bors] (the software
-behind it is called [homu]).
+Instead, all PRs have to be approved through our bot, [bors].
 All the approved PRs are put in a [merge queue]
 (sorted by priority and creation date) and are automatically tested one at the time.
 If all the builders are green, the PR is merged, otherwise the failure is
@@ -307,8 +302,7 @@ This is worth it because these release artifacts:
 
 - Allow perf testing even at a later date.
 - Allow bisection when bugs are discovered later.
-- Ensure release quality since if we're always releasing, we can catch problems
-  early.
+- Ensure release quality since if we're always releasing, we can catch problems early.
 
 ### Rollups
 
@@ -453,8 +447,7 @@ If you want to determine which `bootstrap.toml` settings are used in CI for a
 particular job, it is probably easiest to just look at the build log.
 To do this:
 
-1. Go to
-   <https://github.com/rust-lang/rust/actions?query=branch%3Aauto+is%3Asuccess>
+1. Go to <https://github.com/rust-lang/rust/actions?query=branch%3Aauto+is%3Asuccess>
    to find the most recently successful build, and click on it.
 2. Choose the job you are interested in on the left-hand side.
 3. Click on the gear icon and choose "View raw logs"
@@ -465,8 +458,7 @@ To do this:
 [`jobs.yml`]: https://github.com/rust-lang/rust/blob/HEAD/src/ci/github-actions/jobs.yml
 [`.github/workflows/ci.yml`]: https://github.com/rust-lang/rust/blob/HEAD/.github/workflows/ci.yml
 [`src/ci/citool`]: https://github.com/rust-lang/rust/blob/HEAD/src/ci/citool
-[bors]: https://github.com/bors
-[homu]: https://github.com/rust-lang/homu
+[bors]: https://github.com/rust-lang/bors
 [merge queue]: https://bors.rust-lang.org/queue/rust
 [dist-x86_64-linux]: https://github.com/rust-lang/rust/blob/HEAD/src/ci/docker/host-x86_64/dist-x86_64-linux/Dockerfile
 [the GitHub Actions workflows page]: https://github.com/rust-lang/rust/actions
