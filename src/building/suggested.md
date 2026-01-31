@@ -277,14 +277,14 @@ This often helps reviewing.
 ## Configuring `rustup` to use nightly
 
 Some parts of the bootstrap process uses pinned, nightly versions of tools like rustfmt.
-To make things like `cargo fmt` work correctly in your repo, run
+To make things like `cargo fmt` work correctly in your repo,
+[install a nightly toolchain] with rustup, then run this command:
 
 ```console
 cd <path to rustc repo>
 rustup override set nightly
 ```
 
-After [installing a nightly toolchain] with `rustup`.
 Don't forget to do this for all directories you have [setup a worktree for].
 You may need to use the
 pinned nightly version from `src/stage0`, but often the normal `nightly` channel will work.
@@ -297,7 +297,7 @@ toolchain for your bootstrapped compiler
 You still have to use `x` to work on the compiler or standard library, this just
 lets you use `cargo fmt`.
 
-[installing a nightly toolchain]: https://rust-lang.github.io/rustup/concepts/channels.html?highlight=nightl#working-with-nightly-rust
+[install a nightly toolchain]: https://rust-lang.github.io/rustup/concepts/channels.html?highlight=nightl#working-with-nightly-rust
 [setup a worktree for]: ./suggested.md#working-on-multiple-branches-at-the-same-time
 [the section on vscode]: suggested.md#configuring-rust-analyzer-for-rustc
 [the section on rustup]: how-to-build-and-run.md?highlight=rustup#creating-a-rustup-toolchain
