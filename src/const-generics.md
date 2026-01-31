@@ -178,7 +178,7 @@ To check this we have [`ClauseKind::ConstArgHasType(ty::Const, Ty)`][const_arg_h
 ```rust
 fn foo<const N: usize>() {}
 
-// desugars to in psuedo-rust
+// desugars to in pseudo-rust
 
 fn foo<const N>()
 where
