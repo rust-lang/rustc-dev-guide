@@ -61,7 +61,7 @@ In some sense the desugarings from the previous examples are to:
 struct Foo<const N: usize>;
 type Alias = [u8; 1 + 1];
 
-// sort-of desugars to psuedo-rust:
+// sort-of desugars to pseudo-rust:
 struct Foo<const N: usize>;
 
 const ANON = 1 + 1;
@@ -178,7 +178,7 @@ To check this we have [`ClauseKind::ConstArgHasType(ty::Const, Ty)`][const_arg_h
 ```rust
 fn foo<const N: usize>() {}
 
-// desugars to in psuedo-rust
+// desugars to in pseudo-rust
 
 fn foo<const N>()
 where
