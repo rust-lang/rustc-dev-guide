@@ -75,4 +75,4 @@ This configuration allows `rust-analyzer` to properly recognize and provide IDE 
 
 - [GitHub Issue #137421] explains that `rustc_private` linker failures often occur because `llvm-tools` is not installed
 
-[GitHub Issue #137421: https://github.com/rust-lang/rust/issues/137421
+[GitHub Issue #137421]: https://github.com/rust-lang/rust/issues/137421
