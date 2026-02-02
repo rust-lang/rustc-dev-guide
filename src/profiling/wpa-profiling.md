@@ -50,7 +50,7 @@ Unfortunately, the stage 0 compiler does not have symbols turned on,
 which is why we'll need to build a stage 1 compiler,
 and then a stage 2 compiler ourselves.
 
-To do this, make sure you have set `debuginfo-level = 1` in your `bootstrap.toml` file.
+To do this, make sure you have set `rust.debuginfo-level = 1` in your `bootstrap.toml` file.
 This tells rustc to generate debug information which includes stack frames when bootstrapping.
 
 Now you can build the stage 1 compiler: `x build --stage 1 -i library` or however
