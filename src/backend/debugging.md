@@ -66,9 +66,8 @@ disappear), passing `-C codegen-units=1` to rustc will make debugging easier.
 ### Get your hands on raw LLVM input
 
 For rustc to generate LLVM IR, you need to pass the `--emit=llvm-ir` flag.
-If
-you are building via cargo, use the `RUSTFLAGS` environment variable (e.g.
-`RUSTFLAGS='--emit=llvm-ir'`).
+If you are building via cargo,
+use the `RUSTFLAGS` environment variable (e.g. `RUSTFLAGS='--emit=llvm-ir'`).
 This causes rustc to spit out LLVM IR into the target directory.
 
 `cargo llvm-ir [options] path` spits out the LLVM IR for a particular function at `path`.
