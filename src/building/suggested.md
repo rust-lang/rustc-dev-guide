@@ -118,8 +118,7 @@ requires extra disk space.
 
 Selecting `vscode` in `./x setup editor` will prompt you to create a
 `.vscode/settings.json` file which will configure Visual Studio code.
-The recommended `rust-analyzer` settings live at
-[`src/etc/rust_analyzer_settings.json`].
+The recommended `rust-analyzer` settings live at [`src/etc/rust_analyzer_settings.json`].
 
 If running `./x check` on save is inconvenient, in VS Code you can use a [Build Task] instead:
 
@@ -253,8 +252,7 @@ It can be configured through `.zed/settings.json`, as described
 [here](https://zed.dev/docs/configuring-languages).
 Selecting `zed` in `./x setup editor` will prompt you to create a `.zed/settings.json`
 file which will configure Zed with the recommended configuration.
-The recommended `rust-analyzer` settings live
-at [`src/etc/rust_analyzer_zed.json`].
+The recommended `rust-analyzer` settings live at [`src/etc/rust_analyzer_zed.json`].
 
 ## Check, check, and check again
 
@@ -441,7 +439,7 @@ ln -s ./src/tools/nix-dev-shell/envrc-shell ./.envrc # Use nix-shell
 ### Note
 
 Note that when using nix on a not-NixOS distribution, it may be necessary to set
-**`patch-binaries-for-nix = true` in `bootstrap.toml`**. Bootstrap tries to detect
+**`build.patch-binaries-for-nix = true` in `bootstrap.toml`**. Bootstrap tries to detect
 whether it's running in nix and enable patching automatically, but this
 detection can have false negatives.
 
