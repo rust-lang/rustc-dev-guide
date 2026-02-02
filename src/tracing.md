@@ -74,8 +74,7 @@ RUSTC_LOG=[typeck]
 The query arguments are included as a tracing field which means that you can
 filter on the debug display of the arguments.
 For example, the `typeck` query has an argument `key: LocalDefId` of what is being checked.
-You can use a regex to match on that `LocalDefId` to log type checking for a specific
-function:
+You can use a regex to match on that `LocalDefId` to log type checking for a specific function:
 
 ```
 RUSTC_LOG=[typeck{key=.*name_of_item.*}]

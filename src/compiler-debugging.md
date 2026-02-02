@@ -55,8 +55,7 @@ If this is not desirable, you can prevent the ICE file from being created with `
 
 When you have an ICE (panic in the compiler), you can set
 `RUST_BACKTRACE=1` to get the stack trace of the `panic!` like in normal Rust programs.
-IIRC backtraces **don't work** on MinGW,
-sorry.
+IIRC backtraces **don't work** on MinGW, sorry.
 If you have trouble or the backtraces are full of `unknown`,
 you might want to find some way to use Linux, Mac, or MSVC on Windows.
 
