@@ -21,8 +21,7 @@ Developers use existing LLVM coverage analysis tools to decode `.profraw`
 files, with corresponding Coverage Maps (from matching binaries that produced
 them), and generate various reports for analysis, for example:
 
-<img alt="Screenshot of sample `llvm-cov show` result, for function add_quoted_string"
- src="img/llvm-cov-show-01.png" class="center"/> <br/>
+![Screenshot of sample `llvm-cov show` result, for function add_quoted_string](img/llvm-cov-show-01.png)
 
 Detailed instructions and examples are documented in the
 [rustc book][rustc-book-instrument-coverage].
