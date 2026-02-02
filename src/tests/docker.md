@@ -31,9 +31,11 @@ A few important notes regarding the `run.sh` script:
 - When executed on CI, the script expects that all submodules are checked out.
   If some submodule that is accessed by the job is not available, the build will result in an error.
   You should thus make sure that you have all required submodules checked out locally.
-  You can either do that manually through git, or set `build.submodules = true` in your `bootstrap.toml` and run a command such as `x build` to let bootstrap download the most important submodules (this might not be enough for the given CI job that you are trying to execute though).
+  You can either do that manually through git, or set `build.submodules = true` in your `bootstrap.toml` and run a command such as `x build` to let bootstrap download the most important submodules
+  Note that this might not be enough for the given CI job that you are trying to execute though.
 - `<image-name>` corresponds to a single directory located in one of the `src/ci/docker/host-*` directories.
-  Note that image name does not necessarily correspond to a job name, as some jobs execute the same image, but with different environment variables or Docker build arguments (this is a part of the complexity that makes it difficult to run CI jobs locally).
+  Note that image name does not necessarily correspond to a job name, as some jobs execute the same image, but with different environment variables or Docker build arguments
+  This is a part of the complexity that makes it difficult to run CI jobs locally.
 - If you are executing a "dist" job (job beginning with `dist-`), you should set the `DEPLOY=1` environment variable.
 - If you are executing an "alternative dist" job (job beginning with `dist-` and ending with `-alt`), you should set the `DEPLOY_ALT=1` environment variable.
 - Some of the std tests require IPv6 support.
