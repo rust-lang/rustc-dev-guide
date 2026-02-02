@@ -52,7 +52,7 @@ own preinstalled LLVM, you will need to provide `FileCheck` in some other way.
 On Debian-based systems, you can install the `llvm-N-tools` package (where `N`
 is the LLVM version number, e.g. `llvm-8-tools`). Alternately, you can specify
 the path to `FileCheck` with the `llvm-filecheck` config item in `bootstrap.toml`
-or you can disable codegen test with the `codegen-tests` item in `bootstrap.toml`.
+or you can disable codegen test with the `rust.codegen-tests` item in `bootstrap.toml`.
 
 ## Creating a target specification
 
@@ -118,16 +118,10 @@ After this, run `cargo update -p libc` to update the lockfiles.
 Beware that if you patch to a local `path` dependency, this will enable
 warnings for that dependency.
 Some dependencies are not warning-free, and due
-to the `deny-warnings` setting in `bootstrap.toml`, the build may suddenly start to fail.
+to the `rust.deny-warnings` setting in `bootstrap.toml`, the build may suddenly start to fail.
 To work around warnings, you may want to:
 - Modify the dependency to remove the warnings
-- Or for local development purposes, suppress the warnings by setting deny-warnings = false in bootstrap.toml.
-
-```toml
-# bootstrap.toml
-[rust]
-deny-warnings = false
-```
+- Or for local development purposes, suppress the warnings by setting `rust.deny-warnings = false` in bootstrap.toml.
 
 [`libc`]: https://crates.io/crates/libc
 [`cc`]: https://crates.io/crates/cc

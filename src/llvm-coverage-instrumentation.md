@@ -47,15 +47,13 @@ mandatory.
 # These assertions can detect malformed coverage mappings in some cases.
 profile = "codegen"
 
-[build]
 # IMPORTANT: This tells the build system to build the LLVM profiler runtime.
 # Without it, the compiler can't produce coverage-instrumented binaries,
 # and many of the coverage tests will be skipped.
-profiler = true
+build.profiler = true
 
-[rust]
 # Enable debug assertions in the compiler.
-debug-assertions = true
+rust.debug-assertions = true
 ```
 
 ## Rust symbol mangling

@@ -38,7 +38,7 @@ which means that LLVM assertion failures can show up as compiler crashes (not
 ICEs but "real" crashes) and other sorts of weird behavior. If you are
 encountering these, it is a good idea to try using a compiler with LLVM
 assertions enabled - either an "alt" nightly or a compiler you build yourself
-by setting `[llvm] assertions=true` in your bootstrap.toml - and see whether
+by setting `llvm.assertions = true` in your bootstrap.toml - and see whether
 anything turns up.
 
 The rustc build process builds the LLVM tools into
@@ -162,12 +162,11 @@ aware of its [internal debug infrastructure][llvm-debug].
 This is provided in LLVM Debug builds, which you enable for rustc
 LLVM builds by changing this setting in the bootstrap.toml:
 ```
-[llvm]
 # Indicates whether the LLVM assertions are enabled or not
-assertions = true
+llvm.assertions = true
 
 # Indicates whether the LLVM build is a Release or Debug build
-optimize = false
+llvm.optimize = false
 ```
 The quick summary is:
  * Setting `assertions=true` enables coarse-grain debug messaging.

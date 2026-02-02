@@ -9,18 +9,17 @@ chapter](./backend/debugging.md)).
 ## Configuring the compiler
 
 By default, rustc is built without most debug information. To enable debug info,
-set `debug = true` in your bootstrap.toml.
+set `rust.debug = true` in your bootstrap.toml.
 
-Setting `debug = true` turns on many different debug options (e.g., `debug-assertions`,
+Setting `rust.debug = true` turns on many different debug options (e.g., `debug-assertions`,
 `debug-logging`, etc.) which can be individually tweaked if you want to, but many people
-simply set `debug = true`.
+simply set `rust.debug = true`.
 
 If you want to use GDB to debug rustc, please set `bootstrap.toml` with options:
 
 ```toml
-[rust]
-debug = true
-debuginfo-level = 2
+rust.debug = true
+rust.debuginfo-level = 2
 ```
 
 > NOTE:
@@ -36,8 +35,7 @@ This requires at least GDB v10.2,
 otherwise you need to disable new symbol-mangling-version in `bootstrap.toml`.
 
 ```toml
-[rust]
-new-symbol-mangling = false
+rust.new-symbol-mangling = false
 ```
 
 > See the comments in `bootstrap.example.toml` for more info.

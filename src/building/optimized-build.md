@@ -14,8 +14,7 @@ enable (Thin-)LTO when building `rustc`, set the `rust.lto` config option to `"t
 in `bootstrap.toml`:
 
 ```toml
-[rust]
-lto = "thin"
+rust.lto = "thin"
 ```
 
 > Note that LTO for `rustc` is currently supported and tested only for
@@ -35,8 +34,7 @@ want to enable the `jemalloc` allocator, you can set the `rust.jemalloc` option 
 in `bootstrap.toml`:
 
 ```toml
-[rust]
-jemalloc = true
+rust.jemalloc = true
 ```
 
 > Note that this option is currently only supported for Linux and macOS targets.
@@ -48,9 +46,8 @@ You can modify the number of codegen units for `rustc` and `libstd` in `bootstra
 following options:
 
 ```toml
-[rust]
-codegen-units = 1
-codegen-units-std = 1
+rust.codegen-units = 1
+rust.codegen-units-std = 1
 ```
 
 ## Instruction set
@@ -68,9 +65,8 @@ If you also want to compile LLVM for a specific instruction set, you can set `ll
 in `bootstrap.toml`:
 
 ```toml
-[llvm]
-cxxflags = "-march=x86-64-v3"
-cflags = "-march=x86-64-v3"
+llvm.cxxflags = "-march=x86-64-v3"
+llvm.cflags = "-march=x86-64-v3"
 ```
 
 ## Profile-guided optimization
@@ -108,9 +104,8 @@ like Python or LLVM.
 Here is an example of how can `opt-dist` be used locally (outside of CI):
 
 1. Enable metrics in your `bootstrap.toml` file, because `opt-dist` expects it to be enabled:
-    ```toml
-   [build]
-   metrics = true
+   ```toml
+   build.metrics = true
    ```
 2. Build the tool with the following command:
     ```bash

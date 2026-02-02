@@ -166,7 +166,7 @@ The following directives will check rustc build settings and target settings:
 - `needs-profiler-runtime` — ignores the test if the profiler runtime was not
   enabled for the target (`build.profiler = true` in rustc's `bootstrap.toml`)
 - `needs-sanitizer-support` — ignores if the sanitizer support was not enabled
-  for the target (`sanitizers = true` in rustc's `bootstrap.toml`)
+  for the target (`build.sanitizers = true` in rustc's `bootstrap.toml`)
 - `needs-sanitizer-{address,hwaddress,leak,memory,thread}` — ignores if the
   corresponding sanitizer is not enabled for the target (AddressSanitizer,
   hardware-assisted AddressSanitizer, LeakSanitizer, MemorySanitizer or

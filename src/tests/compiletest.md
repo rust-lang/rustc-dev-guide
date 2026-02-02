@@ -570,9 +570,7 @@ Instrumented binaries need to be linked against the LLVM profiler runtime, so
 is enabled in `bootstrap.toml`:
 
 ```toml
-# bootstrap.toml
-[build]
-profiler = true
+build.profiler = true
 ```
 
 This also means that they typically don't run in PR CI jobs, though they do run

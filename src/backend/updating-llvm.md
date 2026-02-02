@@ -145,8 +145,7 @@ so let's go through each in detail.
    This is done by having the following setting in `bootstrap.toml`:
 
    ```toml
-   [llvm]
-   download-ci-llvm = false
+   llvm.download-ci-llvm = false
    ```
 
 1. Test for regressions across other platforms. LLVM often has at least one bug

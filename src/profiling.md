@@ -89,22 +89,21 @@ Since this doesn't seem to work with incremental compilation or `./x check`,
 you will be compiling rustc _a lot_.
 I recommend changing a few settings in `bootstrap.toml` to make it bearable:
 ```
-[rust]
 # A debug build takes _a third_ as long on my machine,
 # but compiling more than stage0 rustc becomes unbearably slow.
-optimize = false
+rust.optimize = false
 
 # We can't use incremental anyway, so we disable it for a little speed boost.
-incremental = false
+rust.incremental = false
 # We won't be running it, so no point in compiling debug checks.
-debug = false
+rust.debug = false
 
 # Using a single codegen unit gives less output, but is slower to compile.
-codegen-units = 0  # num_cpus
+rust.codegen-units = 0  # num_cpus
 ```
 
 The llvm-lines output is affected by several options.
-`optimize = false` increases it from 2.1GB to 3.5GB and `codegen-units = 0` to 4.1GB.
+`rust.optimize = false` increases it from 2.1GB to 3.5GB and `codegen-units = 0` to 4.1GB.
 
 MIR optimizations have little impact. Compared to the default `RUSTFLAGS="-Z
 mir-opt-level=1"`, level 0 adds 0.3GB and level 2 removes 0.2GB.
