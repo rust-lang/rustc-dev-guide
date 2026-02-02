@@ -7,9 +7,8 @@
 
 This section is about debugging compiler bugs in code generation (e.g. why the
 compiler generated some piece of code or crashed in LLVM).
- LLVM is a big project on its own that probably needs to have its own debugging document (not
-that I could find one).
-But here are some tips that are important in a rustc context:
+LLVM is a big project that probably needs to have its own debugging document,
+but following are some tips that are important in a rustc context.
 
 ### Minimize the example
 
