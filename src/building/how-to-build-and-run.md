@@ -329,7 +329,7 @@ fall back to using `cargo` from the installed `nightly`, `beta`, or `stable` too
 **Note:** rust-analyzer and IntelliJ Rust plugin use a component called
 `rust-analyzer-proc-macro-srv` to work with proc macros.
 If you intend to use a
-custom toolchain for a project (e.g. via `rustup override set stage1`) you may
+custom toolchain for a project (e.g. via `rustup override set stage1`), you may
 want to build this component:
 
 ```bash
