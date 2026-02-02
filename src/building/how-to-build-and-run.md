@@ -91,7 +91,7 @@ cd rust
 ## What is `x.py`?
 
 `x.py` is the build tool for the `rust` repository.
-It can build docs, run tests, and compile the compiler and standard library.
+It can build docs, run tests, and build the compiler and standard library.
 
 This chapter focuses on the basics to be productive, but
 if you want to learn more about `x.py`, [read this chapter][bootstrap].
@@ -192,7 +192,7 @@ as rustdoc), make sure to read information about that default (located in `src/b
 as the build process may be different for other defaults.
 
 Alternatively, you can write `bootstrap.toml` by hand.
-See `bootstrap.example.toml` for all the available settings and explanations of them.
+See `bootstrap.example.toml` for all the available settings and what they do.
 See `src/bootstrap/defaults` for common settings to change.
 
 If you have already built `rustc` and you change settings related to LLVM, then you may have to
