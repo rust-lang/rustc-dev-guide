@@ -1,7 +1,6 @@
 # crates.io dependencies
 
 The Rust compiler supports building with some dependencies from `crates.io`.
-Examples are `log` and `env_logger`.
 
 Rust Forge has [official policy for vetting new dependencies].
 
