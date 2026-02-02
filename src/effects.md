@@ -113,7 +113,9 @@ are revalidated again in [`Checker::revalidate_conditional_constness`].
 
 ## `explicit_implied_const_bounds` on associated types and traits
 
-Bounds on associated types, opaque types, and supertraits such as
+Bounds on associated types, opaque types, and supertraits such as the following
+have their bounds represented differently:
+
 ```rust
 trait Foo: ~const PartialEq {
     type X: ~const PartialEq;
@@ -124,9 +126,8 @@ fn foo() -> impl ~const PartialEq {
 }
 ```
 
-Have their bounds represented differently.
-Unlike `const_conditions` which need
-to be proved for callers, and can be assumed inside the definition (e.g. trait
+Unlike `const_conditions`, which need to be proved for callers,
+and can be assumed inside the definition (e.g. trait
 bounds on functions), these bounds need to be proved at definition (at the impl,
 or when returning the opaque) but can be assumed for callers.
 The non-const equivalent of these bounds are called [`explicit_item_bounds`].
@@ -147,11 +148,11 @@ In general, we can prove a `HostEffect` predicate when either of these condition
 
 * The predicate can be assumed from caller bounds;
 * The type has a `const` `impl` for the trait, *and* that const conditions on
-the impl holds, *and* that the `explicit_implied_const_bounds` on the trait holds; or
+  the impl holds, *and* that the `explicit_implied_const_bounds` on the trait holds; or
 * The type has a built-in implementation for the trait in const contexts.
   For example, `Fn` may be implemented by function items if their const conditions
-are satisfied, or `Destruct` is implemented in const contexts if the type can
-be dropped at compile time.
+  are satisfied, or `Destruct` is implemented in const contexts if the type can
+  be dropped at compile time.
 
 [old solver]: https://doc.rust-lang.org/nightly/nightly-rustc/src/rustc_trait_selection/traits/effects.rs.html
 [new trait solver]: https://doc.rust-lang.org/nightly/nightly-rustc/src/rustc_next_trait_solver/solve/effect_goals.rs.html
