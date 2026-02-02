@@ -146,10 +146,10 @@ $ ./build/$TRIPLE/llvm/bin/llvm-extract \
 If you are seeing incorrect behavior due to an optimization pass, a very handy
 LLVM option is `-opt-bisect-limit`, which takes an integer denoting the index
 value of the highest pass to run.
- Index values for taken passes are stable
+Index values for taken passes are stable
 from run to run; by coupling this with software that automates bisecting the
 search space based on the resulting program, an errant pass can be quickly determined.
- When an `-opt-bisect-limit` is specified, all runs are displayed
+When an `-opt-bisect-limit` is specified, all runs are displayed
 to standard error, along with their index and output indicating if the
 pass was run or skipped.  Setting the limit to an index of -1 (e.g.,
 `RUSTFLAGS="-C llvm-args=-opt-bisect-limit=-1"`) will show all passes and
@@ -202,7 +202,7 @@ tutorial above):
   pass.
 - The `-C no-prepopulate-passes` will avoid pre-populate the LLVM pass
   manager with a list of passes.
-   This will allow you to view the LLVM
+  This will allow you to view the LLVM
   IR that rustc generates, not the LLVM IR after optimizations.
 - The `-C passes=val` option allows you to supply a space separated list of extra LLVM passes to run
 - The `-C save-temps` option saves all temporary output files during compilation
