@@ -39,7 +39,7 @@ If you are encountering these, it is a good idea to try using a compiler with LL
 assertions enabled - either an "alt" nightly or a compiler you build yourself
 by setting `llvm.assertions = true` in your bootstrap.toml - and see whether anything turns up.
 
-The rustc build process builds the LLVM tools into `./build/host/llvm/bin`.
+The rustc build process builds the LLVM tools into `build/host/llvm/bin`.
 They can be called directly.
 These tools include:
  * [`llc`], which compiles bitcode (`.bc` files) to executable code; this can be used to
@@ -101,7 +101,7 @@ you should:
 ```bash
 $ rustc +local my-file.rs --emit=llvm-ir -O -C no-prepopulate-passes \
     -C codegen-units=1
-$ OPT=./build/$TRIPLE/llvm/bin/opt
+$ OPT=build/$TRIPLE/llvm/bin/opt
 $ $OPT -S -O2 < my-file.ll > my
 ```
 
