@@ -39,7 +39,7 @@ If you are encountering these, it is a good idea to try using a compiler with LL
 assertions enabled - either an "alt" nightly or a compiler you build yourself
 by setting `llvm.assertions = true` in your bootstrap.toml - and see whether anything turns up.
 
-The rustc build process builds the LLVM tools into `./build/<host-triple>/llvm/bin`.
+The rustc build process builds the LLVM tools into `./build/host/llvm/bin`.
 They can be called directly.
 These tools include:
  * [`llc`], which compiles bitcode (`.bc` files) to executable code; this can be used to
@@ -56,7 +56,7 @@ By default, the Rust build system does not check for changes to the LLVM source 
 its build configuration settings.
 So, if you need to rebuild the LLVM that is linked
 into `rustc`, first delete the file `.llvm-stamp`, which should be located
-in `build/<host-triple>/llvm/`.
+in `build/host/llvm/`.
 
 The default rustc compilation pipeline has multiple codegen units, which is
 hard to replicate manually and means that LLVM is called multiple times in
@@ -157,7 +157,7 @@ pass was run or skipped.  Setting the limit to an index of -1 (e.g.,
 their corresponding index values.
 
 If you want to play with the optimization pipeline, you can use the [`opt`] tool
-from `./build/<host-triple>/llvm/bin/` with the LLVM IR emitted by rustc.
+from `./build/host/llvm/bin/` with the LLVM IR emitted by rustc.
 
 When investigating the implementation of LLVM itself, you should be
 aware of its [internal debug infrastructure][llvm-debug].
