@@ -72,8 +72,7 @@ somewhat successfully, you can copy the specification into the compiler itself.
 
 You will need to add a line to the big table inside of the
 `supported_targets` macro in the `rustc_target::spec` module.
-You will then add a corresponding file for your new target containing a
-`target` function.
+You will then add a corresponding file for your new target containing a `target` function.
 
 Look for existing targets to use as examples.
 

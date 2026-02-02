@@ -55,9 +55,8 @@ rust.codegen-units-std = 1
 
 By default, `rustc` is compiled for a generic (and conservative) instruction set architecture
 (depending on the selected target), to make it support as many CPUs as possible.
-If you want to
-compile `rustc` for a specific instruction set architecture, you can set the `target_cpu` compiler
-option in `RUSTFLAGS`:
+If you want to compile `rustc` for a specific instruction set architecture,
+you can set the `target_cpu` compiler option in `RUSTFLAGS`:
 
 ```bash
 RUSTFLAGS="-C target_cpu=x86-64-v3" ./x build ...
