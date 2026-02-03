@@ -3,9 +3,13 @@
 This chapter is intended to provide basic help for adding, removing, and
 modifying feature gates.
 
+For how rustc enforces and checks feature gates in the compiler pipeline,
+see [Feature Gate Checking][feature-gate-check].
+
 Note that this is specific to *language* feature gates; *library* feature gates use [a different
 mechanism][libs-gate].
 
+[feature-gate-check]: ./feature-gate-check.md
 [libs-gate]: ./stability.md
 
 ## Adding a feature gate
