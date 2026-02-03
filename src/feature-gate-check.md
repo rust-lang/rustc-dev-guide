@@ -5,6 +5,8 @@ nightly-only `#![feature(...)]` opt-in. This chapter documents the implementatio
 of feature gating: where gates are defined, how they are enabled, and how usage
 is verified.
 
+<!-- data-check: Feb 2026 -->
+
 ## Feature Definitions
 
 All feature gate definitions are located in the `rustc_feature` crate:
@@ -30,7 +32,10 @@ Before AST validation or expansion, `rustc` collects crate-level
   `removed` tables:
   - **Removed** features cause an immediate error.
   - **Accepted** features are recorded but do not require nightly. On
-    stable/beta they trigger the "already stabilized" diagnostic.
+    stable/beta, `maybe_stage_features` in
+    [`rustc_ast_passes/src/feature_gate.rs`] emits the non-nightly
+    diagnostic and lists stable features, which is where the "already
+    stabilized" messaging comes from.
   - **Unstable** features are recorded as enabled.
   - Unknown features are treated as **library features** and validated later.
 - With `-Z allow-features=...`, any **unstable** or **unknown** feature
@@ -62,18 +67,8 @@ in `check_crate` and its AST visitor.
   (declared in `rustc_feature::INCOMPATIBLE_FEATURES`) are not used together.
 - `check_new_solver_banned_features`: Bans features incompatible with
   compiler mode for the next trait solver.
-- **Parser-gated spans**: Processes the `GatedSpans` recorded during parsing.
-
-### AST Visitor
-
-A `PostExpansionVisitor` walks the expanded AST to check constructs that are
-easier to validate after expansion.
-
-- The visitor uses helper macros (`gate!`, `gate_alt!`, `gate_multi!`) to check:
-  1. Is the feature enabled?
-  2. Does `span.allows_unstable` permit it (for internal compiler macros)?
-- Examples include `trait_alias`, `decl_macro`, `extern types`, and various
-  `impl Trait` forms.
+- **Parser-gated spans**: Processes the `GatedSpans` recorded during parsing
+  (see [Checking `GatedSpans`](#checking-gatedspans)).
 
 ### Checking `GatedSpans`
 
@@ -85,6 +80,17 @@ easier to validate after expansion.
   `gen_blocks`).
 - Legacy gates (e.g., `box_patterns`, `try_blocks`) may use a separate path that
   emits future-incompatibility warnings instead of hard errors.
+
+### AST Visitor
+
+A `PostExpansionVisitor` walks the expanded AST to check constructs that are
+easier to validate after expansion.
+
+- The visitor uses helper macros (`gate!`, `gate_alt!`, `gate_multi!`) to check:
+  1. Is the feature enabled?
+  2. Does `span.allows_unstable` permit it (for internal compiler macros)?
+- Examples include `trait_alias`, `decl_macro`, `extern types`, and various
+  `impl Trait` forms.
 
 ## Attributes and `cfg`
 
@@ -99,8 +105,8 @@ Beyond syntax, rustc also gates attributes and `cfg` options.
 
 ### `cfg` options
 
-- [`rustc_attr_parsing/src/attributes/cfg.rs`] defines
-  `find_gated_cfg`/`gate_cfg` to reject gated `cfg`s.
+- [`rustc_attr_parsing/src/attributes/cfg.rs`] defines `gate_cfg` and uses
+  [`rustc_feature::find_gated_cfg`] to reject gated `cfg`s.
 - `gate_cfg` respects `Span::allows_unstable`, allowing internal compiler
   macros to bypass `cfg` gates when marked with `#[allow_internal_unstable]`.
 - The gated cfg list is defined in [`rustc_feature/src/builtin_attrs.rs`].
@@ -130,4 +136,5 @@ Diagnostic helpers are located in [`rustc_session/src/parse.rs`].
 [`rustc_parse/src/parser/*`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_parse/parser/index.html
 [`rustc_ast_passes::check_attribute`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_ast_passes/feature_gate/fn.check_attribute.html
 [`rustc_attr_parsing/src/attributes/cfg.rs`]: https://github.com/rust-lang/rust/blob/HEAD/compiler/rustc_attr_parsing/src/attributes/cfg.rs
+[`rustc_feature::find_gated_cfg`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_feature/fn.find_gated_cfg.html
 [`rustc_span/src/lib.rs`]: https://github.com/rust-lang/rust/blob/HEAD/compiler/rustc_span/src/lib.rs
