@@ -88,7 +88,7 @@ fn foo<'a, 'b, T: 'a>(one: T, two: &'a &'b u32) -> &'b u32 {
 [ch_early_late_bound]: ../early-late-parameters.md
 [ch_binders]: ./binders.md
 [ch_instantiating_binders]: ./instantiating-binders.md
-[`BoundRegionKind`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/enum.BoundRegionKind.html
+[`BoundRegionKind`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/type.BoundRegionKind.html
 [`RegionKind::EarlyParam`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/type.RegionKind.html#variant.ReEarlyParam
 [`RegionKind::LateParam`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/type.RegionKind.html#variant.ReLateParam
 [`ConstKind::Param`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/type.ConstKind.html#variant.Param
