@@ -5,6 +5,7 @@
 new_issue = true
 exclude_labels = [
     "A-diagnostics",
+    "C-date-reference-triage",
     "C-tracking-issue",
 ]
 
