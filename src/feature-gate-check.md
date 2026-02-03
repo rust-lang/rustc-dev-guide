@@ -1,5 +1,8 @@
 # Feature Gate Checking
 
+For the how-to steps to add, remove, rename, or stabilize feature gates,
+see [Feature gates][feature-gates].
+
 Feature gates prevent usage of unstable language and library features without a
 nightly-only `#![feature(...)]` opt-in. This chapter documents the implementation
 of feature gating: where gates are defined, how they are enabled, and how usage
@@ -138,3 +141,4 @@ Diagnostic helpers are located in [`rustc_session/src/parse.rs`].
 [`rustc_attr_parsing/src/attributes/cfg.rs`]: https://github.com/rust-lang/rust/blob/HEAD/compiler/rustc_attr_parsing/src/attributes/cfg.rs
 [`rustc_feature::find_gated_cfg`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_feature/fn.find_gated_cfg.html
 [`rustc_span/src/lib.rs`]: https://github.com/rust-lang/rust/blob/HEAD/compiler/rustc_span/src/lib.rs
+[feature-gates]: ./feature-gates.md
