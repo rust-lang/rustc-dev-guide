@@ -450,7 +450,7 @@ particular job, it is probably easiest to just look at the build log.
 To do this:
 
 1. Go to [the Rust CI successful workflow runs page][workflow runs]
-   to find the most recently successful build, and click on it.
+   and click on the most recent one.
 2. Choose the job you are interested in on the left-hand side.
 3. Click on the gear icon and choose "View raw logs"
 4. Search for the string "Configure the build"
