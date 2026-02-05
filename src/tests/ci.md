@@ -447,7 +447,7 @@ If you want to determine which `bootstrap.toml` settings are used in CI for a
 particular job, it is probably easiest to just look at the build log.
 To do this:
 
-1. Go to <https://github.com/rust-lang/rust/actions?query=branch%3Aauto+is%3Asuccess>
+1. Go to [the Rust CI successful workflow runs page][workflow runs]
    to find the most recently successful build, and click on it.
 2. Choose the job you are interested in on the left-hand side.
 3. Click on the gear icon and choose "View raw logs"
@@ -462,3 +462,4 @@ To do this:
 [merge queue]: https://bors.rust-lang.org/queue/rust
 [dist-x86_64-linux]: https://github.com/rust-lang/rust/blob/HEAD/src/ci/docker/host-x86_64/dist-x86_64-linux/Dockerfile
 [the GitHub Actions workflows page]: https://github.com/rust-lang/rust/actions
+[workflow runs]: https://github.com/rust-lang/rust/actions?query=branch%3Aautomation%2Fbors%2Fauto+is%3Asuccess
