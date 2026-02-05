@@ -164,9 +164,9 @@ The following directives will check rustc build settings and target settings:
   via `--target`, use `needs-llvm-components` instead to ensure the appropriate
   backend is available.
 - `needs-profiler-runtime` — ignores the test if the profiler runtime was not
-  enabled for the target (`build.profiler = true` in rustc's `bootstrap.toml`)
+  enabled for the target (`build.profiler = true` in `bootstrap.toml`)
 - `needs-sanitizer-support` — ignores if the sanitizer support was not enabled
-  for the target (`sanitizers = true` in rustc's `bootstrap.toml`)
+  for the target (`build.sanitizers = true` in `bootstrap.toml`)
 - `needs-sanitizer-{address,hwaddress,leak,memory,thread}` — ignores if the
   corresponding sanitizer is not enabled for the target (AddressSanitizer,
   hardware-assisted AddressSanitizer, LeakSanitizer, MemorySanitizer or
@@ -200,6 +200,8 @@ The following directives will check rustc build settings and target settings:
   on `wasm32-unknown-unknown` target because the target does not support the
   `proc-macro` crate type.
 - `needs-target-std` — ignores if target platform does not have std support.
+  - See also [`#![no_std]`/`#![no_core]` and implied `needs-target-std` for
+    codegen tests](./compiletest.md#codegen-tests).
 - `ignore-backends` — ignores the listed backends, separated by whitespace characters.
   Please note
   that this directive can be overriden with the `--bypass-ignore-backends=[BACKEND]` command line
