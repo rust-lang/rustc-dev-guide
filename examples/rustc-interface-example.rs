@@ -4,14 +4,12 @@
 
 extern crate rustc_driver;
 extern crate rustc_error_codes;
-extern crate rustc_errors;
 extern crate rustc_hash;
 extern crate rustc_hir;
 extern crate rustc_interface;
 extern crate rustc_session;
 extern crate rustc_span;
 
-use rustc_errors::registry;
 use rustc_hash::FxHashMap;
 use rustc_session::config;
 
@@ -50,8 +48,6 @@ fn main() {
         //
         // The second parameter is local providers and the third parameter is external providers.
         override_queries: None, // Option<fn(&Session, &mut ty::query::Providers<'_>, &mut ty::query::Providers<'_>)>
-        // Registry of diagnostics codes.
-        registry: registry::Registry::new(rustc_errors::codes::DIAGNOSTICS),
         make_codegen_backend: None,
         expanded_args: Vec::new(),
         ice_file: None,

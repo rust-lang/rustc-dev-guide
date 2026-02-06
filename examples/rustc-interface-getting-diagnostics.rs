@@ -15,7 +15,7 @@ extern crate rustc_span;
 use std::sync::{Arc, Mutex};
 
 use rustc_errors::emitter::Emitter;
-use rustc_errors::registry::{self, Registry};
+use rustc_errors::registry::Registry;
 use rustc_errors::translation::Translate;
 use rustc_errors::{DiagInner, FluentBundle};
 use rustc_session::config;
@@ -76,7 +76,6 @@ fn main() {
         })),
         register_lints: None,
         override_queries: None,
-        registry: registry::Registry::new(rustc_errors::codes::DIAGNOSTICS),
         make_codegen_backend: None,
         expanded_args: Vec::new(),
         ice_file: None,
