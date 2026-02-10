@@ -198,7 +198,7 @@ satisfy/optimize for. For example,
   the input programs says they do, and should continue to do so despite the
   tremendous amount of change constantly going on.
 - Integration: a number of other tools need to use the compiler in
-  various ways (e.g. `cargo`, `clippy`, `MIRI`) that must be supported.
+  various ways (e.g. `cargo`, `clippy`, `Miri`) that must be supported.
 - Compiler stability: the compiler should not crash or fail ungracefully on the
   stable channel.
 - Rust stability: the compiler must respect Rust's stability guarantees by not
@@ -245,7 +245,7 @@ for different purposes:
   values). `MIR` is used for borrow checking and other
   important dataflow-based checks, such as checking for uninitialized values.
   It is also used for a series of optimizations and for constant evaluation (via
-  `MIRI`). Because `MIR` is still generic, we can do a lot of analyses here more
+  `Miri`). Because `MIR` is still generic, we can do a lot of analyses here more
   efficiently than after monomorphization.
 - `LLVM-IR`: This is the standard form of all input to the LLVM compiler. `LLVM-IR`
   is a sort of typed assembly language with lots of annotations. It's

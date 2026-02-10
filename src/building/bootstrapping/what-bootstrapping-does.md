@@ -342,7 +342,7 @@ This flag has the following effects:
 
 Code which does not use `-Z force-unstable-if-unmarked` should include the
 `#![feature(rustc_private)]` crate attribute to access these forced-unstable
-crates. This is needed for things which link `rustc` its self, such as `MIRI` or
+crates. This is needed for things which link `rustc` itself, such as `Miri` or
 `clippy`.
 
 You can find more discussion about sysroots in:

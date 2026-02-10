@@ -56,7 +56,7 @@ You can also include extensions within extensions recursively.
 **Note:** In the `include` field, the overriding logic follows a right-to-left order.
 For example,
 in `include = ["a.toml", "b.toml"]`, extension `b.toml` overrides `a.toml`.
-Also, parent extensions always overrides the inner ones.
+Also, parent extensions always override the inner ones.
 
 ## Configuring `rust-analyzer` for `rustc`
 
