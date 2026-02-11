@@ -13,10 +13,7 @@ active redesign proposals (as of
 Please see the tracking issue <https://github.com/rust-lang/rust/issues/132181>
 for status updates.
 
-We have downgraded the internal lints `untranslatable_diagnostic` and
-`diagnostic_outside_of_impl`. Those internal lints previously required new code
-to use the current translation infrastructure. However, because the translation
-infra is waiting for a yet-to-be-proposed redesign and thus rework, we are not
+The translation infra is waiting for a yet-to-be-proposed redesign and thus rework, we are not
 mandating usage of current translation infra. Use the infra if you *want to* or
 otherwise makes the code cleaner, but otherwise sidestep the translation infra
 if you need more flexibility.
@@ -40,11 +37,6 @@ There are two ways of writing translatable diagnostics:
 When adding or changing a translatable diagnostic,
 you don't need to worry about the translations.
 Only updating the original English message is required.
-Currently,
-each crate which defines translatable diagnostics has its own Fluent resource,
-which is a file named `messages.ftl`,
-located in the root of the crate
-(such as`compiler/rustc_expand/messages.ftl`).
 
 ## Fluent
 
@@ -118,11 +110,8 @@ information that needs to be provided by the code to do so.
 
 ### Compile-time validation and typed identifiers
 
-rustc's `fluent_messages` macro performs compile-time validation of Fluent
-resources and generates code to make it easier to refer to Fluent messages in
-diagnostics.
-
-Compile-time validation of Fluent resources will emit any parsing errors
+rustc's `#[derive(Diagnostic)]` macro performs compile-time validation of Fluent
+messages. Compile-time validation of Fluent resources will emit any parsing errors
 from Fluent resources while building the compiler, preventing invalid Fluent
 resources from causing panics in the compiler. Compile-time validation also
 emits an error if multiple Fluent messages have the same identifier.

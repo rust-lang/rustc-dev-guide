@@ -28,12 +28,11 @@ fn main() {
     println!("{HELLO}");
 }
 "#
-            .into(),
+                .into(),
         },
-        output_dir: None,  // Option<PathBuf>
-        output_file: None, // Option<PathBuf>
-        file_loader: None, // Option<Box<dyn FileLoader + Send + Sync>>
-        locale_resources: rustc_driver::DEFAULT_LOCALE_RESOURCES.to_owned(),
+        output_dir: None,                // Option<PathBuf>
+        output_file: None,               // Option<PathBuf>
+        file_loader: None,               // Option<Box<dyn FileLoader + Send + Sync>>
         lint_caps: FxHashMap::default(), // FxHashMap<lint::LintId, lint::Level>
         // This is a callback from the driver that is called when [`ParseSess`] is created.
         psess_created: None, //Option<Box<dyn FnOnce(&mut ParseSess) + Send>>

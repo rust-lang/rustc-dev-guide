@@ -254,8 +254,8 @@ You will typically need to:
 An example of introducing such a cross-crate query can be found in commit [`996a185`](https://github.com/rust-lang/rust/commit/996a185) in the `rust-lang/rust` repository.
 
 [rustc_metadata]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_metadata/index.html
-[providers_struct]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/query/struct.Providers.html
-[extern_providers_struct]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/query/struct.ExternProviders.html
+[providers_struct]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/queries/struct.Providers.html
+[extern_providers_struct]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/queries/struct.ExternProviders.html
 
 ---
 
