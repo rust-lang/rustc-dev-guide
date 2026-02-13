@@ -198,7 +198,7 @@ satisfy/optimize for. For example,
   the input programs says they do, and should continue to do so despite the
   tremendous amount of change constantly going on.
 - Integration: a number of other tools need to use the compiler in
-  various ways (e.g. `cargo`, `clippy`, `MIRI`) that must be supported.
+  various ways (e.g. `cargo`, `clippy`, `Miri`) that must be supported.
 - Compiler stability: the compiler should not crash or fail ungracefully on the
   stable channel.
 - Rust stability: the compiler must respect Rust's stability guarantees by not
@@ -245,7 +245,7 @@ for different purposes:
   values). `MIR` is used for borrow checking and other
   important dataflow-based checks, such as checking for uninitialized values.
   It is also used for a series of optimizations and for constant evaluation (via
-  `MIRI`). Because `MIR` is still generic, we can do a lot of analyses here more
+  `Miri`). Because `MIR` is still generic, we can do a lot of analyses here more
   efficiently than after monomorphization.
 - `LLVM-IR`: This is the standard form of all input to the LLVM compiler. `LLVM-IR`
   is a sort of typed assembly language with lots of annotations. It's
@@ -395,7 +395,7 @@ For more details on bootstrapping, see
 - Lexical Analysis: Lex the user program to a stream of tokens
   - Guide: [Lexing and Parsing](the-parser.md)
   - Lexer definition: [`rustc_lexer`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lexer/index.html)
-  - Main entry point: [`rustc_lexer::cursor::Cursor::advance_token`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lexer/cursor/struct.Cursor.html#method.advance_token)
+  - Main entry point: [`rustc_lexer::Cursor::advance_token`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lexer/struct.Cursor.html#method.advance_token)
 - Parsing: Parse the stream of tokens to an Abstract Syntax Tree (AST)
   - Guide: [Lexing and Parsing](the-parser.md)
   - Guide: [Macro Expansion](macro-expansion.md)
