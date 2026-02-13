@@ -1,6 +1,6 @@
 # LoongArch notification group
 
-**Github Label:** [O-loongarch] <br>
+**GitHub Label:** [O-loongarch] <br>
 **Ping command:** `@rustbot ping loongarch`
 
 [O-loongarch]: https://github.com/rust-lang/rust/labels/O-loongarch
