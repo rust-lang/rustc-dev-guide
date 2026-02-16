@@ -6,16 +6,15 @@ The primary goal of our CI system is to ensure that the `main` branch of
 From a high-level point of view, when you open a pull request at
 `rust-lang/rust`, the following will happen:
 
-- A small [subset](#pull-request-builds) of tests and checks are run after each
-  push to the PR.
+- A small [subset](#pull-request-builds) of tests and checks are run after each push to the PR.
   This should help catch common errors.
 - When the PR is approved, the [bors] bot enqueues the PR into a [merge queue].
 - Once the PR gets to the front of the queue, bors will create a merge commit
   and run the [full test suite](#auto-builds) on it.
   The merge commit either contains only one specific PR or it can be a ["rollup"](#rollups) which
   combines multiple PRs together, to reduce CI costs and merge delays.
-- Once the whole test suite finishes, two things can happen. Either CI fails
-  with an error that needs to be addressed by the developer, or CI succeeds and
+- Once the whole test suite finishes, two things can happen.
+  Either CI fails with an error that needs to be addressed by the developer, or CI succeeds and
   the merge commit is then pushed to the `main` branch.
 
 If you want to modify what gets executed on CI, see [Modifying CI jobs](#modifying-ci-jobs).
@@ -103,7 +102,7 @@ Most platforms only run the build steps, some run a restricted set of tests;
 only a subset run the full suite of tests (see Rust's [platform tiers]).
 
 Auto jobs are defined in the `auto` section of [`jobs.yml`].
-They are executed on the `auto` branch under the `rust-lang/rust` repository,
+They are executed on the [`automation/bors/auto`][auto] branch under the `rust-lang/rust` repository,
 and the final result will be reported via a comment made by bors on the corresponding PR.
 The live results can be seen on [the GitHub Actions workflows page].
 
@@ -111,6 +110,7 @@ At any given time, at most a single `auto` build is being executed.
 Find out more in [Merging PRs serially with bors](#merging-prs-serially-with-bors).
 
 [platform tiers]: https://forge.rust-lang.org/release/platform-support.html#rust-platform-support
+[auto]: https://github.com/rust-lang/rust/tree/automation/bors/auto
 
 ### Try builds
 
@@ -205,7 +205,7 @@ to help make the perf comparison as fair as possible.
 > However, it can be less flexible because you cannot adjust the set of tests
 > that are exercised this way.
 
-Try builds are executed on the `try` branch under the `rust-lang/rust` repository and
+Try builds are executed on the [`automation/bors/try`][try] branch under the `rust-lang/rust` repository and
 their results can be seen on [the GitHub Actions workflows page],
 although usually you will be notified of the result by a comment made by bors on
 the corresponding PR.
@@ -214,6 +214,7 @@ Multiple try builds can execute concurrently across different PRs, but there can
 a single try build running on a single PR at any given time.
 
 [rustc-perf]: https://github.com/rust-lang/rustc-perf
+[try]: https://github.com/rust-lang/rust/tree/automation/bors/try
 
 ### Modifying CI jobs
 
@@ -285,8 +286,8 @@ If all the builders are green, the PR is merged, otherwise the failure is
 recorded and the PR will have to be re-approved again.
 
 Bors doesn’t interact with CI services directly, but it works by pushing the
-merge commit it wants to test to specific branches (like `auto` or `try`), which
-are configured to execute CI checks.
+merge commit it wants to test to specific branches (like `automation/bors/auto` or `automation/bors/try`),
+which are configured to execute CI checks.
 Bors then detects the outcome of the build by listening for either Commit Statuses or Check Runs.
 Since the merge commit is
 based on the latest `main` and only one can be tested at the same time, when
@@ -303,8 +304,7 @@ This is worth it because these release artifacts:
 
 - Allow perf testing even at a later date.
 - Allow bisection when bugs are discovered later.
-- Ensure release quality since if we're always releasing, we can catch problems
-  early.
+- Ensure release quality since if we're always releasing, we can catch problems early.
 
 ### Rollups
 
@@ -449,9 +449,8 @@ If you want to determine which `bootstrap.toml` settings are used in CI for a
 particular job, it is probably easiest to just look at the build log.
 To do this:
 
-1. Go to
-   <https://github.com/rust-lang/rust/actions?query=branch%3Aauto+is%3Asuccess>
-   to find the most recently successful build, and click on it.
+1. Go to [the Rust CI successful workflow runs page][workflow runs]
+   and click on the most recent one.
 2. Choose the job you are interested in on the left-hand side.
 3. Click on the gear icon and choose "View raw logs"
 4. Search for the string "Configure the build"
@@ -465,3 +464,4 @@ To do this:
 [merge queue]: https://bors.rust-lang.org/queue/rust
 [dist-x86_64-linux]: https://github.com/rust-lang/rust/blob/HEAD/src/ci/docker/host-x86_64/dist-x86_64-linux/Dockerfile
 [the GitHub Actions workflows page]: https://github.com/rust-lang/rust/actions
+[workflow runs]: https://github.com/rust-lang/rust/actions?query=branch%3Aautomation%2Fbors%2Fauto+is%3Asuccess
