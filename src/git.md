@@ -372,7 +372,7 @@ to ensure that Git doesn't create merge commits when `git pull`ing, without
 needing to pass `--ff-only` or `--rebase` every time.
 
 You can also `git push --force-with-lease` from main to double-check that your
-feature branches are in sync with their state on the Github side.
+feature branches are in sync with their state on the GitHub side.
 
 ## Advanced Rebasing
 
@@ -494,7 +494,7 @@ to follow and understand.
 
 ### Hiding whitespace
 
-Github has a button for disabling whitespace changes that may be useful.
+GitHub has a button for disabling whitespace changes that may be useful.
 You can also use `git diff -w origin/main` to view changes locally.
 
 ![hide whitespace](./img/github-whitespace-changes.png)
@@ -505,7 +505,7 @@ To checkout PRs locally, you can use `git fetch upstream pull/NNNNN/head && git 
 FETCH_HEAD`.
 
 You can also use github's cli tool.
-Github shows a button on PRs where you can copy-paste the command to check it out locally.
+GitHub shows a button on PRs where you can copy-paste the command to check it out locally.
 See <https://cli.github.com/> for more info.
 
 ![`gh` suggestion](./img/github-cli.png)
@@ -521,7 +521,7 @@ for more details.
 
 ### Moving large sections of code
 
-Git and Github's default diff view for large moves *within* a file is quite poor; it will show each
+Git and GitHub's default diff view for large moves *within* a file is quite poor; it will show each
 line as deleted and each line as added, forcing you to compare each line yourself.
 Git has an option to show moved lines in a different color:
 
@@ -562,7 +562,7 @@ Rust projects from within the `rust` repo.
 Examples include Rust's fork of
 `llvm-project`, `cargo`, and libraries like `stdarch` and `backtrace`.
 
-Those projects are developed and maintained in an separate Git (and GitHub)
+Those projects are developed and maintained in a separate Git (and GitHub)
 repository, and they have their own Git history/commits, issue tracker and PRs.
 Submodules allow us to create some sort of embedded sub-repository inside the
 `rust` repository and use them like they were directories in the `rust` repository.

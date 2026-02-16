@@ -11,7 +11,7 @@ that fits the notification group's criteria. If you are interested, you
 can then [claim the issue] and start working on it.
 
 Of course, you don't have to wait for new issues to be tagged! If you
-prefer, you can use the Github label for a notification group to
+prefer, you can use the GitHub label for a notification group to
 search for existing issues that haven't been claimed yet.
 
 [claim the issue]: https://forge.rust-lang.org/triagebot/issue-assignment.html
@@ -47,7 +47,7 @@ particularly those of **middle priority**:
 ## Joining a notification group
 
 To join a notification group, you just have to open a PR adding your
-Github username to the appropriate file in the Rust team repository.
+GitHub username to the appropriate file in the Rust team repository.
 See the "example PRs" below to get a precise idea and to identify the
 file to edit.
 

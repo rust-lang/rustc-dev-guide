@@ -102,7 +102,7 @@ Most platforms only run the build steps, some run a restricted set of tests;
 only a subset run the full suite of tests (see Rust's [platform tiers]).
 
 Auto jobs are defined in the `auto` section of [`jobs.yml`].
-They are executed on the `auto` branch under the `rust-lang/rust` repository,
+They are executed on the [`automation/bors/auto`][auto] branch under the `rust-lang/rust` repository,
 and the final result will be reported via a comment made by bors on the corresponding PR.
 The live results can be seen on [the GitHub Actions workflows page].
 
@@ -110,6 +110,7 @@ At any given time, at most a single `auto` build is being executed.
 Find out more in [Merging PRs serially with bors](#merging-prs-serially-with-bors).
 
 [platform tiers]: https://forge.rust-lang.org/release/platform-support.html#rust-platform-support
+[auto]: https://github.com/rust-lang/rust/tree/automation/bors/auto
 
 ### Try builds
 
@@ -204,7 +205,7 @@ to help make the perf comparison as fair as possible.
 > However, it can be less flexible because you cannot adjust the set of tests
 > that are exercised this way.
 
-Try builds are executed on the `try` branch under the `rust-lang/rust` repository and
+Try builds are executed on the [`automation/bors/try`][try] branch under the `rust-lang/rust` repository and
 their results can be seen on [the GitHub Actions workflows page],
 although usually you will be notified of the result by a comment made by bors on
 the corresponding PR.
@@ -213,6 +214,7 @@ Multiple try builds can execute concurrently across different PRs, but there can
 a single try build running on a single PR at any given time.
 
 [rustc-perf]: https://github.com/rust-lang/rustc-perf
+[try]: https://github.com/rust-lang/rust/tree/automation/bors/try
 
 ### Modifying CI jobs
 
@@ -284,8 +286,8 @@ If all the builders are green, the PR is merged, otherwise the failure is
 recorded and the PR will have to be re-approved again.
 
 Bors doesn’t interact with CI services directly, but it works by pushing the
-merge commit it wants to test to specific branches (like `auto` or `try`), which
-are configured to execute CI checks.
+merge commit it wants to test to specific branches (like `automation/bors/auto` or `automation/bors/try`),
+which are configured to execute CI checks.
 Bors then detects the outcome of the build by listening for either Commit Statuses or Check Runs.
 Since the merge commit is
 based on the latest `main` and only one can be tested at the same time, when
@@ -447,8 +449,8 @@ If you want to determine which `bootstrap.toml` settings are used in CI for a
 particular job, it is probably easiest to just look at the build log.
 To do this:
 
-1. Go to <https://github.com/rust-lang/rust/actions?query=branch%3Aauto+is%3Asuccess>
-   to find the most recently successful build, and click on it.
+1. Go to [the Rust CI successful workflow runs page][workflow runs]
+   and click on the most recent one.
 2. Choose the job you are interested in on the left-hand side.
 3. Click on the gear icon and choose "View raw logs"
 4. Search for the string "Configure the build"
@@ -462,3 +464,4 @@ To do this:
 [merge queue]: https://bors.rust-lang.org/queue/rust
 [dist-x86_64-linux]: https://github.com/rust-lang/rust/blob/HEAD/src/ci/docker/host-x86_64/dist-x86_64-linux/Dockerfile
 [the GitHub Actions workflows page]: https://github.com/rust-lang/rust/actions
+[workflow runs]: https://github.com/rust-lang/rust/actions?query=branch%3Aautomation%2Fbors%2Fauto+is%3Asuccess
