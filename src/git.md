@@ -410,6 +410,13 @@ because they only represent "fixups" and not real changes.
 For example,
 `git rebase --interactive HEAD~2` will allow you to edit the two commits only.
 
+For pull requests in `rust-lang/rust`, you can ask [bors] to squash by commenting
+`@bors squash` on the PR.
+By default, [bors] combines all commit messages in the PR.
+To customize the commit message, use `@bors squash [msg|message=<commit-message>]`.
+
+[bors]: https://github.com/rust-lang/bors
+
 ### `git range-diff`
 
 After completing a rebase, and before pushing up your changes, you may want to
