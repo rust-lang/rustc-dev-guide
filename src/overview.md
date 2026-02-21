@@ -406,7 +406,7 @@ For more details on bootstrapping, see
     - [Entry point for outline module parsing](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_expand/module/fn.parse_external_mod.html)
     - [Entry point for macro fragments][parse_nonterminal]
   - `AST` definition: [`rustc_ast`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_ast/ast/index.html)
-  - Feature gating: **TODO**
+  - Feature gating: [Feature Gate Checking](feature-gate-check.md)
   - Early linting: **TODO**
 - The High Level Intermediate Representation (HIR)
   - Guide: [The HIR](hir.md)
