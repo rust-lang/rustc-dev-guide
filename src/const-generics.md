@@ -5,9 +5,9 @@
 Most of the kinds of `ty::Const` that exist have direct parallels to kinds of types that exist, for example `ConstKind::Param` is equivalent to `TyKind::Param`.
 
 The main interesting points here are:
-- [`ConstKind::Unevaluated`], this is equivalent to `TyKind::Alias` and in the long term should be renamed (as well as introducing an `AliasConstKind` to parallel `ty::AliasKind`).
-- [`ConstKind::Value`], this is the final value of a `ty::Const` after monomorphization.
-  This is similar-ish to fully concrete to things like `TyKind::Str` or `TyKind::ADT`.
+- [`ConstKind::Unevaluated`], which is equivalent to `TyKind::Alias` and in the long term should be renamed (as well as introducing an `AliasConstKind` to parallel `ty::AliasKind`).
+- [`ConstKind::Value`], which is the final value of a `ty::Const` after monomorphization.
+  This is somewhat similar to fully concrete things like `TyKind::Str` or `TyKind::ADT`.
 
 For a complete list of *all* kinds of const arguments and how they are actually represented in the type system, see the [`ConstKind`] type.
 
@@ -56,10 +56,12 @@ This desugaring is part of how we enforce that anon consts can't make use of gen
 While it's useful to think of anon consts as being desugared to real const items, the compiler does not actually implement things this way.
 
 At AST lowering time we do not yet know the *type* of the anon const, so we can't desugar to a real HIR item with an explicitly written type.
-To work around this we have [`DefKind::AnonConst`] and [`hir::Node::AnonConst`] which are used to represent these anonymous const items that can't actually be desugared.
+To work around this, we have [`DefKind::AnonConst`] and [`hir::Node::AnonConst`],
+which are used to represent these anonymous const items that can't actually be desugared.
 
 The types of these anon consts are obtainable from the [`type_of`] query.
-However, the `type_of` query does not actually contain logic for computing the type (infact it just ICEs when called), instead HIR Ty lowering is responsible for *feeding* the value of the `type_of` query for any anon consts that get lowered.
+However, the `type_of` query does not actually contain logic for computing the type (and, in fact, it just ICEs when called).
+Instead, HIR Ty lowering is responsible for *feeding* the value of the `type_of` query for any anon consts that get lowered.
 HIR Ty lowering can determine the type of the anon const by looking at the type of the Const Parameter that the anon const is an argument to.
 
 TODO: write a chapter on query feeding and link it here
@@ -76,12 +78,12 @@ const ANON = 1 + 1;
 type Alias = [u8; ANON];
 ```
 
-Where when we go through HIR ty lowering for the array type in `Alias`, we will lower the array length too and feed `type_of(ANON) -> usize`.
-Effectively setting the type of the `ANON` const item during some later part of the compiler rather than when constructing the HIR.
+When we go through HIR ty lowering for the array type in `Alias`, we will lower the array length too, and feed `type_of(ANON) -> usize`.
+This will effectively set the type of the `ANON` const item during some later part of the compiler rather than when constructing the HIR.
 
 After all of this desugaring has taken place the final representation in the type system (ie as a `ty::Const`) is a `ConstKind::Unevaluated` with the `DefId` of the `AnonConst`. This is equivalent to how we would representa a usage of an actual const item if we were to represent them without going through an anon const (e.g. when `min_generic_const_args` is enabled).
 
-This allows the representation for const "aliases" to be the same as the representation of `TyKind::Alias`. Having a proper HIR body also allows for a *lot* of code re-use, e.g. we can reuse HIR typechecking and all of the lowering steps to MIR where we can then reuse const eval. 
+This allows the representation for const "aliases" to be the same as the representation of `TyKind::Alias`. Having a proper HIR body also allows for a *lot* of code re-use, e.g. we can reuse HIR typechecking and all of the lowering steps to MIR where we can then reuse const eval.
 
 ### Enforcing lack of Generic Parameters
 
@@ -118,13 +120,13 @@ The existing check is too conservative and accidentally permits some generic par
 Erroneously allowing generic parameters in anon consts can sometimes lead to ICEs but can also lead to accepting illformed programs.
 
 The third point is also somewhat subtle, by not inheriting any of the where clauses of the parent item we can't wind up with the trait solving inferring inference variables to generic parameters based off where clauses in scope that mention generic parameters.
-For example inferring `?x=T` from the expression `<() as Trait<?x>>::ASSOC` and an in scope where clause of `(): Trait<T>`.
+For example, inferring `?x=T` from the expression `<() as Trait<?x>>::ASSOC` and an in-scope where clause of `(): Trait<T>`.
 
 This also makes it much more likely that the compiler will ICE or atleast incidentally emit some kind of error if we *do* accidentally allow generic parameters in an anon const, as the anon const will have none of the necessary information in its environment to properly handle the generic parameters.
 
 #### Array repeat expressions
 The one exception to all of the above is repeat counts of array expressions.
-As a *backwards compatibility hack* we allow the repeat count const argument to use generic parameters.
+As a *backwards compatibility hack*, we allow the repeat count const argument to use generic parameters.
 
 ```rust
 fn foo<T: Sized>() {
@@ -143,10 +145,10 @@ The implementation for this FCW can be found here: [`const_eval_resolve_for_type
 
 ### Incompatibilities with `generic_const_parameter_types`
 
-Supporting const paramters such as `const N: [u8; M]` or `const N: Foo<T>` does not work very nicely with the current anon consts setup.
+Supporting const parameters such as `const N: [u8; M]` or `const N: Foo<T>` does not work very nicely with the current anon consts setup.
 There are two reasons for this:
 1. As anon consts cannot use generic parameters, their type *also* can't reference generic parameters.
-   This means it is fundamentally not possible to use an anon const as an argument to a const parameeter whose type still references generic parameters.
+   This means it is fundamentally not possible to use an anon const as an argument to a const parameter whose type still references generic parameters.
 
     ```rust
     #![feature(adt_const_params, generic_const_parameter_types)]
@@ -183,15 +185,18 @@ It is currently unclear what the right way to make `generic_const_parameter_type
 ## Checking types of Const Arguments
 
 In order for a const argument to be well formed it must have the same type as the const parameter it is an argument to.
-For example a const argument of type `bool` for an array length is not well formed, as an array's length parameter has type `usize`.
+For example, a const argument of type `bool` for an array length is not well formed, as an array's length parameter has type `usize`.
 
 ```rust
 type Alias<const B: bool> = [u8; B];
-//~^ ERROR: 
+//~^ ERROR:
 ```
 
-To check this we have [`ClauseKind::ConstArgHasType(ty::Const, Ty)`][const_arg_has_type], where for each Const Parameter defined on an item we also desugar an equivalent `ConstArgHasType` clause into its list of where cluases.
-This ensures that whenever we check wellformedness of anything by proving all of its clauses, we also check happen to check that all of the Const Arguments have the correct type.
+To check this, we have [`ClauseKind::ConstArgHasType(ty::Const, Ty)`][const_arg_has_type], where,
+for each Const Parameter defined on an item,
+we also desugar an equivalent `ConstArgHasType` clause into its list of where cluases.
+This ensures that whenever we check wellformedness of anything by proving all of its clauses,
+we also check happen to check that all of the Const Arguments have the correct type.
 
 ```rust
 fn foo<const N: usize>() {}
@@ -223,8 +228,10 @@ const ANON: usize = true;
 type Alias = [u8; ANON];
 ```
 
-By feeding the type of an anon const with the type of the Const Parameter we guarantee that the `ConstArgHasType` goal involving the anon const will succeed.
-In cases where the type of the anon const doesn't match the type of the Const Parameter what actually happens is a *type checking* error when type checking the anon const's body.
+By feeding the type of an anon const with the type of the Const Parameter,
+we guarantee that the `ConstArgHasType` goal involving the anon const will succeed.
+In cases where the type of the anon const doesn't match the type of the Const Parameter,
+what actually happens is a *type checking* error when type checking the anon const's body.
 
 Looking at the above example, this corresponds to `[u8; ANON]` being a well formed type because `ANON` has type `usize`, but the *body* of `ANON` being illformed and resulting in a type checking error because `true` can't be returned from a const item of type `usize`.
 
