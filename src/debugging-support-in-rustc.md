@@ -159,10 +159,8 @@ are _not_ in the DWARF standard.
 
 * Rust compiler will emit DWARF for a virtual table, and this `vtable` object will have a
   `DW_AT_containing_type` that points to the real type.
-  This lets debuggers dissect a trait object
-  pointer to correctly find the payload.
-  Here is an example of such a DIE, from a test case in the gdb
-  repository:
+  This lets debuggers dissect a trait object pointer to correctly find the payload.
+  Here is an example of such a DIE, from a test case in the gdb repository:
 
   ```asm
   <1><1a9>: Abbrev Number: 3 (DW_TAG_structure_type)
