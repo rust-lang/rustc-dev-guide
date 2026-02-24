@@ -61,7 +61,8 @@ Binder(
 ```
 This would cause all kinds of issues as the region `'^1_0` refers to a binder at a higher level than the outermost binder i.e. it is an escaping bound var.
 The `'^1` region (also writeable as `'^0_1`) is also ill formed as the binder it refers to does not introduce a second parameter.
-Modern day rustc will ICE when constructing this binder due to both of those reasons, in the past we would have simply allowed this to work and then ran into issues in other parts of the codebase.
+Modern day rustc will ICE when constructing this binder due to both of those reasons.
+In the past, we would have simply allowed this to work and then ran into issues in other parts of the codebase.
 
 [`Binder`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.Binder.html
 [`BoundVar`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.BoundVar.html
