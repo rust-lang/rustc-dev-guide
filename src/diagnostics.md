@@ -152,7 +152,7 @@ use an error-level lint instead of a fixed error.
 - When the compiler has too little information for a specific error message,
   consult with the compiler team to add new attributes for library code that
   allow adding more information.
-  For example see [`#[rustc_on_unimplemented]`](#rustc_on_unimplemented).
+  For example, see [`#[rustc_on_unimplemented]`](#rustc_on_unimplemented).
   Use these annotations when available!
 - Keep in mind that Rust's learning curve is rather steep, and that the
   compiler messages are an important learning tool.
@@ -170,7 +170,7 @@ For example, "allow `deprecated` items" and "allow `dead_code`" makes sense, whi
 
 - Lint names should state the bad thing being checked for, e.g. `deprecated`,
   so that `#[allow(deprecated)]` (items) reads correctly.
-  Thus `ctypes` is not an appropriate name; `improper_ctypes` is.
+  Thus, `ctypes` is not an appropriate name; `improper_ctypes` is.
 
 - Lints that apply to arbitrary items (like the stability lints) should just
   mention what they check for: use `deprecated` rather than `deprecated_items`.
@@ -207,7 +207,7 @@ Guidelines for different diagnostic levels:
     For example, unused code, or unnecessary `unsafe`.
   - Code that is very likely to be incorrect, dangerous, or confusing, but the
     language technically allows, and is not ready or confident enough to make an error.
-    For example `unused_comparisons` (out of bounds comparisons) or
+    Examples are `unused_comparisons` (out of bounds comparisons) or
     `bindings_with_variant_name` (the user likely did not intend to create a
     binding in a pattern).
   - [Future-incompatible lints](#future-incompatible), where something was
@@ -345,7 +345,7 @@ identifiers for translatable diagnostics be used for new diagnostics (see
 
 `Diag` allows you to add related notes and suggestions to an error
 before emitting it by calling the [`emit`][emit] method.
-(Failing to either emit or [cancel][cancel] a `Diag` will result in an ICE.) See the
+(Failing to either emit or [cancel] a `Diag` will result in an ICE.) See the
 [docs][diag] for more info on what you can do.
 
 [spanerr]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/struct.DiagCtxt.html#method.span_err
@@ -956,7 +956,7 @@ You can match on the following names and values, using `name = "value"`:
    `"QuestionMark"` for `?` desugaring or `"TryBlock"` for `try` blocks.
  - `Self` and any generic arguments of the trait, like `Self = "alloc::string::String"`
    or `Rhs="i32"`.
-   
+
 The compiler can provide several values to match on, for example:
   - the self_ty, pretty printed with and without type arguments resolved.
   - `"{integral}"`, if self_ty is an integral of which the type is known.
@@ -1014,7 +1014,7 @@ pub trait From<T>: Sized {
 }
 ```
 
-### Formatting 
+### Formatting
 
 The string literals are format strings that accept parameters wrapped in braces
 but positional and listed parameters and format specifiers are not accepted.
@@ -1043,7 +1043,7 @@ fn main() {
 }
 ```
 
-Will format the message into 
+Will format the message into
 ```text
 "Self = `i8`, T = `i32`, this = `From`, trait = `From<i32>`, context = `a function`"
 ```
