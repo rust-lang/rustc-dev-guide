@@ -239,8 +239,7 @@ other changes to Rust metadata on `nightly` that aren't present in beta.
 This is also where `--keep-stage 1 library/std` comes into play.
 Since most changes to the compiler don't actually change the ABI, once you've produced a
 `std` in `stage1`, you can probably just reuse it with a different compiler.
-If the ABI hasn't changed, you're good to go; no need to spend time recompiling
-that `std`.
+If the ABI hasn't changed, you're good to go; no need to spend time recompiling that `std`.
 The flag `--keep-stage` simply instructs the build script to assume
 the previous compile is fine and copies those artifacts into the appropriate
 place, skipping the `cargo` invocation.
