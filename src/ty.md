@@ -204,7 +204,7 @@ should be used on them to normalize the type.
 After type checking, diagnostics code can use `tcx.normalize_erasing_regions(ty)`.
 
 There are also cases where using `==` on `Ty` is fine.
-This is for example the case in late lints
+This is, for example, the case in late lints
 or after monomorphization, since type checking has been completed, meaning all inference variables
 are resolved and all regions have been erased.
 In these cases, if you know that inference variables
@@ -253,9 +253,9 @@ Here is a sampling:
 
 - [**Algebraic Data Types (ADTs)**][kindadt] An [*algebraic data type*][wikiadt] is a  `struct`,
   `enum` or `union`.
-   Under the hood, `struct`, `enum` and `union` are actually implemented
+  Under the hood, `struct`, `enum` and `union` are actually implemented
   the same way: they are all [`ty::TyKind::Adt`][kindadt].
-   It’s basically a user defined type.
+  It’s basically a user defined type.
   We will talk more about these later.
 - [**Foreign**][kindforeign] Corresponds to `extern type T`.
 - [**Str**][kindstr] Is the type str.
@@ -322,7 +322,7 @@ You believe that an error has been reported, but you believe it
 would've been reported earlier in the compilation, not locally.
 In that case, you can create a "delayed bug" with [`delayed_bug`] or [`span_delayed_bug`].
 This will make a note that you expect
-compilation to yield an error -- if however compilation should succeed, then it will trigger a
+compilation to yield an error -- if, however, compilation should succeed, then it will trigger a
 compiler bug report.
 
 [`delayed_bug`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_errors/struct.DiagCtxt.html#method.delayed_bug
