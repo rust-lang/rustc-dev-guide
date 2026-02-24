@@ -4,8 +4,8 @@ This chapter is about the overall process of compiling a program -- how everythi
 
 The Rust compiler is special in two ways: it does things to your code that
 other compilers don't do (e.g. borrow-checking) and it has a lot of
-unconventional implementation choices (e.g. queries). We will talk about these
-in turn in this chapter, and in the rest of the guide, we will look at the
+unconventional implementation choices (e.g. queries).
+We will talk about these in turn in this chapter, and in the rest of the guide, we will look at the
 individual pieces in more detail.
 
 ## What the compiler does to your code
