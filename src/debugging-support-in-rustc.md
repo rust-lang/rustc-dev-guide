@@ -160,16 +160,16 @@ are _not_ in the DWARF standard.
 * Rust compiler will emit DWARF for a virtual table, and this `vtable` object will have a
   `DW_AT_containing_type` that points to the real type.
   This lets debuggers dissect a trait object
-   pointer to correctly find the payload. E.g., here's such a DIE, from a test case in the gdb
-   repository:
+  pointer to correctly find the payload. E.g., here's such a DIE, from a test case in the gdb
+  repository:
 
-   ```asm
-   <1><1a9>: Abbrev Number: 3 (DW_TAG_structure_type)
-      <1aa>   DW_AT_containing_type: <0x1b4>
-      <1ae>   DW_AT_name        : (indirect string, offset: 0x23d): vtable
-      <1b2>   DW_AT_byte_size   : 0
-      <1b3>   DW_AT_alignment   : 8
-   ```
+  ```asm
+  <1><1a9>: Abbrev Number: 3 (DW_TAG_structure_type)
+     <1aa>   DW_AT_containing_type: <0x1b4>
+     <1ae>   DW_AT_name        : (indirect string, offset: 0x23d): vtable
+     <1b2>   DW_AT_byte_size   : 0
+     <1b3>   DW_AT_alignment   : 8
+  ```
 
 * The other extension is that the Rust compiler can emit a tagless discriminated union.
   See [DWARF feature request] for this item.
@@ -215,14 +215,14 @@ Tom does not know if Mozilla could get more keys.
 
 Alternatively, Tom suggests that maybe a Rust legal entity is needed to get the keys via Apple.
 This problem is not technical in nature.
-If we had such a key we could sign GDB as well and ship that.
+If we had such a key, we could sign GDB as well and ship that.
 
 ### DWARF and Traits
 
 Rust traits are not emitted into DWARF at all.
-The impact of this is calling a method `x.method()` does not work as is.
+The impact of this is calling a method `x.method()` does not work as-is.
 The reason being that method is implemented by a trait, as opposed to a type.
-That information is not present so finding trait methods is missing.
+That information is not present, so finding trait methods is missing.
 
 DWARF has a notion of interface types (possibly added for Java).
 Tom's idea was to use this interface type as traits.
@@ -241,7 +241,7 @@ LLVM has Debug Info (DI) builders.
 This is the primary thing that Rust calls into.
 This is why we need to change LLVM first because that is emitted first and not DWARF directly.
 This is a kind of metadata that you construct and hand-off to LLVM.
-For the Rustc/LLVM hand-off
+For the Rustc/LLVM hand-off,
 some LLVM DI builder methods are called to construct representation of a type.
 
 The steps of this process are as follows:
@@ -337,10 +337,10 @@ Clang always embeds an MD5 checksum, though this does not appear in documentatio
 This is an important idea because debuggers by and large do not try to implement type inference.
 You need to be much more explicit when you type into the debugger than your actual source code.
 So, you cannot just copy and paste an expression from your source
-code to debugger and expect the same answer but this would be nice.
+code to debugger and expect the same answer, but this would be nice.
 This can be helped by using compiler.
 
-It is certainly doable but it is a large project.
+It is certainly doable, but it is a large project.
 You certainly need a bridge to the debugger because the debugger alone has access to the memory.
 Both GDB (gcc) and LLDB (clang) have this feature.
 LLDB uses Clang to compile code to JIT and GDB can do the same with GCC.
