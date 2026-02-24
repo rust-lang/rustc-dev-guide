@@ -344,10 +344,12 @@ span and message to [`ty_error_with_message`][terrmsg] instead to avoid a redund
 
 ## `TyKind` variant shorthand syntax
 
-When looking at the debug output of `Ty` or simply talking about different types in the compiler, you may encounter syntax that is not valid rust but is used to concisely represent internal information about types.
-Below is a quick reference cheat sheet to tell what the various syntax actually means, these should be covered in more depth in later chapters.
+When looking at the debug output of `Ty` or simply talking about different types in the compiler, you may encounter syntax that is not valid Rust but is used to concisely represent internal information about types.
+Below is a quick reference cheat sheet to tell what the various syntax actually means:
 
 - Generic parameters: `{name}/#{index}` e.g. `T/#0`, where `index` corresponds to its position in the list of generic parameters
 - Inference variables: `?{id}` e.g. `?x`/`?0`, where `id` identifies the inference variable
 - Variables from binders: `^{binder}_{index}` e.g. `^0_x`/`^0_2`, where `binder` and `index` identify which variable from which binder is being referred to
 - Placeholders: `!{id}` or `!{id}_{universe}` e.g. `!x`/`!0`/`!x_2`/`!0_2`, representing some unique type in the specified universe. The universe is often elided when it is `0`
+
+These should be covered in more depth in later chapters.
