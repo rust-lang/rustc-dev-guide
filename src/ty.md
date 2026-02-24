@@ -259,7 +259,7 @@ Here is a sampling:
   We will talk more about these later.
 - [**Foreign**][kindforeign] Corresponds to `extern type T`.
 - [**Str**][kindstr] Is the type str.
-  When the user writes `&str`, `Str` is the how we represent the `str` part of that type.
+  When the user writes `&str`, `Str` is how we represent the `str` part of that type.
 - [**Slice**][kindslice] Corresponds to `[T]`.
 - [**Array**][kindarray] Corresponds to `[T; n]`.
 - [**RawPtr**][kindrawptr] Corresponds to `*mut T` or `*const T`.
