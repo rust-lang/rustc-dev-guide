@@ -59,8 +59,7 @@ typeck_address_of_temporary_taken = cannot take address of a temporary
 
 In the above example, `typeck_address_of_temporary_taken` is the identifier for
 a Fluent message and corresponds to the diagnostic message in English.
-Other Fluent resources can be written which would correspond to a message in another
-language.
+Other Fluent resources can be written which would correspond to a message in another language.
 Each diagnostic therefore has at least one Fluent message.
 
 ```fluent
