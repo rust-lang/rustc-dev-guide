@@ -511,8 +511,7 @@ There are two parts to MBE expansion done by the macro parser:
 We think of the MBE parser as a nondeterministic finite automaton (NFA) based
 regex parser since it uses an algorithm similar in spirit to the [Earley
 parsing algorithm](https://en.wikipedia.org/wiki/Earley_parser).
-The macro parser is defined in
-[`compiler/rustc_expand/src/mbe/macro_parser.rs`][code_mp].
+The macro parser is defined in [`compiler/rustc_expand/src/mbe/macro_parser.rs`][code_mp].
 
 The interface of the macro parser is as follows (this is slightly simplified):
 
