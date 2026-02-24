@@ -137,7 +137,7 @@ the macro invocation itself.
 This is implemented only for a few special
 built-in macros that expect literals; expanding arguments first for some of
 these macro results in a smoother user experience.
- As an example, consider the following:
+As an example, consider the following:
 
 ```rust,ignore
 macro bar($i: ident) { $i }
@@ -150,9 +150,9 @@ A lazy-expansion would expand `foo!` first.
 An eager-expansion would expand `bar!` first.
 
 Eager-expansion is not a generally available feature of Rust.
- Implementing eager-expansion more generally would be challenging, so we implement it for a
+Implementing eager-expansion more generally would be challenging, so we implement it for a
 few special built-in macros for the sake of user-experience.
- The built-in macros are implemented in [`rustc_builtin_macros`], along with some other
+The built-in macros are implemented in [`rustc_builtin_macros`], along with some other
 early code generation facilities like injection of standard library imports or
 generation of test harness.
 There are some additional helpers for building AST fragments in [`rustc_expand::build`][reb].
@@ -265,9 +265,9 @@ expansion hierarchies that together comprise the hygiene information for a crate
 All of these hierarchies need some sort of "macro ID" to identify individual
 elements in the chain of expansions.
 This ID is [`ExpnId`].
- All macros receive an integer ID, assigned continuously starting from 0 as we discover new macro
+All macros receive an integer ID, assigned continuously starting from 0 as we discover new macro
 calls.
- All hierarchies start at [`ExpnId::root`][rootid], which is its own parent.
+All hierarchies start at [`ExpnId::root`][rootid], which is its own parent.
 
 The [`rustc_span::hygiene`][hy] crate contains all of the hygiene-related algorithms
 (with the exception of some hacks in [`Resolver::resolve_crate_root`][hacks])
@@ -291,7 +291,7 @@ The first hierarchy tracks the order of expansions, i.e., when a macro
 invocation is in the output of another macro.
 
 Here, the children in the hierarchy will be the "innermost" tokens.
- The [`ExpnData`] struct itself contains a subset of properties from both macro
+The [`ExpnData`] struct itself contains a subset of properties from both macro
 definition and macro call available through global data.
 [`ExpnData::parent`][edp] tracks the child-to-parent link in this hierarchy.
 
@@ -313,14 +313,14 @@ In this code, the AST nodes that are finally generated would have hierarchy
 
 The second hierarchy tracks the order of macro definitions, i.e., when we are
 expanding one macro another macro definition is revealed in its output.
- This one is a bit tricky and more complex than the other two hierarchies.
+This one is a bit tricky and more complex than the other two hierarchies.
 
 [`SyntaxContext`][sc] represents a whole chain in this hierarchy via an ID.
 [`SyntaxContextData`][scd] contains data associated with the given
 [`SyntaxContext`][sc]; mostly it is a cache for results of filtering that chain in different ways.
  [`SyntaxContextData::parent`][scdp] is the child-to-parent
 link here, and [`SyntaxContextData::outer_expns`][scdoe] are individual elements in the chain.
- The "chaining-operator" is [`SyntaxContext::apply_mark`][am] in compiler code.
+The "chaining-operator" is [`SyntaxContext::apply_mark`][am] in compiler code.
 
 A [`Span`][span], mentioned above, is actually just a compact representation of
 a code location and [`SyntaxContext`][sc].
@@ -427,11 +427,11 @@ and we also saw how the hygiene data for a crate is generated.
 But how do we actually produce the output of a macro?
 It depends on the type of macro.
 
-There are two types of macros in Rust: 
+There are two types of macros in Rust:
   1. `macro_rules!` macros (a.k.a.
      "Macros By Example" (MBE)), and,
   2. procedural macros (proc macros); including custom derives.
-  
+
 During the parsing phase, the normal Rust parser will set aside the contents of
 macros and their invocations.
 Later, macros are expanded using these portions of the code.
@@ -480,7 +480,7 @@ macro_rules! printer {
 Here `$mvar` is called a _metavariable_.
 Unlike normal variables, rather than
 binding to a value _at runtime_, a metavariable binds _at compile time_ to a tree of _tokens_.
- A _token_ is a single "unit" of the grammar, such as an
+A _token_ is a single "unit" of the grammar, such as an
 identifier (e.g. `foo`) or punctuation (e.g. `=>`). There are also other
 special tokens, such as `EOF`, which itself indicates that there are no more tokens.
 There are token trees resulting from the paired parentheses-like
@@ -504,7 +504,7 @@ The process of expanding the macro invocation into the syntax tree
 
 ### The MBE parser
 
-There are two parts to MBE expansion done by the macro parser: 
+There are two parts to MBE expansion done by the macro parser:
   1. parsing the definition, and,
   2. parsing the invocations.
 
