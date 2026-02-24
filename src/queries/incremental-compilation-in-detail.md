@@ -242,8 +242,7 @@ the path to the identified item, e.g. `std::collections::HashMap`. The
 advantage of an ID like this is that it is not affected by unrelated changes.
 For example, one can add a new function to `std::collections` but
 `std::collections::HashMap` would still be `std::collections::HashMap`.
-A `DefPath` is "stable" across changes made to the source code while a `DefId`
-isn't.
+A `DefPath` is "stable" across changes made to the source code while a `DefId` isn't.
 
 There is also the `DefPathHash` which is just a 128-bit hash value of the `DefPath`.
 The two contain the same information and we mostly use the
@@ -395,8 +394,7 @@ However, the manual integration with the tracking system is pretty straight-forw
 The compiler simply tracks what queries get invoked when generating the initial LLVM version of each
 codegen unit (CGU), which results in a dep-node for each CGU.
 In subsequent compilation sessions it then tries to mark the dep-node for a CGU as green.
-If it succeeds, it knows that the corresponding object and bitcode files on disk
-are still valid.
+If it succeeds, it knows that the corresponding object and bitcode files on disk are still valid.
 If it doesn't succeed, the entire CGU has to be recompiled.
 
 This is the same approach that is used for regular queries.
@@ -473,14 +471,13 @@ respect to incremental compilation:
 
  - `cache_on_disk_if` - This attribute is what determines which query results
    are persisted in the incremental compilation query result cache.
-   The attribute takes an expression that allows per query invocation
-   decisions.
+   The attribute takes an expression that allows per query invocation decisions.
    For example, it makes no sense to store values from upstream
    crates in the cache because they are already available in the upstream crate's metadata.
 
  - `anon` - This attribute makes the system use "anonymous" dep-nodes for the given query.
-   An anonymous dep-node is not identified by the corresponding
-   query key. Instead, its ID is computed from the IDs of its dependencies.
+   An anonymous dep-node is not identified by the corresponding query key.
+   Instead, its ID is computed from the IDs of its dependencies.
    This allows the red-green system to do its change detection even if there is no
    query key available for a given dep-node -- something which is needed for
    handling trait selection because it is not based on queries.
