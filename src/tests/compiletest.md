@@ -419,6 +419,17 @@ problematic in the presence of pointers in constants or other bit width dependen
 In that case you can add `// EMIT_MIR_FOR_EACH_BIT_WIDTH` to
 your test, causing separate files to be generated for 32bit and 64bit systems.
 
+On top of the snapshot-based checks performed on the output requested by `EMIT_MIR`,
+the *final runtime MIR*, as emitted by `--emit=mir`, is checked with the LLVM
+[FileCheck] tool. For this purpose, your test should be annotated with
+`// CHECK` comments to verify the final emitted MIR is properly optimized.
+
+See the [FileCheck] documentation for a tutorial and more information.
+
+Note however, that in some cases, it can also make more sense to skip the FileCheck
+step. To do this, add a `// skip-filecheck` annotation instead of the `// CHECK`
+comments.
+
 [`tests/mir-opt`]: https://github.com/rust-lang/rust/tree/HEAD/tests/mir-opt
 
 
