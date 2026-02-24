@@ -1,6 +1,6 @@
 # Instantiating `Binder`s
 
-Much like [`EarlyBinder`], when accessing the inside of a [`Binder`] we must first discharge it by replacing the bound vars with some other value.
+Much like [`EarlyBinder`], when accessing the inside of a [`Binder`], we must first discharge it by replacing the bound vars with some other value.
 This is for much the same reason as with `EarlyBinder`, types referencing parameters introduced by the `Binder` do not make any sense outside of that binder.
 See the following erroring example:
 ```rust,ignore
@@ -17,7 +17,8 @@ fn main() {
     let references_bound_vars = bar(higher_ranked_fn_ptr);
 }
 ```
-In this example we are providing an argument of type `for<'a> fn(&'^0 u32) -> &'^0 u32` to `bar`, we do not want to allow `T` to be inferred to the type `&'^0 u32` as it would be rather nonsensical (and likely unsound if we did not happen to ICE).
+In this example, we are providing an argument of type `for<'a> fn(&'^0 u32) -> &'^0 u32` to `bar`.
+We do not want to allow `T` to be inferred to the type `&'^0 u32` as it would be rather nonsensical (and likely unsound if we did not happen to ICE).
 `main` doesn't know about `'a` so the borrow checker would not be able to handle a borrow with lifetime `'a`.
 
 Unlike `EarlyBinder` we typically do not instantiate `Binder` with some concrete set of arguments from the user, i.e. `['b, 'static]` as arguments to a `for<'a1, 'a2> fn(&'a1 u32, &'a2 u32)`. Instead we usually instantiate the binder with inference variables or placeholders.
@@ -47,9 +48,13 @@ Equality of placeholders is determined solely by whether the universes are equal
 See the [chapter on Placeholders and Universes][ch_placeholders_universes] for more information.
 
 When talking with other rustc devs or seeing `Debug` formatted `Ty`/`Const`/`Region`s, `Placeholder` will often be written as `'!UNIVERSE_BOUNDVARS`.
-For example given some type `for<'a> fn(&'a u32, for<'b> fn(&'b &'a u32))`, after instantiating both binders (assuming the `Universe` in the current `InferCtxt` was `U0` beforehand), the type of `&'b &'a u32` would be represented as `&'!2_0 &!1_0 u32`.
+For example, given some type `for<'a> fn(&'a u32, for<'b> fn(&'b &'a u32))`,
+after instantiating both binders (assuming the `Universe` in the current `InferCtxt` was `U0` beforehand),
+the type of `&'b &'a u32` would be represented as `&'!2_0 &!1_0 u32`.
 
-When the universe of the placeholder is `0`, it will be entirely omitted from the debug output, i.e. `!0_2` would be printed as `!2`. This rarely happens in practice though as we increase the universe in the `InferCtxt` when instantiating a binder with placeholders so usually the lowest universe placeholders encounterable are ones in `U1`.
+When the universe of the placeholder is `0`, it will be entirely omitted from the debug output, i.e. `!0_2` would be printed as `!2`.
+This rarely happens in practice though as we increase the universe in the `InferCtxt` when instantiating a binder with placeholders,
+so usually the lowest universe placeholders encounterable are ones in `U1`.
 
 `Binder`s can be instantiated with placeholders via the [`enter_forall`] method on `InferCtxt`.
 It should be used whenever the compiler should care about any possible instantiation of the binder instead of one concrete instantiation.
@@ -77,10 +82,10 @@ where
 { ... }
 ```
 
-Given these trait implementations `u32: Bar` should _not_ hold.
+Given these trait implementations, `u32: Bar` should _not_ hold.
 `&'a u32` only implements `Other<'a>` when the lifetime of the borrow and the lifetime on the trait are equal.
-However if we only used `ReBound` and did not have placeholders it may be easy to accidentally believe that trait bound does hold.
-To explain this let's walk through an example of trying to prove `u32: Bar` in a world where rustc did not have placeholders:
+However, if we only used `ReBound` and did not have placeholders, it may be easy to accidentally believe that trait bound does hold.
+To explain this, let's walk through an example of trying to prove `u32: Bar` in a world where rustc did not have placeholders:
 - We start by trying to prove `u32: Bar`
 - We find the `impl<T> Bar for T` impl, we would wind up instantiating the `EarlyBinder` with `u32` (note: this is not _quite_ accurate as we first instantiate the binder with an inference variable that we then infer to be `u32` but that distinction is not super important here)
 - There is a where clause `for<'a> &'^0 T: Trait` on the impl, as we instantiated the early binder with `u32` we actually have to prove `for<'a> &'^0 u32: Trait`
@@ -97,23 +102,25 @@ While in theory we could make this work it would be quite involved and more comp
 - When resolving inference variables rewrite any bound variables according to the current binder depth of the infcx
 - Maybe more (while writing this list items kept getting added so it seems naive to think this is exhaustive)
 
-Fundamentally all of this complexity is because `Bound` ty/const/regions have a different representation for a given parameter on a `Binder` depending on how many other `Binder`s there are between the binder introducing the parameter, and its usage.
-For example given the following code:
+Fundamentally, all of this complexity is because `Bound` ty/const/regions have a different representation for a given parameter on a `Binder` depending on how many other `Binder`s there are between the binder introducing the parameter, and its usage.
+For example, given the following code:
 ```rust
 fn foo<T>()
 where
     for<'a> T: Trait<'a, for<'b> fn(&'b T, &'a u32)>
 { ... }
 ```
-That where clause would be written as: `for<'a> T: Trait<'^0, for<'b> fn(&'^0 T, &'^1_0 u32)>`
-Despite there being two references to the `'a` parameter they are both represented differently: `^0` and `^1_0`, due to the fact that the latter usage is nested under a second `Binder` for the inner function pointer type.
+That where clause would be written as `for<'a> T: Trait<'^0, for<'b> fn(&'^0 T, &'^1_0 u32)>`.
+Despite there being two references to the `'a` parameter,
+they are both represented differently, `^0` and `^1_0`,
+due to the fact that the latter usage is nested under a second `Binder` for the inner function pointer type.
 
 This is in contrast to `Placeholder` ty/const/regions which do not have this limitation due to the fact that `Universe`s are specific to the current `InferCtxt` not the usage site of the parameter.
 
 It is trivially possible to instantiate `EarlyBinder`s and unify inference variables with existing `Placeholder`s as no matter what context the `Placeholder` is in, it will have the same representation.
-As an example if we were to instantiate the binder on the higher ranked where clause from above, it would be represented like so:
-`T: Trait<'!1_0, for<'b> fn(&'^0 T, &'!1_0 u32)>`
-the `RePlaceholder` representation for both usages of `'a` are the same despite one being underneath another `Binder`.
+As an example, if we were to instantiate the binder on the higher ranked where clause from above, it would be represented like
+`T: Trait<'!1_0, for<'b> fn(&'^0 T, &'!1_0 u32)>`.
+The `RePlaceholder` representation for both usages of `'a` are the same despite one being underneath another `Binder`.
 
 If we were to then instantiate the binder on the function pointer we would get a type such as:
 `fn(&'!2_0 T, ^'!1_0 u32)`
@@ -146,10 +153,14 @@ ReLateParam(
 )
 ```
 
-In this specific case of referencing late bound generic parameters of a function from inside the body this is done implicitly during `hir_ty_lowering` rather than explicitly when instantiating a `Binder` somewhere.
+In this specific case of referencing late bound generic parameters of a function from inside the body,
+this is done implicitly during `hir_ty_lowering`,
+rather than explicitly when instantiating a `Binder` somewhere.
 In some cases however, we do explicitly instantiate a `Binder` with `ReLateParam`s.
 
-Generally whenever we have a `Binder` for late bound parameters on a function/closure and we are conceptually inside of the binder already, we use [`liberate_late_bound_regions`] to instantiate it with `ReLateParam`s.
+Generally, whenever we have a `Binder` for late bound parameters on a function/closure,
+and we are conceptually inside of the binder already,
+we use [`liberate_late_bound_regions`] to instantiate it with `ReLateParam`s.
 That makes this operation the `Binder` equivalent to `EarlyBinder`'s `instantiate_identity`.
 
 As a concrete example, accessing the signature of a function we are type checking will be represented as `EarlyBinder<Binder<FnSig>>`.
