@@ -5,7 +5,7 @@ More accurately, it means using an older compiler to compile a newer version of 
 
 This raises a chicken-and-egg paradox: where did the first compiler come from?
 It must have been written in a different language.
-In Rust's case it was [written in OCaml][ocaml-compiler].
+In Rust's case, it was [written in OCaml][ocaml-compiler].
 However, it was abandoned long ago, and the
 only way to build a modern version of `rustc` is with a slightly less modern version.
 
@@ -108,7 +108,7 @@ See [Building the compiler](../how-to-build-and-run.html#building-the-compiler).
 ### Stage 3: the same-result test
 
 Stage 3 is optional.
-To sanity check our new compiler we can build the libraries with the `stage2` compiler.
+To sanity check our new compiler, we can build the libraries with the `stage2` compiler.
 The result ought to be identical to before, unless something has broken.
 
 ### Building the stages
@@ -200,7 +200,7 @@ Build artifacts include, but are not limited to:
   which builds `stage1` from source.
 - `./x test --stage 0 compiler/rustc` builds the compiler but runs no tests:
   it's running `cargo test -p rustc`, but `cargo` doesn't understand Rust's tests.
-  You shouldn't need to use this, use `test` instead (without arguments).
+  You shouldn't need to use this; use `test` instead (without arguments).
 - `./x build --stage 0 compiler/rustc` builds the compiler, but does not build
   `libstd` or even `libcore`.
   Most of the time, you'll want `./x build library`
@@ -239,7 +239,7 @@ other changes to Rust metadata on `nightly` that aren't present in beta.
 This is also where `--keep-stage 1 library/std` comes into play.
 Since most changes to the compiler don't actually change the ABI, once you've produced a
 `std` in `stage1`, you can probably just reuse it with a different compiler.
-If the ABI hasn't changed, you're good to go, no need to spend time recompiling
+If the ABI hasn't changed, you're good to go; no need to spend time recompiling
 that `std`.
 The flag `--keep-stage` simply instructs the build script to assume
 the previous compile is fine and copies those artifacts into the appropriate
@@ -260,7 +260,7 @@ So it should be identical (and therefore
 ABI-compatible) to the `std` that `stage2/rustc` would compile.
 
 However, when cross-compiling, `stage1` `std` will only run on the host.
-So the `stage2` compiler has to recompile `std` for the target.
+So, the `stage2` compiler has to recompile `std` for the target.
 
 (See in the table how `stage2` only builds non-host `std` targets).
 
@@ -279,9 +279,9 @@ That includes (but is not limited to):
 
 - Libraries `libstd`/`libtest`/`libproc_macro`.
 - Compiler crates themselves, when using `rustc_private`.
-  In-tree these are always present; out of tree, you need to install `rustc-dev` with `rustup`.
+  In-tree, these are always present; out-of-tree, you need to install `rustc-dev` with `rustup`.
 - Shared object file `libLLVM.so` for the LLVM project.
-  In-tree this is either built from source or downloaded from CI; out-of-tree, you need to install
+  In-tree, this is either built from source or downloaded from CI; out-of-tree, you need to install
   `llvm-tools-preview` with `rustup`.
 
 All the artifacts listed so far are *compiler* runtime dependencies.
@@ -309,7 +309,7 @@ libcompiler_builtins-ef2408da76957905.rlib
 
 Directory `lib/rustlib/` includes libraries like `hashbrown` and `cfg_if`, which
 are not part of the public API of the standard library, but are used to implement it.
-Also `lib/rustlib/` is part of the search path for linkers, but
+Also,`lib/rustlib/` is part of the search path for linkers, but
 `lib` will never be part of the search path.
 
 #### `-Z force-unstable-if-unmarked`
@@ -339,7 +339,7 @@ This flag has the following effects:
 - Marks the crate as "`unstable`" with the `rustc_private` feature if it is not
   itself marked as `stable` or `unstable`.
 - Allows these crates to access other forced-unstable crates without any need for attributes.
-  Normally a crate would need a `#![feature(rustc_private)]`
+  Normally, a crate would need a `#![feature(rustc_private)]`
   attribute to use other `unstable` crates.
   However, that would make it
   impossible for a crate from crates.io to access its own dependencies since
@@ -378,7 +378,7 @@ Finally, `MAGIC_EXTRA_RUSTFLAGS` bypasses the
 - `--test-args` will pass arguments through to the test runner.
   For `tests/ui`,
   this is `compiletest`.
-  For unit tests and doc tests this is the `libtest` runner.
+  For unit tests and doc tests, this is the `libtest` runner.
 
 Most test runners accept `--help`,
 which you can use to find out the options accepted by the runner.
