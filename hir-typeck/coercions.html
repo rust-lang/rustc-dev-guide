@@ -1,0 +1,431 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Coercions - Rust Compiler Development Guide</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A guide to developing the Rust compiler (rustc)">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex-5b8627da.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-1a3501b2.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Compiler Development Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide/edit/main/src/hir-typeck/coercions.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="coercions"><a class="header" href="#coercions">Coercions</a></h1>
+<!-- date-check: Dec 2025 -->
+<p>Coercions are implicit operations which transform a value into a different type. A coercion <em>site</em> is a position where a coercion is able to be implicitly performed. There are two kinds of coercion sites:</p>
+<ul>
+<li>one-to-one</li>
+<li>LUB (Least-Upper-Bound)</li>
+</ul>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let one_to_one_coercion: &amp;u32 = &amp;mut 8;
+
+let lub_coercion = match my_bool {
+    true =&gt; &amp;mut 10,
+    false =&gt; &amp;12,
+};
+<span class="boring">}</span></code></pre>
+<p>See the Reference page on coercions for descriptions of what coercions exist and what expressions are coercion sites: <a href="https://doc.rust-lang.org/reference/type-coercions.html">https://doc.rust-lang.org/reference/type-coercions.html</a></p>
+<h2 id="one-to-one-coercions"><a class="header" href="#one-to-one-coercions">one-to-one coercions</a></h2>
+<p>With a one-to-one coercion we coerce from one singular type to a known target type. In the above example this would be the coercion from <code>&amp;mut u32</code> to <code>&amp;u32</code>.</p>
+<p>A one-to-one coercion can be performed by calling <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_typeck/fn_ctxt/struct.FnCtxt.html#method.coerce"><code>FnCtxt::coerce</code></a>.</p>
+<h2 id="lub-coercions"><a class="header" href="#lub-coercions">LUB coercions</a></h2>
+<p>With a LUB coercion we coerce a set of source types to some unknown target type. Unlike one-to-one coercions, a LUB coercion <em>produces</em> the target type that all of the source types coerce to.</p>
+<p>In the above example this would be the LUB coercion of both <code>&amp;mut i32</code> and <code>&amp;i32</code>, where we produce the target type <code>&amp;i32</code>.</p>
+<p>The name “LUB coercion” (Least-Upper-Bound coercion) comes from how this coercion takes a set of types and computes the least coerced/subtyped type that both source types are coercable/subtypeable into.</p>
+<p>The general process for performing a LUB coercion is as follows:</p>
+<pre><code class="language-rust ignore">// * 1
+let mut coerce = CoerceMany::new(intial_lub_ty);
+for expr in exprs {
+    // * 2
+    let expr_ty = fcx.check_expr_with_expectation(expr, expectation);
+    coerce.coerce(fcx, &amp;cause, expr, expr_ty);
+}
+// * 3
+let final_ty = coerce.complete(fcx);</code></pre>
+<p>There are a few key steps here:</p>
+<ol>
+<li>Creating the <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_typeck/coercion/struct.CoerceMany.html"><code>CoerceMany</code></a> value and picking an initial lub</li>
+<li>Typechecking each expression and registering its type as part of the LUB coercion</li>
+<li>Completing the LUB coercion to get the resulting lubbed type</li>
+</ol>
+<h3 id="step-1"><a class="header" href="#step-1">Step 1</a></h3>
+<p>First we create a <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_typeck/coercion/struct.CoerceMany.html"><code>CoerceMany</code></a> value, this stores all of the state required for the LUB coercion. Unlike one-to-one coercions, a LUB coercion isn’t a single function call as we want to intermix typechecking with advancing the LUB coercion.</p>
+<p>Creating a <code>CoerceMany</code> takes some <code>initial_lub</code> type. This is different from the <em>target</em> of the coercion which is an output of a LUB coercion rather than an input (unlike a one-to-one coercion).</p>
+<p>The initial lub ty should be derived from the <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_typeck/expectation/enum.Expectation.html"><code>Expectation</code></a> for whatever expression this LUB coercion is for. It allows for inference constraints from computing the LUB coercion to propagate into the <code>Expectation</code>s used for type checking later expressions participating in the LUB coercion.</p>
+<p>See the <a href="#unnecessary-inference-constraints">“unnecessary inference constraints”</a> header for some more information about the effects this has.</p>
+<p>If there’s no <code>Expectation</code> to use then some new infer var should be made for the initial lub ty.</p>
+<h3 id="step-2"><a class="header" href="#step-2">Step 2</a></h3>
+<p>Next, for each expression participating in the LUB coercion, we typecheck it then invoke <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_typeck/coercion/struct.CoerceMany.html#method.coerce"><code>CoerceMany::coerce</code></a> with its type.</p>
+<p>In some cases the expression participating in the LUB coercion doesn’t actually exist in the HIR. For example when handling an operand-less <code>break</code> or <code>return</code> expression we need <code>()</code> to participate in the LUB coercion.</p>
+<p>In these cases the <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_typeck/coercion/struct.CoerceMany.html#method.coerce_forced_unit"><code>CoerceMany::coerce_forced_unit</code></a> method can be used.</p>
+<p>The <code>CoerceMany::coerce</code> and <code>coerce_forced_unit</code> methods will both emit errors if the new type causes the LUB coercion to be unsatisfiable. In this case the final type of the LUB coercion will be an error type.</p>
+<h3 id="step-3"><a class="header" href="#step-3">Step 3</a></h3>
+<p>Finally once all expressions have been coerced the final type of the LUB coercion can be obtained by calling <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_typeck/coercion/struct.CoerceMany.html#method.complete"><code>CoerceMany::complete</code></a>.</p>
+<p>The resulting type of the LUB coercion is meaningfully different from the initial lub type passed in when constructing the <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_typeck/coercion/struct.CoerceMany.html"><code>CoerceMany</code></a>. You should always take the resulting type of the LUB coercion and perform any necessary checks on it.</p>
+<h2 id="implementation-nuances"><a class="header" href="#implementation-nuances">Implementation nuances</a></h2>
+<h3 id="adjustments"><a class="header" href="#adjustments">Adjustments</a></h3>
+<p>When a coerce operation succeeds we record what kind of coercion it was, for example an unsize coercion or an autoderef etc. This is handled as part of the coerce operation by writing a list of <em>adjustments</em> into the in-progress <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.TypeckResults.html"><code>TypeckResults</code></a>.</p>
+<p>When building THIR we take the adjustments stored in the <code>TypeckResults</code> and make all of the coercion steps explicit. After this point in the compiler there isn’t really a notion of coercions, only explicit casts and subtyping in the MIR.</p>
+<p>TODO: write and link to an adjustments chapter here</p>
+<h3 id="how-does-coercemany-work"><a class="header" href="#how-does-coercemany-work">How does <code>CoerceMany</code> work</a></h3>
+<p><a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_typeck/coercion/struct.CoerceMany.html"><code>CoerceMany</code></a> works by repeatedly taking the current lub ty and some new source type, and computing a new lub ty which both types can coerce to. The core logic of taking a pair of types and computing some new third type can be found in <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_typeck/fn_ctxt/struct.FnCtxt.html#method.try_find_coercion_lub"><code>try_find_coercion_lub</code></a>.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn foo() {}
+fn bar() {}
+
+let a = match my_bool {
+    true =&gt; foo,
+    true if other_bool =&gt; foo,
+    false =&gt; bar,
+}
+<span class="boring">}</span></code></pre>
+<p>In this example when type checking the <code>match</code> expression a LUB coercion is performed. This LUB coercion starts out with an initial lub ty of some inference variable <code>?x</code> due to the let statement having no known type.</p>
+<p>There are three expressions that participate in this LUB coercion. The first expression of a LUB coercion is special, instead of computing a new type with the existing initial lub ty, we coerce directly from the first expression to the initial lub ty.</p>
+<ol>
+<li>After type checking <code>true =&gt; foo,</code> we wind up with the type <code>FnDef(Foo)</code>. We then call <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_typeck/coercion/struct.CoerceMany.html#method.coerce"><code>CoerceMany::coerce</code></a> which will perform a one-to-one coercion of <code>FnDef(Foo)</code> to <code>?x</code>. This infers <code>?x=FnDef(Foo)</code> giving us a new lub ty for the LUB coercion.</li>
+<li>After type checking <code>true if other_bool =&gt; foo,</code> we once again wind up with the type <code>FnDef(Foo)</code>. We’ll then call <code>CoerceMany::coerce</code> which will attempt to compute a new lub ty from our previous lub ty (<code>FnDef(Foo)</code>) and the type of this expression (<code>FnDef(Foo)</code>). This gives us a lub ty of <code>FnDef(Foo)</code>.</li>
+<li>After type checking <code>false =&gt; bar,</code> we’ll wind up with the type <code>FnDef(Bar)</code>. We’ll then call <code>CoerceMany::coerce</code> which will attempt to compute a new lub ty from our previous lub ty (<code>FnDef(Foo)</code>) and the type of this expression (<code>FnDef(Bar)</code>). In this case we get the type <code>fn() -&gt; ()</code> as we choose to coerce both function item types to a function pointer.</li>
+</ol>
+<p>This gives us a final type for the LUB coercion of <code>fn() -&gt; ()</code>.</p>
+<h3 id="transitive-coercions"><a class="header" href="#transitive-coercions">Transitive coercions</a></h3>
+<p><a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_typeck/coercion/struct.CoerceMany.html"><code>CoerceMany</code></a>’s algorithm of repeatedly attempting to coerce the currrent target type to the new type currently results in “Transitive Coercions”. It’s possible for a step in a LUB coercion to coerce an expression, and then a later step to coerce that expression further.</p>
+<pre class="playground"><code class="language-rust">struct Foo;
+
+use std::ops::Deref;
+
+impl Deref for Foo {
+    type Target = [u8; 2];
+    
+    fn deref(&amp;self) -&gt; &amp;[u8; 2] {
+        &amp;[1; _]
+    }
+}
+
+fn main() {
+    match () {
+        _ if true =&gt; &amp;Foo,
+        _ if true =&gt; &amp;[1_u8; 2],
+        _ =&gt; &amp;[1_u8; 2] as &amp;[u8],
+    };
+}</code></pre>
+<p>Here we have a LUB coercion with an initial lub ty of <code>?x</code>. In the first step we do a one-to-one coercion of <code>&amp;Foo</code> to <code>?x</code> (reminder the first step is special).</p>
+<p>In the second step we compute a new lub ty from the current lub ty of <code>&amp;Foo</code> and the new type of <code>&amp;[u8; 2]</code>. This new lub ty would be <code>&amp;[u8; 2]</code> by performing a deref coercion of <code>&amp;Foo</code> to <code>&amp;[u8; 2]</code> on the first expression.</p>
+<p>In the third step we compute a new lub ty from the current lub ty of <code>&amp;[u8; 2]</code> and the new type of <code>&amp;[u8]</code>. This new lub ty would be <code>&amp;[u8]</code> by performing an unsizing coercion of <code>&amp;[u8; 2]</code> to <code>&amp;[u8]</code> on the first two expressions.</p>
+<p>Note how the first expression is coerced twice. Once a deref coercion from <code>&amp;Foo</code> to <code>&amp;[u8; 2]</code>, and then an unsizing coercion from <code>&amp;[u8; 2]</code> to <code>&amp;[u8]</code>.</p>
+<p>The current implementation of transitive coercions is broken, the previous example actually ICEs on stable. While the logic for performing a LUB coercion can produce transitive coercions just fine, the rest of the compiler is not set up to handle them.</p>
+<p>One-to-one coercions are also not capable of producing a lot of the kinds of transitive coercions that LUB coercions can. For example if we take the previous example and turn it into a one-to-one coercion we get a compile error:</p>
+<pre class="playground"><code class="language-rust">struct Foo;
+
+use std::ops::Deref;
+
+impl Deref for Foo {
+    type Target = [u8; 2];
+    
+    fn deref(&amp;self) -&gt; &amp;[u8; 2] {
+        &amp;[1; _]
+    }
+}
+
+fn main() {
+    let a: &amp;[u8] = &amp;Foo;
+}</code></pre>
+<p>Here we try to perform a one-to-one coercion from <code>&amp;Foo</code> to <code>&amp;[u8]</code> which fails as we can only perform a deref coercion <em>or</em> an unsizing coercion, we can’t compose the two.</p>
+<h3 id="how-does-try_find_coercion_lub-work"><a class="header" href="#how-does-try_find_coercion_lub-work">How does <code>try_find_coercion_lub</code> work</a></h3>
+<p>There are three ways that we can compute a new lub ty for a LUB coercion:</p>
+<ol>
+<li>Coerce both the current lub ty and the new type to a function pointer</li>
+<li>Coerce the current lub ty to the new type (or vice versa)</li>
+<li>Compute a mutual supertype of the current lub ty and the new type</li>
+</ol>
+<p>Unfortunately the actual implementation obsfucates this a fair amount.</p>
+<p>Computing a mutual supertype happens implicitly due to reusing the logic for one-to-one coercions which already handles subtyping if coercing fails.</p>
+<p>Additionally when trying to coerce both the current lub ty and the new type to function pointers we eagerly try to compute a mutual supertype to avoid unnecessary coercions.</p>
+<p>There is likely room for improving the structure of this function to make it more closely align with the conceptual model.</p>
+<h3 id="use_lub-field-in-one-to-one-coercions"><a class="header" href="#use_lub-field-in-one-to-one-coercions"><code>use_lub</code> field in one-to-one coercions</a></h3>
+<p>The implementation of one-to-one coercions is reused as part of LUB coercions.</p>
+<p>It would be wrong for LUB coercions to use one way subtyping when relating signatures or falling back to subtyping in the case of no coercions being possible. Instead we want to compute a mutual supertype of the two types.</p>
+<p>The <code>use_lub</code> field on <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_typeck/coercion/struct.Coerce.html"><code>Coerce</code></a> exists to toggle whether to perform normal subtyping (in the case of a one-to-one coercion), or whether to compute a mutual supertype (in the case of a LUB coercion).</p>
+<h3 id="lubbing"><a class="header" href="#lubbing">Lubbing</a></h3>
+<p>In theory computing a mutual supertype should be as simple as creating some new infer var <code>?mutual_sup</code> and then requiring <code>lub_ty &lt;: ?mutual_sup</code> and <code>new_ty &lt;: ?mutual_sup</code>. In reality LUB coercions use a special <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_infer/infer/canonical/ir/relate/trait.TypeRelation.html"><code>TypeRelation</code></a>, <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_infer/infer/relate/lattice/struct.LatticeOp.html"><code>LatticeOp</code></a>.</p>
+<p>This is primarily to work around subtyping/generalization for higher ranked types being fairly broken. Unlike normal subtyping, when encountering higher ranked types the lub type relation will switch to invariance.</p>
+<p>This enforces that the binders of the higher ranked types are equivalent which avoids the need to pick a “most general” binder, which would be quite difficult to do.</p>
+<p>It also avoids the process of computing a mutual supertype being <em>order dependent</em>. Given the types <code>a</code> and <code>b</code>, it may be nice if computing the mutual supertype of <code>a</code> and <code>b</code> would yield the same result as computing the mutual supertype of <code>b</code> and <code>a</code>.</p>
+<p>The current issues with higher ranked types and subtyping would cause this property to not hold if we were to use the naive method of computing a mutual supertype.</p>
+<p>Coercions being turned into explicit MIR operations during MIR building means that the process of computing the final type of a LUB coercion only occurs during HIR typeck. This also means the behaviour of computing a mutual supertype only matters for type inference, and is not soundness relevant.</p>
+<h2 id="cautionary-notes"><a class="header" href="#cautionary-notes">Cautionary notes</a></h2>
+<h3 id="probes"><a class="header" href="#probes">Probes</a></h3>
+<p>Care should be taken when coercing from inside of a probe as both one-to-one coercions and LUB coercions have side effects that can’t be rolled back by a probe.</p>
+<p>LUB coercions will emit error when a coercion step fails, this makes it entirely suitable for use inside of probes.</p>
+<p>1-to-1 and LUB coercions will both apply <em>adjustments</em> to the coerced expressions on success. This means that if inside of a probe and an attempt to coerce succeeds, then the probe must not rollback anything.</p>
+<p>It’s therefore correct to wrap a <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_typeck/fn_ctxt/struct.FnCtxt.html#method.coerce"><code>FnCtxt::coerce</code></a> call inside of a <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_infer/infer/struct.InferCtxt.html#method.commit_if_ok"><code>commit_if_ok</code></a>, but would be wrong to do so if returning <code>Err</code> after the coerce call. It would also be wrong to call <code>FnCtxt::coerce</code> from within a <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_infer/infer/struct.InferCtxt.html#method.probe"><code>probe</code></a>.</p>
+<p><a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_typeck/coercion/struct.CoerceMany.html"><code>CoerceMany</code></a> should never be used from within a <code>probe</code> or <code>commit_if_ok</code>.</p>
+<h3 id="never-to-any-coercions"><a class="header" href="#never-to-any-coercions">Never-to-Any coercions</a></h3>
+<p>Coercing from the never type (<code>!</code>) to an inference variable will result in a <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/adjustment/enum.Adjust.html#variant.NeverToAny"><code>NeverToAny</code></a> coercion with a target type of the inference variable. This is subtly different from <em>unifying</em> the inference variable with the never type.</p>
+<p>Unifying some infer var <code>?x</code> with <code>!</code> requires that <code>?x</code> actually be <em>equal</em> to <code>!</code>. However, a <code>NeverToAny</code> coercion allows for <code>?x</code> to be inferred to any possible type.</p>
+<p>This distinction means that in cases where the initial lub ty of a coercion is an inference variable (e.g. there’s no <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_typeck/expectation/enum.Expectation.html"><code>Expectation</code></a> to use for the initial lub ty), it’s still important to use a coercion instead of subtyping.</p>
+<p>See PR <a href="https://github.com/rust-lang/rust/pull/147834">#147834</a> which fixes a bug where we were incorrectly inferring things to the never type instead of going through a coercion.</p>
+<h3 id="fallback-to-subtyping"><a class="header" href="#fallback-to-subtyping">Fallback to subtyping</a></h3>
+<p>Even though subtyping is not a coercion, both <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_typeck/fn_ctxt/struct.FnCtxt.html#method.coerce"><code>FnCtxt::coerce</code></a> and <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_typeck/coercion/struct.CoerceMany.html#method.coerce"><code>CoerceMany::coerce</code></a>/<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_typeck/coercion/struct.CoerceMany.html#method.coerce_forced_unit"><code>coerce_forced_unit</code></a> are able to succeed due to subtyping.</p>
+<p>For one-to-one coercions we will try to enforce the source type is a subtype of the target type. For LUB coercions we will try to compute a type that is a supertype of all the existing types.</p>
+<p>For example performing a one-to-one coercion of <code>?x</code> to <code>u32</code> will fallback to subtyping, inferring <code>?x eq u32</code>. This means that when a coercion fails there’s no need to attempt subtyping afterwards.</p>
+<h3 id="unnecessary-inference-constraints"><a class="header" href="#unnecessary-inference-constraints">Unnecessary inference constraints</a></h3>
+<p>Using types from <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_typeck/expectation/enum.Expectation.html"><code>Expectation</code></a>s as the initial lub ty can cause infer vars to be constrained by the types of the expressions participating in the LUB coercion. This is not always desirable as these infer vars actually only need to be constrained by the final type of the LUB coercion.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn foo&lt;T&gt;(_: T) {}
+
+fn a() {}
+fn b() {}
+
+foo::&lt;?x&gt;(match my_bool {
+    true =&gt; a,
+    false =&gt; b,
+})
+<span class="boring">}</span></code></pre>
+<p>Here we have a LUB coercion with the first expression being of type <code>FnDef(a)</code> and the second expression being of type <code>FnDef(b)</code>. If we use <code>?x</code> as the initial lub ty of the LUB coercion then we would get the following behaviour:</p>
+<ul>
+<li>expression 1: infer <code>?x=FnDef(a)</code></li>
+<li>expression 2: find a coercion lub between <code>FnDef(a), FnDef(b)</code> resulting in <code>fn() -&gt; ()</code></li>
+<li>the final type of the LUB coercion is <code>fn() -&gt; ()</code>. equate <code>?x eq fn() -&gt; ()</code>, where <code>?x</code> actually already has been inferred to <code>FnDef(a)</code>, so this is actually equating <code>FnDef(a) eq fn() -&gt; ()</code> which does not hold</li>
+</ul>
+<p>To avoid some (but not all) of these undesirable inference constraints, if the <code>Expectation</code> for the LUB coercion is an inference variable then we won’t use it as the initial lub ty. Instead we create a new infer var, for example in the above code snippet we would actually make some new infer var <code>?y</code> for the initial lub ty instead of using <code>?x</code>.</p>
+<ul>
+<li>expression 1: infer <code>?y=FnDef(a)</code></li>
+<li>expression 2: find a coercion lub between <code>FnDef(a), FnDef(b)</code> resulting in <code>fn() -&gt; ()</code></li>
+<li>the final type of the LUB coercion is <code>fn() -&gt; ()</code>, infer <code>?x=fn() -&gt; ()</code></li>
+</ul>
+<p>See <a href="https://github.com/rust-lang/rust/pull/140283">#140283</a> for a case where we had undesirable inference constraints caused by not creating a new infer var.</p>
+<p>This doesn’t avoid unnecessary constraints in <em>all</em> cases, only the most common case of having an infer var as our <code>Expectation</code>. In theory it would be desirable to avoid these constraints in all cases but it would be quite involved to do so.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../hir-typeck/summary.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../hir-typeck/method-lookup.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../hir-typeck/summary.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../hir-typeck/method-lookup.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../mermaid-cc85ecea.min.js"></script>
+        <script src="../mermaid-init-4533fb11.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

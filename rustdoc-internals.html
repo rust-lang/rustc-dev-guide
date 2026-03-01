@@ -1,0 +1,481 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Rustdoc internals - Rust Compiler Development Guide</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A guide to developing the Rust compiler (rustc)">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-2459343d.css">
+        <link rel="stylesheet" href="css/chrome-ae938929.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-5b8627da.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-1a3501b2.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Compiler Development Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide/edit/main/src/rustdoc-internals.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="rustdoc-internals"><a class="header" href="#rustdoc-internals">Rustdoc internals</a></h1>
+<p>This page describes <a href="https://github.com/rust-lang/rust/tree/HEAD/src/tools/rustdoc"><code>rustdoc</code></a>’s passes and modes.
+For an overview of <code>rustdoc</code>, see the <a href="./rustdoc.html">“Rustdoc overview” chapter</a>.</p>
+<h2 id="from-crate-to-clean"><a class="header" href="#from-crate-to-clean">From crate to clean</a></h2>
+<p>In <a href="https://github.com/rust-lang/rust/blob/HEAD/src/librustdoc/core.rs"><code>core.rs</code></a> are two central items: the <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustdoc/core/struct.DocContext.html"><code>rustdoc::core::DocContext</code></a>
+<code>struct</code>, and the <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustdoc/core/fn.run_global_ctxt.html"><code>rustdoc::core::run_global_ctxt</code></a> function.
+The latter is where <code>rustdoc</code> calls out to <code>rustc</code> to compile a crate to the point where
+<code>rustdoc</code> can take over.
+The former is a state container used when crawling through a crate to gather its documentation.</p>
+<p>The main process of crate crawling is done in <a href="https://github.com/rust-lang/rust/blob/HEAD/src/librustdoc/clean/mod.rs"><code>clean/mod.rs</code></a> through several
+functions with names that start with <code>clean_</code>.
+Each function accepts an <code>hir</code>
+or <code>ty</code> data structure, and outputs a <code>clean</code> structure used by <code>rustdoc</code>.
+For example, <a href="https://doc.rust-lang.org/nightly/nightly-rustc/src/rustdoc/clean/mod.rs.html#256-267">this function for converting lifetimes</a>:</p>
+<pre><code class="language-rust ignore">fn clean_lifetime&lt;'tcx&gt;(lifetime: &amp;hir::Lifetime, cx: &amp;mut DocContext&lt;'tcx&gt;) -&gt; Lifetime {
+    if let Some(
+        rbv::ResolvedArg::EarlyBound(did)
+        | rbv::ResolvedArg::LateBound(_, _, did)
+        | rbv::ResolvedArg::Free(_, did),
+    ) = cx.tcx.named_bound_var(lifetime.hir_id)
+        &amp;&amp; let Some(lt) = cx.args.get(&amp;did).and_then(|arg| arg.as_lt())
+    {
+        return lt.clone();
+    }
+    Lifetime(lifetime.ident.name)
+}</code></pre>
+<p>Also, <code>clean/mod.rs</code> defines the types for the “cleaned” <a href="./ast-validation.html">Abstract Syntax Tree
+(<code>AST</code>)</a> used later to render documentation pages.
+Each usually accompanies a
+<code>clean_*</code> function that takes some <a href="./ast-validation.html"><code>AST</code></a> or <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/index.html">High-Level Intermediate
+Representation (<code>HIR</code>)</a> type from <code>rustc</code> and converts it into the appropriate “cleaned” type.
+“Big” items like modules or associated items may
+have some extra processing in its <code>clean</code> function, but for the most part these
+<code>impl</code>s are straightforward conversions.
+The “entry point” to this module is
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustdoc/clean/utils/fn.krate.html#"><code>clean::utils::krate</code></a>, which is called by <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustdoc/core/fn.run_global_ctxt.html"><code>run_global_ctxt</code></a>.</p>
+<p>The first step in <a href="https://doc.rust-lang.org/nightly/nightly-rustc/src/rustdoc/clean/utils.rs.html#31-77"><code>clean::utils::krate</code></a> is to invoke
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustdoc/visit_ast/struct.RustdocVisitor.html"><code>visit_ast::RustdocVisitor</code></a> to process the module tree into an intermediate <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustdoc/visit_ast/struct.Module.html"><code>visit_ast::Module</code></a>.
+This is the step that actually crawls the
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/hir/struct.Crate.html"><code>rustc_hir::Crate</code></a>, normalizing various aspects of name resolution, such as:</p>
+<ul>
+<li>handling <code>#[doc(inline)]</code> and <code>#[doc(no_inline)]</code></li>
+<li>handling import globs and cycles, so there are no duplicates or infinite
+directory trees</li>
+<li>inlining public <code>use</code> exports of private items, or showing a “Reexport”
+line in the module page</li>
+<li>inlining items with <code>#[doc(hidden)]</code> if the base item is hidden but the</li>
+<li>showing <code>#[macro_export]</code>-ed macros at the crate root, regardless of whether
+they’re defined as a reexport or not</li>
+</ul>
+<p>After this step, <code>clean::krate</code> invokes <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustdoc/clean/fn.clean_doc_module.html"><code>clean_doc_module</code></a>, which actually
+converts the <code>HIR</code> items to the cleaned <a href="./ast-validation.html"><code>AST</code></a>.
+This is also the step where cross-crate inlining is performed,
+which requires converting <code>rustc_middle</code> data structures into the cleaned <a href="./ast-validation.html"><code>AST</code></a>.</p>
+<p>The other major thing that happens in <code>clean/mod.rs</code> is the collection of doc
+comments and <code>#[doc=""]</code> attributes into a separate field of the <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustdoc/clean/types/struct.Attributes.html"><code>Attributes</code></a>
+<code>struct</code>, present on anything that gets hand-written documentation.
+This makes it easier to collect this documentation later in the process.</p>
+<p>The primary output of this process is a <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustdoc/clean/types/struct.Crate.html"><code>clean::types::Crate</code></a> with a tree of <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustdoc/clean/types/struct.Item.html"><code>Item</code></a>s
+which describe the publicly-documentable items in the target crate.</p>
+<h3 id="passes-anything-but-a-gas-station-or-hot-potato"><a class="header" href="#passes-anything-but-a-gas-station-or-hot-potato">Passes Anything But a Gas Station (or: <a href="https://www.youtube.com/watch?v=WNFBIt5HxdY">Hot Potato</a>)</a></h3>
+<p>Before moving on to the next major step, a few important “passes” occur over
+the cleaned <a href="./ast-validation.html"><code>AST</code></a>.
+Several of these passes are <code>lint</code>s and reports, but some of them mutate or generate new items.</p>
+<p>These are all implemented in the <a href="https://github.com/rust-lang/rust/tree/HEAD/src/librustdoc/passes"><code>librustdoc/passes</code></a> directory, one file per pass.
+By default, all of these passes are run on a crate, but the ones
+regarding dropping private/hidden items can be bypassed by passing
+<code>--document-private-items</code> to <code>rustdoc</code>.
+Note that, unlike the previous set of <a href="./ast-validation.html"><code>AST</code></a>
+transformations, the passes are run on the <em>cleaned</em> crate.</p>
+<p>Here is the list of passes as of <!-- date-check --> March 2023:</p>
+<ul>
+<li>
+<p><code>calculate-doc-coverage</code> calculates information used for the <code>--show-coverage</code>
+flag.</p>
+</li>
+<li>
+<p><code>check-doc-test-visibility</code> runs <code>doctest</code> visibility–related <code>lint</code>s. This pass
+runs before <code>strip-private</code>, which is why it needs to be separate from <code>run-lints</code>.</p>
+</li>
+<li>
+<p><code>collect-intra-doc-links</code> resolves <a href="https://doc.rust-lang.org/nightly/rustdoc/write-documentation/linking-to-items-by-name.html">intra-doc links</a>.</p>
+</li>
+<li>
+<p><code>collect-trait-impls</code> collects <code>trait</code> <code>impl</code>s for each item in the crate. For
+example, if we define a <code>struct</code> that implements a <code>trait</code>, this pass will note
+that the <code>struct</code> implements that <code>trait</code>.</p>
+</li>
+<li>
+<p><code>propagate-doc-cfg</code> propagates <code>#[doc(cfg(...))]</code> to child items.</p>
+</li>
+<li>
+<p><code>run-lints</code> runs some of <code>rustdoc</code>’s <code>lint</code>s, defined in <code>passes/lint</code>. This is
+the last pass to run.</p>
+<ul>
+<li>
+<p><code>bare_urls</code> detects links that are not linkified, e.g., in Markdown such as
+<code>Go to https://example.com/.</code> It suggests wrapping the link with angle brackets:
+<code>Go to &lt;https://example.com/&gt;.</code> to linkify it.
+This is the code behind the <!-- date-check: may 2022 --> <code>rustdoc::bare_urls</code> <code>lint</code>.</p>
+</li>
+<li>
+<p><code>check_code_block_syntax</code> validates syntax inside Rust code blocks
+(<code>```rust</code>)</p>
+</li>
+<li>
+<p><code>html_tags</code> detects invalid <code>HTML</code> (like an unclosed <code>&lt;span&gt;</code>)
+in doc comments.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><code>strip-hidden</code> and <code>strip-private</code> strip all <code>doc(hidden)</code> and private items
+from the output.
+<code>strip-private</code> implies <code>strip-priv-imports</code>.
+Basically, the goal is to remove items that are not relevant for public documentation.
+This pass is skipped when <code>--document-hidden-items</code> is passed.</p>
+</li>
+<li>
+<p><code>strip-priv-imports</code> strips all private import statements (<code>use</code>, <code>extern crate</code>) from a crate.
+This is necessary because <code>rustdoc</code> will handle <em>public</em>
+imports by either inlining the item’s documentation to the module or creating
+a “Reexports” section with the import in it.
+The pass ensures that all of these imports are actually relevant to documentation.
+It is technically only run when <code>--document-private-items</code> is passed, but <code>strip-private</code>
+accomplishes the same thing.</p>
+</li>
+<li>
+<p><code>strip-private</code> strips all private items from a crate which cannot be seen
+externally.
+This pass is skipped when <code>--document-private-items</code> is passed.</p>
+</li>
+</ul>
+<p>There is also a <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustdoc/passes/stripper/index.html"><code>stripper</code></a> module in <code>librustdoc/passes</code>, but it is a
+collection of utility functions for the <code>strip-*</code> passes and is not a pass itself.</p>
+<h2 id="from-clean-to-html"><a class="header" href="#from-clean-to-html">From clean to HTML</a></h2>
+<p>This is where the “second phase” in <code>rustdoc</code> begins.
+This phase primarily lives
+in the <a href="https://github.com/rust-lang/rust/tree/HEAD/src/librustdoc/formats"><code>librustdoc/formats</code></a> and <a href="https://github.com/rust-lang/rust/tree/HEAD/src/librustdoc/html"><code>librustdoc/html</code></a> folders, and it all starts with
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustdoc/formats/renderer/fn.run_format.html"><code>formats::renderer::run_format</code></a>.
+This code is responsible for setting up a type that
+<code>impl FormatRenderer</code>, which for <code>HTML</code> is <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustdoc/html/render/context/struct.Context.html"><code>Context</code></a>.</p>
+<p>This structure contains methods that get called by <code>run_format</code> to drive the
+doc rendering, which includes:</p>
+<ul>
+<li><code>init</code> generates <code>static.files</code>, as well as search index and <code>src/</code></li>
+<li><code>item</code> generates the item <code>HTML</code> files themselves</li>
+<li><code>after_krate</code> generates other global resources like <code>all.html</code></li>
+</ul>
+<p>In <code>item</code>, the “page rendering” occurs, via a mixture of <a href="https://docs.rs/askama/latest/askama/">Askama</a> templates
+and manual <code>write!()</code> calls, starting in <a href="https://github.com/rust-lang/rust/blob/HEAD/src/librustdoc/html/layout.rs"><code>html/layout.rs</code></a>.
+The parts that have not been converted to templates occur within a series of <code>std::fmt::Display</code>
+implementations and functions that pass around a <code>&amp;mut std::fmt::Formatter</code>.</p>
+<p>The parts that actually generate <code>HTML</code> from the items and documentation start
+with <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustdoc/html/render/print_item/fn.print_item.html"><code>print_item</code></a> defined in <a href="https://github.com/rust-lang/rust/blob/HEAD/src/librustdoc/html/render/print_item.rs"><code>html/render/print_item.rs</code></a>, which switches out
+to one of several <code>item_*</code> functions based on kind of <code>Item</code> being rendered.</p>
+<p>Depending on what kind of rendering code you’re looking for, you’ll probably
+find it either in <a href="https://github.com/rust-lang/rust/blob/HEAD/src/librustdoc/html/render/mod.rs"><code>html/render/mod.rs</code></a> for major items like “what sections
+should I print for a <code>struct</code> page” or <a href="https://github.com/rust-lang/rust/blob/HEAD/src/librustdoc/html/format.rs"><code>html/format.rs</code></a> for smaller component
+pieces like “how should I print a where clause as part of some other item”.</p>
+<p>Whenever <code>rustdoc</code> comes across an item that should print hand-written
+documentation alongside, it calls out to <a href="https://github.com/rust-lang/rust/blob/HEAD/src/librustdoc/html/markdown.rs"><code>html/markdown.rs</code></a> which interfaces
+with the Markdown parser.
+This is exposed as a series of types that wrap a
+string of Markdown, and implement <code>fmt::Display</code> to emit <code>HTML</code> text.
+It takes special care to enable certain features like footnotes and tables and add
+syntax highlighting to Rust code blocks (via <code>html/highlight.rs</code>) before
+running the Markdown parser.
+There’s also a function <a href="https://doc.rust-lang.org/nightly/nightly-rustc/src/rustdoc/html/markdown.rs.html#749-818"><code>find_codes</code></a> which is
+called by <code>find_testable_codes</code> that specifically scans for Rust code blocks so
+the test-runner code can find all the <code>doctest</code>s in the crate.</p>
+<h3 id="from-soup-to-nuts-or-an-unbroken-thread-stretches-from-those-first-cells-to-us"><a class="header" href="#from-soup-to-nuts-or-an-unbroken-thread-stretches-from-those-first-cells-to-us">From Soup to Nuts (or: <a href="https://www.youtube.com/watch?v=hOLAGYmUQV0">“An Unbroken Thread Stretches From Those First <code>Cell</code>s To Us”</a>)</a></h3>
+<p>It’s important to note that <code>rustdoc</code> can ask the compiler for type information
+directly, even during <code>HTML</code> generation.
+This <a href="https://github.com/rust-lang/rust/pull/80090">didn’t used to be the case</a>, and
+a lot of <code>rustdoc</code>’s architecture was designed around not doing that, but a
+<code>TyCtxt</code> is now passed to <code>formats::renderer::run_format</code>, which is used to
+run generation for both <code>HTML</code> and the (unstable as of <!-- date-check --> Nov 2025) JSON format.</p>
+<p>This change has allowed other changes to remove data from the “clean” <a href="./ast-validation.html"><code>AST</code></a>
+that can be easily derived from <code>TyCtxt</code> queries, and we’ll usually accept
+PRs that remove fields from “clean” (it’s been soft-deprecated), but this
+is complicated from two other constraints that <code>rustdoc</code> runs under:</p>
+<ul>
+<li>Docs can be generated for crates that don’t actually pass type checking.
+This is used for generating docs that cover mutually-exclusive platform
+configurations, such as <code>libstd</code> having a single package of docs that
+cover all supported operating systems.
+This means <code>rustdoc</code> has to be able to generate docs from <code>HIR</code>.</li>
+<li>Docs can inline across crates. Since crate metadata doesn’t contain <code>HIR</code>,
+it must be possible to generate inlined docs from the <code>rustc_middle</code> data.</li>
+</ul>
+<p>The “clean” <a href="./ast-validation.html"><code>AST</code></a> acts as a common output format for both input formats.
+There is also some data in clean that doesn’t correspond directly to <code>HIR</code>, such as
+synthetic <code>impl</code>s for auto traits and blanket <code>impl</code>s generated by the <code>collect-trait-impls</code> pass.</p>
+<p>Some additional data is stored in <code>html::render::context::{Context, SharedContext}</code>.
+These two types serve as
+ways to segregate <code>rustdoc</code>’s data for an eventual future with multithreaded doc
+generation, as well as just keeping things organized:</p>
+<ul>
+<li><a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustdoc/html/render/context/struct.Context.html"><code>Context</code></a> stores data used for generating the current page, such as its
+path, a list of <code>HTML</code> IDs that have been used (to avoid duplicate <code>id=""</code>),
+and the pointer to <code>SharedContext</code>.</li>
+<li><a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustdoc/html/render/context/struct.SharedContext.html"><code>SharedContext</code></a> stores data that does not vary by page, such as the <code>tcx</code>
+pointer, and a list of all types.</li>
+</ul>
+<h2 id="other-tricks-up-its-sleeve"><a class="header" href="#other-tricks-up-its-sleeve">Other tricks up its sleeve</a></h2>
+<p>All this describes the process for generating <code>HTML</code> documentation from a Rust
+crate, but there are couple other major modes that <code>rustdoc</code> runs in.
+It can also be run on a standalone Markdown file, or it can run <code>doctest</code>s on Rust code or
+standalone Markdown files.
+For the former, it shortcuts straight to
+<code>html/markdown.rs</code>, optionally including a mode which inserts a Table of
+Contents to the output <code>HTML</code>.</p>
+<p>For the latter, <code>rustdoc</code> runs a similar partial-compilation to get relevant
+documentation in <code>test.rs</code>, but instead of going through the full clean and
+render process, it runs a much simpler crate walk to grab <em>just</em> the hand-written documentation.
+Combined with the aforementioned
+“<code>find_testable_code</code>” in <code>html/markdown.rs</code>, it builds up a collection of
+tests to run before handing them off to the test runner.
+One notable location in <code>test.rs</code> is the function <code>make_test</code>, which is where hand-written
+<code>doctest</code>s get transformed into something that can be executed.</p>
+<p>Some extra reading about <code>make_test</code> can be found
+<a href="https://quietmisdreavus.net/code/2018/02/23/how-the-doctests-get-made/">here</a>.</p>
+<h2 id="testing-locally"><a class="header" href="#testing-locally">Testing locally</a></h2>
+<p>Some features of the generated <code>HTML</code> documentation might require local
+storage to be used across pages, which doesn’t work well without an <code>HTTP</code> server.
+To test these features locally, you can run a local <code>HTTP</code> server, like this:</p>
+<pre><code class="language-console">$ ./x doc library
+# The documentation has been generated into `build/[YOUR ARCH]/doc`.
+$ python3 -m http.server -d build/[YOUR ARCH]/doc
+</code></pre>
+<p>Now you can browse your documentation just like you would if it was hosted on the internet.
+For example, the url for <code>std</code> will be <code>rust/std/</code>.</p>
+<h2 id="see-also"><a class="header" href="#see-also">See also</a></h2>
+<ul>
+<li>The <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustdoc/"><code>rustdoc</code> api docs</a></li>
+<li><a href="./rustdoc.html">An overview of <code>rustdoc</code></a></li>
+<li><a href="https://doc.rust-lang.org/nightly/rustdoc/">The rustdoc user guide</a></li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="parallel-rustc.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="rustdoc-internals/search.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="parallel-rustc.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="rustdoc-internals/search.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-c2a407aa.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="mermaid-cc85ecea.min.js"></script>
+        <script src="mermaid-init-4533fb11.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

@@ -1,0 +1,610 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Return Position Impl Trait In Trait - Rust Compiler Development Guide</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A guide to developing the Rust compiler (rustc)">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-2459343d.css">
+        <link rel="stylesheet" href="css/chrome-ae938929.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-5b8627da.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-1a3501b2.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Compiler Development Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide/edit/main/src/return-position-impl-trait-in-trait.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="return-position-impl-trait-in-trait"><a class="header" href="#return-position-impl-trait-in-trait">Return Position Impl Trait In Trait</a></h1>
+<p>Return-position impl trait in trait (RPITIT) is conceptually (and as of
+<a href="https://github.com/rust-lang/rust/pull/112988">#112988</a>, literally) sugar that turns RPITs in trait methods into
+generic associated types (GATs) without the user having to define that
+GAT either on the trait side or impl side.</p>
+<p>RPITIT was originally implemented in <a href="https://github.com/rust-lang/rust/pull/101224">#101224</a>, which added support for
+async fn in trait (AFIT), since the implementation for RPITIT came for
+free as a part of implementing AFIT which had been RFC’d previously. It
+was then RFC’d independently in <a href="https://github.com/rust-lang/rfcs/pull/3425">RFC 3425</a>, which was recently approved
+by T-lang.</p>
+<h2 id="how-does-it-work"><a class="header" href="#how-does-it-work">How does it work?</a></h2>
+<p>This doc is ordered mostly via the compilation pipeline:</p>
+<ol>
+<li>AST lowering (AST -&gt; HIR)</li>
+<li>HIR ty lowering (HIR -&gt; rustc_middle::ty data types)</li>
+<li>typeck</li>
+</ol>
+<h3 id="ast-lowering"><a class="header" href="#ast-lowering">AST lowering</a></h3>
+<p>AST lowering for RPITITs is almost the same as lowering RPITs. We
+still lower them as
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/hir/struct.OpaqueTy.html"><code>hir::ItemKind::OpaqueTy</code></a>.
+The two differences are that:</p>
+<p>We record <code>in_trait</code> for the opaque. This will signify that the opaque
+is an RPITIT for HIR ty lowering, diagnostics that deal with HIR, etc.</p>
+<p>We record <code>lifetime_mapping</code>s for the opaque type, described below.</p>
+<h4 id="aside-opaque-lifetime-duplication"><a class="header" href="#aside-opaque-lifetime-duplication">Aside: Opaque lifetime duplication</a></h4>
+<p><em>All opaques</em> (not just RPITITs) end up duplicating their captured
+lifetimes into new lifetime parameters local to the opaque. The main
+reason we do this is because RPITs need to be able to “reify”<sup class="footnote-reference" id="fr-1-1"><a href="#footnote-1">1</a></sup> any
+captured late-bound arguments, or make them into early-bound ones. This
+is so they can be used as generic args for the opaque, and later to
+instantiate hidden types. Since we don’t know which lifetimes are early-
+or late-bound during AST lowering, we just do this for all lifetimes.</p>
+<p>The main addition for RPITITs is that during lowering we track the
+relationship between the captured lifetimes and the corresponding
+duplicated lifetimes in an additional field,
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/hir/struct.OpaqueTy.html#structfield.lifetime_mapping"><code>OpaqueTy::lifetime_mapping</code></a>.
+We use this lifetime mapping later on in <code>predicates_of</code> to install
+bounds that enforce equality between these duplicated lifetimes and
+their source lifetimes in order to properly typecheck these GATs, which
+will be discussed below.</p>
+<h5 id="note"><a class="header" href="#note">Note</a></h5>
+<p>It may be better if we were able to lower without duplicates and for
+that I think we would need to stop distinguishing between early and late
+bound lifetimes. So we would need a solution like <a href="https://github.com/rust-lang/rust/pull/103448">Account for
+late-bound lifetimes in generics
+#103448</a> and then also a
+PR similar to <a href="https://github.com/rust-lang/rust/pull/103449">Inherit function lifetimes for impl-trait
+#103449</a>.</p>
+<h3 id="hir-ty-lowering"><a class="header" href="#hir-ty-lowering">HIR ty lowering</a></h3>
+<p>The main change to HIR ty lowering is that we lower <code>hir::TyKind::OpaqueDef</code>
+for an RPITIT to a projection instead of an opaque, using a newly
+synthesized def-id for a new associated type in the trait. We’ll
+describe how exactly we get this def-id in the next section.</p>
+<p>This means that any time we call <code>lower_ty</code> on the RPITIT, we end up
+getting a projection back instead of an opaque. This projection can then
+be normalized to the right value – either the original opaque if we’re
+in the trait, or the inferred type of the RPITIT if we’re in an impl.</p>
+<h4 id="lowering-to-synthetic-associated-types"><a class="header" href="#lowering-to-synthetic-associated-types">Lowering to synthetic associated types</a></h4>
+<p>Using query feeding, we synthesize new associated types on both the
+trait side and impl side for RPITITs that show up in methods.</p>
+<h5 id="lowering-rpitits-in-traits"><a class="header" href="#lowering-rpitits-in-traits">Lowering RPITITs in traits</a></h5>
+<p>When <code>tcx.associated_item_def_ids(trait_def_id)</code> is called on a trait to
+gather all of the trait’s associated types, the query previously just
+returned the def-ids of the HIR items that are children of the trait.
+After <a href="https://github.com/rust-lang/rust/pull/112988">#112988</a>, additionally, for each method in the trait, we add the
+def-ids returned by
+<code>tcx.associated_types_for_impl_traits_in_associated_fn(trait_method_def_id)</code>,
+which walks through each trait method, gathers any RPITITs that show up
+in the signature, and then calls
+<code>associated_type_for_impl_trait_in_trait</code> for each RPITIT, which
+synthesizes a new associated type.</p>
+<h5 id="lowering-rpitits-in-impls"><a class="header" href="#lowering-rpitits-in-impls">Lowering RPITITs in impls</a></h5>
+<p>Similarly, along with the impl’s HIR items, for each impl method, we
+additionally add all of the
+<code>associated_types_for_impl_traits_in_associated_fn</code> for the impl method.
+This calls <code>associated_type_for_impl_trait_in_impl</code>, which will
+synthesize an associated type definition for each RPITIT that comes from
+the corresponding trait method.</p>
+<h4 id="synthesizing-new-associated-types"><a class="header" href="#synthesizing-new-associated-types">Synthesizing new associated types</a></h4>
+<p>We use query feeding
+(<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/query/plumbing/struct.TyCtxtAt.html#method.create_def"><code>TyCtxtAt::create_def</code></a>)
+to synthesize a new def-id for the synthetic GATs for each RPITIT.</p>
+<p>Locally, most of rustc’s queries match on the HIR of an item to compute
+their values. Since the RPITIT doesn’t really have HIR associated with
+it, or at least not HIR that corresponds to an associated type, we must
+compute many queries eagerly and
+<a href="https://github.com/rust-lang/rust/pull/104940">feed</a> them, like
+<code>opt_def_kind</code>, <code>associated_item</code>, <code>visibility</code>, and<code>defaultness</code>.</p>
+<p>The values for most of these queries is obvious, since the RPITIT
+conceptually inherits most of its information from the parent function
+(e.g. <code>visibility</code>), or because it’s trivially knowable because it’s an
+associated type (<code>opt_def_kind</code>).</p>
+<p>Some other queries are more involved, or cannot be fed, and we
+document the interesting ones of those below:</p>
+<h5 id="generics_of-for-the-trait"><a class="header" href="#generics_of-for-the-trait"><code>generics_of</code> for the trait</a></h5>
+<p>The GAT for an RPITIT conceptually inherits the same generics as the
+RPIT it comes from. However, instead of having the method as the
+generics’ parent, the trait is the parent.</p>
+<p>Currently we get away with taking the RPIT’s generics and method
+generics and flattening them both into a new generics list, preserving
+the def-id of each of the parameters. (This may cause issues with
+def-ids having the wrong parents, but in the worst case this will cause
+diagnostics issues. If this ends up being an issue, we can synthesize
+new def-ids for generic params whose parent is the GAT.)</p>
+<details>
+<summary> <b>An illustrated example</b> </summary>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Foo {
+    fn method&lt;'early: 'early, 'late, T&gt;() -&gt; impl Sized + Captures&lt;'early, 'late&gt;;
+}
+<span class="boring">}</span></code></pre>
+<p>Would desugar to…</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Foo {
+    //       vvvvvvvvv method's generics
+    //                  vvvvvvvvvvvvvvvvvvvvvvvv opaque's generics
+    type Gat&lt;'early, T, 'early_duplicated, 'late&gt;: Sized + Captures&lt;'early_duplicated, 'late&gt;;
+
+    fn method&lt;'early: 'early, 'late, T&gt;() -&gt; Self::Gat&lt;'early, T, 'early, 'late&gt;;
+}
+<span class="boring">}</span></code></pre>
+</details>
+<h5 id="generics_of-for-the-impl"><a class="header" href="#generics_of-for-the-impl"><code>generics_of</code> for the impl</a></h5>
+<p>The generics for an impl’s GAT are a bit more interesting. They are
+composed of RPITIT’s own generics (from the trait definition), appended
+onto the impl’s methods generics. This has the same issue as above,
+where the generics for the GAT have parameters whose def-ids have the
+wrong parent, but this should only cause issues in diagnostics.</p>
+<p>We could fix this similarly if we were to synthesize new generics
+def-ids, but this can be done later in a forwards-compatible way,
+perhaps by a interested new contributor.</p>
+<h5 id="opt_rpitit_info"><a class="header" href="#opt_rpitit_info"><code>opt_rpitit_info</code></a></h5>
+<p>Some queries rely on computing information that would result in cycles
+if we were to feed them eagerly, like <code>explicit_predicates_of</code>.
+Therefore we defer to the <code>predicates_of</code> provider to return the right
+value for our RPITIT’s GAT. We do this by detecting early on in the
+query if the associated type is synthetic by using
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/context/struct.TyCtxt.html#method.opt_rpitit_info"><code>opt_rpitit_info</code></a>,
+which returns <code>Some</code> if the associated type is synthetic.</p>
+<p>Then, during a query like <code>explicit_predicates_of</code>, we can detect if an
+associated type is synthetic like:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn explicit_predicates_of(tcx: TyCtxt&lt;'_&gt;, def_id: LocalDefId) -&gt; ... {
+    if let Some(rpitit_info) = tcx.opt_rpitit_info(def_id) {
+        // Do something special for RPITITs...
+        return ...;
+    }
+
+    // The regular computation which relies on access to the HIR of `def_id`.
+}
+<span class="boring">}</span></code></pre>
+<h5 id="explicit_predicates_of"><a class="header" href="#explicit_predicates_of"><code>explicit_predicates_of</code></a></h5>
+<p>RPITITs begin by copying the predicates of the method that defined it,
+both on the trait and impl side.</p>
+<p>Additionally, we install “bidirectional outlives” predicates.
+Specifically, we add region-outlives predicates in both directions for
+each captured early-bound lifetime that constrains it to be equal to the
+duplicated early-bound lifetime that results from lowering. This is best
+illustrated in an example:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Foo&lt;'a&gt; {
+    fn bar() -&gt; impl Sized + 'a;
+}
+
+// Desugars into...
+
+trait Foo&lt;'a&gt; {
+    type Gat&lt;'a_duplicated&gt;: Sized + 'a
+    where
+        'a: 'a_duplicated,
+        'a_duplicated: 'a;
+    //~^ Specifically, we should be able to assume that the
+    // duplicated `'a_duplicated` lifetime always stays in
+    // sync with the `'a` lifetime.
+
+    fn bar() -&gt; Self::Gat&lt;'a&gt;;
+}
+<span class="boring">}</span></code></pre>
+<h5 id="assumed_wf_types"><a class="header" href="#assumed_wf_types"><code>assumed_wf_types</code></a></h5>
+<p>The GATs in both the trait and impl inherit the <code>assumed_wf_types</code> of
+the trait method that defines the RPITIT. This is to make sure that the
+following code is well formed when lowered.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Foo {
+    fn iter&lt;'a, T&gt;(x: &amp;'a [T]) -&gt; impl Iterator&lt;Item = &amp;'a T&gt;;
+}
+
+// which is lowered to...
+
+trait FooDesugared {
+    type Iter&lt;'a, T&gt;: Iterator&lt;Item = &amp;'a T&gt;;
+    //~^ assumed wf: `&amp;'a [T]`
+    // Without assumed wf types, the GAT would not be well-formed on its own.
+
+    fn iter&lt;'a, T&gt;(x: &amp;'a [T]) -&gt; Self::Iter&lt;'a, T&gt;;
+}
+<span class="boring">}</span></code></pre>
+<p>Because <code>assumed_wf_types</code> is only defined for local def ids, in order
+to properly implement <code>assumed_wf_types</code> for impls of foreign traits
+with RPITs, we need to encode the assumed wf types of RPITITs in an
+extern query
+<a href="https://github.com/rust-lang/rust/blob/a17c7968b727d8413801961fc4e89869b6ab00d3/compiler/rustc_ty_utils/src/implied_bounds.rs#L14"><code>assumed_wf_types_for_rpitit</code></a>.</p>
+<h3 id="typechecking"><a class="header" href="#typechecking">Typechecking</a></h3>
+<h4 id="the-rpitit-inference-algorithm"><a class="header" href="#the-rpitit-inference-algorithm">The RPITIT inference algorithm</a></h4>
+<p>The RPITIT inference algorithm is implemented in
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_analysis/check/compare_impl_item/fn.collect_return_position_impl_trait_in_trait_tys.html"><code>collect_return_position_impl_trait_in_trait_tys</code></a>.</p>
+<p><strong>High-level:</strong> Given a impl method and a trait method, we take the
+trait method and instantiate each RPITIT in the signature with an infer
+var. We then equate this trait method signature with the impl method
+signature, and process all obligations that fall out in order to infer
+the type of all of the RPITITs in the method.</p>
+<p>The method is also responsible for making sure that the hidden types for
+each RPITIT actually satisfy the bounds of the <code>impl Trait</code>, i.e. that
+if we infer <code>impl Trait = Foo</code>, that <code>Foo: Trait</code> holds.</p>
+<details>
+    <summary><b>An example...</b></summary>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span>#![feature(return_position_impl_trait_in_trait)]
+
+<span class="boring">fn main() {
+</span>use std::ops::Deref;
+
+trait Foo {
+    fn bar() -&gt; impl Deref&lt;Target = impl Sized&gt;;
+             // ^- RPITIT ?0        ^- RPITIT ?1
+}
+
+impl Foo for () {
+    fn bar() -&gt; Box&lt;String&gt; { Box::new(String::new()) }
+}
+<span class="boring">}</span></code></pre>
+<p>We end up with the trait signature that looks like <code>fn() -&gt; ?0</code>, and
+nested obligations <code>?0: Deref&lt;Target = ?1&gt;</code>, <code>?1: Sized</code>. The impl
+signature is <code>fn() -&gt; Box&lt;String&gt;</code>.</p>
+<p>Equating these signatures gives us <code>?0 = Box&lt;String&gt;</code>, which then after
+processing the obligation <code>Box&lt;String&gt;: Deref&lt;Target = ?1&gt;</code> gives us <code>?1 = String</code>, and the other obligation <code>String: Sized</code> evaluates to true.</p>
+<p>By the end of the algorithm, we end up with a mapping between associated
+type def-ids to concrete types inferred from the signature. We can then
+use this mapping to implement <code>type_of</code> for the synthetic associated
+types in the impl, since this mapping describes the type that should
+come after the <code>=</code> in <code>type Assoc = ...</code> for each RPITIT.</p>
+</details>
+<h5 id="implied-bounds-in-rpitit-hidden-type-inference"><a class="header" href="#implied-bounds-in-rpitit-hidden-type-inference">Implied bounds in RPITIT hidden type inference</a></h5>
+<p>Since <code>collect_return_position_impl_trait_in_trait_tys</code> does fulfillment and
+region resolution, we must provide it <code>assumed_wf_types</code> so that we can prove
+region obligations with the same expected implied bounds as
+<code>compare_method_predicate_entailment</code> does.</p>
+<p>Since the return type of a method is understood to be one of the assumed WF
+types, and we eagerly fold the return type with inference variables to do
+opaque type inference, after opaque type inference, the return type will
+resolve to contain the hidden types of the RPITITs. this would mean that the
+hidden types of the RPITITs would be assumed to be well-formed without having
+independently proven that they are. This resulted in a
+<a href="https://github.com/rust-lang/rust/pull/116072">subtle unsoundness bug</a>. In
+order to prevent this cyclic reasoning, we instead replace the hidden types of
+the RPITITs in the return type of the method with <em>placeholders</em>, which lead
+to no implied well-formedness bounds.</p>
+<h4 id="default-trait-body"><a class="header" href="#default-trait-body">Default trait body</a></h4>
+<p>Type-checking a default trait body, like:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Foo {
+    fn bar() -&gt; impl Sized {
+        1i32
+    }
+}
+<span class="boring">}</span></code></pre>
+<p>requires one interesting hack. We need to install a projection predicate
+into the param-env of <code>Foo::bar</code> allowing us to assume that the RPITIT’s
+GAT normalizes to the RPITIT’s opaque type. This relies on the
+observation that a trait method and RPITIT’s GAT will always be “in
+sync”. That is, one will only ever be overridden if the other one is as
+well.</p>
+<p>Compare this to a similar desugaring of the code above, which would fail
+because we cannot rely on this same assumption:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span>#![feature(impl_trait_in_assoc_type)]
+#![feature(associated_type_defaults)]
+
+<span class="boring">fn main() {
+</span>trait Foo {
+    type RPITIT = impl Sized;
+
+    fn bar() -&gt; Self::RPITIT {
+        01i32
+    }
+}
+<span class="boring">}</span></code></pre>
+<p>Failing because a down-stream impl could theoretically provide an
+implementation for <code>RPITIT</code> without providing an implementation of
+<code>bar</code>:</p>
+<pre><code class="language-text">error[E0308]: mismatched types
+--&gt; src/lib.rs:8:9
+ |
+5 |     type RPITIT = impl Sized;
+ |     ------------------------- associated type defaults can't be assumed inside the trait defining them
+6 |
+7 |     fn bar() -&gt; Self::RPITIT {
+ |                 ------------ expected `&lt;Self as Foo&gt;::RPITIT` because of return type
+8 |         01i32
+ |         ^^^^^ expected associated type, found `i32`
+ |
+ = note: expected associated type `&lt;Self as Foo&gt;::RPITIT`
+                       found type `i32`
+</code></pre>
+<h4 id="well-formedness-checking"><a class="header" href="#well-formedness-checking">Well-formedness checking</a></h4>
+<p>We check well-formedness of RPITITs just like regular associated types.</p>
+<p>Since we added lifetime bounds in <code>predicates_of</code> that link the
+duplicated early-bound lifetimes to their original lifetimes, and we
+implemented <code>assumed_wf_types</code> which inherits the WF types of the method
+from which the RPITIT originates (<a href="https://github.com/rust-lang/rust/pull/113704">#113704</a>), we have no issues
+WF-checking the GAT as if it were a regular GAT.</p>
+<h3 id="whats-broken-whats-weird-etc"><a class="header" href="#whats-broken-whats-weird-etc">What’s broken, what’s weird, etc.</a></h3>
+<h5 id="specialization-is-super-busted"><a class="header" href="#specialization-is-super-busted">Specialization is super busted</a></h5>
+<p>The “default trait methods” described above does not interact well with
+specialization, because we only install those projection bounds in trait
+default methods, and not in impl methods. Given that specialization is
+already pretty busted, I won’t go into detail, but it’s currently a bug
+tracked in:
+* <code>tests/ui/impl-trait/in-trait/specialization-broken.rs</code></p>
+<h5 id="projections-dont-have-variances"><a class="header" href="#projections-dont-have-variances">Projections don’t have variances</a></h5>
+<p>This code fails because projections don’t have variances:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span>#![feature(return_position_impl_trait_in_trait)]
+
+<span class="boring">fn main() {
+</span>trait Foo {
+    // Note that the RPITIT below does *not* capture `'lt`.
+    fn bar&lt;'lt: 'lt&gt;() -&gt; impl Eq;
+}
+
+fn test&lt;'a, 'b, T: Foo&gt;() -&gt; bool {
+    &lt;T as Foo&gt;::bar::&lt;'a&gt;() == &lt;T as Foo&gt;::bar::&lt;'b&gt;()
+    //~^ ERROR
+    // (requires that `'a == 'b`)
+}
+<span class="boring">}</span></code></pre>
+<p>This is because we can’t relate <code>&lt;T as Foo&gt;::Rpitit&lt;'a&gt;</code> and <code>&lt;T as Foo&gt;::Rpitit&lt;'b&gt;</code>, even if they don’t capture their lifetime. If we were
+using regular opaque types, this would work, because they would be
+bivariant in that lifetime parameter:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span>#![feature(return_position_impl_trait_in_trait)]
+
+<span class="boring">fn main() {
+</span>fn bar&lt;'lt: 'lt&gt;() -&gt; impl Eq {
+    ()
+}
+
+fn test&lt;'a, 'b&gt;() -&gt; bool {
+    bar::&lt;'a&gt;() == bar::&lt;'b&gt;()
+}
+<span class="boring">}</span></code></pre>
+<p>This is probably okay though, since RPITITs will likely have their
+captures behavior changed to capture all in-scope lifetimes anyways.
+This could also be relaxed later in a forwards-compatible way if we were
+to consider variances of RPITITs when relating projections.</p>
+<hr>
+<ol class="footnote-definition">
+<li id="footnote-1">
+<p>This is compiler-errors terminology, I’m not claiming it’s accurate :^) <a href="#fr-1-1">↩</a></p>
+</li>
+</ol>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="opaque-types-impl-trait-inference.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="borrow-check/opaque-types-region-inference-restrictions.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="opaque-types-impl-trait-inference.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="borrow-check/opaque-types-region-inference-restrictions.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-c2a407aa.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="mermaid-cc85ecea.min.js"></script>
+        <script src="mermaid-init-4533fb11.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

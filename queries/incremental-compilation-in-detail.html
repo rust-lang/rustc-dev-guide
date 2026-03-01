@@ -1,0 +1,734 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Incremental compilation in detail - Rust Compiler Development Guide</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A guide to developing the Rust compiler (rustc)">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex-5b8627da.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-1a3501b2.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Compiler Development Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide/edit/main/src/queries/incremental-compilation-in-detail.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="incremental-compilation-in-detail"><a class="header" href="#incremental-compilation-in-detail">Incremental compilation in detail</a></h1>
+<p>The incremental compilation scheme is, in essence, a surprisingly
+simple extension to the overall query system.
+It relies on the fact that:</p>
+<ol>
+<li>queries are pure functions – given the same inputs, a query will always
+yield the same result, and</li>
+<li>the query model structures compilation in an acyclic graph that makes
+dependencies between individual computations explicit.</li>
+</ol>
+<p>This chapter will explain how we can use these properties for making things
+incremental and then goes on to discuss version implementation issues.</p>
+<h2 id="a-basic-algorithm-for-incremental-query-evaluation"><a class="header" href="#a-basic-algorithm-for-incremental-query-evaluation">A Basic Algorithm For Incremental Query Evaluation</a></h2>
+<p>As explained in the <a href="./query-evaluation-model-in-detail.html">query evaluation model primer</a>, query
+invocations form a directed-acyclic graph.
+Here’s the example from the previous chapter again:</p>
+<pre><code class="language-ignore">  list_of_all_hir_items &lt;----------------------------- type_check_crate()
+                                                               |
+                                                               |
+  Hir(foo) &lt;--- type_of(foo) &lt;--- type_check_item(foo) &lt;-------+
+                                      |                        |
+                    +-----------------+                        |
+                    |                                          |
+                    v                                          |
+  Hir(bar) &lt;--- type_of(bar) &lt;--- type_check_item(bar) &lt;-------+
+</code></pre>
+<p>Since every access from one query to another has to go through the query
+context, we can record these accesses and thus actually build this dependency graph in memory.
+With dependency tracking enabled, when compilation is done,
+we know which queries were invoked (the nodes of the graph) and for each
+invocation, which other queries or input has gone into computing the query’s
+result (the edges of the graph).</p>
+<p>Now suppose we change the source code of our program so that
+HIR of <code>bar</code> looks different than before.
+Our goal is to only recompute those queries that are actually affected by the change while re-using
+the cached results of all the other queries.
+Given the dependency graph we can do exactly that.
+For a given query invocation, the graph tells us exactly
+what data has gone into computing its results, we just have to follow the
+edges until we reach something that has changed.
+If we don’t encounter anything that has changed, we know that the query still would evaluate to
+the same result we already have in our cache.</p>
+<p>Taking the <code>type_of(foo)</code> invocation from above as an example, we can check
+whether the cached result is still valid by following the edges to its inputs.
+The only edge leads to <code>Hir(foo)</code>, an input that has not been affected by the change.
+So we know that the cached result for <code>type_of(foo)</code> is still valid.</p>
+<p>The story is a bit different for <code>type_check_item(foo)</code>: We again walk the
+edges and already know that <code>type_of(foo)</code> is fine.
+Then we get to <code>type_of(bar)</code> which we have not checked yet, so we walk the edges of
+<code>type_of(bar)</code> and encounter <code>Hir(bar)</code> which <em>has</em> changed.
+Consequently the result of <code>type_of(bar)</code> might yield a different result than what we
+have in the cache and, transitively, the result of <code>type_check_item(foo)</code> might have changed too.
+We thus re-run <code>type_check_item(foo)</code>, which in
+turn will re-run <code>type_of(bar)</code>, which will yield an up-to-date result
+because it reads the up-to-date version of <code>Hir(bar)</code>.
+Also, we re-run <code>type_check_item(bar)</code> because result of <code>type_of(bar)</code> might have changed.</p>
+<h2 id="the-problem-with-the-basic-algorithm-false-positives"><a class="header" href="#the-problem-with-the-basic-algorithm-false-positives">The problem with the basic algorithm: false positives</a></h2>
+<p>If you read the previous paragraph carefully you’ll notice that it says that
+<code>type_of(bar)</code> <em>might</em> have changed because one of its inputs has changed.
+There’s also the possibility that it might still yield exactly the same
+result <em>even though</em> its input has changed.
+Consider an example with a simple query that just computes the sign of an integer:</p>
+<pre><code class="language-ignore">  IntValue(x) &lt;---- sign_of(x) &lt;--- some_other_query(x)
+</code></pre>
+<p>Let’s say that <code>IntValue(x)</code> starts out as <code>1000</code> and then is set to <code>2000</code>.
+Even though <code>IntValue(x)</code> is different in the two cases, <code>sign_of(x)</code> yields
+the result <code>+</code> in both cases.</p>
+<p>If we follow the basic algorithm, however, <code>some_other_query(x)</code> would have to
+(unnecessarily) be re-evaluated because it transitively depends on a changed input.
+Change detection yields a “false positive” in this case because it has
+to conservatively assume that <code>some_other_query(x)</code> might be affected by that changed input.</p>
+<p>Unfortunately it turns out that the actual queries in the compiler are full
+of examples like this and small changes to the input often potentially affect
+very large parts of the output binaries.
+As a consequence, we had to make the change detection system smarter and more accurate.</p>
+<h2 id="improving-accuracy-the-red-green-algorithm"><a class="header" href="#improving-accuracy-the-red-green-algorithm">Improving accuracy: the red-green algorithm</a></h2>
+<p>The “false positives” problem can be solved by interleaving change detection
+and query re-evaluation.
+Instead of walking the graph all the way to the
+inputs when trying to find out if some cached result is still valid, we can
+check if a result has <em>actually</em> changed after we were forced to re-evaluate it.</p>
+<p>We call this algorithm the red-green algorithm because nodes
+in the dependency graph are assigned the color green if we were able to prove
+that its cached result is still valid and the color red if the result has
+turned out to be different after re-evaluating it.</p>
+<p>The meat of red-green change tracking is implemented in the try-mark-green
+algorithm, that, you’ve guessed it, tries to mark a given node as green:</p>
+<pre><code class="language-rust ignore">fn try_mark_green(tcx, current_node) -&gt; bool {
+
+    // Fetch the inputs to `current_node`, i.e. get the nodes that the direct
+    // edges from `node` lead to.
+    let dependencies = tcx.dep_graph.get_dependencies_of(current_node);
+
+    // Now check all the inputs for changes
+    for dependency in dependencies {
+
+        match tcx.dep_graph.get_node_color(dependency) {
+            Green =&gt; {
+                // This input has already been checked before and it has not
+                // changed; so we can go on to check the next one
+            }
+            Red =&gt; {
+                // We found an input that has changed. We cannot mark
+                // `current_node` as green without re-running the
+                // corresponding query.
+                return false
+            }
+            Unknown =&gt; {
+                // This is the first time we look at this node. Let's try
+                // to mark it green by calling try_mark_green() recursively.
+                if try_mark_green(tcx, dependency) {
+                    // We successfully marked the input as green, on to the
+                    // next.
+                } else {
+                    // We could *not* mark the input as green. This means we
+                    // don't know if its value has changed. In order to find
+                    // out, we re-run the corresponding query now!
+                    tcx.run_query_for(dependency);
+
+                    // Fetch and check the node color again. Running the query
+                    // has forced it to either red (if it yielded a different
+                    // result than we have in the cache) or green (if it
+                    // yielded the same result).
+                    match tcx.dep_graph.get_node_color(dependency) {
+                        Red =&gt; {
+                            // The input turned out to be red, so we cannot
+                            // mark `current_node` as green.
+                            return false
+                        }
+                        Green =&gt; {
+                            // Re-running the query paid off! The result is the
+                            // same as before, so this particular input does
+                            // not invalidate `current_node`.
+                        }
+                        Unknown =&gt; {
+                            // There is no way a node has no color after
+                            // re-running the query.
+                            panic!("unreachable")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // If we have gotten through the entire loop, it means that all inputs
+    // have turned out to be green. If all inputs are unchanged, it means
+    // that the query result corresponding to `current_node` cannot have
+    // changed either.
+    tcx.dep_graph.mark_green(current_node);
+
+    true
+}</code></pre>
+<blockquote>
+<p>NOTE:
+The actual implementation can be found in
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/src/rustc_middle/dep_graph/graph.rs.html"><code>compiler/rustc_middle/src/dep_graph/graph.rs</code></a></p>
+</blockquote>
+<p>By using red-green marking we can avoid the devastating cumulative effect of
+having false positives during change detection.
+Whenever a query is executed in incremental mode, we first check if its already green.
+If not, we run <code>try_mark_green()</code> on it.
+If it still isn’t green after that, then we actually
+invoke the query provider to re-compute the result.
+Re-computing the query might
+then itself involve recursively invoking more queries, which can mean we come back
+to the <code>try_mark_green()</code> algorithm for the dependencies recursively.</p>
+<h2 id="the-real-world-how-persistence-makes-everything-complicated"><a class="header" href="#the-real-world-how-persistence-makes-everything-complicated">The real world: how persistence makes everything complicated</a></h2>
+<p>The sections above described the underlying algorithm for incremental
+compilation but because the compiler process exits after being finished and
+takes the query context with its result cache with it into oblivion, we have to
+persist data to disk, so the next compilation session can make use of it.
+This comes with a whole new set of implementation challenges:</p>
+<ul>
+<li>The query result cache is stored to disk, so they are not readily available
+for change comparison.</li>
+<li>A subsequent compilation session will start off with new version of the code
+that has arbitrary changes applied to it.
+All kinds of IDs and indices that
+are generated from a global, sequential counter (e.g. <code>NodeId</code>, <code>DefId</code>, etc)
+might have shifted, making the persisted results on disk not immediately
+usable anymore because the same numeric IDs and indices might refer to
+completely new things in the new compilation session.</li>
+<li>Persisting things to disk comes at a cost, so not every tiny piece of
+information should be actually cached in between compilation sessions.
+Fixed-sized, plain-old-data is preferred to complex things that need to run
+through an expensive (de-)serialization step.</li>
+</ul>
+<p>The following sections describe how the compiler solves these issues.</p>
+<h3 id="a-question-of-stability-bridging-the-gap-between-compilation-sessions"><a class="header" href="#a-question-of-stability-bridging-the-gap-between-compilation-sessions">A Question Of Stability: Bridging The Gap Between Compilation Sessions</a></h3>
+<p>As noted before, various IDs (like <code>DefId</code>) are generated by the compiler in a
+way that depends on the contents of the source code being compiled.
+ID assignment is usually deterministic.
+That is, if the exact same code is compiled twice,
+the same things will end up with the same IDs.
+However, if something
+changes, e.g. a function is added in the middle of a file, there is no
+guarantee that anything will have the same ID as it had before.</p>
+<p>As a consequence we cannot represent the data in our on-disk cache the same
+way it is represented in memory.
+For example, if we just stored a piece
+of type information like <code>TyKind::FnDef(DefId, &amp;'tcx Substs&lt;'tcx&gt;)</code> (as we do
+in memory) and then the contained <code>DefId</code> points to a different function in
+a new compilation session we’d be in trouble.</p>
+<p>The solution to this problem is to find “stable” forms for IDs which remain
+valid in between compilation sessions.
+For the most important case, <code>DefId</code>s,
+these are the so-called <code>DefPath</code>s.
+Each <code>DefId</code> has a corresponding <code>DefPath</code>, but in place of a numeric ID, a <code>DefPath</code> is based on
+the path to the identified item, e.g. <code>std::collections::HashMap</code>. The
+advantage of an ID like this is that it is not affected by unrelated changes.
+For example, one can add a new function to <code>std::collections</code> but
+<code>std::collections::HashMap</code> would still be <code>std::collections::HashMap</code>.
+A <code>DefPath</code> is “stable” across changes made to the source code while a <code>DefId</code> isn’t.</p>
+<p>There is also the <code>DefPathHash</code> which is just a 128-bit hash value of the <code>DefPath</code>.
+The two contain the same information and we mostly use the
+<code>DefPathHash</code> because it simpler to handle, being <code>Copy</code> and self-contained.</p>
+<p>This principle of stable identifiers is used to make the data in the on-disk
+cache resilient to source code changes.
+Instead of storing a <code>DefId</code>, we store
+the <code>DefPathHash</code> and when we deserialize something from the cache, we map the
+<code>DefPathHash</code> to the corresponding <code>DefId</code> in the <em>current</em> compilation session
+(which is just a simple hash table lookup).</p>
+<p>The <code>HirId</code>, used for identifying HIR components that don’t have their own
+<code>DefId</code>, is another such stable ID.
+It is (conceptually) a pair of a <code>DefPath</code>
+and a <code>LocalId</code>, where the <code>LocalId</code> identifies something (e.g. a <code>hir::Expr</code>)
+locally within its “owner” (e.g. a <code>hir::Item</code>). If the owner is moved around,
+the <code>LocalId</code>s within it are still the same.</p>
+<h3 id="checking-query-results-for-changes-hashstable-and-fingerprints"><a class="header" href="#checking-query-results-for-changes-hashstable-and-fingerprints">Checking query results for changes: <code>HashStable</code> and <code>Fingerprint</code>s</a></h3>
+<p>In order to do red-green-marking we often need to check if the result of a
+query has changed compared to the result it had during the previous compilation session.
+There are two performance problems with this though:</p>
+<ul>
+<li>We’d like to avoid having to load the previous result from disk just for doing the comparison.
+We already computed the new result and will use that.
+Also loading a result from disk will “pollute” the interners with data that
+is unlikely to ever be used.</li>
+<li>We don’t want to store each and every result in the on-disk cache.
+For example, it would be wasted effort to persist things to disk that are
+already available in upstream crates.</li>
+</ul>
+<p>The compiler avoids these problems by using so-called <code>Fingerprint</code>s.
+Each time a new query result is computed, the query engine will compute a 128 bit hash
+value of the result.
+We call this hash value “the <code>Fingerprint</code> of the query result”.
+The hashing is (and has to be) done “in a stable way”.
+This means that whenever something is hashed that might change in between compilation
+sessions (e.g. a <code>DefId</code>), we instead hash its stable equivalent
+(e.g. the corresponding <code>DefPath</code>). That’s what the whole <code>HashStable</code>
+infrastructure is for.
+This way <code>Fingerprint</code>s computed in two different compilation sessions are still comparable.</p>
+<p>The next step is to store these fingerprints along with the dependency graph.
+This is cheap since fingerprints are just bytes to be copied.
+It’s also cheap to load the entire set of fingerprints together with the dependency graph.</p>
+<p>Now, when red-green-marking reaches the point where it needs to check if a
+result has changed, it can just compare the (already loaded) previous
+fingerprint to the fingerprint of the new result.</p>
+<p>This approach works rather well but it’s not without flaws:</p>
+<ul>
+<li>
+<p>There is a small possibility of hash collisions.
+That is, two different results could have the same fingerprint and the system would erroneously
+assume that the result hasn’t changed, leading to a missed update.</p>
+<p>We mitigate this risk by using a high-quality hash function and a 128 bit wide hash value.
+Due to these measures the practical risk of a hash collision is negligible.</p>
+</li>
+<li>
+<p>Computing fingerprints is quite costly.
+It is the main reason why incremental
+compilation can be slower than non-incremental compilation.
+We are forced to use a good and thus expensive hash function, and we have to map things to
+their stable equivalents while doing the hashing.</p>
+</li>
+</ul>
+<h3 id="a-tale-of-two-depgraphs-the-old-and-the-new"><a class="header" href="#a-tale-of-two-depgraphs-the-old-and-the-new">A tale of two <code>DepGraph</code>s: the old and the new</a></h3>
+<p>The initial description of dependency tracking glosses over a few details
+that quickly become a head scratcher when actually trying to implement things.
+In particular it’s easy to overlook that we are actually dealing with <em>two</em>
+dependency graphs: The one we built during the previous compilation session and
+the one that we are building for the current compilation session.</p>
+<p>When a compilation session starts, the compiler loads the previous dependency
+graph into memory as an immutable piece of data.
+Then, when a query is invoked,
+it will first try to mark the corresponding node in the graph as green.
+This means really that we are trying to mark the node in the <em>previous</em> dep-graph
+as green that corresponds to the query key in the <em>current</em> session.
+How do we do this mapping between current query key and previous <code>DepNode</code>?
+The answer is again <code>Fingerprint</code>s: Nodes in the dependency graph are identified by a
+fingerprint of the query key.
+Since fingerprints are stable across compilation
+sessions, computing one in the current session allows us to find a node
+in the dependency graph from the previous session.
+If we don’t find a node with
+the given fingerprint, it means that the query key refers to something that
+did not yet exist in the previous session.</p>
+<p>So, having found the dep-node in the previous dependency graph, we can look
+up its dependencies (i.e. also dep-nodes in the previous graph) and continue with
+the rest of the try-mark-green algorithm.
+The next interesting thing happens when we successfully marked the node as green.
+At that point we copy the node
+and the edges to its dependencies from the old graph into the new graph.
+We have to do this because the new dep-graph cannot acquire the
+node and edges via the regular dependency tracking.
+The tracking system can only record edges while actually running a query – but running the query,
+although we have the result already cached, is exactly what we want to avoid.</p>
+<p>Once the compilation session has finished, all the unchanged parts have been
+copied over from the old into the new dependency graph, while the changed parts
+have been added to the new graph by the tracking system.
+At this point, the new graph is serialized out to disk, alongside the query result cache, and can
+act as the previous dep-graph in a subsequent compilation session.</p>
+<h3 id="didnt-you-forget-something-cache-promotion"><a class="header" href="#didnt-you-forget-something-cache-promotion">Didn’t you forget something?: cache promotion</a></h3>
+<p>The system described so far has a somewhat subtle property: If all inputs of a
+dep-node are green then the dep-node itself can be marked as green without
+computing or loading the corresponding query result.
+Applying this property transitively often leads to the situation that some intermediate results are
+never actually loaded from disk, as in the following example:</p>
+<pre><code class="language-ignore">   input(A) &lt;-- intermediate_query(B) &lt;-- leaf_query(C)
+</code></pre>
+<p>The compiler might need the value of <code>leaf_query(C)</code> in order to generate some output artifact.
+If it can mark <code>leaf_query(C)</code> as green, it will load the result from the on-disk cache.
+The result of <code>intermediate_query(B)</code> is never loaded though.
+As a consequence, when the compiler persists the <em>new</em> result
+cache by writing all in-memory query results to disk, <code>intermediate_query(B)</code>
+will not be in memory and thus will be missing from the new result cache.</p>
+<p>If there subsequently is another compilation session that actually needs the
+result of <code>intermediate_query(B)</code> it will have to be re-computed even though we
+had a perfectly valid result for it in the cache just before.</p>
+<p>In order to prevent this from happening, the compiler does something called
+“cache promotion”: Before emitting the new result cache it will walk all green
+dep-nodes and make sure that their query result is loaded into memory.
+That way the result cache doesn’t unnecessarily shrink again.</p>
+<h1 id="incremental-compilation-and-the-compiler-backend"><a class="header" href="#incremental-compilation-and-the-compiler-backend">Incremental compilation and the compiler backend</a></h1>
+<p>The compiler backend, the part involving LLVM, is using the query system but
+it is not implemented in terms of queries itself.
+As a consequence it does not automatically partake in dependency tracking.
+However, the manual integration with the tracking system is pretty straight-forward.
+The compiler simply tracks what queries get invoked when generating the initial LLVM version of each
+codegen unit (CGU), which results in a dep-node for each CGU.
+In subsequent compilation sessions it then tries to mark the dep-node for a CGU as green.
+If it succeeds, it knows that the corresponding object and bitcode files on disk are still valid.
+If it doesn’t succeed, the entire CGU has to be recompiled.</p>
+<p>This is the same approach that is used for regular queries.
+The main differences are:</p>
+<ul>
+<li>
+<p>that we cannot easily compute a fingerprint for LLVM modules (because
+they are opaque C++ objects),</p>
+</li>
+<li>
+<p>that the logic for dealing with cached values is rather different from
+regular queries because here we have bitcode and object files instead of
+serialized Rust values in the common result cache file, and</p>
+</li>
+<li>
+<p>the operations around LLVM are so expensive in terms of computation time and
+memory consumption that we need to have tight control over what is
+executed when and what stays in memory for how long.</p>
+</li>
+</ul>
+<p>The query system could probably be extended with general purpose mechanisms to
+deal with all of the above but so far that seemed like more trouble than it would save.</p>
+<h2 id="query-modifiers"><a class="header" href="#query-modifiers">Query modifiers</a></h2>
+<p>The query system allows for applying <a href="../query.html#adding-a-new-kind-of-query">modifiers</a> to queries.
+These modifiers affect certain aspects of how the system treats the query with
+respect to incremental compilation:</p>
+<ul>
+<li>
+<p><code>eval_always</code> - A query with the <code>eval_always</code> attribute is re-executed
+unconditionally during incremental compilation.
+I.e.
+the system will not even try to mark the query’s dep-node as green.
+This attribute has two use cases:</p>
+<ul>
+<li>
+<p><code>eval_always</code> queries can read inputs (from files, global state, etc).
+They can also produce side effects like writing to files and changing global state.</p>
+</li>
+<li>
+<p>Some queries are very likely to be re-evaluated because their result
+depends on the entire source code.
+In this case <code>eval_always</code> can be used
+as an optimization because the system can skip recording dependencies in
+the first place.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><code>no_hash</code> - Applying <code>no_hash</code> to a query tells the system to not compute
+the fingerprint of the query’s result.
+This has two consequences:</p>
+<ul>
+<li>
+<p>Not computing the fingerprint can save quite a bit of time because
+fingerprinting is expensive, especially for large, complex values.</p>
+</li>
+<li>
+<p>Without the fingerprint, the system has to unconditionally assume that
+the result of the query has changed.
+As a consequence, anything depending on a <code>no_hash</code> query will always be re-executed.</p>
+</li>
+</ul>
+<p>Using <code>no_hash</code> for a query can make sense in two circumstances:</p>
+<ul>
+<li>
+<p>If the result of the query is very likely to change whenever one of its
+inputs changes, e.g. a function like <code>|a, b, c| -&gt; (a * b * c)</code>. In such
+a case recomputing the query will always yield a red node if one of the
+inputs is red so we can spare us the trouble and default to red immediately.
+A counter example would be a function like <code>|a| -&gt; (a == 42)</code> where the
+result does not change for most changes of <code>a</code>.</p>
+</li>
+<li>
+<p>If the result of a query is a big, monolithic collection (e.g. <code>index_hir</code>)
+and there are “projection queries” reading from that collection
+(e.g. <code>hir_owner</code>). In such a case the big collection will likely fulfill the
+condition above (any changed input means recomputing the whole collection)
+and the results of the projection queries will be hashed anyway.
+If we also hashed the collection query, it would mean that we effectively hash the same
+data twice: once when hashing the collection and another time when hashing all
+the projection query results.
+<code>no_hash</code> allows us to avoid that redundancy
+and the projection queries act as a “firewall”, shielding their dependents
+from the unconditionally red <code>no_hash</code> node.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><code>cache_on_disk_if</code> - This attribute is what determines which query results
+are persisted in the incremental compilation query result cache.
+The attribute takes an expression that allows per query invocation decisions.
+For example, it makes no sense to store values from upstream
+crates in the cache because they are already available in the upstream crate’s metadata.</p>
+</li>
+<li>
+<p><code>anon</code> - This attribute makes the system use “anonymous” dep-nodes for the given query.
+An anonymous dep-node is not identified by the corresponding query key.
+Instead, its ID is computed from the IDs of its dependencies.
+This allows the red-green system to do its change detection even if there is no
+query key available for a given dep-node – something which is needed for
+handling trait selection because it is not based on queries.</p>
+</li>
+</ul>
+<h2 id="the-projection-query-pattern"><a class="header" href="#the-projection-query-pattern">The projection query pattern</a></h2>
+<p>It’s interesting to note that <code>eval_always</code> and <code>no_hash</code> can be used together
+in the so-called “projection query” pattern.
+It is often the case that there is
+one query that depends on the entirety of the compiler’s input (e.g. the indexed HIR)
+and another query that projects individual values out of this monolithic value
+(e.g. a HIR item with a certain <code>DefId</code>). These projection queries allow for
+building change propagation “firewalls” because even if the result of the
+monolithic query changes (which it is very likely to do) the small projections
+can still mostly be marked as green.</p>
+<pre><code class="language-ignore">  +------------+
+  |            |           +---------------+           +--------+
+  |            | &lt;---------| projection(x) | &lt;---------| foo(a) |
+  |            |           +---------------+           +--------+
+  |            |
+  | monolithic |           +---------------+           +--------+
+  |   query    | &lt;---------| projection(y) | &lt;---------| bar(b) |
+  |            |           +---------------+           +--------+
+  |            |
+  |            |           +---------------+           +--------+
+  |            | &lt;---------| projection(z) | &lt;---------| baz(c) |
+  |            |           +---------------+           +--------+
+  +------------+
+</code></pre>
+<p>Let’s assume that the result <code>monolithic_query</code> changes so that also the result
+of <code>projection(x)</code> has changed, i.e. both their dep-nodes are being marked as
+red.
+As a consequence, <code>foo(a)</code> needs to be re-executed; but <code>bar(b)</code> and <code>baz(c)</code> can be marked as green.
+However, if <code>foo</code>, <code>bar</code>, and <code>baz</code> would have
+directly depended on <code>monolithic_query</code> then all of them would have had to be re-evaluated.</p>
+<p>This pattern works even without <code>eval_always</code> and <code>no_hash</code> but the two
+modifiers can be used to avoid unnecessary overhead.
+If the monolithic query
+is likely to change at any minor modification of the compiler’s input it makes
+sense to mark it as <code>eval_always</code>, thus getting rid of its dependency tracking cost.
+And it always makes sense to mark the monolithic query as <code>no_hash</code>
+because we have the projections to take care of keeping things green as much as possible.</p>
+<h1 id="shortcomings-of-the-current-system"><a class="header" href="#shortcomings-of-the-current-system">Shortcomings of the current system</a></h1>
+<p>There are many things that still can be improved.</p>
+<h2 id="incrementality-of-on-disk-data-structures"><a class="header" href="#incrementality-of-on-disk-data-structures">Incrementality of on-disk data structures</a></h2>
+<p>The current system is not able to update on-disk caches and the dependency graph in-place.
+Instead, it has to rewrite each file entirely in each compilation session.
+The overhead of doing so is a few percent of total compilation time.</p>
+<h2 id="unnecessary-data-dependencies"><a class="header" href="#unnecessary-data-dependencies">Unnecessary data dependencies</a></h2>
+<p>Data structures used as query results could be factored in a way that removes
+edges from the dependency graph.
+Especially “span” information is very volatile,
+so including it in query result will increase the chance that the result won’t be reusable.
+See <a href="https://github.com/rust-lang/rust/issues/47389">https://github.com/rust-lang/rust/issues/47389</a> for more information.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../queries/incremental-compilation.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../incrcomp-debugging.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../queries/incremental-compilation.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../incrcomp-debugging.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../mermaid-cc85ecea.min.js"></script>
+        <script src="../mermaid-init-4533fb11.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

@@ -1,0 +1,880 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Compiletest - Rust Compiler Development Guide</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A guide to developing the Rust compiler (rustc)">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex-5b8627da.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-1a3501b2.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Compiler Development Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide/edit/main/src/tests/compiletest.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="compiletest"><a class="header" href="#compiletest">Compiletest</a></h1>
+<h2 id="introduction"><a class="header" href="#introduction">Introduction</a></h2>
+<p><code>compiletest</code> is the main test harness of the Rust test suite.
+It allows test authors to organize large numbers of tests (the Rust compiler has many
+thousands), efficient test execution (parallel execution is supported), and
+allows the test author to configure behavior and expected results of both
+individual and groups of tests.</p>
+<blockquote>
+<p><strong>Note for macOS users</strong></p>
+<p>For macOS users, <code>SIP</code> (System Integrity Protection) <a href="https://rust-lang.zulipchat.com/#narrow/stream/182449-t-compiler.2Fhelp/topic/.E2.9C.94.20Is.20there.20any.20performance.20issue.20for.20MacOS.3F">may consistently check
+the compiled binary by sending network requests to Apple</a>, so you may
+get a huge performance degradation when running tests.</p>
+<p>You can resolve it by tweaking the following settings: <code>Privacy &amp; Security -&gt; Developer Tools -&gt; Add Terminal (Or VsCode, etc.)</code>.</p>
+</blockquote>
+<p><code>compiletest</code> may check test code for compile-time or run-time success/failure.</p>
+<p>Tests are typically organized as a Rust source file with annotations in comments
+before and/or within the test code.
+These comments serve to direct <code>compiletest</code>
+on if or how to run the test, what behavior to expect, and more.
+See <a href="directives.html">directives</a> and the test suite documentation below for more details
+on these annotations.</p>
+<p>See the <a href="adding.html">Adding new tests</a> and <a href="best-practices.html">Best practices</a>
+chapters for a tutorial on creating a new test and advice on writing a good
+test, and the <a href="running.html">Running tests</a> chapter on how to run the test suite.</p>
+<p>Arguments can be passed to compiletest using <code>--test-args</code> or by placing them after <code>--</code>, e.g.</p>
+<ul>
+<li><code>x test --test-args --force-rerun</code></li>
+<li><code>x test -- --force-rerun</code></li>
+</ul>
+<p>Additionally, bootstrap accepts several common arguments directly, e.g.</p>
+<p><code>x test --no-capture --force-rerun --run --pass</code>.</p>
+<p>Compiletest itself tries to avoid running tests when the artifacts that are
+involved (mainly the compiler) haven’t changed.
+You can use <code>x test --test-args --force-rerun</code> to rerun a test even when none of the inputs have changed.</p>
+<h2 id="test-suites"><a class="header" href="#test-suites">Test suites</a></h2>
+<p>All of the tests are in the <a href="https://github.com/rust-lang/rust/blob/HEAD/tests"><code>tests</code></a> directory.
+The tests are organized into “suites”, with each suite in a separate subdirectory.
+Each test suite behaves a
+little differently, with different compiler behavior and different checks for correctness.
+For example, the <a href="https://github.com/rust-lang/rust/tree/7b42543/tests/incremental"><code>tests/incremental</code></a> directory contains tests for incremental compilation.
+The various suites are defined in
+<a href="https://github.com/rust-lang/rust/tree/HEAD/src/tools/compiletest/src/common.rs"><code>src/tools/compiletest/src/common.rs</code></a> in the <code>pub enum Mode</code> declaration.</p>
+<p>The following test suites are available, with links for more information:</p>
+<h3 id="compiler-specific-test-suites"><a class="header" href="#compiler-specific-test-suites">Compiler-specific test suites</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Test suite</th><th>Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="ui.html"><code>ui</code></a></td><td>Check the stdout/stderr snapshots from the compilation and/or running the resulting executable</td></tr>
+<tr><td><code>ui-fulldeps</code></td><td><code>ui</code> tests which require a linkable build of <code>rustc</code> (such as using <code>extern crate rustc_span;</code> or used as a plugin)</td></tr>
+<tr><td><a href="#pretty-printer-tests"><code>pretty</code></a></td><td>Check pretty printing</td></tr>
+<tr><td><a href="#incremental-tests"><code>incremental</code></a></td><td>Check incremental compilation behavior</td></tr>
+<tr><td><a href="#debuginfo-tests"><code>debuginfo</code></a></td><td>Check debuginfo generation running debuggers</td></tr>
+<tr><td><a href="#codegen-tests"><code>codegen-*</code></a></td><td>Check code generation</td></tr>
+<tr><td><a href="#codegen-units-tests"><code>codegen-units</code></a></td><td>Check codegen unit partitioning</td></tr>
+<tr><td><a href="#assembly-tests"><code>assembly</code></a></td><td>Check assembly output</td></tr>
+<tr><td><a href="#mir-opt-tests"><code>mir-opt</code></a></td><td>Check MIR generation and optimizations</td></tr>
+<tr><td><a href="#coverage-tests"><code>coverage</code></a></td><td>Check coverage instrumentation</td></tr>
+<tr><td><a href="#coverage-tests"><code>coverage-run-rustdoc</code></a></td><td><code>coverage</code> tests that also run instrumented doctests</td></tr>
+<tr><td><a href="#crash-tests"><code>crashes</code></a></td><td>Check that the compiler ICEs/panics/crashes on certain inputs to catch accidental fixes</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="general-purpose-test-suite"><a class="header" href="#general-purpose-test-suite">General purpose test suite</a></h3>
+<p><a href="#run-make-tests"><code>run-make</code></a> are general purpose tests using Rust programs.</p>
+<h3 id="the-build-std-test-suite"><a class="header" href="#the-build-std-test-suite">The build-std test suite</a></h3>
+<p><a href="#build-std-tests"><code>build-std</code></a> tests that -Zbuild-std works.</p>
+<h3 id="rustdoc-test-suites"><a class="header" href="#rustdoc-test-suites">Rustdoc test suites</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Test suite</th><th>Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="../rustdoc-internals/rustdoc-html-test-suite.html"><code>rustdoc-html</code></a></td><td>Check HTML output of <code>rustdoc</code></td></tr>
+<tr><td><a href="../rustdoc-internals/rustdoc-gui-test-suite.html"><code>rustdoc-gui</code></a></td><td>Check <code>rustdoc</code>’s GUI using a web browser</td></tr>
+<tr><td><a href="../rustdoc-internals/search.html#testing-the-search-engine"><code>rustdoc-js</code></a></td><td>Check <code>rustdoc</code>’s search engine and index</td></tr>
+<tr><td><a href="../rustdoc-internals/search.html#testing-the-search-engine"><code>rustdoc-js-std</code></a></td><td>Check <code>rustdoc</code>’s search engine and index on the std library docs</td></tr>
+<tr><td><a href="../rustdoc-internals/rustdoc-json-test-suite.html"><code>rustdoc-json</code></a></td><td>Check JSON output of <code>rustdoc</code></td></tr>
+<tr><td><code>rustdoc-ui</code></td><td>Check terminal output of <code>rustdoc</code> (<a href="ui.html">see also</a>)</td></tr>
+</tbody>
+</table>
+</div>
+<p>Some rustdoc-specific tests can also be found in <code>ui/rustdoc/</code>.
+These tests ensure that certain lints that are emitted as part of executing rustdoc
+are also run when executing rustc.
+Run-make tests pertaining to rustdoc are typically named <code>run-make/rustdoc-*/</code>.</p>
+<h3 id="pretty-printer-tests"><a class="header" href="#pretty-printer-tests">Pretty-printer tests</a></h3>
+<p>The tests in <a href="https://github.com/rust-lang/rust/tree/HEAD/tests/pretty"><code>tests/pretty</code></a> exercise the “pretty-printing” functionality of <code>rustc</code>.
+The <code>-Z unpretty</code> CLI option for <code>rustc</code> causes it to translate the
+input source into various different formats, such as the Rust source after macro expansion.</p>
+<p>The pretty-printer tests have several <a href="directives.html">directives</a> described below.
+These commands can significantly change the behavior of the test, but the
+default behavior without any commands is to:</p>
+<ol>
+<li>Run <code>rustc -Zunpretty=normal</code> on the source file.</li>
+<li>Run <code>rustc -Zunpretty=normal</code> on the output of the previous step.</li>
+<li>The output of the previous two steps should be the same.</li>
+<li>Run <code>rustc -Zno-codegen</code> on the output to make sure that it can type check
+(similar to <code>cargo check</code>).</li>
+</ol>
+<p>If any of the commands above fail, then the test fails.</p>
+<p>The directives for pretty-printing tests are:</p>
+<ul>
+<li><code>pretty-mode</code> specifies the mode pretty-print tests should run in (that is,
+the argument to <code>-Zunpretty</code>).
+The default is <code>normal</code> if not specified.</li>
+<li><code>pretty-compare-only</code> causes a pretty test to only compare the pretty-printed
+output (stopping after step 3 from above).
+It will not try to compile the expanded output to type check it.
+This is needed for a pretty-mode that does
+not expand to valid Rust, or for other situations where the expanded output cannot be compiled.</li>
+<li><code>pp-exact</code> is used to ensure a pretty-print test results in specific output.
+If specified without a value, then it means the pretty-print output should
+match the original source.
+If specified with a value, as in <code>//@ pp-exact:foo.pp</code>, it will ensure that the pretty-printed output matches the
+contents of the given file.
+Otherwise, if <code>pp-exact</code> is not specified, then
+the pretty-printed output will be pretty-printed one more time, and the output
+of the two pretty-printing rounds will be compared to ensure that the
+pretty-printed output converges to a steady state.</li>
+</ul>
+<h3 id="incremental-tests"><a class="header" href="#incremental-tests">Incremental tests</a></h3>
+<p>The tests in <a href="https://github.com/rust-lang/rust/tree/7b42543/tests/incremental"><code>tests/incremental</code></a> exercise incremental compilation.
+They use <a href="#revisions"><code>revisions</code> directive</a> to tell compiletest to run the compiler in a
+series of steps.</p>
+<p>Compiletest starts with an empty directory with the <code>-C incremental</code> flag, and
+then runs the compiler for each revision, reusing the incremental results from previous steps.</p>
+<p>The revisions should start with:</p>
+<ul>
+<li><code>rpass</code> — the test should compile and run successfully</li>
+<li><code>rfail</code> — the test should compile successfully, but the executable should fail to run</li>
+<li><code>cfail</code> — the test should fail to compile</li>
+</ul>
+<p>To make the revisions unique, you should add a suffix like <code>rpass1</code> and <code>rpass2</code>.</p>
+<p>To simulate changing the source, compiletest also passes a <code>--cfg</code> flag with the
+current revision name.</p>
+<p>For example, this will run twice, simulating changing a function:</p>
+<pre><code class="language-rust ignore">//@ revisions: rpass1 rpass2
+
+#[cfg(rpass1)]
+fn foo() {
+    println!("one");
+}
+
+#[cfg(rpass2)]
+fn foo() {
+    println!("two");
+}
+
+fn main() { foo(); }</code></pre>
+<p><code>cfail</code> tests support the <code>forbid-output</code> directive to specify that a certain
+substring must not appear anywhere in the compiler output.
+This can be useful to ensure certain errors do not appear, but this can be fragile as error messages
+change over time, and a test may no longer be checking the right thing but will still pass.</p>
+<p><code>cfail</code> tests support the <code>should-ice</code> directive to specify that a test should
+cause an Internal Compiler Error (ICE).
+This is a highly specialized directive
+to check that the incremental cache continues to work after an ICE.</p>
+<p>Incremental tests may use the attribute <code>#[rustc_clean(...)]</code> attribute.
+This attribute compares the fingerprint from the current compilation session with the previous one.
+The first revision should never have an active <code>rustc_clean</code> attribute, since it will always be dirty.</p>
+<p>In the default mode, it asserts that the fingerprints must be the same.
+The attribute takes the following arguments:</p>
+<ul>
+<li><code>cfg="&lt;cond&gt;"</code> — checks the cfg condition <code>&lt;cond&gt;</code>, and only runs the check if the config condition evaluates to true.
+This can be used to only run the <code>rustc_clean</code> attribute in a specific revision.</li>
+<li><code>except="&lt;query1&gt;,&lt;query2&gt;,..."</code> — asserts that the query results for the listed queries must be different,
+rather than the same.</li>
+<li><code>loaded_from_disk="&lt;query1&gt;,&lt;query2&gt;,..."</code> — asserts that the query results for the listed queries
+were actually loaded from disk (not just marked green).
+This can be useful to ensure that a test is actually exercising the deserialization
+logic for a particular query result.
+This can be combined with <code>except</code>.</li>
+</ul>
+<p>A simple example of a test using <code>rustc_clean</code> is the <a href="https://github.com/rust-lang/rust/blob/646a3f8c15baefb98dc6e0c1c1ba3356db702d2a/tests/incremental/hello_world.rs">hello_world test</a>.</p>
+<h3 id="debuginfo-tests"><a class="header" href="#debuginfo-tests">Debuginfo tests</a></h3>
+<p>The tests in <a href="https://github.com/rust-lang/rust/tree/HEAD/tests/debuginfo"><code>tests/debuginfo</code></a> test debuginfo generation.
+They build a program, launch a debugger, and issue commands to the debugger.
+A single test can work with cdb, gdb, and lldb.</p>
+<p>Most tests should have the <code>//@ compile-flags: -g</code> directive or something
+similar to generate the appropriate debuginfo.</p>
+<p>To set a breakpoint on a line, add a <code>// #break</code> comment on the line.</p>
+<p>The debuginfo tests consist of a series of debugger commands along with
+“check” lines which specify output that is expected from the debugger.</p>
+<p>The commands are comments of the form <code>// $DEBUGGER-command:$COMMAND</code> where
+<code>$DEBUGGER</code> is the debugger being used and <code>$COMMAND</code> is the debugger command to execute.</p>
+<p>The debugger values can be:</p>
+<ul>
+<li><code>cdb</code></li>
+<li><code>gdb</code></li>
+<li><code>gdbg</code> — GDB without Rust support (versions older than 7.11)</li>
+<li><code>gdbr</code> — GDB with Rust support</li>
+<li><code>lldb</code></li>
+<li><code>lldbg</code> — LLDB without Rust support</li>
+<li><code>lldbr</code> — LLDB with Rust support (this no longer exists)</li>
+</ul>
+<p>The command to check the output are of the form <code>// $DEBUGGER-check:$OUTPUT</code>
+where <code>$OUTPUT</code> is the output to expect.</p>
+<p>For example, the following will build the test, start the debugger, set a
+breakpoint, launch the program, inspect a value, and check what the debugger prints:</p>
+<pre><code class="language-rust ignore">//@ compile-flags: -g
+
+//@ lldb-command: run
+//@ lldb-command: print foo
+//@ lldb-check: $0 = 123
+
+fn main() {
+    let foo = 123;
+    b(); // #break
+}
+
+fn b() {}</code></pre>
+<p>The following <a href="directives.html">directives</a> are available to disable a test based on
+the debugger currently being used:</p>
+<ul>
+<li><code>min-cdb-version: 10.0.18317.1001</code> — ignores the test if the version of cdb
+is below the given version</li>
+<li><code>min-gdb-version: 8.2</code> — ignores the test if the version of gdb is below the given version</li>
+<li><code>ignore-gdb-version: 9.2</code> — ignores the test if the version of gdb is equal
+to the given version</li>
+<li><code>ignore-gdb-version: 7.11.90 - 8.0.9</code> — ignores the test if the version of
+gdb is in a range (inclusive)</li>
+<li><code>min-lldb-version: 310</code> — ignores the test if the version of lldb is below the given version</li>
+<li><code>rust-lldb</code> — ignores the test if lldb is not contain the Rust plugin.
+NOTE: The “Rust” version of LLDB doesn’t exist anymore, so this will always be ignored.
+This should probably be removed.</li>
+</ul>
+<p>By passing the <code>--debugger</code> option to compiletest, you can specify a single debugger to run tests with.
+For example, <code>./x test tests/debuginfo -- --debugger gdb</code> will only test GDB commands.</p>
+<blockquote>
+<p><strong>Note on running lldb debuginfo tests locally</strong></p>
+<p>If you want to run lldb debuginfo tests locally, then currently on Windows it
+is required that:</p>
+<ul>
+<li>You have Python 3.10 installed.</li>
+<li>You have <code>python310.dll</code> available in your <code>PATH</code> env var. This is not
+provided by the standard Python installer you obtain from <code>python.org</code>; you
+need to add this to <code>PATH</code> manually.</li>
+</ul>
+<p>Otherwise the lldb debuginfo tests can produce crashes in mysterious ways.</p>
+</blockquote>
+<blockquote>
+<p><strong>Note on acquiring <code>cdb.exe</code> on Windows 11</strong></p>
+<p><code>cdb.exe</code> is acquired alongside a suitable “Windows 11 SDK” which is part of
+the “Desktop Development with C++” workload profile in a Visual Studio
+installer (e.g. Visual Studio 2022 installer).</p>
+<p><strong>HOWEVER</strong> this is not sufficient by default alone. If you need <code>cdb.exe</code>,
+you must go to Installed Apps, find the newest “Windows Software Development
+Kit” (and yes, this can still say <code>Windows 10.0.22161.3233</code> even though the OS
+is called Windows 11). You must then click “Modify” -&gt; “Change” and then
+selected “Debugging Tools for Windows” in order to acquire <code>cdb.exe</code>.</p>
+</blockquote>
+<h3 id="codegen-tests"><a class="header" href="#codegen-tests">Codegen tests</a></h3>
+<p>The tests in <a href="https://github.com/rust-lang/rust/tree/HEAD/tests/codegen-llvm"><code>tests/codegen-llvm</code></a> test LLVM code generation.
+They compile the test with the <code>--emit=llvm-ir</code> flag to emit LLVM IR.
+They then run the LLVM <a href="https://llvm.org/docs/CommandGuide/FileCheck.html">FileCheck</a> tool.
+The test is annotated with various <code>// CHECK</code> comments to check the generated code.
+See the <a href="https://llvm.org/docs/CommandGuide/FileCheck.html">FileCheck</a> documentation for a tutorial and more information.</p>
+<p>See also the <a href="#assembly-tests">assembly tests</a> for a similar set of tests.</p>
+<p>By default, codegen tests will have <code>//@ needs-target-std</code> <em>implied</em> (that the
+target needs to support std), <em>unless</em> the <code>#![no_std]</code>/<code>#![no_core]</code> attribute
+was specified in the test source.
+You can override this behavior and explicitly
+write <code>//@ needs-target-std</code> to only run the test when target supports std, even
+if the test is <code>#![no_std]</code>/<code>#![no_core]</code>.</p>
+<p>If you need to work with <code>#![no_std]</code> cross-compiling tests, consult the
+<a href="./minicore.html"><code>minicore</code> test auxiliary</a> chapter.</p>
+<h3 id="assembly-tests"><a class="header" href="#assembly-tests">Assembly tests</a></h3>
+<p>The tests in <a href="https://github.com/rust-lang/rust/tree/HEAD/tests/assembly-llvm"><code>tests/assembly-llvm</code></a> test LLVM assembly output.
+They compile the test with the <code>--emit=asm</code> flag to emit a <code>.s</code> file with the assembly output.
+They then run the LLVM <a href="https://llvm.org/docs/CommandGuide/FileCheck.html">FileCheck</a> tool.</p>
+<p>Each test should be annotated with the <code>//@ assembly-output:</code> directive with a
+value of either <code>emit-asm</code> or <code>ptx-linker</code> to indicate the type of assembly output.</p>
+<p>Then, they should be annotated with various <code>// CHECK</code> comments to check the assembly output.
+See the <a href="https://llvm.org/docs/CommandGuide/FileCheck.html">FileCheck</a> documentation for a tutorial and more information.</p>
+<p>See also the <a href="#codegen-tests">codegen tests</a> for a similar set of tests.</p>
+<p>If you need to work with <code>#![no_std]</code> cross-compiling tests, consult the
+<a href="./minicore.html"><code>minicore</code> test auxiliary</a> chapter.</p>
+<h3 id="codegen-units-tests"><a class="header" href="#codegen-units-tests">Codegen-units tests</a></h3>
+<p>The tests in <a href="https://github.com/rust-lang/rust/tree/HEAD/tests/codegen-units"><code>tests/codegen-units</code></a> test the
+<a href="../backend/monomorph.html">monomorphization</a> collector and CGU partitioning.</p>
+<p>These tests work by running <code>rustc</code> with a flag to print the result of the
+monomorphization collection pass, i.e., <code>-Zprint-mono-items</code>, and then special
+annotations in the file are used to compare against that.</p>
+<p>Then, the test should be annotated with comments of the form <code>//~ MONO_ITEM name</code> where <code>name</code> is the monomorphized string printed by rustc like <code>fn &lt;u32 as Trait&gt;::foo</code>.</p>
+<p>To check for CGU partitioning, a comment of the form <code>//~ MONO_ITEM name @@ cgu</code>
+where <code>cgu</code> is a space separated list of the CGU names and the linkage information in brackets.
+For example: <code>//~ MONO_ITEM static function::FOO @@ statics[Internal]</code></p>
+<h3 id="mir-opt-tests"><a class="header" href="#mir-opt-tests">Mir-opt tests</a></h3>
+<p>The tests in <a href="https://github.com/rust-lang/rust/tree/HEAD/tests/mir-opt"><code>tests/mir-opt</code></a> check parts of the generated MIR to make sure it
+is generated correctly and is doing the expected optimizations.
+Check out the <a href="../mir/optimizations.html">MIR Optimizations</a> chapter for more.</p>
+<p>Compiletest will build the test with several flags to dump the MIR output and
+set a baseline for optimizations:</p>
+<ul>
+<li><code>-Copt-level=1</code></li>
+<li><code>-Zdump-mir=all</code></li>
+<li><code>-Zmir-opt-level=4</code></li>
+<li><code>-Zvalidate-mir</code></li>
+<li><code>-Zdump-mir-exclude-pass-number</code></li>
+</ul>
+<p>The test should be annotated with <code>// EMIT_MIR</code> comments that specify files that
+will contain the expected MIR output.
+You can use <code>x test --bless</code> to create the initial expected files.</p>
+<p>There are several forms the <code>EMIT_MIR</code> comment can take:</p>
+<ul>
+<li>
+<p><code>// EMIT_MIR $MIR_PATH.mir</code> — This will check that the given filename matches
+the exact output from the MIR dump.
+For example,
+<code>my_test.main.SimplifyCfg-elaborate-drops.after.mir</code> will load that file from
+the test directory, and compare it against the dump from rustc.</p>
+<p>Checking the “after” file (which is after optimization) is useful if you are
+interested in the final state after an optimization.
+Some rare cases may want to use the “before” file for completeness.</p>
+</li>
+<li>
+<p><code>// EMIT_MIR $MIR_PATH.diff</code> — where <code>$MIR_PATH</code> is the filename of the MIR
+dump, such as <code>my_test_name.my_function.EarlyOtherwiseBranch</code>.
+Compiletest will diff the <code>.before.mir</code> and <code>.after.mir</code> files, and compare the diff
+output to the expected <code>.diff</code> file from the <code>EMIT_MIR</code> comment.</p>
+<p>This is useful if you want to see how an optimization changes the MIR.</p>
+</li>
+<li>
+<p><code>// EMIT_MIR $MIR_PATH.dot</code> — When using specific flags that dump additional
+MIR data (e.g. <code>-Z dump-mir-graphviz</code> to produce <code>.dot</code> files), this will
+check that the output matches the given file.</p>
+</li>
+</ul>
+<p>By default 32 bit and 64 bit targets use the same dump files, which can be
+problematic in the presence of pointers in constants or other bit width dependent things.
+In that case you can add <code>// EMIT_MIR_FOR_EACH_BIT_WIDTH</code> to
+your test, causing separate files to be generated for 32bit and 64bit systems.</p>
+<h3 id="run-make-tests"><a class="header" href="#run-make-tests"><code>run-make</code> tests</a></h3>
+<p>The tests in <a href="https://github.com/rust-lang/rust/tree/HEAD/tests/run-make"><code>tests/run-make</code></a> and <a href="https://github.com/rust-lang/rust/tree/HEAD/tests/run-make-cargo"><code>tests/run-make-cargo</code></a> are general-purpose
+tests using Rust <em>recipes</em>, which are small programs (<code>rmake.rs</code>) allowing
+arbitrary Rust code such as <code>rustc</code> invocations, and is supported by a <a href="https://github.com/rust-lang/rust/tree/HEAD/src/tools/run-make-support"><code>run_make_support</code></a> library.
+Using Rust recipes provide the ultimate in flexibility.</p>
+<p><code>run-make</code> tests should be used if no other test suites better suit your needs.</p>
+<p>The <code>run-make-cargo</code> test suite additionally builds an in-tree <code>cargo</code> to support
+use cases that require testing in-tree <code>cargo</code> in conjunction with in-tree <code>rustc</code>.
+The <code>run-make</code> test suite does not have access to in-tree <code>cargo</code> (so it can be the
+faster-to-iterate test suite).</p>
+<h3 id="build-std-tests"><a class="header" href="#build-std-tests"><code>build-std</code> tests</a></h3>
+<p>The tests in <a href="https://github.com/rust-lang/rust/tree/HEAD/tests/build-std"><code>tests/build-std</code></a> check that <code>-Zbuild-std</code> works.
+This is currently just a run-make test suite with a single recipe.
+The recipe generates test cases and runs them in parallel.</p>
+<h4 id="using-rust-recipes"><a class="header" href="#using-rust-recipes">Using Rust recipes</a></h4>
+<p>Each test should be in a separate directory with a <code>rmake.rs</code> Rust program,
+called the <em>recipe</em>. A recipe will be compiled and executed by compiletest with
+the <code>run_make_support</code> library linked in.</p>
+<p>If you need new utilities or functionality, consider extending and improving the
+<a href="https://github.com/rust-lang/rust/tree/HEAD/src/tools/run-make-support"><code>run_make_support</code></a> library.</p>
+<p>Compiletest directives like <code>//@ only-&lt;target&gt;</code> or <code>//@ ignore-&lt;target&gt;</code> are
+supported in <code>rmake.rs</code>, like in UI tests.
+However, revisions or building auxiliary via directives are not currently supported.</p>
+<p><code>rmake.rs</code> and <code>run-make-support</code> may <em>not</em> use any nightly/unstable features,
+as they must be compilable by a stage 0 rustc that may be a beta or even stable rustc.</p>
+<h4 id="quickly-check-if-rmakers-tests-can-be-compiled"><a class="header" href="#quickly-check-if-rmakers-tests-can-be-compiled">Quickly check if <code>rmake.rs</code> tests can be compiled</a></h4>
+<p>You can quickly check if <code>rmake.rs</code> tests can be compiled without having to
+build stage1 rustc by forcing <code>rmake.rs</code> to be compiled with the stage0 compiler:</p>
+<pre><code class="language-bash">$ COMPILETEST_FORCE_STAGE0=1 x test --stage 0 tests/run-make/&lt;test-name&gt;
+</code></pre>
+<p>Of course, some tests will not successfully <em>run</em> in this way.</p>
+<h4 id="using-rust-analyzer-with-rmakers"><a class="header" href="#using-rust-analyzer-with-rmakers">Using rust-analyzer with <code>rmake.rs</code></a></h4>
+<p>Like other test programs, the <code>rmake.rs</code> scripts used by run-make tests do not
+have rust-analyzer integration by default.</p>
+<p>To work around this when working on a particular test, temporarily create a
+<code>Cargo.toml</code> file in the test’s directory
+(e.g. <code>tests/run-make/sysroot-crates-are-unstable/Cargo.toml</code>)
+with these contents:</p>
+<div class="warning">
+<p>Be careful not to add this <code>Cargo.toml</code> or its <code>Cargo.lock</code> to your actual PR!</p>
+</div>
+
+<pre><code class="language-toml"># Convince cargo that this isn't part of an enclosing workspace.
+[workspace]
+
+[package]
+name = "rmake"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+run_make_support = { path = "../../../src/tools/run-make-support" }
+
+[[bin]]
+name = "rmake"
+path = "rmake.rs"
+</code></pre>
+<p>Then add a corresponding entry to <code>"rust-analyzer.linkedProjects"</code>
+(e.g. in <code>.vscode/settings.json</code>):</p>
+<pre><code class="language-json">"rust-analyzer.linkedProjects": [
+  "tests/run-make/sysroot-crates-are-unstable/Cargo.toml"
+],
+</code></pre>
+<h3 id="coverage-tests"><a class="header" href="#coverage-tests">Coverage tests</a></h3>
+<p>The tests in <a href="https://github.com/rust-lang/rust/tree/HEAD/tests/coverage"><code>tests/coverage</code></a> are shared by multiple test modes that test
+coverage instrumentation in different ways.
+Running the <code>coverage</code> test suite
+will automatically run each test in all of the different coverage modes.</p>
+<p>Each mode also has an alias to run the coverage tests in just that mode:</p>
+<pre><code class="language-bash">./x test coverage # runs all of tests/coverage in all coverage modes
+./x test tests/coverage # same as above
+
+./x test tests/coverage/if.rs # runs the specified test in all coverage modes
+
+./x test coverage-map # runs all of tests/coverage in "coverage-map" mode only
+./x test coverage-run # runs all of tests/coverage in "coverage-run" mode only
+
+./x test coverage-map -- tests/coverage/if.rs # runs the specified test in "coverage-map" mode only
+</code></pre>
+<p>If a particular test should not be run in one of the coverage test modes for
+some reason, use the <code>//@ ignore-coverage-map</code> or <code>//@ ignore-coverage-run</code> directives.</p>
+<h4 id="coverage-map-suite"><a class="header" href="#coverage-map-suite"><code>coverage-map</code> suite</a></h4>
+<p>In <code>coverage-map</code> mode, these tests verify the mappings between source code
+regions and coverage counters that are emitted by LLVM.
+They compile the test with <code>--emit=llvm-ir</code>, then use a custom tool (<a href="https://github.com/rust-lang/rust/tree/HEAD/src/tools/coverage-dump"><code>src/tools/coverage-dump</code></a>) to
+extract and pretty-print the coverage mappings embedded in the IR.
+These tests don’t require the profiler runtime, so they run in PR CI jobs and are easy to
+run/bless locally.</p>
+<p>These coverage map tests can be sensitive to changes in MIR lowering or MIR
+optimizations, producing mappings that are different but produce identical coverage reports.</p>
+<p>As a rule of thumb, any PR that doesn’t change coverage-specific code should
+<strong>feel free to re-bless</strong> the <code>coverage-map</code> tests as necessary, without
+worrying about the actual changes, as long as the <code>coverage-run</code> tests still pass.</p>
+<h4 id="coverage-run-suite"><a class="header" href="#coverage-run-suite"><code>coverage-run</code> suite</a></h4>
+<p>In <code>coverage-run</code> mode, these tests perform an end-to-end test of coverage reporting.
+They compile a test program with coverage instrumentation, run that
+program to produce raw coverage data, and then use LLVM tools to process that
+data into a human-readable code coverage report.</p>
+<p>Instrumented binaries need to be linked against the LLVM profiler runtime, so
+<code>coverage-run</code> tests are <strong>automatically skipped</strong> unless the profiler runtime
+is enabled in <code>bootstrap.toml</code>:</p>
+<pre><code class="language-toml">build.profiler = true
+</code></pre>
+<p>This also means that they typically don’t run in PR CI jobs, though they do run
+as part of the full set of CI jobs used for merging.</p>
+<h4 id="coverage-run-rustdoc-suite"><a class="header" href="#coverage-run-rustdoc-suite"><code>coverage-run-rustdoc</code> suite</a></h4>
+<p>The tests in <a href="https://github.com/rust-lang/rust/tree/HEAD/tests/coverage-run-rustdoc"><code>tests/coverage-run-rustdoc</code></a> also run instrumented doctests and
+include them in the coverage report.
+This avoids having to build rustdoc when only running the main <code>coverage</code> suite.</p>
+<h3 id="crash-tests"><a class="header" href="#crash-tests">Crash tests</a></h3>
+<p><a href="https://github.com/rust-lang/rust/tree/HEAD/tests/crashes"><code>tests/crashes</code></a> serve as a collection of tests that are expected to cause the
+compiler to ICE, panic or crash in some other way, so that accidental fixes are tracked.
+Formerly, this was done at <a href="https://github.com/rust-lang/glacier">https://github.com/rust-lang/glacier</a> but
+doing it inside the rust-lang/rust testsuite is more convenient.</p>
+<p>It is imperative that a test in the suite causes rustc to ICE, panic, or crash in some other way.
+A test will “pass” if rustc exits with an exit status other than 1 or 0.</p>
+<p>If you want to see verbose stdout/stderr, you need to set
+<code>COMPILETEST_VERBOSE_CRASHES=1</code>, e.g.</p>
+<pre><code class="language-bash">$ COMPILETEST_VERBOSE_CRASHES=1 ./x test tests/crashes/999999.rs --stage 1
+</code></pre>
+<p>Anyone can add <a href="https://github.com/rust-lang/rust/issues?q=is%3Aissue+state%3Aopen+label%3AI-ICE%2CI-crash+label%3AT-compiler+label%3AS-has-mcve+-label%3AS-bug-has-test">“untracked” crashes</a> from the issue tracker.
+It’s strongly recommended to include test cases from several issues in a single PR.
+When you do so, each issue number should be noted in the file name (<code>12345.rs</code>
+should suffice) and also inside the file by means of a <code>//@ known-bug: #12345</code> directive.
+Please <a href="https://forge.rust-lang.org/release/issue-triaging.html#applying-and-removing-labels">label</a> the relevant issues with <code>S-bug-has-test</code> once your PR is merged.</p>
+<p>If you happen to fix one of the crashes, please move it to a fitting
+subdirectory in <code>tests/ui</code> and give it a meaningful name.
+Please add a doc comment at the top of the file explaining why this test exists.
+Even better will be if you can briefly explain how the example caused rustc to crash previously,
+and what was done to fix it.</p>
+<p>Adding</p>
+<pre><code class="language-text">Fixes #NNNNN
+Fixes #MMMMM
+</code></pre>
+<p>to the description of your pull request will ensure the corresponding tickets be closed
+automatically upon merge.</p>
+<p>Make sure that your fix actually fixes the root cause of the issue and not just a subset first.
+The issue numbers can be found in the file name or the <code>//@ known-bug</code> directive inside the test file.</p>
+<h2 id="building-auxiliary-crates"><a class="header" href="#building-auxiliary-crates">Building auxiliary crates</a></h2>
+<p>It is common that some tests require additional auxiliary crates to be compiled.
+There are multiple <a href="directives.html">directives</a> to assist with that:</p>
+<ul>
+<li><code>aux-build</code></li>
+<li><code>aux-crate</code></li>
+<li><code>aux-bin</code></li>
+<li><code>aux-codegen-backend</code></li>
+<li><code>proc-macro</code></li>
+</ul>
+<p><code>aux-build</code> will build a separate crate from the named source file.
+The source file should be in a directory called <code>auxiliary</code> beside the test file.</p>
+<pre><code class="language-rust ignore">//@ aux-build: my-helper.rs
+
+extern crate my_helper;
+// ... You can use my_helper.</code></pre>
+<p>The aux crate will be built as a dylib if possible (unless on a platform that
+does not support them, or the <code>no-prefer-dynamic</code> header is specified in the aux file).
+The <code>-L</code> flag is used to find the extern crates.</p>
+<p><code>aux-crate</code> is very similar to <code>aux-build</code>.
+However, it uses the <code>--extern</code> flag
+to link to the extern crate to make the crate be available as an extern prelude.
+That allows you to specify the additional syntax of the <code>--extern</code> flag, such as
+renaming a dependency.
+For example, <code>//@ aux-crate:foo=bar.rs</code> will compile
+<code>auxiliary/bar.rs</code> and make it available under then name <code>foo</code> within the test.
+This is similar to how Cargo does dependency renaming.
+It is also possible to
+specify <a href="https://github.com/rust-lang/rust/issues/98405"><code>--extern</code> modifiers</a>.
+For example, <code>//@ aux-crate:noprelude:foo=bar.rs</code>.</p>
+<p><code>aux-bin</code> is similar to <code>aux-build</code> but will build a binary instead of a library.
+The binary will be available in <code>auxiliary/bin</code> relative to the working directory of the test.</p>
+<p><code>aux-codegen-backend</code> is similar to <code>aux-build</code>, but will then pass the compiled
+dylib to <code>-Zcodegen-backend</code> when building the main file.
+This will only work for tests in <code>tests/ui-fulldeps</code>, since it requires the use of compiler crates.</p>
+<h3 id="auxiliary-proc-macro"><a class="header" href="#auxiliary-proc-macro">Auxiliary proc-macro</a></h3>
+<p>If you want a proc-macro dependency, then you can use the <code>proc-macro</code>
+directive. This directive behaves just like <code>aux-build</code>, i.e. that you should
+place the proc-macro test auxiliary file under a <code>auxiliary</code> folder under the
+same parent folder as the main test file.
+However, it also has four additional
+preset behavior compared to <code>aux-build</code> for the proc-macro test auxiliary:</p>
+<ol>
+<li>The aux test file is built with <code>--crate-type=proc-macro</code>.</li>
+<li>The aux test file is built without <code>-C prefer-dynamic</code>, i.e. it will not try
+to produce a dylib for the aux crate.</li>
+<li>The aux crate is made available to the test file via extern prelude with
+<code>--extern &lt;aux_crate_name&gt;</code>.
+Note that since UI tests default to edition
+2015, you still need to specify <code>extern &lt;aux_crate_name&gt;</code> unless the main
+test file is using an edition that is 2018 or newer if you want to use the
+aux crate name in a <code>use</code> import.</li>
+<li>The <code>proc_macro</code> crate is made available as an extern prelude module.
+The same edition 2015 vs newer edition distinction for <code>extern proc_macro;</code> applies.</li>
+</ol>
+<p>For example, you might have a test <code>tests/ui/cat/meow.rs</code> and proc-macro
+auxiliary <code>tests/ui/cat/auxiliary/whiskers.rs</code>:</p>
+<pre><code class="language-text">tests/ui/cat/
+    meow.rs                 # main test file
+    auxiliary/whiskers.rs   # auxiliary
+</code></pre>
+<pre><code class="language-rs">// tests/ui/cat/meow.rs
+
+//@ proc-macro: whiskers.rs
+
+extern crate whiskers; // needed as ui test defaults to edition 2015
+
+fn main() {
+  whiskers::identity!();
+}
+</code></pre>
+<pre><code class="language-rs">// tests/ui/cat/auxiliary/whiskers.rs
+
+extern crate proc_macro;
+use proc_macro::*;
+
+#[proc_macro]
+pub fn identity(ts: TokenStream) -&gt; TokenStream {
+    ts
+}
+</code></pre>
+<blockquote>
+<p><strong>Note</strong>: The <code>proc-macro</code> header currently does not work with the
+<code>build-aux-doc</code> header for rustdoc tests. In that case, you will need to use
+the <code>aux-build</code> header, and use <code>#![crate_type="proc_macro"]</code>, and <code>//@ force-host</code> and <code>//@ no-prefer-dynamic</code> headers in the proc-macro.</p>
+</blockquote>
+<h2 id="revisions"><a class="header" href="#revisions">Revisions</a></h2>
+<p>Revisions allow a single test file to be used for multiple tests.
+This is done by adding a special directive at the top of the file:</p>
+<pre><code class="language-rust ignore">//@ revisions: foo bar baz</code></pre>
+<p>This will result in the test being compiled (and tested) three times, once with
+<code>--cfg foo</code>, once with <code>--cfg bar</code>, and once with <code>--cfg baz</code>.
+You can therefore use <code>#[cfg(foo)]</code> etc within the test to tweak each of these results.</p>
+<p>You can also customize directives and expected error messages to a particular revision.
+To do this, add <code>[revision-name]</code> after the <code>//@</code> for directives, and
+after <code>//</code> for UI error annotations, like so:</p>
+<pre><code class="language-rust ignore">// A flag to pass in only for cfg `foo`:
+//@[foo]compile-flags: -Z verbose-internals
+
+#[cfg(foo)]
+fn test_foo() {
+    let x: usize = 32_u32; //[foo]~ ERROR mismatched types
+}</code></pre>
+<p>Multiple revisions can be specified in a comma-separated list, such as <code>//[foo,bar,baz]~^</code>.</p>
+<p>In test suites that use the LLVM <a href="https://llvm.org/docs/CommandGuide/FileCheck.html">FileCheck</a> tool, the current revision name is
+also registered as an additional prefix for FileCheck directives:</p>
+<pre><code class="language-rust ignore">//@ revisions: NORMAL COVERAGE
+//@[COVERAGE] compile-flags: -Cinstrument-coverage
+//@[COVERAGE] needs-profiler-runtime
+
+// COVERAGE:   @__llvm_coverage_mapping
+// NORMAL-NOT: @__llvm_coverage_mapping
+
+// CHECK: main
+fn main() {}</code></pre>
+<p>Note that not all directives have meaning when customized to a revision.
+For example, the <code>ignore-test</code> directives (and all “ignore” directives) currently
+only apply to the test as a whole, not to particular revisions.
+The only directives that are intended to really work when customized to a revision are
+error patterns and compiler flags.</p>
+<!-- date-check Feb 2026 -->
+<blockquote>
+<p>Note that these test suites do not support revisions:</p>
+<ul>
+<li><code>codegen-units</code></li>
+<li><code>run-make</code></li>
+<li><code>rustdoc-html</code></li>
+<li><code>rustdoc-json</code></li>
+</ul>
+</blockquote>
+<h3 id="ignoring-unused-revision-names"><a class="header" href="#ignoring-unused-revision-names">Ignoring unused revision names</a></h3>
+<p>Normally, revision names mentioned in other directives and error annotations
+must correspond to an actual revision declared in a <code>revisions</code> directive.
+This is enforced by an <code>./x test tidy</code> check.</p>
+<p>If a revision name needs to be temporarily removed from the revision list for
+some reason, the above check can be suppressed by adding the revision name to an
+<code>//@ unused-revision-names:</code> header instead.</p>
+<p>Specifying an unused name of <code>*</code> (i.e. <code>//@ unused-revision-names: *</code>) will
+permit any unused revision name to be mentioned.</p>
+<h2 id="compare-modes"><a class="header" href="#compare-modes">Compare modes</a></h2>
+<p>Compiletest can be run in different modes, called <em>compare modes</em>, which can be
+used to compare the behavior of all tests with different compiler flags enabled.
+This can help highlight what differences might appear with certain flags, and
+check for any problems that might arise.</p>
+<p>To run the tests in a different mode, you need to pass the <code>--compare-mode</code> CLI flag:</p>
+<pre><code class="language-bash">./x test tests/ui --compare-mode=chalk
+</code></pre>
+<p>The possible compare modes are:</p>
+<ul>
+<li><code>polonius</code> — Runs with Polonius with <code>-Zpolonius</code>.</li>
+<li><code>chalk</code> — Runs with Chalk with <code>-Zchalk</code>.</li>
+<li><code>split-dwarf</code> — Runs with unpacked split-DWARF with <code>-Csplit-debuginfo=unpacked</code>.</li>
+<li><code>split-dwarf-single</code> — Runs with packed split-DWARF with <code>-Csplit-debuginfo=packed</code>.</li>
+</ul>
+<p>See <a href="ui.html#compare-modes">UI compare modes</a> for more information about how UI
+tests support different output for different modes.</p>
+<p>In CI, compare modes are only used in one Linux builder, and only with the following settings:</p>
+<ul>
+<li><code>tests/debuginfo</code>: Uses <code>split-dwarf</code> mode.
+This helps ensure that none of the debuginfo tests are affected when enabling split-DWARF.</li>
+</ul>
+<p>Note that compare modes are separate to <a href="#revisions">revisions</a>.
+All revisions are tested when running <code>./x test tests/ui</code>, however compare-modes must be
+manually run individually via the <code>--compare-mode</code> flag.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../tests/best-practices.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../tests/ui.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../tests/best-practices.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../tests/ui.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../mermaid-cc85ecea.min.js"></script>
+        <script src="../mermaid-init-4533fb11.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

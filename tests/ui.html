@@ -1,0 +1,756 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>UI tests - Rust Compiler Development Guide</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A guide to developing the Rust compiler (rustc)">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex-5b8627da.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-1a3501b2.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Compiler Development Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide/edit/main/src/tests/ui.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="ui-tests"><a class="header" href="#ui-tests">UI tests</a></h1>
+<p>UI tests are a particular <a href="compiletest.html#test-suites">test suite</a> of compiletest.</p>
+<h2 id="introduction"><a class="header" href="#introduction">Introduction</a></h2>
+<p>The tests in <a href="https://github.com/rust-lang/rust/blob/HEAD/tests/ui"><code>tests/ui</code></a> are a collection of general-purpose tests which
+primarily focus on validating the console output of the compiler, but can be
+used for many other purposes.
+For example, tests can also be configured to <a href="#controlling-passfail-expectations">run
+the resulting program</a> to verify its behavior.</p>
+<p>For a survey of each subdirectory’s purpose under <code>tests/ui</code>, consult the
+<a href="https://github.com/rust-lang/rust/tree/HEAD/tests/ui/README.md">README.md</a>.
+This is useful if you write a new test, and are looking for a category to place it in.</p>
+<p>If you need to work with <code>#![no_std]</code> cross-compiling tests, consult the
+<a href="./minicore.html"><code>minicore</code> test auxiliary</a> chapter.</p>
+<h2 id="general-structure-of-a-test"><a class="header" href="#general-structure-of-a-test">General structure of a test</a></h2>
+<p>A test consists of a Rust source file located in the <code>tests/ui</code> directory.
+<strong>Tests must be placed in the appropriate subdirectory</strong> based on their purpose
+and testing category - placing tests directly in <code>tests/ui</code> is not permitted.</p>
+<p>Compiletest will use <code>rustc</code> to compile the test, and compare the output against
+the expected output which is stored in a <code>.stdout</code> or <code>.stderr</code> file located next to the test.
+See <a href="#output-comparison">Output comparison</a> for more.</p>
+<p>Additionally, errors and warnings should be annotated with comments within the source file.
+See <a href="#error-annotations">Error annotations</a> for more.</p>
+<p>Compiletest <a href="directives.html">directives</a> in the form of special comments prefixed
+with <code>//@</code> control how the test is compiled and what the expected behavior is.</p>
+<p>Tests are expected to fail to compile, since most tests are testing compiler errors.
+You can change that behavior with a directive, see <a href="#controlling-passfail-expectations">Controlling
+pass/fail expectations</a>.</p>
+<p>By default, a test is built as an executable binary.
+If you need a different crate type, you can use the <code>#![crate_type]</code> attribute to set it as needed.</p>
+<h2 id="output-comparison"><a class="header" href="#output-comparison">Output comparison</a></h2>
+<p>UI tests store the expected output from the compiler in <code>.stderr</code> and <code>.stdout</code>
+snapshots next to the test.
+You normally generate these files with the <code>--bless</code>
+CLI option, and then inspect them manually to verify they contain what you expect.</p>
+<p>The output is normalized to ignore unwanted differences, see the
+<a href="#normalization">Normalization</a> section.
+If the file is missing, then compiletest expects the corresponding output to be empty.</p>
+<p>A common reason to use normalization, revisions, and most of the other following tools,
+is to account for platform differences.
+Consider alternatives to these tools, like
+e.g. using the <code>extern "rust-invalid"</code> ABI that is invalid on every platform
+instead of fixing the test to use cross-compilation and testing every possibly-invalid ABI.</p>
+<p>There can be multiple stdout/stderr files.
+The general form is:</p>
+<pre><code class="language-text">*test-name*`.`*revision*`.`*compare_mode*`.`*extension*
+</code></pre>
+<ul>
+<li><em>test-name</em> cannot contain dots.
+This is so that the general form of test
+output filenames have a predictable form we can pattern match on in order to
+track stray test output files.</li>
+<li><em>revision</em> is the <a href="#cfg-revisions">revision</a> name.
+This is not included when not using revisions.</li>
+<li><em>compare_mode</em> is the <a href="#compare-modes">compare mode</a>.
+This will only be checked when the given compare mode is active.
+If the file does not exist,
+then compiletest will check for a file without the compare mode.</li>
+<li><em>extension</em> is the kind of output being checked:
+<ul>
+<li><code>stderr</code> — compiler stderr</li>
+<li><code>stdout</code> — compiler stdout</li>
+<li><code>run.stderr</code> — stderr when running the test</li>
+<li><code>run.stdout</code> — stdout when running the test</li>
+<li><code>64bit.stderr</code> — compiler stderr with <code>stderr-per-bitwidth</code> directive on a 64-bit target</li>
+<li><code>32bit.stderr</code> — compiler stderr with <code>stderr-per-bitwidth</code> directive on a 32-bit target</li>
+</ul>
+</li>
+</ul>
+<p>A simple example would be <code>foo.stderr</code> next to a <code>foo.rs</code> test.
+A more complex example would be <code>foo.my-revision.polonius.stderr</code>.</p>
+<p>There are several <a href="directives.html">directives</a> which will change how compiletest
+will check for output files:</p>
+<ul>
+<li><code>stderr-per-bitwidth</code> — checks separate output files based on the target pointer width.
+Consider using the <code>normalize-stderr</code> directive instead (see <a href="#normalization">Normalization</a>).</li>
+<li><code>dont-check-compiler-stderr</code> — Ignores stderr from the compiler.</li>
+<li><code>dont-check-compiler-stdout</code> — Ignores stdout from the compiler.</li>
+<li><code>compare-output-by-lines</code> — Some tests have non-deterministic orders of output, so we need to compare by lines.</li>
+</ul>
+<p>UI tests run with <code>-Zdeduplicate-diagnostics=no</code> flag which disables rustc’s
+built-in diagnostic deduplication mechanism.
+This means you may see some duplicate messages in the output.
+This helps illuminate situations where duplicate diagnostics are being generated.</p>
+<h3 id="normalization"><a class="header" href="#normalization">Normalization</a></h3>
+<p>The compiler output is normalized to eliminate output difference between
+platforms, mainly about filenames.</p>
+<p>Compiletest makes the following replacements on the compiler output:</p>
+<ul>
+<li>The directory where the test is defined is replaced with <code>$DIR</code>.
+Example: <code>/path/to/rust/tests/ui/error-codes</code></li>
+<li>The directory to the standard library source is replaced with <code>$SRC_DIR</code>.
+Example: <code>/path/to/rust/library</code></li>
+<li>Line and column numbers for paths in <code>$SRC_DIR</code> are replaced with <code>LL:COL</code>.
+This helps ensure that changes to the layout of the standard library do not
+cause widespread changes to the <code>.stderr</code> files.
+Example: <code>$SRC_DIR/alloc/src/sync.rs:53:46</code></li>
+<li>The base directory where the test’s output goes is replaced with <code>$TEST_BUILD_DIR</code>.
+This only comes up in a few rare circumstances.
+Example: <code>/path/to/rust/build/x86_64-unknown-linux-gnu/test/ui</code></li>
+<li>The real directory to the standard library source is replaced with <code>$SRC_DIR_REAL</code>.</li>
+<li>The real directory to the compiler source is replaced with <code>$COMPILER_DIR_REAL</code>.</li>
+<li>Tabs are replaced with <code>\t</code>.</li>
+<li>Backslashes (<code>\</code>) are converted to forward slashes (<code>/</code>) within paths (using a heuristic).
+This helps normalize differences with Windows-style paths.</li>
+<li>CRLF newlines are converted to LF.</li>
+<li>Error line annotations like <code>//~ ERROR some message</code> are removed.</li>
+<li>Various v0 and legacy symbol hashes are replaced with placeholders like
+<code>[HASH]</code> or <code>&lt;SYMBOL_HASH&gt;</code>.</li>
+</ul>
+<p>Additionally, the compiler is run with the <code>-Z ui-testing</code> flag which causes
+the compiler itself to apply some changes to the diagnostic output to make it
+more suitable for UI testing.</p>
+<p>For example, it will anonymize line numbers in the output (line numbers
+prefixing each source line are replaced with <code>LL</code>).
+In extremely rare situations, this mode can be disabled with the directive <code>//@ compile-flags: -Z ui-testing=no</code>.</p>
+<p>When using <code>-Z ui-testing=no</code>, the <code>--diagnostic-width</code> argument should also
+be set to avoid tests failing or passing depending on the width of the terminal
+from which the UI test suite is being run.</p>
+<p>Note: The line and column numbers for <code>--&gt;</code> lines pointing to the test are <em>not</em>
+normalized, and left as-is.
+This ensures that the compiler continues to point to
+the correct location, and keeps the stderr files readable.
+Ideally all line/column information would be retained, but small changes to the source
+causes large diffs, and more frequent merge conflicts and test errors.</p>
+<p>Sometimes these built-in normalizations are not enough.
+In such cases, you may
+provide custom normalization rules using <code>normalize-*</code> directives, e.g.</p>
+<pre><code class="language-rust ignore">//@ normalize-stdout: "foo" -&gt; "bar"
+//@ normalize-stderr: "foo" -&gt; "bar"
+//@ normalize-stderr-32bit: "fn\(\) \(32 bits\)" -&gt; "fn\(\) \($$PTR bits\)"
+//@ normalize-stderr-64bit: "fn\(\) \(64 bits\)" -&gt; "fn\(\) \($$PTR bits\)"</code></pre>
+<p>This tells the test, on 32-bit platforms, whenever the compiler writes <code>fn() (32 bits)</code> to stderr, it should be normalized to read <code>fn() ($PTR bits)</code> instead.
+Similar for 64-bit.
+The replacement is performed by regexes using default regex flavor provided by <code>regex</code> crate.</p>
+<p>The corresponding reference file will use the normalized output to test both
+32-bit and 64-bit platforms:</p>
+<pre><code class="language-text">...
+   |
+   = note: source type: fn() ($PTR bits)
+   = note: target type: u16 (16 bits)
+...
+</code></pre>
+<p>Please see <a href="https://github.com/rust-lang/rust/blob/HEAD/tests/ui/transmute/main.rs"><code>ui/transmute/main.rs</code></a> and <a href="https://github.com/rust-lang/rust/blob/HEAD/tests/ui/transmute/main.stderr"><code>main.stderr</code></a> for a concrete usage example.</p>
+<h2 id="error-annotations"><a class="header" href="#error-annotations">Error annotations</a></h2>
+<p>Error annotations specify the errors that the compiler is expected to emit.
+They are “attached” to the line in source where the error is located.</p>
+<pre><code class="language-rust ignore">fn main() {
+    boom  //~ ERROR cannot find value `boom` in this scope [E0425]
+}</code></pre>
+<p>Although UI tests have a <code>.stderr</code> file which contains the entire compiler
+output, UI tests require that errors are also annotated within the source.
+This redundancy helps avoid mistakes since the <code>.stderr</code> files are usually
+auto-generated.
+It also helps to directly see where the error spans are expected
+to point to by looking at one file instead of having to compare the <code>.stderr</code> file with the source.
+Finally, they ensure that no additional unexpected errors are generated.</p>
+<p>They have several forms, but generally are a comment with the diagnostic level
+(such as <code>ERROR</code>) and a substring of the expected error output.
+You don’t have to write out the entire message,
+but be sure to include the important part of the message to make it self-documenting.</p>
+<p>Most error annotations need to match with the line of the diagnostic.
+There are several ways to match the message with the line (see the examples below):</p>
+<ul>
+<li><code>~</code>: Associates the error level and message with the <em>current</em> line</li>
+<li><code>~^</code>: Associates the error level and message with the <em>previous</em> error annotation line.
+Each caret (<code>^</code>) that you add adds a line to this, so <code>~^^^</code>
+is three lines above the error annotation line.</li>
+<li><code>~|</code>: Associates the error level and message with the <em>same</em> line as the
+<em>previous comment</em>. This is more convenient than using multiple carets when
+there are multiple messages associated with the same line.</li>
+<li><code>~v</code>: Associates the error level and message with the <em>next</em> error annotation line.
+Each symbol (<code>v</code>) that you add adds a line to this, so <code>~vvv</code>
+is three lines below the error annotation line.</li>
+</ul>
+<p>Example:</p>
+<pre><code class="language-rust ignore">let _ = same_line; //~ ERROR undeclared variable
+fn meow(_: [u8]) {}
+//~^ ERROR unsized
+//~| ERROR anonymous parameters</code></pre>
+<p>The space character between <code>//~</code> (or other variants) and the subsequent text is
+negligible (i.e. there is no semantic difference between <code>//~ ERROR</code> and
+<code>//~ERROR</code> although the former is more common in the codebase).</p>
+<p><code>~? &lt;diagnostic kind&gt;</code> (example being <code>~? ERROR</code>)
+is used to match diagnostics <em>without</em> line info at all,
+or where the line info is outside the main test file<sup class="footnote-reference" id="fr-main test file-1"><a href="#footnote-main test file">1</a></sup>.
+These annotations can be placed on any line in the test file.</p>
+<h3 id="error-annotation-examples"><a class="header" href="#error-annotation-examples">Error annotation examples</a></h3>
+<p>Here are examples of error annotations on different lines of UI test source.</p>
+<h4 id="positioned-on-error-line"><a class="header" href="#positioned-on-error-line">Positioned on error line</a></h4>
+<p>Use the <code>//~ ERROR</code> idiom:</p>
+<pre><code class="language-rust ignore">fn main() {
+    let x = (1, 2, 3);
+    match x {
+        (_a, _x @ ..) =&gt; {} //~ ERROR `_x @` is not allowed in a tuple
+        _ =&gt; {}
+    }
+}</code></pre>
+<h4 id="positioned-below-error-line"><a class="header" href="#positioned-below-error-line">Positioned below error line</a></h4>
+<p>Use the <code>//~^</code> idiom with number of carets in the string to indicate the number of lines above.
+In the example below, the error line is four lines above the
+error annotation line so four carets are included in the annotation.</p>
+<pre><code class="language-rust ignore">fn main() {
+    let x = (1, 2, 3);
+    match x {
+        (_a, _x @ ..) =&gt; {}  // &lt;- the error is on this line
+        _ =&gt; {}
+    }
+}
+//~^^^^ ERROR `_x @` is not allowed in a tuple</code></pre>
+<h4 id="use-same-error-line-as-defined-on-error-annotation-line-above"><a class="header" href="#use-same-error-line-as-defined-on-error-annotation-line-above">Use same error line as defined on error annotation line above</a></h4>
+<p>Use the <code>//~|</code> idiom to define the same error line as the error annotation
+line above:</p>
+<pre><code class="language-rust ignore">struct Binder(i32, i32, i32);
+
+fn main() {
+    let x = Binder(1, 2, 3);
+    match x {
+        Binder(_a, _x @ ..) =&gt; {}  // &lt;- the error is on this line
+        _ =&gt; {}
+    }
+}
+//~^^^^ ERROR `_x @` is not allowed in a tuple struct
+//~| ERROR this pattern has 1 field, but the corresponding tuple struct has 3 fields [E0023]</code></pre>
+<h4 id="positioned-above-error-line"><a class="header" href="#positioned-above-error-line">Positioned above error line</a></h4>
+<p>Use the <code>//~v</code> idiom with number of v’s in the string to indicate the number of lines below.
+This is typically used in lexer or parser tests matching on errors like unclosed
+delimiter or unclosed literal happening at the end of file.</p>
+<pre><code class="language-rust ignore">// ignore-tidy-trailing-newlines
+//~v ERROR this file contains an unclosed delimiter
+fn main((ؼ</code></pre>
+<h4 id="error-without-line-information"><a class="header" href="#error-without-line-information">Error without line information</a></h4>
+<p>Use <code>//~?</code> to match an error without line information.
+<code>//~?</code> is precise and will not match errors if their line information is available.
+It should be preferred over <code>//@ error-pattern</code>
+for tests wishing to match against compiler diagnostics,
+due to <code>//@ error-pattern</code> being imprecise and non-exhaustive.</p>
+<pre><code class="language-rust ignore">//@ compile-flags: --print yyyy
+
+//~? ERROR unknown print request: `yyyy`</code></pre>
+<h3 id="error-pattern"><a class="header" href="#error-pattern"><code>error-pattern</code></a></h3>
+<p>The <code>error-pattern</code> <a href="directives.html">directive</a> can be used for runtime messages which don’t
+have a specific span, or, in exceptional cases, for compile time messages.</p>
+<p>Let’s think about this test:</p>
+<pre><code class="language-rust ignore">fn main() {
+    let a: *const [_] = &amp;[1, 2, 3];
+    unsafe {
+        let _b = (*a)[3];
+    }
+}</code></pre>
+<p>We want to ensure this shows “index out of bounds”, but we cannot use the <code>ERROR</code>
+annotation since the runtime error doesn’t have any span.
+Then it’s time to use the <code>error-pattern</code> directive:</p>
+<pre><code class="language-rust ignore">//@ error-pattern: index out of bounds
+fn main() {
+    let a: *const [_] = &amp;[1, 2, 3];
+    unsafe {
+        let _b = (*a)[3];
+    }
+}</code></pre>
+<p>For strict testing of compile time output, try to use the line annotations <code>//~</code> as much as
+possible, including <code>//~?</code> annotations for diagnostics without spans.</p>
+<p>If the compile time output is target dependent or too verbose, use directive
+<code>//@ dont-require-annotations: &lt;diagnostic-kind&gt;</code> to make the line annotation checking
+non-exhaustive.
+Some of the compiler messages can stay uncovered by annotations in this mode.</p>
+<p>For checking runtime output, <code>//@ check-run-results</code> may be preferable.</p>
+<p>Only use <code>error-pattern</code> if none of the above works, such as when finding a
+specific string pattern in a runtime panic output.</p>
+<p>Line annotations <code>//~</code> and <code>error-pattern</code> are compatible and can be used in the same test.</p>
+<h3 id="diagnostic-kinds-error-levels"><a class="header" href="#diagnostic-kinds-error-levels">Diagnostic kinds (error levels)</a></h3>
+<p>The diagnostic kinds that you can have are:</p>
+<ul>
+<li><code>ERROR</code></li>
+<li><code>WARN</code> (or <code>WARNING</code>)</li>
+<li><code>NOTE</code></li>
+<li><code>HELP</code></li>
+<li><code>SUGGESTION</code></li>
+<li><code>RAW</code></li>
+</ul>
+<p>The <code>SUGGESTION</code> kind is used for specifying what the expected replacement text
+should be for a diagnostic suggestion.
+The <code>RAW</code> kind can be used for matching on lines from non-structured output sometimes emitted
+by the compiler instead of or in addition to structured json.</p>
+<p><code>ERROR</code> and <code>WARN</code> kinds are required to be exhaustively covered by line annotations
+<code>//~</code> by default.</p>
+<p>Other kinds only need to be line-annotated if at least one annotation of that kind appears
+in the test file.
+For example, one <code>//~ NOTE</code> will also require all other <code>//~ NOTE</code>s in the file
+to be written out explicitly.</p>
+<p>Use directive <code>//@ dont-require-annotations</code> to opt out of exhaustive annotations.
+E.g. use <code>//@ dont-require-annotations: NOTE</code> to annotate notes selectively.
+Avoid using this directive for <code>ERROR</code>s and <code>WARN</code>ings, unless there’s a serious reason, like
+target-dependent compiler output.</p>
+<p>Some diagnostics are never required to be line-annotated, regardless of their kind or directives,
+for example secondary lines of multiline diagnostics,
+or ubiquitous diagnostics like <code>aborting due to N previous errors</code>.</p>
+<p>UI tests use the <code>-A unused</code> flag by default to ignore all unused warnings, as
+unused warnings are usually not the focus of a test.
+However, simple code samples often have unused warnings.
+If the test is specifically testing an
+unused warning, just add the appropriate <code>#![warn(unused)]</code> attribute as needed.</p>
+<h3 id="cfg-revisions"><a class="header" href="#cfg-revisions"><code>cfg</code> revisions</a></h3>
+<p>When using <a href="compiletest.html#revisions">revisions</a>, different messages can be
+conditionally checked based on the current revision.
+This is done by placing the revision cfg name in brackets like this:</p>
+<pre><code class="language-rust ignore">//@ edition:2018
+//@ revisions: mir thir
+//@[thir] compile-flags: -Z thir-unsafeck
+
+async unsafe fn f() {}
+
+async fn g() {
+    f(); //~ ERROR call to unsafe function is unsafe
+}
+
+fn main() {
+    f(); //[mir]~ ERROR call to unsafe function is unsafe
+}</code></pre>
+<p>In this example, the second error message is only emitted in the <code>mir</code> revision.
+The <code>thir</code> revision only emits the first error.</p>
+<p>If the <code>cfg</code> causes the compiler to emit different output, then a test can have
+multiple <code>.stderr</code> files for the different outputs.
+In the example above, there
+would be a <code>.mir.stderr</code> and <code>.thir.stderr</code> file with the different outputs of
+the different revisions.</p>
+<blockquote>
+<p>Note: cfg revisions also work inside the source code with <code>#[cfg]</code> attributes.</p>
+<p>By convention, the <code>FALSE</code> cfg is used to have an always-false config.</p>
+</blockquote>
+<h2 id="controlling-passfail-expectations"><a class="header" href="#controlling-passfail-expectations">Controlling pass/fail expectations</a></h2>
+<p>By default, a UI test is expected to <strong>generate a compile error</strong> because most
+of the tests are checking for invalid input and error diagnostics.
+However, you can also make UI tests where compilation is expected to succeed, and you can
+even run the resulting program.
+Just add one of the following <a href="directives.html">directives</a>:</p>
+<ul>
+<li>Pass directives:
+<ul>
+<li><code>//@ check-pass</code> — compilation should succeed but skip codegen
+(which is expensive and isn’t supposed to fail in most cases).</li>
+<li><code>//@ build-pass</code> — compilation and linking should succeed but do
+not run the resulting binary.</li>
+<li><code>//@ run-pass</code> — compilation should succeed and running the resulting
+binary should make it exit with code 0 which indicates success.</li>
+</ul>
+</li>
+<li>Fail directives:
+<ul>
+<li><code>//@ check-fail</code> — compilation should fail (the codegen phase is skipped).
+This is the default for UI tests.</li>
+<li><code>//@ build-fail</code> — compilation should fail during the codegen phase.
+This will run <code>rustc</code> twice:
+<ul>
+<li>First time is to ensure that the compile succeeds without the codegen phase</li>
+<li>Second time is to ensure that the full compile fails</li>
+</ul>
+</li>
+<li><code>//@ run-fail</code> — compilation should succeed, but running the resulting
+binary should make it exit with a code in the range <code>1..=127</code> which
+indicates regular failure.
+On targets without unwind support, crashes are also accepted.</li>
+<li><code>//@ run-crash</code> — compilation should succeed, but running the resulting
+binary should fail with a crash.
+Crashing is defined as “not exiting with a code in the range <code>0..=127</code>”.
+<ul>
+<li>Example on Linux: Termination by <code>SIGABRT</code> or <code>SIGSEGV</code>.</li>
+<li>Example on Windows: Exiting with the code for <code>STATUS_ILLEGAL_INSTRUCTION</code> (<code>0xC000001D</code>).</li>
+</ul>
+</li>
+<li><code>//@ run-fail-or-crash</code> — compilation should succeed, but running the
+resulting binary should either <code>run-fail</code> or <code>run-crash</code>.
+Useful if a test crashes on some targets but just fails on others.</li>
+</ul>
+</li>
+</ul>
+<p>For <code>run-pass</code>, <code>run-fail</code>, <code>run-crash</code>, and <code>run-fail-or-crash</code> tests,
+the output of the program itself is not checked by default.</p>
+<p>If you want to check the output of running the program, include the <code>check-run-results</code> directive.
+This will check for a <code>.run.stderr</code> and
+<code>.run.stdout</code> files to compare against the actual output of the program.</p>
+<p>Tests with the <code>*-pass</code> directives can be overridden with the <code>--pass</code> command-line option:</p>
+<pre><code class="language-sh">./x test tests/ui --pass check
+</code></pre>
+<p>The <code>--pass</code> option only affects UI tests.
+Using <code>--pass check</code> can run the UI
+test suite much faster (roughly twice as fast on my system), though obviously
+not exercising as much.</p>
+<p>The <code>ignore-pass</code> directive can be used to ignore the <code>--pass</code> CLI flag if the
+test won’t work properly with that override.</p>
+<h2 id="known-bugs"><a class="header" href="#known-bugs">Known bugs</a></h2>
+<p>The <code>known-bug</code> directive may be used for tests that demonstrate a known bug
+that has not yet been fixed.
+Adding tests for known bugs is helpful for several reasons, including:</p>
+<ol>
+<li>Maintaining a functional test that can be conveniently reused when the bug is fixed.</li>
+<li>Providing a sentinel that will fail if the bug is incidentally fixed.
+This can alert the developer so they know that the associated issue has been fixed
+and can possibly be closed.</li>
+</ol>
+<p>This directive takes comma-separated issue numbers as arguments, or <code>"unknown"</code>:</p>
+<ul>
+<li><code>//@ known-bug: #123, #456</code> (when the issues are on rust-lang/rust)</li>
+<li><code>//@ known-bug: rust-lang/chalk#123456</code>
+(allows arbitrary text before the <code>#</code>, which is useful when the issue is on another repo)</li>
+<li><code>//@ known-bug: unknown</code>
+(when there is no known issue yet; preferably open one if it does not already exist)</li>
+</ul>
+<p>Do not include <a href="#error-annotations">error annotations</a> in a test with <code>known-bug</code>.
+The test should still include other normal directives and stdout/stderr files.</p>
+<h2 id="test-organization"><a class="header" href="#test-organization">Test organization</a></h2>
+<p>When deciding where to place a test file, please try to find a subdirectory that
+best matches what you are trying to exercise.
+Do your best to keep things organized.
+Admittedly, it can be difficult as some tests can overlap different
+categories, and the existing layout may not fit well.</p>
+<p>Name the test by a concise description of what the test is checking.
+Avoid including the issue number in the test name.
+See <a href="best-practices.html">best practices</a> for a more in-depth discussion of this.</p>
+<p>Ideally, the test should be added to a directory that helps identify what piece
+of code is being tested here (e.g.,
+<code>tests/ui/borrowck/reject-move-out-of-borrow-via-pat.rs</code>)</p>
+<p>When writing a new feature, you may want to <strong>create a subdirectory to store
+your tests</strong>. For example, if you are implementing RFC 1234 (“Widgets”), then it
+might make sense to put the tests in a directory like <code>tests/ui/rfc1234-widgets/</code>.</p>
+<p>In other cases, there may already be a suitable directory.</p>
+<p>Over time, the <a href="https://github.com/rust-lang/rust/blob/HEAD/tests/ui"><code>tests/ui</code></a> directory has grown very fast.
+There is a check in <a href="intro.html#tidy">tidy</a> that will ensure none of the subdirectories has more than
+1000 entries.
+Having too many files causes problems because it isn’t editor/IDE
+friendly and the GitHub UI won’t show more than 1000 entries.
+However, since <code>tests/ui</code> (UI test root directory) and <code>tests/ui/issues</code> directories have more
+than 1000 entries, we set a different limit for those directories.
+So, please avoid putting a new test there and try to find a more relevant place.</p>
+<p>For example, if your test is related to closures, you should put it in <code>tests/ui/closures</code>.
+When you reach the limit, you could increase it by tweaking <a href="https://github.com/rust-lang/rust/blob/HEAD/src/tools/tidy/src/ui_tests.rs">here</a>.</p>
+<h2 id="rustfix-tests"><a class="header" href="#rustfix-tests">Rustfix tests</a></h2>
+<p>UI tests can validate that diagnostic suggestions apply correctly and that the
+resulting changes compile correctly.
+This can be done with the <code>run-rustfix</code> directive:</p>
+<pre><code class="language-rust ignore">//@ run-rustfix
+//@ check-pass
+#![crate_type = "lib"]
+
+pub struct not_camel_case {}
+//~^ WARN `not_camel_case` should have an upper camel case name
+//~| HELP convert the identifier to upper camel case
+//~| SUGGESTION NotCamelCase</code></pre>
+<p>Rustfix tests should have a file with the <code>.fixed</code> extension which contains the
+source file after the suggestion has been applied.</p>
+<ul>
+<li>When the test is run, compiletest first checks that the correct lint/warning is generated.</li>
+<li>Then, it applies the suggestion and compares against <code>.fixed</code> (they must match).</li>
+<li>Finally, the fixed source is compiled, and this compilation is required to succeed.</li>
+</ul>
+<p>Usually when creating a rustfix test you will generate the <code>.fixed</code> file
+automatically with the <code>x test --bless</code> option.</p>
+<p>The <code>run-rustfix</code> directive will cause <em>all</em> suggestions to be applied, even if
+they are not <a href="../diagnostics.html#suggestions"><code>MachineApplicable</code></a>.
+If this is a problem, then you can add the <code>rustfix-only-machine-applicable</code> directive in
+addition to <code>run-rustfix</code>.
+This should be used if there is a mixture of
+different suggestion levels, and some of the non-machine-applicable ones do not apply cleanly.</p>
+<h2 id="compare-modes"><a class="header" href="#compare-modes">Compare modes</a></h2>
+<p><a href="compiletest.html#compare-modes">Compare modes</a> can be used to run all tests with
+different flags from what they are normally compiled with.
+In some cases, this might result in different output from the compiler.
+To support this, different
+output files can be saved which contain the output based on the compare mode.</p>
+<p>For example, when using the Polonius mode, a test <code>foo.rs</code> will first look for
+expected output in <code>foo.polonius.stderr</code>, falling back to the usual <code>foo.stderr</code> if not found.
+This is useful as different modes can sometimes result in different diagnostics and behavior.
+This can help track which tests have
+differences between the modes, and to visually inspect those diagnostic differences.</p>
+<p>If in the rare case you encounter a test that has different behavior, you can
+run something like the following to generate the alternate stderr file:</p>
+<pre><code class="language-sh">./x test tests/ui --compare-mode=polonius --bless
+</code></pre>
+<p>Currently none of the compare modes are checked in CI for UI tests.</p>
+<h2 id="rustc_-test-attributes"><a class="header" href="#rustc_-test-attributes"><code>rustc_*</code> TEST attributes</a></h2>
+<p>The compiler defines several perma-unstable <code>#[rustc_*]</code> attributes gated behind
+the internal feature <code>rustc_attrs</code> that dump extra compiler-internal information.
+See the corresponding subsection in <a href="../compiler-debugging.html#rustc_-test-attributes">compiler debugging</a> for more details.</p>
+<p>They can be used in tests to more precisely, legibly, and easily test internal
+compiler state in cases where it would otherwise be very hard to do the same
+with “user-facing” Rust alone.
+Indeed, one could say that this slightly abuses
+the term “UI” (<em>user</em> interface) and turns such UI tests from black-box tests into white-box ones.
+Use them carefully and sparingly.</p>
+<h2 id="ui-test-mode-preset-lint-levels"><a class="header" href="#ui-test-mode-preset-lint-levels">UI test mode preset lint levels</a></h2>
+<p>By default, test suites under UI test mode (<code>tests/ui</code>, <code>tests/ui-fulldeps</code>,
+but not <code>tests/rustdoc-ui</code>) will specify</p>
+<ul>
+<li><code>-A unused</code></li>
+<li><code>-W unused_attributes</code> (since these tend to be interesting for ui tests)</li>
+<li><code>-A internal_features</code></li>
+</ul>
+<p>If:</p>
+<ul>
+<li>The ui test’s pass mode is below <code>run</code> (i.e. check or build).</li>
+<li>No compare modes are specified.</li>
+</ul>
+<p>Since they can be very noisy in ui tests.</p>
+<p>You can override them with <code>compile-flags</code> lint level flags or
+in-source lint level attributes as required.</p>
+<p>Note that the <code>rustfix</code> version will <em>not</em> have <code>-A unused</code> passed,
+meaning that you may have to <code>#[allow(unused)]</code> to suppress <code>unused</code>
+lints on the rustfix’d file (because we might be testing rustfix on <code>unused</code> lints themselves).</p>
+<hr>
+<ol class="footnote-definition">
+<li id="footnote-main test file">
+<p>This is a file that has the <code>~?</code> annotations,
+as distinct from aux files, or sources that we have no control over. <a href="#fr-main test file-1">↩</a></p>
+</li>
+</ol>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../tests/compiletest.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../tests/directives.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../tests/compiletest.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../tests/directives.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../mermaid-cc85ecea.min.js"></script>
+        <script src="../mermaid-init-4533fb11.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

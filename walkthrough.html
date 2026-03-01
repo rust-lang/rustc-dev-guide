@@ -1,0 +1,466 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Walkthrough: a typical contribution - Rust Compiler Development Guide</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A guide to developing the Rust compiler (rustc)">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-2459343d.css">
+        <link rel="stylesheet" href="css/chrome-ae938929.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-5b8627da.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-1a3501b2.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Compiler Development Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide/edit/main/src/walkthrough.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="walkthrough-a-typical-contribution"><a class="header" href="#walkthrough-a-typical-contribution">Walkthrough: a typical contribution</a></h1>
+<p>There are <em>a lot</em> of ways to contribute to the Rust compiler, including fixing
+bugs, improving performance, helping design features, providing feedback on existing features, etc.
+This chapter does not claim to scratch the surface.
+Instead, it walks through the design and implementation of a new feature.
+Not all of the steps and processes described here are needed for every
+contribution, and I will try to point those out as they arise.</p>
+<p>In general, if you are interested in making a contribution and aren’t sure
+where to start, please feel free to ask!</p>
+<h2 id="overview"><a class="header" href="#overview">Overview</a></h2>
+<p>The feature I will discuss in this chapter is the <code>?</code> Kleene operator for macros.
+Basically, we want to be able to write something like this:</p>
+<pre><code class="language-rust ignore">macro_rules! foo {
+    ($arg:ident $(, $optional_arg:ident)?) =&gt; {
+        println!("{}", $arg);
+
+        $(
+            println!("{}", $optional_arg);
+        )?
+    }
+}
+
+fn main() {
+    let x = 0;
+    foo!(x); // ok! prints "0"
+    foo!(x, x); // ok! prints "0 0"
+}</code></pre>
+<p>So basically, the <code>$(pat)?</code> matcher in the macro means “this pattern can occur
+0 or 1 times”, similar to other regex syntaxes.</p>
+<p>There were a number of steps to go from an idea to stable Rust feature.
+Here is a quick list.
+We will go through each of these in order below.
+As I mentioned before, not all of these are needed for every type of contribution.</p>
+<ul>
+<li><strong>Idea discussion/Pre-RFC</strong>  A Pre-RFC is an early draft or design discussion of a feature.
+This stage is intended to flesh out the design space a bit and
+get a grasp on the different merits and problems with an idea.
+It’s a great way to get early feedback on your idea before presenting it to the wider audience.
+You can find the original discussion <a href="https://internals.rust-lang.org/t/pre-rfc-at-most-one-repetition-macro-patterns/6557">here</a>.</li>
+<li><strong>RFC</strong>  This is when you formally present your idea to the community for consideration.
+You can find the RFC <a href="https://github.com/rust-lang/rfcs/pull/2298">here</a>.</li>
+<li><strong>Implementation</strong> Implement your idea unstably in the compiler.
+You can find the original implementation <a href="https://github.com/rust-lang/rust/pull/47752">here</a>.</li>
+<li><strong>Possibly iterate/refine</strong> As the community gets experience with your
+feature on the nightly compiler and in <code>std</code>, there may be additional
+feedback about design choice that might be adjusted.
+This particular feature went <a href="https://github.com/rust-lang/rust/pull/49719">through</a> a <a href="https://github.com/rust-lang/rust/pull/51336">number</a> of <a href="https://github.com/rust-lang/rust/pull/51587">iterations</a>.</li>
+<li><strong>Stabilization</strong> When your feature has baked enough, a Rust team member may
+<a href="https://github.com/rust-lang/rust/issues/48075#issuecomment-433177613">propose to stabilize it</a>.
+If there is consensus, this is done.</li>
+<li><strong>Relax</strong> Your feature is now a stable Rust feature!</li>
+</ul>
+<h2 id="pre-rfc-and-rfc"><a class="header" href="#pre-rfc-and-rfc">Pre-RFC and RFC</a></h2>
+<blockquote>
+<p>NOTE: In general, if you are not proposing a <em>new</em> feature or substantial
+change to Rust or the ecosystem, you don’t need to follow the RFC process.
+Instead, you can just jump to <a href="#impl">implementation</a>.</p>
+<p>You can find the official guidelines for when to open an RFC <a href="https://github.com/rust-lang/rfcs#when-you-need-to-follow-this-process">here</a>.</p>
+</blockquote>
+<p>An RFC is a document that describes the feature or change you are proposing in detail.
+Anyone can write an RFC;
+the process is the same for everyone, including Rust team members.</p>
+<p>To open an RFC, open a PR on the <a href="https://github.com/rust-lang/rfcs">rust-lang/rfcs</a> repo on GitHub.
+You can find detailed instructions in the
+<a href="https://github.com/rust-lang/rfcs#what-the-process-is">README</a>.</p>
+<p>Before opening an RFC, you should do the research to “flesh out” your idea.
+Hastily-proposed RFCs tend not to be accepted.
+You should generally have a good description of the motivation, impact, disadvantages, and potential
+interactions with other features.</p>
+<p>If that sounds like a lot of work, it’s because it is.
+But no fear!
+Even if you’re not a compiler hacker, you can get great feedback by doing a <em>pre-RFC</em>.
+This is an <em>informal</em> discussion of the idea.
+The best place to do this is <a href="https://internals.rust-lang.org">internals.rust-lang.org</a>.
+Your post doesn’t have to follow any particular structure.
+It doesn’t even need to be a cohesive idea.
+Generally, you will get tons of feedback that you can integrate back to produce a good RFC.</p>
+<p>(Another pro-tip: try searching the RFCs repo and internals for prior related ideas.
+A lot of times an idea has already been considered and was either
+rejected or postponed to be tried again later.
+This can save you and everybody else some time)</p>
+<p>In the case of our example, a participant in the pre-RFC thread pointed out a
+syntax ambiguity and a potential resolution.
+Also, the overall feedback seemed positive.
+In this case, the discussion converged pretty quickly, but for some
+ideas, a lot more discussion can happen (e.g. see <a href="https://github.com/rust-lang/rfcs/pull/2457">this RFC</a> which
+received a whopping 684 comments!).
+If that happens, don’t be discouraged;
+it means the community is interested in your idea, but it perhaps needs some adjustments.</p>
+<p>The RFC for our <code>?</code> macro feature did receive some discussion on the RFC thread too.
+As with most RFCs, there were a few questions that we couldn’t answer by
+discussion: we needed experience using the feature to decide.
+Such questions are listed in the “Unresolved Questions” section of the RFC.
+Also, over the course of the RFC discussion, you will probably want to update the RFC document
+itself to reflect the course of the discussion (e.g. new alternatives or prior
+work may be added or you may decide to change parts of the proposal itself).</p>
+<p>In the end, when the discussion seems to reach a consensus and die down a bit,
+a Rust team member may propose to move to “final comment period” (FCP) with one
+of three possible dispositions.
+This means that they want the other members of
+the appropriate teams to review and comment on the RFC.
+More discussion may ensue, which may result in more changes or unresolved questions being added.
+At some point, when everyone is satisfied, the RFC enters the FCP, which is the
+last chance for people to bring up objections.
+When the FCP is over, the disposition is adopted.
+Here are the three possible dispositions:</p>
+<ul>
+<li><em>Merge</em>: accept the feature.
+Here is the proposal to merge for our <a href="https://github.com/rust-lang/rfcs/pull/2298#issuecomment-360582667"><code>?</code> macro feature</a>.</li>
+<li><em>Close</em>: this feature in its current form is not a good fit for rust.
+Don’t be discouraged if this happens to your RFC, and don’t take it personally.
+This is not a reflection on you, but rather a community decision that rust
+will go a different direction.</li>
+<li><em>Postpone</em>: there is interest in going this direction but not at the moment.
+This happens most often because the appropriate Rust team doesn’t have the
+bandwidth to shepherd the feature through the process to stabilization.
+Often this is the case when the feature doesn’t fit into the team’s roadmap.
+Postponed ideas may be revisited later.</li>
+</ul>
+<p>When an RFC is merged, the PR is merged into the RFCs repo.
+A new <em>tracking issue</em> is created in the <a href="https://github.com/rust-lang/rust">rust-lang/rust</a> repo to track progress on the feature
+and discuss unresolved questions, implementation progress and blockers, etc.
+Here is the tracking issue on for our <a href="https://github.com/rust-lang/rust/issues/48075"><code>?</code> macro feature</a>.</p>
+<h2 id="experimental-rfc-erfc"><a class="header" href="#experimental-rfc-erfc">Experimental RFC (eRFC)</a></h2>
+<p>An eRFC is a variant of the RFC process used for complex features where the high-level need
+is clear, but the design space is too large to settle on a detailed specification upfront.
+Instead of providing a final design, an eRFC outlines a high-level strategy to authorize
+a period of active experimentation.
+This allows the team to implement the feature behind
+a feature gate and gather practical data, which then informs a subsequent formal RFC for stabilization.
+While this process was used for major features like coroutines (<a href="https://github.com/rust-lang/rfcs/pull/2033#issuecomment-309057591">see RFC 2033</a>),
+the explicit “eRFC” label is rarely used today.
+The project now generally prefers approving a standard
+RFC for an initial version and iterating on it through the nightly channel before final stabilization.</p>
+<p><a id="impl"></a></p>
+<h2 id="implementation"><a class="header" href="#implementation">Implementation</a></h2>
+<p>To make a change to the compiler, open a PR against the <a href="https://github.com/rust-lang/rust">rust-lang/rust</a> repo.</p>
+<p>Depending on the feature/change/bug fix/improvement, implementation may be
+relatively-straightforward or it may be a major undertaking.
+You can always ask for help or mentorship from more experienced compiler devs.
+Also, you don’t have to be the one to implement your feature;
+but keep in mind that if you don’t, it might be a while before someone else does.</p>
+<p>For the <code>?</code> macro feature, I needed to go understand the relevant parts of
+macro expansion in the compiler.
+Personally, I find that <a href="https://github.com/rust-lang/rust/pull/47732">improving the
+comments</a> in the code is a helpful way of making sure I understand
+it, but you don’t have to do that if you don’t want to.</p>
+<p>I then <a href="https://github.com/rust-lang/rust/pull/47752">implemented</a> the original feature, as described in the RFC.
+When a new feature is implemented, it goes behind a <em>feature gate</em>, which means that
+you have to use <code>#![feature(my_feature_name)]</code> to use the feature.
+The feature gate is removed when the feature is stabilized.</p>
+<p><strong>Most bug fixes and improvements</strong> don’t require a feature gate.
+You can just make your changes/improvements.</p>
+<p>When you open a PR on the <a href="https://github.com/rust-lang/rust">rust-lang/rust</a>, a bot will assign your PR to a reviewer.
+If there is a particular Rust team member you are working with, you can
+request that reviewer by leaving a comment on the thread with <code>r? @reviewer-github-id</code> (e.g. <code>r? @eddyb</code>). If you don’t know who to request,
+don’t request anyone;
+the bot will assign someone automatically based on which files you changed.</p>
+<p>The reviewer may request changes before they approve your PR, they may mark the PR with label
+“S-waiting-on-author” after leaving comments, this means that the PR is blocked on you to make
+some requested changes.
+When you finished iterating on the changes, you can mark the PR as
+<code>S-waiting-on-review</code> again by leaving a comment with <code>@rustbot ready</code>, this will remove the
+<code>S-waiting-on-author</code> label and add the <code>S-waiting-on-review</code> label.</p>
+<p>Feel free to ask questions or discuss things you don’t understand or disagree with.
+However, recognize that the PR won’t be merged unless someone on the Rust team approves it.
+If a reviewer leave a comment like <code>r=me after fixing ...</code>, that means they approve the PR and
+you can merge it with comment with <code>@bors r=reviewer-github-id</code>(e.g. <code>@bors r=eddyb</code>) to merge it
+after fixing trivial issues.
+Note that <code>r=someone</code> requires permission and bors could say
+something like “🔑 Insufficient privileges…” when commenting <code>r=someone</code>.
+In that case, you have to ask the reviewer to revisit your PR.</p>
+<p>When your reviewer approves the PR, it will go into a queue for yet another bot called <code>@bors</code>.
+<code>@bors</code> manages the CI build/merge queue.
+When your PR reaches the head of the <code>@bors</code> queue, <code>@bors</code> will test out the merge by running all
+tests against your PR on GitHub Actions.
+This takes a lot of time to finish.
+If all tests pass, the PR is merged and becomes part of the next nightly compiler!</p>
+<p>There are a couple of things that may happen for some PRs during the review process</p>
+<ul>
+<li>If the change is substantial enough, the reviewer may request an FCP on the PR.
+This gives all members of the appropriate team a chance to review the changes.</li>
+<li>If the change may cause breakage, the reviewer may request a <a href="./tests/crater.html">crater</a> run.
+This compiles the compiler with your changes and then attempts to compile all
+crates on crates.io with your modified compiler.
+This is a great smoke test
+to check if you introduced a change to compiler behavior that affects a large
+portion of the ecosystem.</li>
+<li>If the diff of your PR is large or the reviewer is busy, your PR may have
+some merge conflicts with other PRs that happen to get merged first.
+You should fix these merge conflicts using the normal git procedures.</li>
+</ul>
+<p>If you are not doing a new feature or something like that (e.g. if you are
+fixing a bug), then that’s it!
+Thanks for your contribution :)</p>
+<h2 id="refining-your-implementation"><a class="header" href="#refining-your-implementation">Refining your implementation</a></h2>
+<p>As people get experience with your new feature on nightly, slight changes may
+be proposed and unresolved questions may become resolved.
+Updates/changes go through the same process for implementing any other changes, as described
+above (i.e. submit a PR, go through review, wait for <code>@bors</code>, etc).</p>
+<p>Some changes may be major enough to require an FCP and some review by Rust team members.</p>
+<p>For the <code>?</code> macro feature, we went through a few different iterations after the
+original implementation: <a href="https://github.com/rust-lang/rust/pull/49719">1</a>, <a href="https://github.com/rust-lang/rust/pull/51336">2</a>, <a href="https://github.com/rust-lang/rust/pull/51587">3</a>.</p>
+<p>Along the way, we decided that <code>?</code> should not take a separator, which was
+previously an unresolved question listed in the RFC.
+We also changed the disambiguation strategy: we decided to remove the ability to use <code>?</code> as a
+separator token for other repetition operators (e.g. <code>+</code> or <code>*</code>). However,
+since this was a breaking change, we decided to do it over an edition boundary.
+Thus, the new feature can be enabled only in edition 2018. These deviations
+from the original RFC required <a href="https://github.com/rust-lang/rust/issues/51934">another FCP</a>.</p>
+<h2 id="stabilization"><a class="header" href="#stabilization">Stabilization</a></h2>
+<p>Finally, after the feature had baked for a while on nightly, a language team member
+<a href="https://github.com/rust-lang/rust/issues/48075#issuecomment-433177613">moved to stabilize it</a>.</p>
+<p>A <em>stabilization report</em> needs to be written that includes</p>
+<ul>
+<li>brief description of the behavior and any deviations from the RFC</li>
+<li>which edition(s) are affected and how</li>
+<li>links to a few tests to show the interesting aspects</li>
+</ul>
+<p>The stabilization report for our feature is <a href="https://github.com/rust-lang/rust/issues/48075#issuecomment-433243048">here</a>.</p>
+<p>After this, <a href="https://github.com/rust-lang/rust/pull/56245">a PR is made</a> to remove the feature gate, enabling the feature by
+default (on the 2018 edition).
+A note is added to the <a href="https://github.com/rust-lang/rust/blob/HEAD/RELEASES.md">Release notes</a> about the feature.</p>
+<p>Steps to stabilize the feature can be found at <a href="./stabilization-guide.html">Stabilizing Features</a>.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="rustbot.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="implementing-new-features.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="rustbot.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="implementing-new-features.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-c2a407aa.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="mermaid-cc85ecea.min.js"></script>
+        <script src="mermaid-init-4533fb11.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

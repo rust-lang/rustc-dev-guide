@@ -1,0 +1,554 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Placeholders and universes - Rust Compiler Development Guide</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A guide to developing the Rust compiler (rustc)">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../../css/general-2459343d.css">
+        <link rel="stylesheet" href="../../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../../searchindex-5b8627da.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc-1a3501b2.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Compiler Development Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide/edit/main/src/borrow-check/region-inference/placeholders-and-universes.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="placeholders-and-universes"><a class="header" href="#placeholders-and-universes">Placeholders and universes</a></h1>
+<p>From time to time we have to reason about regions that we can’t
+concretely know. For example, consider this program:</p>
+<pre><code class="language-rust ignore">// A function that needs a static reference
+fn foo(x: &amp;'static u32) { }
+
+fn bar(f: for&lt;'a&gt; fn(&amp;'a u32)) {
+       // ^^^^^^^^^^^^^^^^^^^ a function that can accept **any** reference
+    let x = 22;
+    f(&amp;x);
+}
+
+fn main() {
+    bar(foo);
+}</code></pre>
+<p>This program ought not to type-check: <code>foo</code> needs a static reference
+for its argument, and <code>bar</code> wants to be given a function that
+accepts <strong>any</strong> reference (so it can call it with something on its
+stack, for example). But <em>how</em> do we reject it and <em>why</em>?</p>
+<h2 id="subtyping-and-placeholders"><a class="header" href="#subtyping-and-placeholders">Subtyping and Placeholders</a></h2>
+<p>When we type-check <code>main</code>, and in particular the call <code>bar(foo)</code>, we
+are going to wind up with a subtyping relationship like this one:</p>
+<pre><code class="language-text">fn(&amp;'static u32) &lt;: for&lt;'a&gt; fn(&amp;'a u32)
+----------------    -------------------
+the type of `foo`   the type `bar` expects
+</code></pre>
+<p>We handle this sort of subtyping by taking the variables that are
+bound in the supertype and replacing them with
+<a href="../../appendix/background.html#quantified">universally quantified</a>
+representatives, denoted like <code>!1</code> here. We call these regions “placeholder
+regions” – they represent, basically, “some unknown region”.</p>
+<p>Once we’ve done that replacement, we have the following relation:</p>
+<pre><code class="language-text">fn(&amp;'static u32) &lt;: fn(&amp;'!1 u32)
+</code></pre>
+<p>The key idea here is that this unknown region <code>'!1</code> is not related to
+any other regions. So if we can prove that the subtyping relationship
+is true for <code>'!1</code>, then it ought to be true for any region, which is
+what we wanted.</p>
+<p>So let’s work through what happens next. To check if two functions are
+subtypes, we check if their arguments have the desired relationship
+(fn arguments are <a href="../../appendix/background.html#variance">contravariant</a>, so
+we swap the left and right here):</p>
+<pre><code class="language-text">&amp;'!1 u32 &lt;: &amp;'static u32
+</code></pre>
+<p>According to the basic subtyping rules for a reference, this will be
+true if <code>'!1: 'static</code>. That is – if “some unknown region <code>!1</code>” outlives <code>'static</code>.
+Now, this <em>might</em> be true – after all, <code>'!1</code> could be <code>'static</code> –
+but we don’t <em>know</em> that it’s true. So this should yield up an error (eventually).</p>
+<h2 id="what-is-a-universe"><a class="header" href="#what-is-a-universe">What is a universe?</a></h2>
+<p>In the previous section, we introduced the idea of a placeholder
+region, and we denoted it <code>!1</code>. We call this number <code>1</code> the <strong>universe
+index</strong>. The idea of a “universe” is that it is a set of names that
+are in scope within some type or at some point. Universes are formed
+into a tree, where each child extends its parents with some new names.
+So the <strong>root universe</strong> conceptually contains global names, such as
+the lifetime <code>'static</code> or the type <code>i32</code>. In the compiler, we also
+put generic type parameters into this root universe (in this sense,
+there is not just one root universe, but one per item). So consider
+this function <code>bar</code>:</p>
+<pre><code class="language-rust ignore">struct Foo { }
+
+fn bar&lt;'a, T&gt;(t: &amp;'a T) {
+    ...
+}</code></pre>
+<p>Here, the root universe would consist of the lifetimes <code>'static</code> and
+<code>'a</code>.  In fact, although we’re focused on lifetimes here, we can apply
+the same concept to types, in which case the types <code>Foo</code> and <code>T</code> would
+be in the root universe (along with other global types, like <code>i32</code>).
+Basically, the root universe contains all the names that
+<a href="../../appendix/background.html#free-vs-bound">appear free</a> in the body of <code>bar</code>.</p>
+<p>Now let’s extend <code>bar</code> a bit by adding a variable <code>x</code>:</p>
+<pre><code class="language-rust ignore">fn bar&lt;'a, T&gt;(t: &amp;'a T) {
+    let x: for&lt;'b&gt; fn(&amp;'b u32) = ...;
+}</code></pre>
+<p>Here, the name <code>'b</code> is not part of the root universe. Instead, when we
+“enter” into this <code>for&lt;'b&gt;</code> (e.g., by replacing it with a placeholder), we will create
+a child universe of the root, let’s call it U1:</p>
+<pre><code class="language-text">U0 (root universe)
+│
+└─ U1 (child universe)
+</code></pre>
+<p>The idea is that this child universe U1 extends the root universe U0
+with a new name, which we are identifying by its universe number:
+<code>!1</code>.</p>
+<p>Now let’s extend <code>bar</code> a bit by adding one more variable, <code>y</code>:</p>
+<pre><code class="language-rust ignore">fn bar&lt;'a, T&gt;(t: &amp;'a T) {
+    let x: for&lt;'b&gt; fn(&amp;'b u32) = ...;
+    let y: for&lt;'c&gt; fn(&amp;'c u32) = ...;
+}</code></pre>
+<p>When we enter <em>this</em> type, we will again create a new universe, which
+we’ll call <code>U2</code>. Its parent will be the root universe, and U1 will be
+its sibling:</p>
+<pre><code class="language-text">U0 (root universe)
+│
+├─ U1 (child universe)
+│
+└─ U2 (child universe)
+</code></pre>
+<p>This implies that, while in U2, we can name things from U0 or U2, but
+not U1.</p>
+<p><strong>Giving existential variables a universe.</strong> Now that we have this
+notion of universes, we can use it to extend our type-checker and
+things to prevent illegal names from leaking out. The idea is that we
+give each inference (existential) variable – whether it be a type or
+a lifetime – a universe. That variable’s value can then only
+reference names visible from that universe. So for example if a
+lifetime variable is created in U0, then it cannot be assigned a value
+of <code>!1</code> or <code>!2</code>, because those names are not visible from the universe
+U0.</p>
+<p><strong>Representing universes with just a counter.</strong> You might be surprised
+to see that the compiler doesn’t keep track of a full tree of
+universes. Instead, it just keeps a counter – and, to determine if
+one universe can see another one, it just checks if the index is
+greater. For example, U2 can see U0 because 2 &gt;= 0. But U0 cannot see
+U2, because 0 &gt;= 2 is false.</p>
+<p>How can we get away with this? Doesn’t this mean that we would allow
+U2 to also see U1? The answer is that, yes, we would, <strong>if that
+question ever arose</strong>.  But because of the structure of our type
+checker etc, there is no way for that to happen. In order for
+something happening in the universe U1 to “communicate” with something
+happening in U2, they would have to have a shared inference variable X
+in common. And because everything in U1 is scoped to just U1 and its
+children, that inference variable X would have to be in U0. And since
+X is in U0, it cannot name anything from U1 (or U2). This is perhaps easiest
+to see by using a kind of generic “logic” example:</p>
+<pre><code class="language-text">exists&lt;X&gt; {
+   forall&lt;Y&gt; { ... /* Y is in U1 ... */ }
+   forall&lt;Z&gt; { ... /* Z is in U2 ... */ }
+}
+</code></pre>
+<p>Here, the only way for the two foralls to interact would be through X,
+but neither Y nor Z are in scope when X is declared, so its value
+cannot reference either of them.</p>
+<h2 id="universes-and-placeholder-region-elements"><a class="header" href="#universes-and-placeholder-region-elements">Universes and placeholder region elements</a></h2>
+<p>But where does that error come from?  The way it happens is like this.
+When we are constructing the region inference context, we can tell
+from the type inference context how many placeholder variables exist
+(the <code>InferCtxt</code> has an internal counter). For each of those, we
+create a corresponding universal region variable <code>!n</code> and a “region
+element” <code>placeholder(n)</code>. This corresponds to “some unknown set of other
+elements”. The value of <code>!n</code> is <code>{placeholder(n)}</code>.</p>
+<p>At the same time, we also give each existential variable a
+<strong>universe</strong> (also taken from the <code>InferCtxt</code>). This universe
+determines which placeholder elements may appear in its value: For
+example, a variable in universe U3 may name <code>placeholder(1)</code>, <code>placeholder(2)</code>, and
+<code>placeholder(3)</code>, but not <code>placeholder(4)</code>. Note that the universe of an inference
+variable controls what region elements <strong>can</strong> appear in its value; it
+does not say region elements <strong>will</strong> appear.</p>
+<h2 id="placeholders-and-outlives-constraints"><a class="header" href="#placeholders-and-outlives-constraints">Placeholders and outlives constraints</a></h2>
+<p>In the region inference engine, outlives constraints have the form:</p>
+<pre><code class="language-text">V1: V2 @ P
+</code></pre>
+<p>where <code>V1</code> and <code>V2</code> are region indices, and hence map to some region
+variable (which may be universally or existentially quantified). The
+<code>P</code> here is a “point” in the control-flow graph; it’s not important
+for this section. This variable will have a universe, so let’s call
+those universes <code>U(V1)</code> and <code>U(V2)</code> respectively. (Actually, the only
+one we are going to care about is <code>U(V1)</code>.)</p>
+<p>When we encounter this constraint, the ordinary procedure is to start
+a DFS from <code>P</code>. We keep walking so long as the nodes we are walking
+are present in <code>value(V2)</code> and we add those nodes to <code>value(V1)</code>. If
+we reach a return point, we add in any <code>end(X)</code> elements. That part
+remains unchanged.</p>
+<p>But then <em>after that</em> we want to iterate over the placeholder <code>placeholder(x)</code>
+elements in V2 (each of those must be visible to <code>U(V2)</code>, but we
+should be able to just assume that is true, we don’t have to check
+it). We have to ensure that <code>value(V1)</code> outlives each of those
+placeholder elements.</p>
+<p>Now there are two ways that could happen. First, if <code>U(V1)</code> can see
+the universe <code>x</code> (i.e., <code>x &lt;= U(V1)</code>), then we can just add <code>placeholder(x)</code>
+to <code>value(V1)</code> and be done. But if not, then we have to approximate:
+we may not know what set of elements <code>placeholder(x)</code> represents, but we
+should be able to compute some sort of <strong>upper bound</strong> B for it –
+some region B that outlives <code>placeholder(x)</code>. For now, we’ll just use
+<code>'static</code> for that (since it outlives everything) – in the future, we
+can sometimes be smarter here (and in fact we have code for doing this
+already in other contexts). Moreover, since <code>'static</code> is in the root
+universe U0, we know that all variables can see it – so basically if
+we find that <code>value(V2)</code> contains <code>placeholder(x)</code> for some universe <code>x</code>
+that <code>V1</code> can’t see, then we force <code>V1</code> to <code>'static</code>.</p>
+<h2 id="extending-the-universal-regions-check"><a class="header" href="#extending-the-universal-regions-check">Extending the “universal regions” check</a></h2>
+<p>After all constraints have been propagated, the NLL region inference
+has one final check, where it goes over the values that wound up being
+computed for each universal region and checks that they did not get
+‘too large’. In our case, we will go through each placeholder region
+and check that it contains <em>only</em> the <code>placeholder(u)</code> element it is known to
+outlive. (Later, we might be able to know that there are relationships
+between two placeholder regions and take those into account, as we do
+for universal regions from the fn signature.)</p>
+<p>Put another way, the “universal regions” check can be considered to be
+checking constraints like:</p>
+<pre><code class="language-text">{placeholder(1)}: V1
+</code></pre>
+<p>where <code>{placeholder(1)}</code> is like a constant set, and V1 is the variable we
+made to represent the <code>!1</code> region.</p>
+<h2 id="back-to-our-example"><a class="header" href="#back-to-our-example">Back to our example</a></h2>
+<p>OK, so far so good. Now let’s walk through what would happen with our
+first example:</p>
+<pre><code class="language-text">fn(&amp;'static u32) &lt;: fn(&amp;'!1 u32) @ P  // this point P is not imp't here
+</code></pre>
+<p>The region inference engine will create a region element domain like this:</p>
+<pre><code class="language-text">{ CFG; end('static); placeholder(1) }
+  ---  ------------  ------- from the universe `!1`
+  |    'static is always in scope
+  all points in the CFG; not especially relevant here
+</code></pre>
+<p>It will always create two universal variables, one representing
+<code>'static</code> and one representing <code>'!1</code>. Let’s call them Vs and V1. They
+will have initial values like so:</p>
+<pre><code class="language-text">Vs = { CFG; end('static) } // it is in U0, so can't name anything else
+V1 = { placeholder(1) }
+</code></pre>
+<p>From the subtyping constraint above, we would have an outlives constraint like</p>
+<pre><code class="language-text">'!1: 'static @ P
+</code></pre>
+<p>To process this, we would grow the value of V1 to include all of Vs:</p>
+<pre><code class="language-text">Vs = { CFG; end('static) }
+V1 = { CFG; end('static), placeholder(1) }
+</code></pre>
+<p>At that point, constraint propagation is complete, because all the
+outlives relationships are satisfied. Then we would go to the “check
+universal regions” portion of the code, which would test that no
+universal region grew too large.</p>
+<p>In this case, <code>V1</code> <em>did</em> grow too large – it is not known to outlive
+<code>end('static)</code>, nor any of the CFG – so we would report an error.</p>
+<h2 id="another-example"><a class="header" href="#another-example">Another example</a></h2>
+<p>What about this subtyping relationship?</p>
+<pre><code class="language-text">for&lt;'a&gt; fn(&amp;'a u32, &amp;'a u32)
+    &lt;:
+for&lt;'b, 'c&gt; fn(&amp;'b u32, &amp;'c u32)
+</code></pre>
+<p>Here we would replace the bound region in the supertype with a placeholder, as before, yielding:</p>
+<pre><code class="language-text">for&lt;'a&gt; fn(&amp;'a u32, &amp;'a u32)
+    &lt;:
+fn(&amp;'!1 u32, &amp;'!2 u32)
+</code></pre>
+<p>then we instantiate the variable on the left-hand side with an
+existential in universe U2, yielding the following (<code>?n</code> is a notation
+for an existential variable):</p>
+<pre><code class="language-text">fn(&amp;'?3 u32, &amp;'?3 u32)
+    &lt;:
+fn(&amp;'!1 u32, &amp;'!2 u32)
+</code></pre>
+<p>Then we break this down further:</p>
+<pre><code class="language-text">&amp;'!1 u32 &lt;: &amp;'?3 u32
+&amp;'!2 u32 &lt;: &amp;'?3 u32
+</code></pre>
+<p>and even further, yield up our region constraints:</p>
+<pre><code class="language-text">'!1: '?3
+'!2: '?3
+</code></pre>
+<p>Note that, in this case, both <code>'!1</code> and <code>'!2</code> have to outlive the
+variable <code>'?3</code>, but the variable <code>'?3</code> is not forced to outlive
+anything else. Therefore, it simply starts and ends as the empty set
+of elements, and hence the type-check succeeds here.</p>
+<p>(This should surprise you a little. It surprised me when I first realized it.
+We are saying that if we are a fn that <strong>needs both of its arguments to have
+the same region</strong>, we can accept being called with <strong>arguments with two
+distinct regions</strong>. That seems intuitively unsound. But in fact, it’s fine, as
+I tried to explain in <a href="https://github.com/rust-lang/rust/issues/32330#issuecomment-202536977">this issue</a> on the Rust issue
+tracker long ago.  The reason is that even if we get called with arguments of
+two distinct lifetimes, those two lifetimes have some intersection (the call
+itself), and that intersection can be our value of <code>'a</code> that we use as the
+common lifetime of our arguments. -nmatsakis)</p>
+<h2 id="final-example"><a class="header" href="#final-example">Final example</a></h2>
+<p>Let’s look at one last example. We’ll extend the previous one to have
+a return type:</p>
+<pre><code class="language-text">for&lt;'a&gt; fn(&amp;'a u32, &amp;'a u32) -&gt; &amp;'a u32
+    &lt;:
+for&lt;'b, 'c&gt; fn(&amp;'b u32, &amp;'c u32) -&gt; &amp;'b u32
+</code></pre>
+<p>Despite seeming very similar to the previous example, this case is going to get
+an error. That’s good: the problem is that we’ve gone from a fn that promises
+to return one of its two arguments, to a fn that is promising to return the
+first one. That is unsound. Let’s see how it plays out.</p>
+<p>First, we replace the bound region in the supertype with a placeholder:</p>
+<pre><code class="language-text">for&lt;'a&gt; fn(&amp;'a u32, &amp;'a u32) -&gt; &amp;'a u32
+    &lt;:
+fn(&amp;'!1 u32, &amp;'!2 u32) -&gt; &amp;'!1 u32
+</code></pre>
+<p>Then we instantiate the subtype with existentials (in U2):</p>
+<pre><code class="language-text">fn(&amp;'?3 u32, &amp;'?3 u32) -&gt; &amp;'?3 u32
+    &lt;:
+fn(&amp;'!1 u32, &amp;'!2 u32) -&gt; &amp;'!1 u32
+</code></pre>
+<p>And now we create the subtyping relationships:</p>
+<pre><code class="language-text">&amp;'!1 u32 &lt;: &amp;'?3 u32 // arg 1
+&amp;'!2 u32 &lt;: &amp;'?3 u32 // arg 2
+&amp;'?3 u32 &lt;: &amp;'!1 u32 // return type
+</code></pre>
+<p>And finally the outlives relationships. Here, let V1, V2, and V3 be the
+variables we assign to <code>!1</code>, <code>!2</code>, and <code>?3</code> respectively:</p>
+<pre><code class="language-text">V1: V3
+V2: V3
+V3: V1
+</code></pre>
+<p>Those variables will have these initial values:</p>
+<pre><code class="language-text">V1 in U1 = {placeholder(1)}
+V2 in U2 = {placeholder(2)}
+V3 in U2 = {}
+</code></pre>
+<p>Now because of the <code>V3: V1</code> constraint, we have to add <code>placeholder(1)</code> into <code>V3</code> (and
+indeed it is visible from <code>V3</code>), so we get:</p>
+<pre><code class="language-text">V3 in U2 = {placeholder(1)}
+</code></pre>
+<p>then we have this constraint <code>V2: V3</code>, so we wind up having to enlarge
+<code>V2</code> to include <code>placeholder(1)</code> (which it can also see):</p>
+<pre><code class="language-text">V2 in U2 = {placeholder(1), placeholder(2)}
+</code></pre>
+<p>Now constraint propagation is done, but when we check the outlives
+relationships, we find that <code>V2</code> includes this new element <code>placeholder(1)</code>,
+so we report an error.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../borrow-check/region-inference/member-constraints.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../../borrow-check/region-inference/closure-constraints.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../borrow-check/region-inference/member-constraints.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../../borrow-check/region-inference/closure-constraints.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../../mark-09e88c2c.min.js"></script>
+        <script src="../../searcher-c2a407aa.js"></script>
+
+        <script src="../../clipboard-1626706a.min.js"></script>
+        <script src="../../highlight-abc7f01d.js"></script>
+        <script src="../../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../../mermaid-cc85ecea.min.js"></script>
+        <script src="../../mermaid-init-4533fb11.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

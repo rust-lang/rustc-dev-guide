@@ -1,0 +1,533 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Editions - Rust Compiler Development Guide</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A guide to developing the Rust compiler (rustc)">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex-5b8627da.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-1a3501b2.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Compiler Development Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide/edit/main/src/guides/editions.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="editions"><a class="header" href="#editions">Editions</a></h1>
+<p>This chapter gives an overview of how Edition support works in rustc.
+This assumes that you are familiar with what Editions are (see the <a href="https://doc.rust-lang.org/edition-guide/">Edition Guide</a>).</p>
+<h2 id="edition-definition"><a class="header" href="#edition-definition">Edition definition</a></h2>
+<p>The <code>--edition</code> CLI flag specifies the edition to use for a crate.
+This can be accessed from <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/struct.Session.html#method.edition"><code>Session::edition</code></a>.
+There are convenience functions like <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/struct.Session.html#method.at_least_rust_2021"><code>Session::at_least_rust_2021</code></a> for checking the crate’s
+edition, though you should be careful about whether you check the global session or the span, see
+<a href="#edition-hygiene">Edition hygiene</a> below.</p>
+<p>As an alternative to the <code>at_least_rust_20xx</code> convenience methods, the <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_span/edition/enum.Edition.html"><code>Edition</code></a> type also
+supports comparisons for doing range checks, such as <code>span.edition() &gt;= Edition::Edition2021</code>.</p>
+<h3 id="adding-a-new-edition"><a class="header" href="#adding-a-new-edition">Adding a new edition</a></h3>
+<p>Adding a new edition mainly involves adding a variant to the <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_span/edition/enum.Edition.html"><code>Edition</code></a> enum and then fixing
+everything that is broken. See <a href="https://github.com/rust-lang/rust/pull/94461">#94461</a> for an
+example.</p>
+<h3 id="features-and-edition-stability"><a class="header" href="#features-and-edition-stability">Features and Edition stability</a></h3>
+<p>The <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_span/edition/enum.Edition.html"><code>Edition</code></a> enum defines whether or not an edition is stable.
+If it is not stable, then the <code>-Zunstable-options</code> CLI option must be passed to enable it.</p>
+<p>When adding a new feature, there are two options you can choose for how to handle stability with a
+future edition:</p>
+<ul>
+<li>Just check the edition of the span like <code>span.at_least_rust_20xx()</code> (see <a href="#edition-hygiene">Edition hygiene</a>) or the
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/struct.Session.html#method.edition"><code>Session::edition</code></a>. This will implicitly depend on the stability of the edition itself to
+indicate that your feature is available.</li>
+<li>Place your new behavior behind a <a href="../feature-gates.html">feature gate</a>.</li>
+</ul>
+<p>It may be sufficient to only check the current edition for relatively simple changes.
+However, for larger language changes, you should consider creating a feature gate.
+There are several benefits to using a feature gate:</p>
+<ul>
+<li>A feature gate makes it easier to work on and experiment with a new feature.</li>
+<li>It makes the intent clear when the <code>#![feature(…)]</code> attribute is used that your new feature is
+being enabled.</li>
+<li>It makes testing of editions easier so that features that are not yet complete do not interfere
+with testing of edition-specific features that are complete and ready.</li>
+<li>It decouples the feature from an edition, which makes it easier for the team to make a deliberate
+decision of whether or not a feature should be added to the next edition when the feature is
+ready.</li>
+</ul>
+<p>When a feature is complete and ready, the feature gate can be removed (and the code should just
+check the span or <code>Session</code> edition to determine if it is enabled).</p>
+<p>There are a few different options for doing feature checks:</p>
+<ul>
+<li>
+<p>For highly experimental features, that may or may not be involved in an edition, they can
+implement regular feature gates like <code>tcx.features().my_feature</code>, and ignore editions for the time
+being.</p>
+</li>
+<li>
+<p>For experimental features that <em>might</em> be involved in an edition, they should implement gates with
+<code>tcx.features().my_feature &amp;&amp; span.at_least_rust_20xx()</code>.
+This requires the user to still specify <code>#![feature(my_feature)]</code>, to avoid disrupting testing of
+other edition features which are ready and have been accepted within the edition.</p>
+</li>
+<li>
+<p>For experimental features that have graduated to definitely be part of an edition,
+they should implement gates with <code>tcx.features().my_feature || span.at_least_rust_20xx()</code>,
+or just remove the feature check altogether and just check <code>span.at_least_rust_20xx()</code>.</p>
+</li>
+</ul>
+<p>If you need to do the feature gating in multiple places, consider placing the check in a single
+function so that there will only be a single place to update. For example:</p>
+<pre><code class="language-rust ignore">// An example from Edition 2021 disjoint closure captures.
+
+fn enable_precise_capture(tcx: TyCtxt&lt;'_&gt;, span: Span) -&gt; bool {
+    tcx.features().capture_disjoint_fields || span.rust_2021()
+}</code></pre>
+<p>See <a href="#lints-and-stability">Lints and stability</a> below for more information about how lints handle
+stability.</p>
+<h2 id="edition-parsing"><a class="header" href="#edition-parsing">Edition parsing</a></h2>
+<p>For the most part, the lexer is edition-agnostic.
+Within <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_parse/lexer/struct.Lexer.html"><code>Lexer</code></a>, tokens can be modified based on edition-specific behavior.
+For example, C-String literals like <code>c"foo"</code> are split into multiple tokens in editions before 2021.
+This is also where things like reserved prefixes are handled for the 2021 edition.</p>
+<p>Edition-specific parsing is relatively rare. One example is <code>async fn</code> which checks the span of the
+token to determine if it is the 2015 edition, and emits an error in that case.
+This can only be done if the syntax was already invalid.</p>
+<p>If you need to do edition checking in the parser, you will normally want to look at the edition of
+the token, see <a href="#edition-hygiene">Edition hygiene</a>.
+In some rare cases you may instead need to check the global edition from <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/parse/struct.ParseSess.html#structfield.edition"><code>ParseSess::edition</code></a>.</p>
+<p>Most edition-specific parsing behavior is handled with <a href="#migration-lints">migration lints</a> instead of in the parser.
+This is appropriate when there is a <em>change</em> in syntax (as opposed to new syntax).
+This allows the old syntax to continue to work on previous editions.
+The lint then checks for the change in behavior.
+On older editions, the lint pass should emit the migration lint to help with migrating to new
+editions.
+On newer editions, your code should emit a hard error with <code>emit_err</code> instead.
+For example, the deprecated <code>start...end</code> pattern syntax emits the
+<a href="https://doc.rust-lang.org/nightly/rustc/lints/listing/warn-by-default.html#ellipsis-inclusive-range-patterns"><code>ellipsis_inclusive_range_patterns</code></a> lint on editions before 2021, and in 2021 is an hard error via
+the <code>emit_err</code> method.</p>
+<h3 id="keywords"><a class="header" href="#keywords">Keywords</a></h3>
+<p>New keywords can be introduced across an edition boundary.
+This is implemented by functions like <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_span/symbol/struct.Symbol.html#method.is_used_keyword_conditional"><code>Symbol::is_used_keyword_conditional</code></a>, which rely on the
+ordering of how the keywords are defined.</p>
+<p>When new keywords are introduced, the <a href="https://doc.rust-lang.org/nightly/rustc/lints/listing/allowed-by-default.html#keyword-idents"><code>keyword_idents</code></a> lint should be updated so that automatic
+migrations can transition code that might be using the keyword as an identifier (see
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/builtin/struct.KeywordIdents.html"><code>KeywordIdents</code></a>).
+An alternative to consider is to implement the keyword as a weak keyword if the position it is used
+is sufficient to distinguish it.</p>
+<p>An additional option to consider is the <code>k#</code> prefix which was introduced in <a href="https://rust-lang.github.io/rfcs/3101-reserved_prefixes.html">RFC 3101</a>.
+This allows the use of a keyword in editions <em>before</em> the edition where the keyword is introduced.
+This is currently not implemented.</p>
+<h3 id="edition-hygiene"><a class="header" href="#edition-hygiene">Edition hygiene</a></h3>
+<p>Spans are marked with the edition of the crate that the span came from.
+See <a href="https://doc.rust-lang.org/nightly/edition-guide/editions/advanced-migrations.html#macro-hygiene">Macro hygiene</a> in the Edition Guide for a user-centric description of what this means.</p>
+<p>You should normally use the edition from the token span instead of looking at the global <code>Session</code>
+edition.
+For example, use <code>span.edition().at_least_rust_2021()</code> instead of <code>sess.at_least_rust_2021()</code>.
+This helps ensure that macros behave correctly when used across crates.</p>
+<h2 id="lints"><a class="header" href="#lints">Lints</a></h2>
+<p>Lints support a few different options for interacting with editions.
+Lints can be <em>future incompatible edition migration lints</em>, which are used to support
+<a href="#migration-lints">migrations</a> to newer editions.
+Alternatively, lints can be <a href="#edition-specific-lints">edition-specific</a>, where they change their
+default level starting in a specific edition.</p>
+<h3 id="migration-lints"><a class="header" href="#migration-lints">Migration lints</a></h3>
+<p><em>Migration lints</em> are used to migrate projects from one edition to the next.
+They are implemented with a <code>MachineApplicable</code> <a href="../diagnostics.html#suggestions">suggestion</a> which
+will rewrite code so that it will <strong>successfully compile in both the previous and the next
+edition</strong>.
+For example, the <a href="https://doc.rust-lang.org/nightly/rustc/lints/listing/allowed-by-default.html#keyword-idents"><code>keyword_idents</code></a> lint will take identifiers that conflict with a new keyword to
+use the raw identifier syntax to avoid the conflict (for example changing <code>async</code> to <code>r#async</code>).</p>
+<p>Migration lints must be declared with the <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint_defs/enum.FutureIncompatibilityReason.html#variant.EditionError"><code>FutureIncompatibilityReason::EditionError</code></a> or
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint_defs/enum.FutureIncompatibilityReason.html#variant.EditionSemanticsChange"><code>FutureIncompatibilityReason::EditionSemanticsChange</code></a> <a href="../diagnostics.html#future-incompatible-lints">future-incompatible
+option</a> in the lint declaration:</p>
+<pre><code class="language-rust ignore">declare_lint! {
+    pub KEYWORD_IDENTS,
+    Allow,
+    "detects edition keywords being used as an identifier",
+    @future_incompatible = FutureIncompatibleInfo {
+        reason: fcw!(EditionError 2018 "slug-of-edition-guide-page")
+    };
+}</code></pre>
+<p>When declared like this, the lint is automatically added to the appropriate
+<code>rust-20xx-compatibility</code> lint group.
+When a user runs <code>cargo fix --edition</code>, cargo will pass the <code>--force-warn rust-20xx-compatibility</code>
+flag to force all of these lints to appear during the edition migration.
+Cargo also passes <code>--cap-lints=allow</code> so that no other lints interfere with the edition migration.</p>
+<p>Make sure that the example code sets the correct edition. The example should illustrate the previous edition, and show what the migration warning would look like. For example, this lint for a 2024 migration shows an example in 2021:</p>
+<pre><code class="language-rust ignore">declare_lint! {
+    /// The `keyword_idents_2024` lint detects ...
+    ///
+    /// ### Example
+    ///
+    /// ```rust,edition2021
+    /// #![warn(keyword_idents_2024)]
+    /// fn gen() {}
+    /// ```
+    ///
+    /// {{produces}}
+}</code></pre>
+<p>Migration lints can be either <code>Allow</code> or <code>Warn</code> by default.
+If it is <code>Allow</code>, users usually won’t see this warning unless they are doing an edition migration
+manually or there is a problem during the migration.
+Most migration lints are <code>Allow</code>.</p>
+<p>If it is <code>Warn</code> by default, users on all editions will see this warning.
+Only use <code>Warn</code> if you think it is important for everyone to be aware of the change, and to
+encourage people to update their code on all editions.
+Beware that new warn-by-default lint that hit many projects can be very disruptive and frustrating
+for users.
+You may consider switching an <code>Allow</code> to <code>Warn</code> several years after the edition stabilizes.
+This will only show up for the relatively small number of stragglers who have not updated to the new
+edition.</p>
+<h3 id="edition-specific-lints"><a class="header" href="#edition-specific-lints">Edition-specific lints</a></h3>
+<p>Lints can be marked so that they have a different level starting in a specific edition.
+In the lint declaration, use the <code>@edition</code> marker:</p>
+<pre><code class="language-rust ignore">declare_lint! {
+    pub SOME_LINT_NAME,
+    Allow,
+    "my lint description",
+    @edition Edition2024 =&gt; Warn;
+}</code></pre>
+<p>Here, <code>SOME_LINT_NAME</code> defaults to <code>Allow</code> on all editions before 2024, and then becomes <code>Warn</code>
+afterwards.</p>
+<p>This should generally be used sparingly, as there are other options:</p>
+<ul>
+<li>
+<p>Small impact stylistic changes unrelated to an edition can just make the lint <code>Warn</code> on all
+editions. If you want people to adopt a different way to write things, then go ahead and commit to
+having it show up for all projects.</p>
+<p>Beware that if a new warn-by-default lint hits many projects, it can be very disruptive and
+frustrating for users.</p>
+</li>
+<li>
+<p>Change the new style to be a hard error in the new edition, and use a <a href="#migration-lints">migration lint</a> to
+automatically convert projects to the new style. For example,
+<a href="https://doc.rust-lang.org/nightly/rustc/lints/listing/warn-by-default.html#ellipsis-inclusive-range-patterns"><code>ellipsis_inclusive_range_patterns</code></a> is a hard error in 2021, and warns in all previous editions.</p>
+<p>Beware that these cannot be added after the edition stabilizes.</p>
+</li>
+<li>
+<p>Migration lints can also change over time.
+For example, the migration lint can start out as <code>Allow</code> by default.
+For people performing the migration, they will automatically get updated to the new code.
+Then, after some years, the lint can be made to <code>Warn</code> in previous editions.</p>
+<p>For example <a href="https://doc.rust-lang.org/nightly/rustc/lints/listing/warn-by-default.html#anonymous-parameters"><code>anonymous_parameters</code></a> was a 2018 Edition migration lint (and a hard-error in 2018)
+that was <code>Allow</code> by default in previous editions.
+Then, three years later, it was changed to <code>Warn</code> for all previous editions, so that all users got
+a warning that the style was being phased out.
+If this was a warning from the start, it would have impacted many projects and be very disruptive.
+By making it part of the edition, most users eventually updated to the new edition and were
+handled by the migration.
+Switching to <code>Warn</code> only impacted a few stragglers who did not update.</p>
+</li>
+</ul>
+<h3 id="lints-and-stability"><a class="header" href="#lints-and-stability">Lints and stability</a></h3>
+<p>Lints can be marked as being unstable, which can be helpful when developing a new edition feature,
+and you want to test out a migration lint.
+The feature gate can be specified in the lint’s declaration like this:</p>
+<pre><code class="language-rust ignore">declare_lint! {
+    pub SOME_LINT_NAME,
+    Allow,
+    "my cool lint",
+    @feature_gate = sym::my_feature_name;
+}</code></pre>
+<p>Then, the lint will only fire if the user has the appropriate <code>#![feature(my_feature_name)]</code>.
+Just beware that when it comes time to do crater runs testing the migration that the feature gate
+will need to be removed.</p>
+<p>Alternatively, you can implement an allow-by-default <a href="#migration-lints">migration lint</a> for an upcoming unstable
+edition without a feature gate.
+Although users may technically be able to enable the lint before the edition is stabilized, most
+will not notice the new lint exists, and it should not disrupt anything or cause any breakage.</p>
+<h3 id="idiom-lints"><a class="header" href="#idiom-lints">Idiom lints</a></h3>
+<p>In the 2018 edition, there was a concept of “idiom lints” under the <code>rust-2018-idioms</code> lint group.
+The concept was to have new idiomatic styles under a different lint group separate from the forced
+migrations under the <code>rust-2018-compatibility</code> lint group, giving some flexibility as to how people
+opt-in to certain edition changes.</p>
+<p>Overall this approach did not seem to work very well,
+and it is unlikely that we will use the idiom groups in the future.</p>
+<h2 id="standard-library-changes"><a class="header" href="#standard-library-changes">Standard library changes</a></h2>
+<h3 id="preludes"><a class="header" href="#preludes">Preludes</a></h3>
+<p>Each edition comes with a specific prelude of the standard library.
+These are implemented as regular modules in <a href="https://doc.rust-lang.org/core/prelude/index.html"><code>core::prelude</code></a> and <a href="https://doc.rust-lang.org/std/prelude/index.html"><code>std::prelude</code></a>.
+New items can be added to the prelude, just beware that this can conflict with user’s pre-existing
+code.
+Usually a <a href="#migration-lints">migration lint</a> should be used to migrate existing code to avoid the conflict.
+For example, <a href="https://doc.rust-lang.org/nightly/rustc/lints/listing/allowed-by-default.html#rust-2021-prelude-collisions"><code>rust_2021_prelude_collisions</code></a> is used to handle the collisions with the new traits
+in 2021.</p>
+<h3 id="customized-language-behavior"><a class="header" href="#customized-language-behavior">Customized language behavior</a></h3>
+<p>Usually it is not possible to make breaking changes to the standard library.
+In some rare cases, the teams may decide that the behavior change is important enough to break this
+rule.
+The downside is that this requires special handling in the compiler to be able to distinguish when
+the old and new signatures or behaviors should be used.</p>
+<p>One example is the change in method resolution for <a href="https://doc.rust-lang.org/nightly/edition-guide/rust-2021/IntoIterator-for-arrays.html"><code>into_iter()</code> of arrays</a>.
+This was implemented with the <code>#[rustc_skip_array_during_method_dispatch]</code> attribute on the
+<code>IntoIterator</code> trait which then tells the compiler to consider an alternate trait resolution choice
+based on the edition.</p>
+<p>Another example is the <a href="https://doc.rust-lang.org/nightly/edition-guide/rust-2021/panic-macro-consistency.html"><code>panic!</code> macro changes</a>.
+This required defining multiple panic macros, and having the built-in panic macro implementation
+determine the appropriate way to expand it.
+This also included the <a href="https://doc.rust-lang.org/nightly/rustc/lints/listing/warn-by-default.html#non-fmt-panics"><code>non_fmt_panics</code></a> <a href="#migration-lints">migration lint</a> to adjust old code to the new form, which
+required the <code>rustc_diagnostic_item</code> attribute to detect the usage of the panic macro.</p>
+<p>In general it is recommended to avoid these special cases except for very high value situations.</p>
+<h3 id="migrating-the-standard-library-edition"><a class="header" href="#migrating-the-standard-library-edition">Migrating the standard library edition</a></h3>
+<p>Updating the edition of the standard library itself roughly involves the following process:</p>
+<ul>
+<li>Wait until the newly stabilized edition has reached beta and the bootstrap compiler has been updated.</li>
+<li>Apply migration lints. This can be an involved process since some code is in external submodules<sup class="footnote-reference" id="fr-std-submodules-1"><a href="#footnote-std-submodules">1</a></sup>, and the standard library makes heavy use of conditional compilation. Also, running <code>cargo fix --edition</code> can be impractical on the standard library itself. One approach is to individually add <code>#![warn(...)]</code> at the top of each crate for each lint, run <code>./x check library</code>, apply the migrations, remove the <code>#![warn(...)]</code> and commit each migration separately. You’ll likely need to run <code>./x check</code> with <code>--target</code> for many different targets to get full coverage (otherwise you’ll likely spend days or weeks getting CI to pass)<sup class="footnote-reference" id="fr-ed-docker-1"><a href="#footnote-ed-docker">2</a></sup>. See also the <a href="https://doc.rust-lang.org/nightly/edition-guide/editions/advanced-migrations.html">advanced migration guide</a> for more tips.
+<ul>
+<li>Apply migrations to <a href="https://github.com/rust-lang/backtrace-rs/"><code>backtrace-rs</code></a>. <a href="https://github.com/rust-lang/backtrace-rs/pull/700">Example for 2024</a>. Note that this doesn’t update the edition of the crate itself because that is published independently on crates.io, and that would otherwise restrict the minimum Rust version. Consider adding some <code>#![deny()]</code> attributes to avoid regressions until its edition gets updated.</li>
+<li>Apply migrations to <a href="https://github.com/rust-lang/stdarch/"><code>stdarch</code></a>, and update its edition, and formatting. <a href="https://github.com/rust-lang/stdarch/pull/1710">Example for 2024</a>.</li>
+<li>Post PRs to update the backtrace and stdarch submodules, and wait for those to land.</li>
+<li>Apply migration lints to the standard library crates, and update their edition. I recommend working one crate at a time starting with <code>core</code>. <a href="https://github.com/rust-lang/rust/pull/138162">Example for 2024</a>.</li>
+</ul>
+</li>
+</ul>
+<h2 id="stabilizing-an-edition"><a class="header" href="#stabilizing-an-edition">Stabilizing an edition</a></h2>
+<p>After the edition team has given the go-ahead, the process for stabilizing an edition is roughly:</p>
+<ul>
+<li>Update <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_span/edition/constant.LATEST_STABLE_EDITION.html"><code>LATEST_STABLE_EDITION</code></a>.</li>
+<li>Update <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_span/edition/enum.Edition.html#method.is_stable"><code>Edition::is_stable</code></a>.</li>
+<li>Hunt and find any document that refers to edition by number, and update it:
+<ul>
+<li><a href="https://github.com/rust-lang/rust/blob/HEAD/src/doc/rustc/src/command-line-arguments.md#--edition-specify-the-edition-to-use"><code>--edition</code> flag</a></li>
+<li><a href="https://github.com/rust-lang/rust/blob/HEAD/src/doc/rustdoc/src/write-documentation/documentation-tests.md#attributes">Rustdoc attributes</a></li>
+</ul>
+</li>
+<li>Clean up any tests that use the <code>//@ edition</code> header to remove the <code>-Zunstable-options</code> flag to ensure they are indeed stable. Note: Ideally this should be automated, see <a href="https://github.com/rust-lang/rust/issues/133582">#133582</a>.</li>
+<li>Bless any tests that change.</li>
+<li>Update <code>lint-docs</code> to default to the new edition.</li>
+</ul>
+<p>See <a href="https://github.com/rust-lang/rust/pull/133349">example for 2024</a>.</p>
+<hr>
+<ol class="footnote-definition">
+<li id="footnote-std-submodules">
+<p>This will hopefully change in the future to pull these submodules into <code>rust-lang/rust</code>. <a href="#fr-std-submodules-1">↩</a></p>
+</li>
+<li id="footnote-ed-docker">
+<p>You’ll also likely need to do a lot of testing for different targets, and this is where <a href="../tests/docker.html">docker testing</a> comes in handy. <a href="#fr-ed-docker-1">↩</a></p>
+</li>
+</ol>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../licenses.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../building/bootstrapping/intro.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../licenses.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../building/bootstrapping/intro.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../mermaid-cc85ecea.min.js"></script>
+        <script src="../mermaid-init-4533fb11.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

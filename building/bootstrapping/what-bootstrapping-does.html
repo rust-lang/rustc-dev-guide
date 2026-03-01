@@ -1,0 +1,590 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>What Bootstrapping does - Rust Compiler Development Guide</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A guide to developing the Rust compiler (rustc)">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../../css/general-2459343d.css">
+        <link rel="stylesheet" href="../../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../../searchindex-5b8627da.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../toc-1a3501b2.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Compiler Development Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide/edit/main/src/building/bootstrapping/what-bootstrapping-does.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="what-bootstrapping-does"><a class="header" href="#what-bootstrapping-does">What Bootstrapping does</a></h1>
+<p><a href="https://en.wikipedia.org/wiki/Bootstrapping_(compilers)"><em>Bootstrapping</em></a> is the process of using a compiler to compile itself.
+More accurately, it means using an older compiler to compile a newer version of the same compiler.</p>
+<p>This raises a chicken-and-egg paradox: where did the first compiler come from?
+It must have been written in a different language.
+In Rust’s case, it was <a href="https://github.com/rust-lang/rust/tree/ef75860a0a72f79f97216f8aaa5b388d98da6480/src/boot">written in OCaml</a>.
+However, it was abandoned long ago, and the
+only way to build a modern version of <code>rustc</code> is with a slightly less modern version.</p>
+<p>This is exactly how <a href="https://github.com/rust-lang/rust/blob/HEAD/x.py"><code>./x.py</code></a> works: it downloads the current beta release of
+<code>rustc</code>, then uses it to compile the new compiler.</p>
+<p>Note that this documentation mostly covers user-facing information.
+See <a href="https://github.com/rust-lang/rust/blob/HEAD/src/bootstrap/README.md">bootstrap/README.md</a> to read about bootstrap internals.</p>
+<h2 id="stages-of-bootstrapping"><a class="header" href="#stages-of-bootstrapping">Stages of bootstrapping</a></h2>
+<h3 id="overview"><a class="header" href="#overview">Overview</a></h3>
+<ul>
+<li>Stage 0: the pre-compiled compiler and standard library</li>
+<li>Stage 1: from current code, by an earlier compiler</li>
+<li>Stage 2: the truly current compiler</li>
+<li>Stage 3: the same-result test</li>
+</ul>
+<p>Compiling <code>rustc</code> is done in stages.
+Here’s a diagram, adapted from Jynn
+Nelson’s <a href="https://www.youtube.com/watch?v=oUIjG-y4zaA">talk on bootstrapping</a> at RustConf 2022, with
+detailed explanations below.</p>
+<p>The <code>A</code>, <code>B</code>, <code>C</code>, and <code>D</code> show the ordering of the stages of bootstrapping.
+<span style="background-color: lightblue; color: black">Blue</span> nodes are
+downloaded, <span style="background-color: yellow; color: black">yellow</span>
+nodes are built with the <code>stage0</code> compiler, and <span style="background-color:
+lightgreen; color: black">green</span> nodes are built with the <code>stage1</code> compiler.</p>
+<pre class="mermaid">graph TD
+    s0c["stage0 compiler (1.86.0-beta.1)"]:::downloaded --&gt;|A| s0l("stage0 std (1.86.0-beta.1)"):::downloaded;
+    s0c &amp; s0l --- stepb[ ]:::empty;
+    stepb --&gt;|B| s0ca["stage0 compiler artifacts (1.87.0-dev)"]:::with-s0c;
+    s0ca --&gt;|copy| s1c["stage1 compiler (1.87.0-dev)"]:::with-s0c;
+    s1c --&gt;|C| s1l("stage1 std (1.87.0-dev)"):::with-s1c;
+    s1c &amp; s1l --- stepd[ ]:::empty;
+    stepd --&gt;|D| s1ca["stage1 compiler artifacts (1.87.0-dev)"]:::with-s1c;
+    s1ca --&gt;|copy| s2c["stage2 compiler"]:::with-s1c;
+
+    classDef empty width:0px,height:0px;
+    classDef downloaded fill: lightblue;
+    classDef with-s0c fill: yellow;
+    classDef with-s1c fill: lightgreen;
+</pre>
+
+<h3 id="stage-0-the-pre-compiled-compiler"><a class="header" href="#stage-0-the-pre-compiled-compiler">Stage 0: the pre-compiled compiler</a></h3>
+<p>The stage0 compiler is by default the very recent <em>beta</em> <code>rustc</code> compiler and its
+associated dynamic libraries, which <code>./x.py</code> will download for you.
+(You can also configure <code>./x.py</code> to change stage0 to something else.)</p>
+<p>The precompiled stage0 compiler is then used only to compile <a href="https://github.com/rust-lang/rust/tree/HEAD/src/bootstrap"><code>src/bootstrap</code></a> and <a href="https://github.com/rust-lang/rust/tree/HEAD/compiler/rustc"><code>compiler/rustc</code></a>
+with precompiled stage0 std.</p>
+<p>Note that to build the stage1 compiler we use the precompiled stage0 compiler and std.
+Therefore, to use a compiler with a std that is freshly built from the tree, you need to
+build the stage2 compiler.</p>
+<p>There are two concepts at play here: a compiler (with its set of dependencies) and its
+‘target’ or ‘object’ libraries (<code>std</code> and <code>rustc</code>).
+Both are staged, but in a staggered manner.</p>
+<h3 id="stage-1-from-current-code-by-an-earlier-compiler"><a class="header" href="#stage-1-from-current-code-by-an-earlier-compiler">Stage 1: from current code, by an earlier compiler</a></h3>
+<p>The rustc source code is then compiled with the <code>stage0</code> compiler to produce the <code>stage1</code> compiler.</p>
+<h3 id="stage-2-the-truly-current-compiler"><a class="header" href="#stage-2-the-truly-current-compiler">Stage 2: the truly current compiler</a></h3>
+<p>We then rebuild the compiler using <code>stage1</code> compiler with in-tree std to produce the <code>stage2</code>
+compiler.</p>
+<p>The <code>stage1</code> compiler itself was built by precompiled <code>stage0</code> compiler and std
+and hence not by the source in your working directory.
+This means that the ABI
+generated by the <code>stage0</code> compiler may not match the ABI that would have been made
+by the <code>stage1</code> compiler, which can cause problems for dynamic libraries, tests
+and tools using <code>rustc_private</code>.</p>
+<p>Note that the <code>proc_macro</code> crate avoids this issue with a <code>C</code> FFI layer called
+<code>proc_macro::bridge</code>, allowing it to be used with <code>stage1</code>.</p>
+<p>The <code>stage2</code> compiler is the one distributed with <code>rustup</code> and all other install methods.
+However, it takes a very long time to build because one must first
+build the new compiler with an older compiler and then use that to build the new
+compiler with itself.</p>
+<p>For development, you usually only want to use <code>--stage 1</code> flag to build things.
+See <a href="../how-to-build-and-run.html#building-the-compiler">Building the compiler</a>.</p>
+<h3 id="stage-3-the-same-result-test"><a class="header" href="#stage-3-the-same-result-test">Stage 3: the same-result test</a></h3>
+<p>Stage 3 is optional.
+To sanity check our new compiler, we can build the libraries with the <code>stage2</code> compiler.
+The result ought to be identical to before, unless something has broken.</p>
+<h3 id="building-the-stages"><a class="header" href="#building-the-stages">Building the stages</a></h3>
+<p>The script <a href="https://github.com/rust-lang/rust/blob/HEAD/x"><code>./x</code></a> tries to be helpful and pick the stage you most likely meant for each subcommand.
+Here are some <code>x</code> commands with their default stages:</p>
+<ul>
+<li><code>check</code>: <code>--stage 1</code></li>
+<li><code>clippy</code>: <code>--stage 1</code></li>
+<li><code>doc</code>: <code>--stage 1</code></li>
+<li><code>build</code>: <code>--stage 1</code></li>
+<li><code>test</code>: <code>--stage 1</code></li>
+<li><code>dist</code>: <code>--stage 2</code></li>
+<li><code>install</code>: <code>--stage 2</code></li>
+<li><code>bench</code>: <code>--stage 2</code></li>
+</ul>
+<p>You can always override the stage by passing <code>--stage N</code> explicitly.</p>
+<p>For more information about stages, <a href="#understanding-stages-of-bootstrap">see below</a>.</p>
+<h2 id="complications-of-bootstrapping"><a class="header" href="#complications-of-bootstrapping">Complications of bootstrapping</a></h2>
+<p>Since the build system uses the current beta compiler to build a <code>stage1</code>
+bootstrapping compiler, the compiler source code can’t use some features until
+they reach beta (because otherwise the beta compiler doesn’t support them).
+On the other hand, for <a href="../../appendix/glossary.html#intrinsic">compiler intrinsics</a> and internal features, the
+features <em>have</em> to be used.
+Additionally, the compiler makes heavy use of <code>nightly</code> features (<code>#![feature(...)]</code>).
+How can we resolve this problem?</p>
+<p>There are two methods used:</p>
+<ol>
+<li>The build system sets <code>--cfg bootstrap</code> when building with <code>stage0</code>, so we
+can use <code>cfg(not(bootstrap))</code> to only use features when built with <code>stage1</code>.
+Setting <code>--cfg bootstrap</code> in this way is used for features that were just
+stabilized, which require <code>#![feature(...)]</code> when built with <code>stage0</code>, but not for <code>stage1</code>.</li>
+<li>The build system sets <code>RUSTC_BOOTSTRAP=1</code>.
+This special variable means to
+<em>break the stability guarantees</em> of Rust: allowing use of <code>#![feature(...)]</code>
+with a compiler that’s not <code>nightly</code>.
+<em>Setting <code>RUSTC_BOOTSTRAP=1</code> should never be used except when bootstrapping the compiler.</em></li>
+</ol>
+<h2 id="understanding-stages-of-bootstrap"><a class="header" href="#understanding-stages-of-bootstrap">Understanding stages of bootstrap</a></h2>
+<h3 id="overview-1"><a class="header" href="#overview-1">Overview</a></h3>
+<p>This is a detailed look into the separate bootstrap stages.</p>
+<p>The convention <code>./x</code> uses is that:</p>
+<ul>
+<li>A <code>--stage N</code> flag means to run the stage N compiler (<code>stageN/rustc</code>).</li>
+<li>A “stage N artifact” is a build artifact that is <em>produced</em> by the stage N compiler.</li>
+<li>The stage N+1 compiler is assembled from stage N <em>artifacts</em>. This process is
+called <em>uplifting</em>.</li>
+</ul>
+<h4 id="build-artifacts"><a class="header" href="#build-artifacts">Build artifacts</a></h4>
+<p>Anything you can build with <code>./x</code> is a <em>build artifact</em>.
+Build artifacts include, but are not limited to:</p>
+<ul>
+<li>binaries, like <code>stage0-rustc/rustc-main</code></li>
+<li>shared objects, like <code>stage0-sysroot/rustlib/libstd-6fae108520cf72fe.so</code></li>
+<li><a href="../../serialization.html">rlib</a> files, like <code>stage0-sysroot/rustlib/libstd-6fae108520cf72fe.rlib</code></li>
+<li>HTML files generated by rustdoc, like <code>doc/std</code></li>
+</ul>
+<h4 id="examples"><a class="header" href="#examples">Examples</a></h4>
+<ul>
+<li><code>./x test tests/ui</code> means to build the <code>stage1</code> compiler and run <code>compiletest</code> on it.
+If you’re working on the compiler, this is normally the test command you want.</li>
+<li><code>./x test --stage 0 library/std</code> means to run tests on the standard library
+without building <code>rustc</code> from source (‘build with <code>stage0</code>, then test the artifacts’).
+If you’re working on the standard library, this is normally the test command you want.</li>
+<li><code>./x build --stage 0</code> means to build with the stage0 <code>rustc</code>.</li>
+<li><code>./x doc --stage 1</code> means to document using the stage0 <code>rustdoc</code>.</li>
+</ul>
+<h4 id="examples-of-what-not-to-do"><a class="header" href="#examples-of-what-not-to-do">Examples of what <em>not</em> to do</a></h4>
+<ul>
+<li><code>./x test --stage 0 tests/ui</code> is not useful: it runs tests on the <em>beta</em>
+compiler and doesn’t build <code>rustc</code> from source.
+Use <code>test tests/ui</code> instead,
+which builds <code>stage1</code> from source.</li>
+<li><code>./x test --stage 0 compiler/rustc</code> builds the compiler but runs no tests:
+it’s running <code>cargo test -p rustc</code>, but <code>cargo</code> doesn’t understand Rust’s tests.
+You shouldn’t need to use this; use <code>test</code> instead (without arguments).</li>
+<li><code>./x build --stage 0 compiler/rustc</code> builds the compiler, but does not build
+<code>libstd</code> or even <code>libcore</code>.
+Most of the time, you’ll want <code>./x build library</code>
+instead, which allows compiling programs without needing to define lang items.</li>
+</ul>
+<h3 id="building-vs-running"><a class="header" href="#building-vs-running">Building vs. running</a></h3>
+<p>In short, <em>stage 0 uses the <code>stage0</code> compiler to create <code>stage0</code> artifacts which
+will later be uplifted to be the stage1 compiler</em>.</p>
+<p>In each stage besides 0, two major steps are performed:</p>
+<ol>
+<li><code>std</code> is compiled by the stage N compiler.</li>
+<li>That <code>std</code> is linked to programs built by the stage N compiler, including the
+stage N artifacts (stage N+1 compiler).</li>
+</ol>
+<p>This is somewhat intuitive if one thinks of the stage N artifacts as “just”
+another program we are building with the stage N compiler: <code>build --stage N compiler/rustc</code> is linking the stage N artifacts to the <code>std</code> built by the stage N compiler.</p>
+<h3 id="stages-and-std"><a class="header" href="#stages-and-std">Stages and <code>std</code></a></h3>
+<p>Note that there are two <code>std</code> libraries in play here:</p>
+<ol>
+<li>The library <em>linked</em> to <code>stageN/rustc</code>, which was built by stage N-1 (stage N-1 <code>std</code>)</li>
+<li>The library <em>used to compile programs</em> with <code>stageN/rustc</code>, which was built
+by stage N (stage N <code>std</code>).</li>
+</ol>
+<p>Stage N <code>std</code> is pretty much necessary for any useful work with the stage N compiler.
+Without it, you can only compile programs with <code>#![no_core]</code> – not terribly useful!</p>
+<p>The reason these need to be different is because they aren’t necessarily
+ABI-compatible: there could be new layout optimizations, changes to <code>MIR</code>, or
+other changes to Rust metadata on <code>nightly</code> that aren’t present in beta.</p>
+<p>This is also where <code>--keep-stage 1 library/std</code> comes into play.
+Since most changes to the compiler don’t actually change the ABI, once you’ve produced a
+<code>std</code> in <code>stage1</code>, you can probably just reuse it with a different compiler.
+If the ABI hasn’t changed, you’re good to go; no need to spend time recompiling that <code>std</code>.
+The flag <code>--keep-stage</code> simply instructs the build script to assume
+the previous compile is fine and copies those artifacts into the appropriate
+place, skipping the <code>cargo</code> invocation.</p>
+<h3 id="cross-compiling-rustc"><a class="header" href="#cross-compiling-rustc">Cross-compiling rustc</a></h3>
+<p><em>Cross-compiling</em> is the process of compiling code that will run on another architecture.
+For instance, you might want to build an ARM version of rustc using an x86 machine.
+Building <code>stage2</code> <code>std</code> is different when you are cross-compiling.</p>
+<p>This is because <code>./x</code> uses the following logic: if <code>HOST</code> and <code>TARGET</code> are the
+same, it will reuse <code>stage1</code> <code>std</code> for <code>stage2</code>!
+This is sound because <code>stage1</code>
+<code>std</code> was compiled with the <code>stage1</code> compiler, i.e. a compiler using the source
+code you currently have checked out.
+So it should be identical (and therefore
+ABI-compatible) to the <code>std</code> that <code>stage2/rustc</code> would compile.</p>
+<p>However, when cross-compiling, <code>stage1</code> <code>std</code> will only run on the host.
+So, the <code>stage2</code> compiler has to recompile <code>std</code> for the target.</p>
+<p>(See in the table how <code>stage2</code> only builds non-host <code>std</code> targets).</p>
+<h3 id="what-is-a-sysroot"><a class="header" href="#what-is-a-sysroot">What is a ‘sysroot’?</a></h3>
+<p>When you build a project with <code>cargo</code>, the build artifacts for dependencies are
+normally stored in <code>target/debug/deps</code>.
+This only contains dependencies <code>cargo</code>
+knows about; in particular, it doesn’t have the standard library.
+Where do <code>std</code> or <code>proc_macro</code> come from?
+They come from the <strong>sysroot</strong>, the root of a number
+of directories where the compiler loads build artifacts at runtime.
+The <code>sysroot</code> doesn’t just store the standard library, though - it includes anything
+that needs to be loaded at runtime.
+That includes (but is not limited to):</p>
+<ul>
+<li>Libraries <code>libstd</code>/<code>libtest</code>/<code>libproc_macro</code>.</li>
+<li>Compiler crates themselves, when using <code>rustc_private</code>.
+In-tree, these are always present; out-of-tree, you need to install <code>rustc-dev</code> with <code>rustup</code>.</li>
+<li>Shared object file <code>libLLVM.so</code> for the LLVM project.
+In-tree, this is either built from source or downloaded from CI; out-of-tree, you need to install
+<code>llvm-tools-preview</code> with <code>rustup</code>.</li>
+</ul>
+<p>All the artifacts listed so far are <em>compiler</em> runtime dependencies.
+You can see them with <code>rustc --print sysroot</code>:</p>
+<pre><code>$ ls $(rustc --print sysroot)/lib
+libchalk_derive-0685d79833dc9b2b.so  libstd-25c6acf8063a3802.so
+libLLVM-11-rust-1.50.0-nightly.so    libtest-57470d2aa8f7aa83.so
+librustc_driver-4f0cc9f50e53f0ba.so  libtracing_attributes-e4be92c35ab2a33b.so
+librustc_macros-5f0ec4a119c6ac86.so  rustlib
+</code></pre>
+<p>There are also runtime dependencies for the standard library!
+These are in <code>lib/rustlib/</code>, not <code>lib/</code> directly.</p>
+<pre><code>$ ls $(rustc --print sysroot)/lib/rustlib/x86_64-unknown-linux-gnu/lib | head -n 5
+libaddr2line-6c8e02b8fedc1e5f.rlib
+libadler-9ef2480568df55af.rlib
+liballoc-9c4002b5f79ba0e1.rlib
+libcfg_if-512eb53291f6de7e.rlib
+libcompiler_builtins-ef2408da76957905.rlib
+</code></pre>
+<p>Directory <code>lib/rustlib/</code> includes libraries like <code>hashbrown</code> and <code>cfg_if</code>, which
+are not part of the public API of the standard library, but are used to implement it.
+Also,<code>lib/rustlib/</code> is part of the search path for linkers, but
+<code>lib</code> will never be part of the search path.</p>
+<h4 id="-z-force-unstable-if-unmarked"><a class="header" href="#-z-force-unstable-if-unmarked"><code>-Z force-unstable-if-unmarked</code></a></h4>
+<p>Since <code>lib/rustlib/</code> is part of the search path we have to be careful about
+which crates are included in it.
+In particular, all crates except for the
+standard library are built with the flag <code>-Z force-unstable-if-unmarked</code>, which
+means that you have to use <code>#![feature(rustc_private)]</code> in order to load it (as
+opposed to the standard library, which is always available).</p>
+<p>The <code>-Z force-unstable-if-unmarked</code> flag has a variety of purposes to help
+enforce that the correct crates are marked as <code>unstable</code>.
+It was introduced primarily to allow rustc and the standard library to link to arbitrary crates on
+crates.io which do not themselves use <code>staged_api</code>.
+<code>rustc</code> also relies on this
+flag to mark all of its crates as <code>unstable</code> with the <code>rustc_private</code> feature so
+that each crate does not need to be carefully marked with <code>unstable</code>.</p>
+<p>This flag is automatically applied to all of <code>rustc</code> and the standard library by
+the bootstrap scripts.
+This is needed because the compiler and all of its
+dependencies are shipped in <code>sysroot</code> to all users.</p>
+<p>This flag has the following effects:</p>
+<ul>
+<li>Marks the crate as “<code>unstable</code>” with the <code>rustc_private</code> feature if it is not
+itself marked as <code>stable</code> or <code>unstable</code>.</li>
+<li>Allows these crates to access other forced-unstable crates without any need for attributes.
+Normally, a crate would need a <code>#![feature(rustc_private)]</code>
+attribute to use other <code>unstable</code> crates.
+However, that would make it
+impossible for a crate from crates.io to access its own dependencies since
+that crate won’t have a <code>feature(rustc_private)</code> attribute, but <em>everything</em>
+is compiled with <code>-Z force-unstable-if-unmarked</code>.</li>
+</ul>
+<p>Code which does not use <code>-Z force-unstable-if-unmarked</code> should include the
+<code>#![feature(rustc_private)]</code> crate attribute to access these forced-unstable crates.
+This is needed for things which link <code>rustc</code> itself, such as <code>Miri</code> or <code>clippy</code>.</p>
+<p>You can find more discussion about sysroots in:</p>
+<ul>
+<li>The <a href="https://github.com/rust-lang/rust/pull/76728">rustdoc PR</a> explaining why it uses <code>extern crate</code> for dependencies loaded from <code>sysroot</code></li>
+<li><a href="https://rust-lang.zulipchat.com/#narrow/stream/182449-t-compiler.2Fhelp/topic/deps.20in.20sysroot/">Discussions about sysroot on
+Zulip</a></li>
+<li><a href="https://rust-lang.zulipchat.com/#narrow/stream/182449-t-compiler.2Fhelp/topic/How.20to.20create.20an.20executable.20accessing.20.60rustc_private.60.3F">Discussions about building rustdoc out of
+tree</a></li>
+</ul>
+<h2 id="passing-flags-to-commands-invoked-by-bootstrap"><a class="header" href="#passing-flags-to-commands-invoked-by-bootstrap">Passing flags to commands invoked by <code>bootstrap</code></a></h2>
+<p>Conveniently <code>./x</code> allows you to pass stage-specific flags to <code>rustc</code> and
+<code>cargo</code> when bootstrapping.
+The <code>RUSTFLAGS_BOOTSTRAP</code> environment variable is
+passed as <code>RUSTFLAGS</code> to the bootstrap stage (<code>stage0</code>), and
+<code>RUSTFLAGS_NOT_BOOTSTRAP</code> is passed when building artifacts for later stages.
+<code>RUSTFLAGS</code> will work, but also affects the build of <code>bootstrap</code> itself, so it
+will be rare to want to use it.
+Finally, <code>MAGIC_EXTRA_RUSTFLAGS</code> bypasses the
+<code>cargo</code> cache to pass flags to rustc without recompiling all dependencies.</p>
+<ul>
+<li><code>RUSTDOCFLAGS</code>, <code>RUSTDOCFLAGS_BOOTSTRAP</code> and <code>RUSTDOCFLAGS_NOT_BOOTSTRAP</code> are
+analogous to <code>RUSTFLAGS</code>, but for <code>rustdoc</code>.</li>
+<li><code>CARGOFLAGS</code> will pass arguments to cargo itself (e.g. <code>--timings</code>).
+<code>CARGOFLAGS_BOOTSTRAP</code> and <code>CARGOFLAGS_NOT_BOOTSTRAP</code> work analogously to <code>RUSTFLAGS_BOOTSTRAP</code>.</li>
+<li><code>--test-args</code> will pass arguments through to the test runner.
+For <code>tests/ui</code>,
+this is <code>compiletest</code>.
+For unit tests and doc tests, this is the <code>libtest</code> runner.</li>
+</ul>
+<p>Most test runners accept <code>--help</code>,
+which you can use to find out the options accepted by the runner.</p>
+<h2 id="environment-variables"><a class="header" href="#environment-variables">Environment Variables</a></h2>
+<p>During bootstrapping, there are a bunch of compiler-internal environment variables that are used.
+If you are trying to run an intermediate version of
+<code>rustc</code>, sometimes you may need to set some of these environment variables manually.
+Otherwise, you get an error like the following:</p>
+<pre><code class="language-text">thread 'main' panicked at 'RUSTC_STAGE was not set: NotPresent', library/core/src/result.rs:1165:5
+</code></pre>
+<p>If <code>./stageN/bin/rustc</code> gives an error about environment variables, that usually
+means something is quite wrong – such as you’re trying to compile <code>rustc</code> or
+<code>std</code> or something which depends on environment variables.
+In the unlikely case that you actually need to invoke <code>rustc</code> in such a situation, you can tell the
+bootstrap shim to print all <code>env</code> variables by adding <code>-vvv</code> to your <code>x</code> command.</p>
+<p>Finally, bootstrap makes use of the <a href="https://github.com/rust-lang/cc-rs">cc-rs crate</a> which has <a href="https://docs.rs/cc/latest/cc/#external-configuration-via-environment-variables">its own
+method</a> of configuring <code>C</code> compilers and <code>C</code> flags via environment variables.</p>
+<h2 id="clarification-of-build-commands-stdout"><a class="header" href="#clarification-of-build-commands-stdout">Clarification of build command’s <code>stdout</code></a></h2>
+<p>In this part, we will investigate the build command’s <code>stdout</code> in an action
+(similar, but more detailed and complete documentation compare to topic above).
+When you execute <code>x build --dry-run</code> command, the build output will be something like the following:</p>
+<pre><code class="language-text">Building stage0 library artifacts (x86_64-unknown-linux-gnu -&gt; x86_64-unknown-linux-gnu)
+Copying stage0 library from stage0 (x86_64-unknown-linux-gnu -&gt; x86_64-unknown-linux-gnu / x86_64-unknown-linux-gnu)
+Building stage0 compiler artifacts (x86_64-unknown-linux-gnu -&gt; x86_64-unknown-linux-gnu)
+Copying stage0 rustc from stage0 (x86_64-unknown-linux-gnu -&gt; x86_64-unknown-linux-gnu / x86_64-unknown-linux-gnu)
+Assembling stage1 compiler (x86_64-unknown-linux-gnu)
+Building stage1 library artifacts (x86_64-unknown-linux-gnu -&gt; x86_64-unknown-linux-gnu)
+Copying stage1 library from stage1 (x86_64-unknown-linux-gnu -&gt; x86_64-unknown-linux-gnu / x86_64-unknown-linux-gnu)
+Building stage1 tool rust-analyzer-proc-macro-srv (x86_64-unknown-linux-gnu)
+Building rustdoc for stage1 (x86_64-unknown-linux-gnu)
+</code></pre>
+<h3 id="building-stage0-stdcompiler-artifacts"><a class="header" href="#building-stage0-stdcompiler-artifacts">Building stage0 {std,compiler} artifacts</a></h3>
+<p>These steps use the provided (downloaded, usually) compiler to compile the local
+Rust source into libraries we can use.</p>
+<h3 id="copying-stage0-stdrustc"><a class="header" href="#copying-stage0-stdrustc">Copying stage0 {std,rustc}</a></h3>
+<p>This copies the library and compiler artifacts from <code>cargo</code> into
+<code>stage0-sysroot/lib/rustlib/{target-triple}/lib</code></p>
+<h3 id="assembling-stage1-compiler"><a class="header" href="#assembling-stage1-compiler">Assembling stage1 compiler</a></h3>
+<p>This copies the libraries we built in “building <code>stage0</code> … artifacts” into the
+<code>stage1</code> compiler’s <code>lib/</code> directory.
+These are the host libraries that the compiler itself uses to run.
+These aren’t actually used by artifacts the new compiler generates.
+This step also copies the <code>rustc</code> and <code>rustdoc</code> binaries we generated into <code>build/$HOST/stage/bin</code>.</p>
+<p>The <code>stage1/bin/rustc</code> is a fully functional compiler built with stage0 (precompiled) compiler and std.
+To use a compiler built entirely from source with the in-tree compiler and std, you need to build the
+stage2 compiler, which is compiled using the stage1 (in-tree) compiler and std.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../building/bootstrapping/intro.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../../building/bootstrapping/how-bootstrap-does-it.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../building/bootstrapping/intro.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../../building/bootstrapping/how-bootstrap-does-it.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../../mark-09e88c2c.min.js"></script>
+        <script src="../../searcher-c2a407aa.js"></script>
+
+        <script src="../../clipboard-1626706a.min.js"></script>
+        <script src="../../highlight-abc7f01d.js"></script>
+        <script src="../../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../../mermaid-cc85ecea.min.js"></script>
+        <script src="../../mermaid-init-4533fb11.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

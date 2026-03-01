@@ -1,0 +1,536 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>(Lecture Notes) Debugging support in the Rust compiler - Rust Compiler Development Guide</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A guide to developing the Rust compiler (rustc)">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-2459343d.css">
+        <link rel="stylesheet" href="css/chrome-ae938929.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-5b8627da.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-1a3501b2.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Compiler Development Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide/edit/main/src/debugging-support-in-rustc.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="debugging-support-in-the-rust-compiler"><a class="header" href="#debugging-support-in-the-rust-compiler">Debugging support in the Rust compiler</a></h1>
+<p>This document explains the state of debugging tools support in the Rust compiler (rustc).
+It gives an overview of GDB, LLDB, WinDbg/CDB,
+as well as infrastructure around Rust compiler to debug Rust code.
+If you want to learn how to debug the Rust compiler itself,
+see <a href="compiler-debugging.html">Debugging the Compiler</a>.</p>
+<p>The material is gathered from the video,
+<a href="https://www.youtube.com/watch?v=elBxMRSNYr4">Tom Tromey discusses debugging support in rustc</a>.</p>
+<h2 id="preliminaries"><a class="header" href="#preliminaries">Preliminaries</a></h2>
+<h3 id="debuggers"><a class="header" href="#debuggers">Debuggers</a></h3>
+<p>According to Wikipedia</p>
+<blockquote>
+<p>A <a href="https://en.wikipedia.org/wiki/Debugger">debugger or debugging tool</a> is a computer program that is used to test and debug
+other programs (the “target” program).</p>
+</blockquote>
+<p>Writing a debugger from scratch for a language requires a lot of work, especially if
+debuggers have to be supported on various platforms.
+GDB and LLDB, however, can be extended to support debugging a language.
+This is the path that Rust has chosen.
+This document’s main goal is to document the said debuggers support in Rust compiler.</p>
+<h3 id="dwarf"><a class="header" href="#dwarf">DWARF</a></h3>
+<p>According to the <a href="http://dwarfstd.org">DWARF</a> standard website</p>
+<blockquote>
+<p>DWARF is a debugging file format used by many compilers and debuggers to support source level
+debugging. It addresses the requirements of a number of procedural languages,
+such as C, C++, and Fortran, and is designed to be extensible to other languages.
+DWARF is architecture independent and applicable to any processor or operating system.
+It is widely used on Unix, Linux and other operating systems,
+as well as in stand-alone environments.</p>
+</blockquote>
+<p>DWARF reader is a program that consumes the DWARF format and creates debugger compatible output.
+This program may live in the compiler itself.
+DWARF uses a data structure called
+Debugging Information Entry (DIE) which stores the information as “tags” to denote functions,
+variables etc., e.g., <code>DW_TAG_variable</code>, <code>DW_TAG_pointer_type</code>, <code>DW_TAG_subprogram</code> etc.
+You can also invent your own tags and attributes.</p>
+<h3 id="codeviewpdb"><a class="header" href="#codeviewpdb">CodeView/PDB</a></h3>
+<p><a href="https://llvm.org/docs/PDB/index.html">PDB</a> (Program Database) is a file format created by Microsoft that contains debug information.
+PDBs can be consumed by debuggers such as WinDbg/CDB and other tools to display debug information.
+A PDB contains multiple streams that describe debug information about a specific binary such
+as types, symbols, and source files used to compile the given binary.
+CodeView is another
+format which defines the structure of <a href="https://llvm.org/docs/PDB/CodeViewSymbols.html">symbol records</a> and <a href="https://llvm.org/docs/PDB/CodeViewTypes.html">type records</a> that appear within
+PDB streams.</p>
+<h2 id="supported-debuggers"><a class="header" href="#supported-debuggers">Supported debuggers</a></h2>
+<h3 id="gdb"><a class="header" href="#gdb">GDB</a></h3>
+<h4 id="rust-expression-parser"><a class="header" href="#rust-expression-parser">Rust expression parser</a></h4>
+<p>To be able to show debug output, we need an expression parser.
+This (GDB) expression parser is written in <a href="https://www.gnu.org/software/bison/">Bison</a>,
+and can parse only a subset of Rust expressions.
+GDB parser was written from scratch and has no relation to any other parser,
+including that of rustc.</p>
+<p>GDB has Rust-like value and type output.
+It can print values and types in a way that look like Rust syntax in the output.
+Or when you print a type as <a href="https://ftp.gnu.org/old-gnu/Manuals/gdb/html_node/gdb_109.html">ptype</a> in GDB,
+it also looks like Rust source code.
+Checkout the documentation in the <a href="https://sourceware.org/gdb/onlinedocs/gdb/Rust.html">manual for GDB/Rust</a>.</p>
+<h4 id="parser-extensions"><a class="header" href="#parser-extensions">Parser extensions</a></h4>
+<p>Expression parser has a couple of extensions in it to facilitate features that you cannot do
+with Rust.
+Some limitations are listed in the <a href="https://sourceware.org/gdb/onlinedocs/gdb/Rust.html">manual for GDB/Rust</a>.
+There is some special code in the DWARF reader in GDB to support the extensions.</p>
+<p>A couple of examples of DWARF reader support needed are as follows:</p>
+<ol>
+<li>
+<p>Enum: Needed for support for enum types.
+The Rust compiler writes the information about enum into DWARF,
+and GDB reads the DWARF to understand where is the tag field,
+or if there is a tag field,
+or if the tag slot is shared with non-zero optimization etc.</p>
+</li>
+<li>
+<p>Dissect trait objects: DWARF extension where the trait object’s description in the DWARF
+also points to a stub description of the corresponding vtable which in turn points to the
+concrete type for which this trait object exists.
+This means that you can do a <code>print *object</code>
+for that trait object, and GDB will understand how to find the correct type of the payload in
+the trait object.</p>
+</li>
+</ol>
+<p><strong>TODO</strong>: Figure out if the following should be mentioned in the GDB-Rust document rather than
+this guide page so there is no duplication.
+This is regarding the following comments:</p>
+<p><a href="https://github.com/rust-lang/rustc-dev-guide/pull/316#discussion_r284027340">This comment by Tom</a></p>
+<blockquote>
+<p>gdb’s Rust extensions and limitations are documented in the gdb manual:
+https://sourceware.org/gdb/onlinedocs/gdb/Rust.html – however, this neglects to mention that
+gdb convenience variables and registers follow the gdb $ convention, and that the Rust parser
+implements the gdb @ extension.</p>
+</blockquote>
+<p><a href="https://github.com/rust-lang/rustc-dev-guide/pull/316#discussion_r285401353">This question by Aman</a></p>
+<blockquote>
+<p>@tromey do you think we should mention this part in the GDB-Rust document rather than this
+document so there is no duplication etc.?</p>
+</blockquote>
+<h3 id="lldb"><a class="header" href="#lldb">LLDB</a></h3>
+<h4 id="rust-expression-parser-1"><a class="header" href="#rust-expression-parser-1">Rust expression parser</a></h4>
+<p>This expression parser is written in C++.
+It is a type of <a href="https://en.wikipedia.org/wiki/Recursive_descent_parser">Recursive Descent parser</a>.
+It implements slightly less of the Rust language than GDB.
+LLDB has Rust-like value and type output.</p>
+<h4 id="developer-notes"><a class="header" href="#developer-notes">Developer notes</a></h4>
+<ul>
+<li>LLDB has a plugin architecture but that does not work for language support.</li>
+<li>GDB generally works better on Linux.</li>
+</ul>
+<h3 id="windbgcdb"><a class="header" href="#windbgcdb">WinDbg/CDB</a></h3>
+<p>Microsoft provides <a href="https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/">Windows Debugging Tools</a> such as the Windows Debugger (WinDbg) and
+the Console Debugger (CDB) which both support debugging programs written in Rust.
+These debuggers parse the debug info for a binary from the <code>PDB</code>, if available, to construct a
+visualization to serve up in the debugger.</p>
+<h4 id="natvis"><a class="header" href="#natvis">Natvis</a></h4>
+<p>Both WinDbg and CDB support defining and viewing custom visualizations for any given type
+within the debugger using the Natvis framework.
+The Rust compiler defines a set of Natvis
+files that define custom visualizations for a subset of types in the standard libraries such
+as, <code>std</code>, <code>core</code>, and <code>alloc</code>.
+These Natvis files are embedded into <code>PDBs</code> generated by the
+<code>*-pc-windows-msvc</code> target triples to automatically enable these custom visualizations when
+debugging.
+This default can be overridden by setting the <code>strip</code> rustc flag to either <code>debuginfo</code> or <code>symbols</code>.</p>
+<p>Rust has support for embedding Natvis files for crates outside of the standard libraries by
+using the <code>#[debugger_visualizer]</code> attribute.
+For more details on how to embed debugger visualizers,
+please refer to the section on the <a href="https://doc.rust-lang.org/nightly/reference/attributes/debugger.html#the-debugger_visualizer-attribute"><code>debugger_visualizer</code> attribute</a>.</p>
+<h2 id="dwarf-and-rustc"><a class="header" href="#dwarf-and-rustc">DWARF and <code>rustc</code></a></h2>
+<p><a href="http://dwarfstd.org">DWARF</a> is the standard way compilers generate debugging information that debuggers read.
+It is <em>the</em> debugging format on macOS and Linux.
+It is a multi-language and extensible format,
+and is mostly good enough for Rust’s purposes.
+Hence, the current implementation reuses DWARF’s concepts.
+This is true even if some of the concepts in DWARF do not align with Rust semantically because,
+generally, there can be some kind of mapping between the two.</p>
+<p>We have some DWARF extensions that the Rust compiler emits and the debuggers understand that
+are <em>not</em> in the DWARF standard.</p>
+<ul>
+<li>
+<p>Rust compiler will emit DWARF for a virtual table, and this <code>vtable</code> object will have a
+<code>DW_AT_containing_type</code> that points to the real type.
+This lets debuggers dissect a trait object pointer to correctly find the payload.
+Here is an example of such a DIE, from a test case in the gdb repository:</p>
+<pre><code class="language-asm">&lt;1&gt;&lt;1a9&gt;: Abbrev Number: 3 (DW_TAG_structure_type)
+   &lt;1aa&gt;   DW_AT_containing_type: &lt;0x1b4&gt;
+   &lt;1ae&gt;   DW_AT_name        : (indirect string, offset: 0x23d): vtable
+   &lt;1b2&gt;   DW_AT_byte_size   : 0
+   &lt;1b3&gt;   DW_AT_alignment   : 8
+</code></pre>
+</li>
+<li>
+<p>The other extension is that the Rust compiler can emit a tagless discriminated union.
+See <a href="http://dwarfstd.org/ShowIssue.php?issue=180517.2">DWARF feature request</a> for this item.</p>
+</li>
+</ul>
+<h3 id="current-limitations-of-dwarf"><a class="header" href="#current-limitations-of-dwarf">Current limitations of DWARF</a></h3>
+<ul>
+<li>Traits - require a bigger change than normal to DWARF, on how to represent Traits in DWARF.</li>
+<li>DWARF provides no way to differentiate between Structs and Tuples.
+Rust compiler emits
+fields with <code>__0</code> and debuggers look for a sequence of such names to overcome this limitation.
+For example, in this case the debugger would look at a field via <code>x.__0</code> instead of <code>x.0</code>.
+This is resolved via the Rust parser in the debugger so now you can do <code>x.0</code>.</li>
+</ul>
+<p>DWARF relies on debuggers to know some information about platform ABI.
+Rust does not do that all the time.</p>
+<h2 id="developer-notes-1"><a class="header" href="#developer-notes-1">Developer notes</a></h2>
+<p>This section is from the talk about certain aspects of development.</p>
+<h2 id="what-is-missing"><a class="header" href="#what-is-missing">What is missing</a></h2>
+<h3 id="code-signing-for-lldb-debug-server-on-macos"><a class="header" href="#code-signing-for-lldb-debug-server-on-macos">Code signing for LLDB debug server on macOS</a></h3>
+<p>According to Wikipedia, <a href="https://en.wikipedia.org/wiki/System_Integrity_Protection">System Integrity Protection</a> is</p>
+<blockquote>
+<p>System Integrity Protection (SIP, sometimes referred to as rootless) is a security feature
+of Apple’s macOS operating system introduced in OS X El Capitan. It comprises a number of
+mechanisms that are enforced by the kernel. A centerpiece is the protection of system-owned
+files and directories against modifications by processes without a specific “entitlement”,
+even when executed by the root user or a user with root privileges (sudo).</p>
+</blockquote>
+<p>It prevents processes using <code>ptrace</code> syscall.
+If a process wants to use <code>ptrace</code> it has to be code signed.
+The certificate that signs it has to be trusted on your machine.</p>
+<p>See <a href="https://developer.apple.com/library/archive/releasenotes/MacOSX/WhatsNewInOSX/Articles/MacOSX10_11.html#//apple_ref/doc/uid/TP40016227-SW11">Apple developer documentation for System Integrity Protection</a>.</p>
+<p>We may need to sign up with Apple and get the keys to do this signing.
+Tom has looked into if Mozilla cannot do this because it is at the maximum number of
+keys it is allowed to sign.
+Tom does not know if Mozilla could get more keys.</p>
+<p>Alternatively, Tom suggests that maybe a Rust legal entity is needed to get the keys via Apple.
+This problem is not technical in nature.
+If we had such a key, we could sign GDB as well and ship that.</p>
+<h3 id="dwarf-and-traits"><a class="header" href="#dwarf-and-traits">DWARF and Traits</a></h3>
+<p>Rust traits are not emitted into DWARF at all.
+The impact of this is calling a method <code>x.method()</code> does not work as-is.
+The reason being that method is implemented by a trait, as opposed to a type.
+That information is not present, so finding trait methods is missing.</p>
+<p>DWARF has a notion of interface types (possibly added for Java).
+Tom’s idea was to use this interface type as traits.</p>
+<p>DWARF only deals with concrete names, not the reference types.
+So, a given implementation of a
+trait for a type would be one of these interfaces (<code>DW_tag_interface</code> type).
+Also, the type for which it is implemented would describe all the interfaces this type implements.
+This requires a DWARF extension.</p>
+<p>Issue on GitHub: <a href="https://github.com/rust-lang/rust/issues/33014">https://github.com/rust-lang/rust/issues/33014</a></p>
+<h2 id="typical-process-for-a-debug-info-change-llvm"><a class="header" href="#typical-process-for-a-debug-info-change-llvm">Typical process for a Debug Info change (LLVM)</a></h2>
+<p>LLVM has Debug Info (DI) builders.
+This is the primary thing that Rust calls into.
+This is why we need to change LLVM first because that is emitted first and not DWARF directly.
+This is a kind of metadata that you construct and hand-off to LLVM.
+For the Rustc/LLVM hand-off,
+some LLVM DI builder methods are called to construct representation of a type.</p>
+<p>The steps of this process are as follows:</p>
+<ol>
+<li>
+<p>LLVM needs changing.</p>
+<p>LLVM does not emit Interface types at all, so this needs to be implemented in the LLVM first.</p>
+<p>Get sign off on LLVM maintainers that this is a good idea.</p>
+</li>
+<li>
+<p>Change the DWARF extension.</p>
+</li>
+<li>
+<p>Update the debuggers.</p>
+<p>Update DWARF readers, expression evaluators.</p>
+</li>
+<li>
+<p>Update Rust compiler.</p>
+<p>Change it to emit this new information.</p>
+</li>
+</ol>
+<h3 id="procedural-macro-stepping"><a class="header" href="#procedural-macro-stepping">Procedural macro stepping</a></h3>
+<p>A deeply profound question is that how do you actually debug a procedural macro?
+What is the location you emit for a macro expansion?
+Consider some of the following cases -</p>
+<ul>
+<li>You can emit location of the invocation of the macro.</li>
+<li>You can emit the location of the definition of the macro.</li>
+<li>You can emit locations of the content of the macro.</li>
+</ul>
+<p>RFC: <a href="https://github.com/rust-lang/rfcs/pull/2117">https://github.com/rust-lang/rfcs/pull/2117</a></p>
+<p>Focus is to let macros decide what to do.
+This can be achieved by having some kind of attribute
+that lets the macro tell the compiler where the line marker should be.
+This affects where you set the breakpoints and what happens when you step it.</p>
+<h2 id="source-file-checksums-in-debug-info"><a class="header" href="#source-file-checksums-in-debug-info">Source file checksums in debug info</a></h2>
+<p>Both DWARF and CodeView (PDB) support embedding a cryptographic hash of each source file that
+contributed to the associated binary.</p>
+<p>The cryptographic hash can be used by a debugger to verify that the source file matches the
+executable.
+If the source file does not match, the debugger can provide a warning to the user.</p>
+<p>The hash can also be used to prove that a given source file has not been modified since it was
+used to compile an executable.
+Because MD5 and SHA1 both have demonstrated vulnerabilities,
+using SHA256 is recommended for this application.</p>
+<p>The Rust compiler stores the hash for each source file in the corresponding <code>SourceFile</code> in
+the <code>SourceMap</code>.
+The hashes of input files to external crates are stored in <code>rlib</code> metadata.</p>
+<p>A default hashing algorithm is set in the target specification.
+This allows the target to
+specify the best hash available, since not all targets support all hash algorithms.</p>
+<p>The hashing algorithm for a target can also be overridden with the <code>-Z source-file-checksum=</code>
+command-line option.</p>
+<h4 id="dwarf-5"><a class="header" href="#dwarf-5">DWARF 5</a></h4>
+<p>DWARF version 5 supports embedding an MD5 hash to validate the source file version in use.
+DWARF 5 - Section 6.2.4.1 opcode DW_LNCT_MD5</p>
+<h4 id="llvm"><a class="header" href="#llvm">LLVM</a></h4>
+<p>LLVM IR supports MD5 and SHA1 (and SHA256 in LLVM 11+) source file checksums in the DIFile node.</p>
+<p><a href="https://llvm.org/docs/LangRef.html#difile">LLVM DIFile documentation</a></p>
+<h4 id="microsoft-visual-c-compiler-zh-option"><a class="header" href="#microsoft-visual-c-compiler-zh-option">Microsoft Visual C++ Compiler /ZH option</a></h4>
+<p>The MSVC compiler supports embedding MD5, SHA1, or SHA256 hashes in the PDB using the <code>/ZH</code>
+compiler option.</p>
+<p><a href="https://docs.microsoft.com/en-us/cpp/build/reference/zh">MSVC /ZH documentation</a></p>
+<h4 id="clang"><a class="header" href="#clang">Clang</a></h4>
+<p>Clang always embeds an MD5 checksum, though this does not appear in documentation.</p>
+<h2 id="future-work"><a class="header" href="#future-work">Future work</a></h2>
+<h4 id="name-mangling-changes"><a class="header" href="#name-mangling-changes">Name mangling changes</a></h4>
+<ul>
+<li>New demangler in <code>libiberty</code> (gcc source tree).</li>
+<li>New demangler in LLVM or LLDB.</li>
+</ul>
+<p><strong>TODO</strong>: Check the location of the demangler source.
+<a href="https://github.com/rust-lang/rustc-dev-guide/issues/1157">#1157</a></p>
+<h4 id="reuse-rust-compiler-for-expressions"><a class="header" href="#reuse-rust-compiler-for-expressions">Reuse Rust compiler for expressions</a></h4>
+<p>This is an important idea because debuggers by and large do not try to implement type inference.
+You need to be much more explicit when you type into the debugger than your actual source code.
+So, you cannot just copy and paste an expression from your source
+code to debugger and expect the same answer, but this would be nice.
+This can be helped by using compiler.</p>
+<p>It is certainly doable, but it is a large project.
+You certainly need a bridge to the debugger because the debugger alone has access to the memory.
+Both GDB (gcc) and LLDB (clang) have this feature.
+LLDB uses Clang to compile code to JIT and GDB can do the same with GCC.</p>
+<p>Both debuggers expression evaluation implement both a superset and a subset of Rust.
+They implement just the expression language,
+but they also add some extensions like GDB has convenience variables.
+Therefore, if you are taking this route,
+then you not only need to do this bridge,
+but may have to add some mode to let the compiler understand some extensions.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="debuginfo/testing.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="backend/libs-and-metadata.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="debuginfo/testing.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="backend/libs-and-metadata.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-c2a407aa.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="mermaid-cc85ecea.min.js"></script>
+        <script src="mermaid-init-4533fb11.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

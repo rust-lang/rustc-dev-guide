@@ -1,0 +1,582 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>How to build and run the compiler - Rust Compiler Development Guide</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A guide to developing the Rust compiler (rustc)">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex-5b8627da.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-1a3501b2.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Compiler Development Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide/edit/main/src/building/how-to-build-and-run.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="how-to-build-and-run-the-compiler"><a class="header" href="#how-to-build-and-run-the-compiler">How to build and run the compiler</a></h1>
+<div class="warning">
+<p>For <code>profile = "library"</code> users, or users who use <code>download-rustc = true | "if-unchanged"</code>, please be advised that
+the <code>./x test library/std</code> flow where <code>download-rustc</code> is active (i.e. no compiler changes) is currently broken.
+This is tracked in <a href="https://github.com/rust-lang/rust/issues/142505">https://github.com/rust-lang/rust/issues/142505</a>.
+Only the <code>./x test</code> flow is affected in this
+case, <code>./x {check,build} library/std</code> should still work.</p>
+<p>In the short-term, you may need to disable <code>download-rustc</code> for <code>./x test library/std</code>.
+This can be done either by:</p>
+<ol>
+<li><code>./x test library/std --set rust.download-rustc=false</code></li>
+<li>Or set <code>rust.download-rustc = false</code> in <code>bootstrap.toml</code>.</li>
+</ol>
+<p>Unfortunately that will require building the stage 1 compiler.
+The bootstrap team is working on this, but
+implementing a maintainable fix is taking some time.</p>
+</div>
+
+<p>The compiler is built using a tool called <code>x.py</code>.
+You will need to have Python installed to run it.</p>
+<h2 id="quick-start"><a class="header" href="#quick-start">Quick Start</a></h2>
+<p>For a less in-depth quick-start of getting the compiler running, see <a href="./quickstart.html">quickstart</a>.</p>
+<h2 id="get-the-source-code"><a class="header" href="#get-the-source-code">Get the source code</a></h2>
+<p>The main repository is <a href="https://github.com/rust-lang/rust"><code>rust-lang/rust</code></a>.
+This contains the compiler,
+the standard library (including <code>core</code>, <code>alloc</code>, <code>test</code>, <code>proc_macro</code>, etc),
+and a bunch of tools (e.g. <code>rustdoc</code>, the bootstrapping infrastructure, etc).</p>
+<p>The very first step to work on <code>rustc</code> is to clone the repository:</p>
+<pre><code class="language-bash">git clone https://github.com/rust-lang/rust.git
+cd rust
+</code></pre>
+<h3 id="partial-clone-the-repository"><a class="header" href="#partial-clone-the-repository">Partial clone the repository</a></h3>
+<p>Due to the size of the repository, cloning on a slower internet connection can take a long time,
+and requires disk space to store the full history of every file and directory.
+Instead, it is possible to tell git to perform a <em>partial clone</em>, which will only fully retrieve
+the current file contents, but will automatically retrieve further file contents when you, e.g.,
+jump back in the history.
+All git commands will continue to work as usual, at the price of requiring an internet connection
+to visit not-yet-loaded points in history.</p>
+<pre><code class="language-bash">git clone --filter='blob:none' https://github.com/rust-lang/rust.git
+cd rust
+</code></pre>
+<blockquote>
+<p><strong>NOTE</strong>: <a href="https://github.blog/open-source/git/get-up-to-speed-with-partial-clone-and-shallow-clone/">This link</a>
+describes this type of checkout in more detail, and also compares it to other modes, such as
+shallow cloning.</p>
+</blockquote>
+<h3 id="shallow-clone-the-repository"><a class="header" href="#shallow-clone-the-repository">Shallow clone the repository</a></h3>
+<p>An older alternative to partial clones is to use shallow clone the repository instead.
+To do so, you can use the <code>--depth N</code> option with the <code>git clone</code> command.
+This instructs <code>git</code> to perform a “shallow clone”, cloning the repository but truncating it to
+the last <code>N</code> commits.</p>
+<p>Passing <code>--depth 1</code> tells <code>git</code> to clone the repository but truncate the history to the latest
+commit that is on the <code>main</code> branch, which is usually fine for browsing the source code or
+building the compiler.</p>
+<pre><code class="language-bash">git clone --depth 1 https://github.com/rust-lang/rust.git
+cd rust
+</code></pre>
+<blockquote>
+<p><strong>NOTE</strong>: A shallow clone limits which <code>git</code> commands can be run.
+If you intend to work on and contribute to the compiler, it is
+generally recommended to fully clone the repository <a href="#get-the-source-code">as shown above</a>,
+or to perform a <a href="#partial-clone-the-repository">partial clone</a> instead.</p>
+<p>For example, <code>git bisect</code> and <code>git blame</code> require access to the commit history,
+so they don’t work if the repository was cloned with <code>--depth 1</code>.</p>
+</blockquote>
+<h2 id="what-is-xpy"><a class="header" href="#what-is-xpy">What is <code>x.py</code>?</a></h2>
+<p><code>x.py</code> is the build tool for the <code>rust</code> repository.
+It can build docs, run tests, and build the compiler and standard library.</p>
+<p>This chapter focuses on the basics to be productive, but
+if you want to learn more about <code>x.py</code>, <a href="./bootstrapping/intro.html">read this chapter</a>.</p>
+<p>Also, using <code>x</code> rather than <code>x.py</code> is recommended as:</p>
+<blockquote>
+<p><code>./x</code> is the most likely to work on every system (on Unix it runs the shell script
+that does python version detection, on Windows it will probably run the
+powershell script - certainly less likely to break than <code>./x.py</code> which often just
+opens the file in an editor).<sup class="footnote-reference" id="fr-1-1"><a href="#footnote-1">1</a></sup></p>
+</blockquote>
+<p>(You can find the platform related scripts around the <code>x.py</code>, like <code>x.ps1</code>)</p>
+<dl>
+<dt id="notice-that-this-is-not-absolute-for-instance-using-nushell-in-vscode-on-win10-typing-x-or-x-still-opens-xpy-in-an-editor-rather-than-invoking-the-program"><a class="header" href="#notice-that-this-is-not-absolute-for-instance-using-nushell-in-vscode-on-win10-typing-x-or-x-still-opens-xpy-in-an-editor-rather-than-invoking-the-program">Notice that this is not absolute.
+For instance, using Nushell in VSCode on Win10,
+typing <code>x</code> or <code>./x</code> still opens <code>x.py</code> in an editor rather than invoking the program.</a></dt>
+<dd>)</dd>
+</dl>
+<p>In the rest of this guide, we use <code>x</code> rather than <code>x.py</code> directly.
+The following command:</p>
+<pre><code class="language-bash">./x check
+</code></pre>
+<p>could be replaced by:</p>
+<pre><code class="language-bash">./x.py check
+</code></pre>
+<h3 id="running-xpy"><a class="header" href="#running-xpy">Running <code>x.py</code></a></h3>
+<p>The <code>x.py</code> command can be run directly on most Unix systems in the following format:</p>
+<pre><code class="language-sh">./x &lt;subcommand&gt; [flags]
+</code></pre>
+<p>This is how the documentation and examples assume you are running <code>x.py</code>.
+Some alternative ways are:</p>
+<pre><code class="language-sh"># On a Unix shell if you don't have the necessary `python3` command
+./x &lt;subcommand&gt; [flags]
+
+# In Windows Powershell (if powershell is configured to run scripts)
+./x &lt;subcommand&gt; [flags]
+./x.ps1 &lt;subcommand&gt; [flags]
+
+# On the Windows Command Prompt (if .py files are configured to run Python)
+x.py &lt;subcommand&gt; [flags]
+
+# You can also run Python yourself, e.g.:
+python x.py &lt;subcommand&gt; [flags]
+</code></pre>
+<p>On Windows, the Powershell commands may give you an error that looks like this:</p>
+<pre><code>PS C:\Users\vboxuser\rust&gt; ./x
+./x : File C:\Users\vboxuser\rust\x.ps1 cannot be loaded because running scripts is disabled on this system. For more
+information, see about_Execution_Policies at https://go.microsoft.com/fwlink/?LinkID=135170.
+At line:1 char:1
++ ./x
++ ~~~
+    + CategoryInfo          : SecurityError: (:) [], PSSecurityException
+    + FullyQualifiedErrorId : UnauthorizedAccess
+</code></pre>
+<p>You can avoid this error by allowing powershell to run local scripts:</p>
+<pre><code>Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+</code></pre>
+<h4 id="running-xpy-slightly-more-conveniently"><a class="header" href="#running-xpy-slightly-more-conveniently">Running <code>x.py</code> slightly more conveniently</a></h4>
+<p>There is a binary that wraps <code>x.py</code> called <code>x</code> in <code>src/tools/x</code>.
+All it does is run <code>x.py</code>, but it can be installed system-wide and run from any subdirectory
+of a checkout.
+It also looks up the appropriate version of <code>python</code> to use.</p>
+<p>You can install it with <code>cargo install --path src/tools/x</code>.</p>
+<p>To clarify that this is another global installed binary util, which is
+similar to the one declared in section <a href="#what-is-xpy">What is <code>x.py</code></a>, but
+it works as an independent process to execute the <code>x.py</code> rather than calling the
+shell to run the platform related scripts.</p>
+<h2 id="create-a-bootstraptoml"><a class="header" href="#create-a-bootstraptoml">Create a <code>bootstrap.toml</code></a></h2>
+<p>To start, run <code>./x setup</code> and select the <code>compiler</code> defaults.
+This will do some initialization and create a <code>bootstrap.toml</code> for you with reasonable defaults.
+If you use a different default (which
+you’ll likely want to do if you want to contribute to an area of rust other than the compiler, such
+as rustdoc), make sure to read information about that default (located in <code>src/bootstrap/defaults</code>)
+as the build process may be different for other defaults.</p>
+<p>Alternatively, you can write <code>bootstrap.toml</code> by hand.
+See <code>bootstrap.example.toml</code> for all the available settings and what they do.
+See <code>src/bootstrap/defaults</code> for common settings to change.</p>
+<p>If you have already built <code>rustc</code> and you change settings related to LLVM, then you may have to
+execute <code>./x clean --all</code> for subsequent configuration changes to take effect.
+Note that <code>./x clean</code> will not cause a rebuild of LLVM.</p>
+<h2 id="common-x-commands"><a class="header" href="#common-x-commands">Common <code>x</code> commands</a></h2>
+<p>Here are the basic invocations of the <code>x</code> commands most commonly used when
+working on <code>rustc</code>, <code>std</code>, <code>rustdoc</code>, and other tools.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Command</th><th>When to use it</th></tr>
+</thead>
+<tbody>
+<tr><td><code>./x check</code></td><td>Quick check to see if most things compile; <a href="suggested.html#configuring-rust-analyzer-for-rustc">rust-analyzer can run this automatically for you</a></td></tr>
+<tr><td><code>./x build</code></td><td>Builds <code>rustc</code>, <code>std</code>, and <code>rustdoc</code></td></tr>
+<tr><td><code>./x test</code></td><td>Runs all tests</td></tr>
+<tr><td><code>./x fmt</code></td><td>Formats all code</td></tr>
+</tbody>
+</table>
+</div>
+<p>As written, these commands are reasonable starting points.
+However, there are additional options and arguments for each of them that are worth learning for
+serious development work.
+In particular, <code>./x build</code> and <code>./x test</code>
+provide many ways to compile or test a subset of the code, which can save a lot of time.</p>
+<p>Also, note that <code>x</code> supports all kinds of path suffixes for <code>compiler</code>, <code>library</code>,
+and <code>src/tools</code> directories.
+So, you can simply run <code>x test tidy</code> instead of <code>x test src/tools/tidy</code>.
+Or, <code>x build std</code> instead of <code>x build library/std</code>.</p>
+<p>See the chapters on <a href="../tests/running.html">testing</a> and <a href="../rustdoc.html">rustdoc</a> for more details.</p>
+<h3 id="building-the-compiler"><a class="header" href="#building-the-compiler">Building the compiler</a></h3>
+<p>Note that building will require a relatively large amount of storage space.
+You may want to have upwards of 10 or 15 gigabytes available to build the compiler.</p>
+<p>Once you’ve created a <code>bootstrap.toml</code>, you are now ready to run <code>x</code>.
+There are a lot of options here, but let’s start with what is
+probably the best “go to” command for building a local compiler:</p>
+<pre><code class="language-console">./x build library
+</code></pre>
+<p>What this command does is:</p>
+<ul>
+<li>Build <code>rustc</code> using the stage0 compiler and stage0 <code>std</code>.</li>
+<li>Build <code>library</code> (the standard libraries) with the stage1 compiler that was just built.</li>
+<li>Assemble a working stage1 sysroot, containing the stage1 compiler and stage1 standard libraries.</li>
+</ul>
+<p>This final product (stage1 compiler + libs built using that compiler)
+is what you need to build other Rust programs (unless you use <code>#![no_std]</code> or <code>#![no_core]</code>).</p>
+<p>You will probably find that building the stage1 <code>std</code> is a bottleneck for you,
+but fear not, there is a (hacky) workaround…
+see <a href="./suggested.html#faster-rebuilds-with---keep-stage-std">the section on avoiding rebuilds for std</a>.</p>
+<p>Sometimes you don’t need a full build.
+When doing some kind of “type-based refactoring”, like renaming a method, or changing the
+signature of some function, you can use <code>./x check</code> instead for a much faster build.</p>
+<p>Note that this whole command just gives you a subset of the full <code>rustc</code> build.
+The <strong>full</strong> <code>rustc</code> build (what you get with <code>./x build --stage 2 rustc</code>) has quite a few more steps:</p>
+<ul>
+<li>Build <code>rustc</code> with the stage1 compiler.
+<ul>
+<li>The resulting compiler here is called the “stage2” compiler, which uses stage1 std from the previous command.</li>
+</ul>
+</li>
+<li>Build <code>librustdoc</code> and a bunch of other things with the stage2 compiler.</li>
+</ul>
+<p>You almost never need to do this.</p>
+<h3 id="build-specific-components"><a class="header" href="#build-specific-components">Build specific components</a></h3>
+<p>If you are working on the standard library, you probably don’t need to build
+every other default component.
+Instead, you can build a specific component by providing its name, like this:</p>
+<pre><code class="language-bash">./x build --stage 1 library
+</code></pre>
+<p>If you choose the <code>library</code> profile when running <code>x setup</code>, you can omit <code>--stage 1</code> (it’s the
+default).</p>
+<h2 id="creating-a-rustup-toolchain"><a class="header" href="#creating-a-rustup-toolchain">Creating a rustup toolchain</a></h2>
+<p>Once you have successfully built <code>rustc</code>, you will have created a bunch
+of files in your <code>build</code> directory.
+In order to actually run the resulting <code>rustc</code>, we recommend creating rustup toolchains.
+The first command listed below creates the stage1 toolchain, which was built in the
+steps above, with the name <code>stage1</code>.
+The second command creates the stage2 toolchain using the stage1 compiler.
+This will be needed in the future
+if running the entire test suite, but will not be built in this page.
+Building stage2 is done with the same <code>./x build</code> command as for stage1,
+specifying that the stage is 2 instead.</p>
+<pre><code class="language-bash">rustup toolchain link stage1 build/host/stage1
+rustup toolchain link stage2 build/host/stage2
+</code></pre>
+<p>Now you can run the <code>rustc</code> you built with via the toolchain.
+If you run with <code>-vV</code>, you should see a version number ending in <code>-dev</code>, indicating a build from
+your local environment:</p>
+<pre><code class="language-bash">$ rustc +stage1 -vV
+rustc 1.48.0-dev
+binary: rustc
+commit-hash: unknown
+commit-date: unknown
+host: x86_64-unknown-linux-gnu
+release: 1.48.0-dev
+LLVM version: 11.0
+</code></pre>
+<p>The rustup toolchain points to the specified toolchain compiled in your <code>build</code> directory,
+so the rustup toolchain will be updated whenever <code>x build</code> or <code>x test</code> are run for
+that toolchain/stage.</p>
+<p><strong>Note:</strong> the toolchain we’ve built does not include <code>cargo</code>.
+In this case, <code>rustup</code> will
+fall back to using <code>cargo</code> from the installed <code>nightly</code>, <code>beta</code>, or <code>stable</code> toolchain
+(in that order).
+If you need to use unstable <code>cargo</code> flags, be sure to run
+<code>rustup install nightly</code> if you haven’t already.
+See the
+<a href="https://rust-lang.github.io/rustup/concepts/toolchains.html#custom-toolchains">rustup documentation on custom toolchains</a>.</p>
+<p><strong>Note:</strong> rust-analyzer and IntelliJ Rust plugin use a component called
+<code>rust-analyzer-proc-macro-srv</code> to work with proc macros.
+If you intend to use a
+custom toolchain for a project (e.g. via <code>rustup override set stage1</code>), you may
+want to build this component:</p>
+<pre><code class="language-bash">./x build proc-macro-srv-cli
+</code></pre>
+<h2 id="building-targets-for-cross-compilation"><a class="header" href="#building-targets-for-cross-compilation">Building targets for cross-compilation</a></h2>
+<p>To produce a compiler that can cross-compile for other targets,
+pass any number of <code>target</code> flags to <code>x build</code>.
+For example, if your host platform is <code>x86_64-unknown-linux-gnu</code>
+and your cross-compilation target is <code>wasm32-wasip1</code>, you can build with:</p>
+<pre><code class="language-bash">./x build --target x86_64-unknown-linux-gnu,wasm32-wasip1
+</code></pre>
+<p>Note that if you want the resulting compiler to be able to build crates that
+involve proc macros or build scripts, you must be sure to explicitly build target support for the
+host platform (in this case, <code>x86_64-unknown-linux-gnu</code>).</p>
+<p>If you want to always build for other targets without needing to pass flags to <code>x build</code>,
+you can configure this in the <code>[build]</code> section of your <code>bootstrap.toml</code> like so:</p>
+<pre><code class="language-toml">build.target = ["x86_64-unknown-linux-gnu", "wasm32-wasip1"]
+</code></pre>
+<p>Note that building for some targets requires having external dependencies installed
+(e.g. building musl targets requires a local copy of musl).
+Any target-specific configuration (e.g. the path to a local copy of musl)
+will need to be provided by your <code>bootstrap.toml</code>.
+Please see <code>bootstrap.example.toml</code> for information on target-specific configuration keys.</p>
+<p>For examples of the complete configuration necessary to build a target, please visit
+<a href="https://doc.rust-lang.org/rustc/platform-support.html">the rustc book</a>,
+select any target under the “Platform Support” heading on the left,
+and see the section related to building a compiler for that target.
+For targets without a corresponding page in the rustc book,
+it may be useful to <a href="../tests/docker.html">inspect the Dockerfiles</a>
+that the Rust infrastructure itself uses to set up and configure cross-compilation.</p>
+<p>If you have followed the directions from the prior section on creating a rustup toolchain,
+then once you have built your compiler you will be able to use it to cross-compile like so:</p>
+<pre><code class="language-bash">cargo +stage1 build --target wasm32-wasip1
+</code></pre>
+<h2 id="other-x-commands"><a class="header" href="#other-x-commands">Other <code>x</code> commands</a></h2>
+<p>Here are a few other useful <code>x</code> commands.
+We’ll cover some of them in detail in other sections:</p>
+<ul>
+<li>Building things:
+<ul>
+<li><code>./x build</code> – builds everything using the stage 1 compiler,
+not just up to <code>std</code></li>
+<li><code>./x build --stage 2</code> – builds everything with the stage 2 compiler including <code>rustdoc</code></li>
+</ul>
+</li>
+<li>Running tests (see the <a href="../tests/running.html">section on running tests</a> for more details):
+<ul>
+<li><code>./x test library/std</code> – runs the unit tests and integration tests from <code>std</code></li>
+<li><code>./x test tests/ui</code> – runs the <code>ui</code> test suite</li>
+<li><code>./x test tests/ui/const-generics</code> - runs all the tests in
+the <code>const-generics/</code> subdirectory of the <code>ui</code> test suite</li>
+<li><code>./x test tests/ui/const-generics/const-types.rs</code> - runs
+the single test <code>const-types.rs</code> from the <code>ui</code> test suite</li>
+</ul>
+</li>
+</ul>
+<h3 id="cleaning-out-build-directories"><a class="header" href="#cleaning-out-build-directories">Cleaning out build directories</a></h3>
+<p>Sometimes you need to start fresh, but this is normally not the case.
+If you need to run this then bootstrap is most likely not acting right and
+you should file a bug as to what is going wrong.
+If you do need to clean everything up then you only need to run one command!</p>
+<pre><code class="language-bash">./x clean
+</code></pre>
+<p><code>rm -rf build</code> works too, but then you have to rebuild LLVM, which can take
+a long time even on fast computers.</p>
+<h2 id="remarks-on-disk-space"><a class="header" href="#remarks-on-disk-space">Remarks on disk space</a></h2>
+<p>Building the compiler (especially if beyond stage 1) can require significant amounts of free disk
+space, possibly around 100GB.
+This is compounded if you have a separate build directory for
+rust-analyzer (e.g. <code>build-rust-analyzer</code>). This is easy to hit with dev-desktops which have a <a href="https://github.com/rust-lang/simpleinfra/blob/8a59e4faeb75a09b072671c74a7cb70160ebef50/ansible/roles/dev-desktop/defaults/main.yml#L7">set
+disk
+quota</a>
+for each user, but this also applies to local development as well.
+Occasionally, you may need to:</p>
+<ul>
+<li>Remove <code>build/</code> directory.</li>
+<li>Remove <code>build-rust-analyzer/</code> directory (if you have a separate rust-analyzer build directory).</li>
+<li>Uninstall unnecessary toolchains if you use <code>cargo-bisect-rustc</code>.
+You can check which toolchains are installed with <code>rustup toolchain list</code>.</li>
+</ul>
+<hr>
+<ol class="footnote-definition">
+<li id="footnote-1">
+<p>issue<a href="https://github.com/rust-lang/rustc-dev-guide/issues/1707">#1707</a> <a href="#fr-1-1">↩</a></p>
+</li>
+</ol>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../about-this-guide.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../building/quickstart.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../about-this-guide.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../building/quickstart.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../mermaid-cc85ecea.min.js"></script>
+        <script src="../mermaid-init-4533fb11.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

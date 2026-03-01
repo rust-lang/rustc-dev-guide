@@ -1,0 +1,664 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Candidate preference - Rust Compiler Development Guide</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A guide to developing the Rust compiler (rustc)">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex-5b8627da.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-1a3501b2.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Compiler Development Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide/edit/main/src/solve/candidate-preference.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="candidate-preference"><a class="header" href="#candidate-preference">Candidate preference</a></h1>
+<p>There are multiple ways to prove <code>Trait</code> and <code>NormalizesTo</code> goals. Each such option is called a <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_next_trait_solver/solve/assembly/struct.Candidate.html"><code>Candidate</code></a>. If there are multiple applicable candidates, we prefer some candidates over others. We store the relevant information in their <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_next_trait_solver/solve/enum.CandidateSource.html"><code>CandidateSource</code></a>.</p>
+<p>This preference may result in incorrect inference or region constraints and would therefore be unsound during coherence. Because of this, we simply try to merge all candidates in coherence.</p>
+<h2 id="trait-goals"><a class="header" href="#trait-goals"><code>Trait</code> goals</a></h2>
+<p>Trait goals merge their applicable candidates in <a href="https://github.com/rust-lang/rust/blob/e3ee7f7aea5b45af3b42b5e4713da43876a65ac9/compiler/rustc_next_trait_solver/src/solve/trait_goals.rs#L1342-L1424"><code>fn merge_trait_candidates</code></a>. This document provides additional details and references to explain <em>why</em> we’ve got the current preference rules.</p>
+<h3 id="candidatesourcebuiltinimplbuiltinimplsourcetrivial"><a class="header" href="#candidatesourcebuiltinimplbuiltinimplsourcetrivial"><code>CandidateSource::BuiltinImpl(BuiltinImplSource::Trivial))</code></a></h3>
+<p>Trivial builtin impls are builtin impls which are known to be always applicable for well-formed types. This means that if one exists, using another candidate should never have fewer constraints. We currently only consider <code>Sized</code> - and <code>MetaSized</code> - impls to be trivial.</p>
+<p>This is necessary to prevent a lifetime error for the following pattern</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Trait&lt;T&gt;: Sized {}
+impl&lt;'a&gt; Trait&lt;u32&gt; for &amp;'a str {}
+impl&lt;'a&gt; Trait&lt;i32&gt; for &amp;'a str {}
+fn is_sized&lt;T: Sized&gt;(_: T) {}
+fn foo&lt;'a, 'b, T&gt;(x: &amp;'b str)
+where
+    &amp;'a str: Trait&lt;T&gt;,
+{
+    // Elaborating the `&amp;'a str: Trait&lt;T&gt;` where-bound results in a
+    // `&amp;'a str: Sized` where-bound. We do not want to prefer this
+    // over the builtin impl. 
+    is_sized(x);
+}
+<span class="boring">}</span></code></pre>
+<p>This preference is incorrect in case the builtin impl has a nested goal which relies on a non-param where-clause</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>struct MyType&lt;'a, T: ?Sized&gt;(&amp;'a (), T);
+fn is_sized&lt;T&gt;() {}
+fn foo&lt;'a, T: ?Sized&gt;()
+where
+    (MyType&lt;'a, T&gt;,): Sized,
+    MyType&lt;'static, T&gt;: Sized,
+{
+    // The where-bound is trivial while the builtin `Sized` impl for tuples
+    // requires proving `MyType&lt;'a, T&gt;: Sized` which can only be proven by
+    // using the where-clause, adding an unnecessary `'static` constraint.
+    is_sized::&lt;(MyType&lt;'a, T&gt;,)&gt;();
+    //~^ ERROR lifetime may not live long enough
+}
+<span class="boring">}</span></code></pre>
+<h3 id="candidatesourceparamenv"><a class="header" href="#candidatesourceparamenv"><code>CandidateSource::ParamEnv</code></a></h3>
+<p>Once there’s at least one <em>non-global</em> <code>ParamEnv</code> candidate, we prefer <em>all</em> <code>ParamEnv</code> candidates over other candidate kinds.
+A where-bound is global if it is not higher-ranked and doesn’t contain any generic parameters. It may contain <code>'static</code>.</p>
+<p>We try to apply where-bounds over other candidates as users tends to have the most control over them, so they can most easily
+adjust them in case our candidate preference is incorrect.</p>
+<h4 id="preference-over-impl-candidates"><a class="header" href="#preference-over-impl-candidates">Preference over <code>Impl</code> candidates</a></h4>
+<p>This is necessary to avoid region errors in the following example</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Trait&lt;'a&gt; {}
+impl&lt;T&gt; Trait&lt;'static&gt; for T {}
+fn impls_trait&lt;'a, T: Trait&lt;'a&gt;&gt;() {}
+fn foo&lt;'a, T: Trait&lt;'a&gt;&gt;() {
+    impls_trait::&lt;'a, T&gt;();
+}
+<span class="boring">}</span></code></pre>
+<p>We also need this as shadowed impls can result in currently ambiguous solver cycles: <a href="https://github.com/rust-lang/trait-system-refactor-initiative/issues/76">trait-system-refactor-initiative#76</a>. Without preference we’d be forced to fail with ambiguity
+errors if the where-bound results in region constraints to avoid incompleteness.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Super {
+    type SuperAssoc;
+}
+
+trait Trait: Super&lt;SuperAssoc = Self::TraitAssoc&gt; {
+    type TraitAssoc;
+}
+
+impl&lt;T, U&gt; Trait for T
+where
+    T: Super&lt;SuperAssoc = U&gt;,
+{
+    type TraitAssoc = U;
+}
+
+fn overflow&lt;T: Trait&gt;() {
+    // We can use the elaborated `Super&lt;SuperAssoc = Self::TraitAssoc&gt;` where-bound
+    // to prove the where-bound of the `T: Trait` implementation. This currently results in
+    // overflow. 
+    let x: &lt;T as Trait&gt;::TraitAssoc;
+}
+<span class="boring">}</span></code></pre>
+<p>This preference causes a lot of issues. See <a href="https://github.com/rust-lang/rust/issues/24066">#24066</a>. Most of the
+issues are caused by preferring where-bounds over impls even if the where-bound guides type inference:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Trait&lt;T&gt; {
+    fn call_me(&amp;self, x: T) {}
+}
+impl&lt;T&gt; Trait&lt;u32&gt; for T {}
+impl&lt;T&gt; Trait&lt;i32&gt; for T {}
+fn bug&lt;T: Trait&lt;U&gt;, U&gt;(x: T) {
+    x.call_me(1u32);
+    //~^ ERROR mismatched types
+}
+<span class="boring">}</span></code></pre>
+<p>However, even if we only apply this preference if the where-bound doesn’t guide inference, it may still result
+in incorrect lifetime constraints:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Trait&lt;'a&gt; {}
+impl&lt;'a&gt; Trait&lt;'a&gt; for &amp;'a str {}
+fn impls_trait&lt;'a, T: Trait&lt;'a&gt;&gt;(_: T) {}
+fn foo&lt;'a, 'b&gt;(x: &amp;'b str)
+where
+    &amp;'a str: Trait&lt;'b&gt;
+{
+    // Need to prove `&amp;'x str: Trait&lt;'b&gt;` with `'b: 'x`.
+    impls_trait::&lt;'b, _&gt;(x);
+    //~^ ERROR lifetime may not live long enough
+}
+<span class="boring">}</span></code></pre>
+<h4 id="preference-over-aliasbound-candidates"><a class="header" href="#preference-over-aliasbound-candidates">Preference over <code>AliasBound</code> candidates</a></h4>
+<p>This is necessary to avoid region errors in the following example</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Bound&lt;'a&gt; {}
+trait Trait&lt;'a&gt; {
+    type Assoc: Bound&lt;'a&gt;;
+}
+
+fn impls_bound&lt;'b, T: Bound&lt;'b&gt;&gt;() {}
+fn foo&lt;'a, 'b, 'c, T&gt;()
+where
+    T: Trait&lt;'a&gt;,
+    for&lt;'hr&gt; T::Assoc: Bound&lt;'hr&gt;,
+{
+    impls_bound::&lt;'b, T::Assoc&gt;();
+    impls_bound::&lt;'c, T::Assoc&gt;();
+}
+<span class="boring">}</span></code></pre>
+<p>It can also result in unnecessary constraints</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Bound&lt;'a&gt; {}
+trait Trait&lt;'a&gt; {
+    type Assoc: Bound&lt;'a&gt;;
+}
+
+fn impls_bound&lt;'b, T: Bound&lt;'b&gt;&gt;() {}
+fn foo&lt;'a, 'b, T&gt;()
+where
+    T: for&lt;'hr&gt; Trait&lt;'hr&gt;,
+    &lt;T as Trait&lt;'b&gt;&gt;::Assoc: Bound&lt;'a&gt;,
+{
+    // Using the where-bound for `&lt;T as Trait&lt;'a&gt;&gt;::Assoc: Bound&lt;'a&gt;`
+    // unnecessarily equates `&lt;T as Trait&lt;'a&gt;&gt;::Assoc` with the
+    // `&lt;T as Trait&lt;'b&gt;&gt;::Assoc` from the env.
+    impls_bound::&lt;'a, &lt;T as Trait&lt;'a&gt;&gt;::Assoc&gt;();
+    // For a `&lt;T as Trait&lt;'b&gt;&gt;::Assoc: Bound&lt;'b&gt;` the self type of the
+    // where-bound matches, but the arguments of the trait bound don't.
+    impls_bound::&lt;'b, &lt;T as Trait&lt;'b&gt;&gt;::Assoc&gt;();
+}
+<span class="boring">}</span></code></pre>
+<h4 id="why-no-preference-for-global-where-bounds"><a class="header" href="#why-no-preference-for-global-where-bounds">Why no preference for global where-bounds</a></h4>
+<p>Global where-bounds are either fully implied by an impl or unsatisfiable. If they are unsatisfiable, we don’t really care what happens. If a where-bound is fully implied then using the impl to prove the trait goal cannot result in additional constraints. For trait goals this is only useful for where-bounds which use <code>'static</code>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait A {
+    fn test(&amp;self);
+}
+
+fn foo(x: &amp;dyn A)
+where
+    dyn A + 'static: A, // Using this bound would lead to a lifetime error.
+{
+    x.test();
+}
+<span class="boring">}</span></code></pre>
+<p>More importantly, by using impls here we prevent global where-bounds from shadowing impls when normalizing associated types. There are no known issues from preferring impls over global where-bounds.</p>
+<h4 id="why-still-consider-global-where-bounds"><a class="header" href="#why-still-consider-global-where-bounds">Why still consider global where-bounds</a></h4>
+<p>Given that we just use impls even if there exists a global where-bounds, you may ask why we don’t just ignore these global where-bounds entirely: we use them to weaken the inference guidance from non-global where-bounds.</p>
+<p>Without a global where-bound, we currently prefer non-global where bounds even though there would be an applicable impl as well. By adding a non-global where-bound, this unnecessary inference guidance is disabled, allowing the following to compile:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn check&lt;Color&gt;(color: Color)
+where
+    Vec: Into&lt;Color&gt; + Into&lt;f32&gt;,
+{
+    let _: f32 = Vec.into();
+    // Without the global `Vec: Into&lt;f32&gt;`  bound we'd
+    // eagerly use the non-global `Vec: Into&lt;Color&gt;` bound
+    // here, causing this to fail.
+}
+
+struct Vec;
+impl From&lt;Vec&gt; for f32 {
+    fn from(_: Vec) -&gt; Self {
+        loop {}
+    }
+}
+<span class="boring">}</span></code></pre>
+<h3 id="candidatesourcealiasbound"><a class="header" href="#candidatesourcealiasbound"><code>CandidateSource::AliasBound</code></a></h3>
+<p>We prefer alias-bound candidates over impls. We currently use this preference to guide type inference, causing the following to compile. I personally don’t think this preference is desirable 🤷</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait Dyn {
+    type Word: Into&lt;u64&gt;;
+    fn d_tag(&amp;self) -&gt; Self::Word;
+    fn tag32(&amp;self) -&gt; Option&lt;u32&gt; {
+        self.d_tag().into().try_into().ok()
+        // prove `Self::Word: Into&lt;?0&gt;` and then select a method
+        // on `?0`, needs eager inference.
+    }
+}
+<span class="boring">}</span></code></pre>
+<pre class="playground"><code class="language-rust">fn impl_trait() -&gt; impl Into&lt;u32&gt; {
+    0u16
+}
+
+fn main() {
+    // There are two possible types for `x`:
+    // - `u32` by using the "alias bound" of `impl Into&lt;u32&gt;`
+    // - `impl Into&lt;u32&gt;`, i.e. `u16`, by using `impl&lt;T&gt; From&lt;T&gt; for T`
+    //
+    // We infer the type of `x` to be `u32` even though this is not
+    // strictly necessary and can even lead to surprising errors.
+    let x = impl_trait().into();
+    println!("{}", std::mem::size_of_val(&amp;x));
+}</code></pre>
+<p>This preference also avoids ambiguity due to region constraints, I don’t know whether people rely on this in practice.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Bound&lt;'a&gt; {}
+impl&lt;T&gt; Bound&lt;'static&gt; for T {}
+trait Trait&lt;'a&gt; {
+    type Assoc: Bound&lt;'a&gt;;
+}
+
+fn impls_bound&lt;'b, T: Bound&lt;'b&gt;&gt;() {}
+fn foo&lt;'a, T: Trait&lt;'a&gt;&gt;() {
+    // Should we infer this to `'a` or `'static`.
+    impls_bound::&lt;'_, T::Assoc&gt;();
+}
+<span class="boring">}</span></code></pre>
+<h3 id="candidatesourcebuiltinimplbuiltinimplsourceobject_"><a class="header" href="#candidatesourcebuiltinimplbuiltinimplsourceobject_"><code>CandidateSource::BuiltinImpl(BuiltinImplSource::Object(_))</code></a></h3>
+<p>We prefer builtin trait object impls over user-written impls. This is <strong>unsound</strong> and should be remoed in the future. See <a href="https://github.com/rust-lang/rust/issues/57893">#57893</a> and <a href="https://github.com/rust-lang/rust/pull/141347">#141347</a> for more details.</p>
+<h2 id="normalizesto-goals"><a class="header" href="#normalizesto-goals"><code>NormalizesTo</code> goals</a></h2>
+<p>The candidate preference behavior during normalization is implemented in <a href="https://github.com/rust-lang/rust/blob/e3ee7f7aea5b45af3b42b5e4713da43876a65ac9/compiler/rustc_next_trait_solver/src/solve/assembly/mod.rs#L920-L1003"><code>fn assemble_and_merge_candidates</code></a>.</p>
+<h3 id="we-always-consider-aliasbound-candidates"><a class="header" href="#we-always-consider-aliasbound-candidates">We always consider <code>AliasBound</code> candidates</a></h3>
+<p>In case the where-bound does not specify the associated item, we consider <code>AliasBound</code> candidates instead of treating the alias as rigid, even though the trait goal was proven via a <code>ParamEnv</code> candidate.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Super {
+    type Assoc;
+}
+trait Bound {
+    type Assoc: Super&lt;Assoc = u32&gt;;
+}
+trait Trait: Super {}
+
+// Elaborating the environment results in a `T::Assoc: Super` where-bound.
+// This where-bound must not prevent normalization via the `Super&lt;Assoc = u32&gt;`
+// item bound.
+fn heck&lt;T: Bound&lt;Assoc: Trait&gt;&gt;(x: &lt;T::Assoc as Super&gt;::Assoc) -&gt; u32 {
+    x
+}
+<span class="boring">}</span></code></pre>
+<p>Using such an alias can result in additional region constraints, cc <a href="https://github.com/rust-lang/rust/issues/133044">#133044</a>.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Bound&lt;'a&gt; {
+    type Assoc;
+}
+trait Trait {
+    type Assoc: Bound&lt;'static, Assoc = u32&gt;;
+}
+
+fn heck&lt;'a, T: Trait&lt;Assoc: Bound&lt;'a&gt;&gt;&gt;(x: &lt;T::Assoc as Bound&lt;'a&gt;&gt;::Assoc) {
+    // Normalizing the associated type requires `T::Assoc: Bound&lt;'static&gt;` as it
+    // uses the `Bound&lt;'static&gt;` alias-bound instead of keeping the alias rigid.
+    drop(x);
+}
+<span class="boring">}</span></code></pre>
+<h3 id="we-prefer-paramenv-candidates-over-aliasbound"><a class="header" href="#we-prefer-paramenv-candidates-over-aliasbound">We prefer <code>ParamEnv</code> candidates over <code>AliasBound</code></a></h3>
+<p>While we use <code>AliasBound</code> candidates if the where-bound does not specify the associated type, in case it does, we prefer the where-bound.
+This is necessary for the following example:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Make sure we prefer the `I::IntoIterator: Iterator&lt;Item = ()&gt;`
+// where-bound over the `I::Intoiterator: Iterator&lt;Item = I::Item&gt;`
+// alias-bound.
+
+trait Iterator {
+    type Item;
+}
+
+trait IntoIterator {
+    type Item;
+    type IntoIter: Iterator&lt;Item = Self::Item&gt;;
+}
+
+fn normalize&lt;I: Iterator&lt;Item = ()&gt;&gt;() {}
+
+fn foo&lt;I&gt;()
+where
+    I: IntoIterator,
+    I::IntoIter: Iterator&lt;Item = ()&gt;,
+{
+    // We need to prefer the `I::IntoIterator: Iterator&lt;Item = ()&gt;`
+    // where-bound over the `I::Intoiterator: Iterator&lt;Item = I::Item&gt;`
+    // alias-bound.
+    normalize::&lt;I::IntoIter&gt;();
+}
+<span class="boring">}</span></code></pre>
+<h3 id="we-always-consider-where-bounds"><a class="header" href="#we-always-consider-where-bounds">We always consider where-bounds</a></h3>
+<p>Even if the trait goal was proven via an impl, we still prefer <code>ParamEnv</code> candidates, if any exist.</p>
+<h4 id="we-prefer-orphaned-where-bounds"><a class="header" href="#we-prefer-orphaned-where-bounds">We prefer “orphaned” where-bounds</a></h4>
+<p>We add “orphaned” <code>Projection</code> clauses into the <code>ParamEnv</code> when normalizing item bounds of GATs and RPITIT in <code>fn check_type_bounds</code>.
+We need to prefer these <code>ParamEnv</code> candidates over impls and other where-bounds.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span>#![feature(associated_type_defaults)]
+<span class="boring">fn main() {
+</span>trait Foo {
+    // We should be able to prove that `i32: Baz&lt;Self&gt;` because of
+    // the impl below, which requires that `Self::Bar&lt;()&gt;: Eq&lt;i32&gt;`
+    // which is true, because we assume `for&lt;T&gt; Self::Bar&lt;T&gt; = i32`.
+    type Bar&lt;T&gt;: Baz&lt;Self&gt; = i32;
+}
+trait Baz&lt;T: ?Sized&gt; {}
+impl&lt;T: Foo + ?Sized&gt; Baz&lt;T&gt; for i32 where T::Bar&lt;()&gt;: Eq&lt;i32&gt; {}
+trait Eq&lt;T&gt; {}
+impl&lt;T&gt; Eq&lt;T&gt; for T {}
+<span class="boring">}</span></code></pre>
+<p>I don’t fully understand the cases where this preference is actually necessary and haven’t been able to exploit this in fun ways yet, but 🤷</p>
+<h4 id="we-prefer-global-where-bounds-over-impls"><a class="header" href="#we-prefer-global-where-bounds-over-impls">We prefer global where-bounds over impls</a></h4>
+<p>This is necessary for the following to compile. I don’t know whether anything relies on it in practice 🤷</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Id {
+    type This;
+}
+impl&lt;T&gt; Id for T {
+    type This = T;
+}
+
+fn foo&lt;T&gt;(x: T) -&gt; &lt;u32 as Id&gt;::This
+where
+    u32: Id&lt;This = T&gt;,
+{
+    x
+}
+<span class="boring">}</span></code></pre>
+<p>This means normalization can result in additional region constraints, cc <a href="https://github.com/rust-lang/rust/issues/133044">#133044</a>.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Trait {
+    type Assoc;
+}
+
+impl Trait for &amp;u32 {
+    type Assoc = u32;
+}
+
+fn trait_bound&lt;T: Trait&gt;() {}
+fn normalize&lt;T: Trait&lt;Assoc = u32&gt;&gt;() {}
+
+fn foo&lt;'a&gt;()
+where
+    &amp;'static u32: Trait&lt;Assoc = u32&gt;,
+{
+    trait_bound::&lt;&amp;'a u32&gt;(); // ok, proven via impl
+    normalize::&lt;&amp;'a u32&gt;(); // error, proven via where-bound
+}
+<span class="boring">}</span></code></pre>
+<h3 id="trait-where-bounds-shadow-impls"><a class="header" href="#trait-where-bounds-shadow-impls">Trait where-bounds shadow impls</a></h3>
+<p>Normalization of associated items does not consider impls if the corresponding trait goal has been proven via a <code>ParamEnv</code> or <code>AliasBound</code> candidate.
+This means that for where-bounds which do not constrain associated types, the associated types remain <em>rigid</em>.</p>
+<h4 id="using-impls-results-in-different-region-constraints"><a class="header" href="#using-impls-results-in-different-region-constraints">Using impls results in different region constraints</a></h4>
+<p>This is necessary to avoid unnecessary region constraints from applying impls.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Trait&lt;'a&gt; {
+    type Assoc;
+}
+impl Trait&lt;'static&gt; for u32 {
+    type Assoc = u32;
+}
+
+fn bar&lt;'b, T: Trait&lt;'b&gt;&gt;() -&gt; T::Assoc { todo!() }
+fn foo&lt;'a&gt;()
+where
+    u32: Trait&lt;'a&gt;,
+{
+    // Normalizing the return type would use the impl, proving
+    // the `T: Trait` where-bound would use the where-bound, resulting
+    // in different region constraints.
+    bar::&lt;'_, u32&gt;();
+}
+<span class="boring">}</span></code></pre>
+<h4 id="rpitit-type_of-cycles"><a class="header" href="#rpitit-type_of-cycles">RPITIT <code>type_of</code> cycles</a></h4>
+<p>We currently have to avoid impl candidates if there are where-bounds to avoid query cycles for RPITIT, see <a href="https://github.com/rust-lang/rust/pull/139762">#139762</a>. It feels desirable to me to stop relying on auto-trait leakage of during RPITIT computation to remove this issue, see <a href="https://github.com/rust-lang/rust/issues/139788">#139788</a>.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use std::future::Future;
+pub trait ReactiveFunction: Send {
+    type Output;
+
+    fn invoke(self) -&gt; Self::Output;
+}
+
+trait AttributeValue {
+    fn resolve(self) -&gt; impl Future&lt;Output = ()&gt; + Send;
+}
+
+impl&lt;F, V&gt; AttributeValue for F
+where
+    F: ReactiveFunction&lt;Output = V&gt;,
+    V: AttributeValue,
+{
+    async fn resolve(self) {
+        // We're awaiting `&lt;V as AttributeValue&gt;::{synthetic#0}` here.
+        // Normalizing that one via the the impl we're currently in
+        // relies on `collect_return_position_impl_trait_in_trait_tys` which
+        // ends up relying on auto-trait leakage when checking that the
+        // opaque return type of this function implements the `Send` item
+        // bound of the trait definition.
+        self.invoke().resolve().await
+    }
+}
+<span class="boring">}</span></code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../solve/the-solver.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../solve/canonicalization.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../solve/the-solver.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../solve/canonicalization.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../mermaid-cc85ecea.min.js"></script>
+        <script src="../mermaid-init-4533fb11.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

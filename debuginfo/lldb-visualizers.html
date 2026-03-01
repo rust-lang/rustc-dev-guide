@@ -1,0 +1,841 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>LLDB - Python Providers - Rust Compiler Development Guide</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A guide to developing the Rust compiler (rustc)">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex-5b8627da.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-1a3501b2.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Compiler Development Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide/edit/main/src/debuginfo/lldb-visualizers.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="lldb---python-providers"><a class="header" href="#lldb---python-providers">LLDB - Python Providers</a></h1>
+<blockquote>
+<p>NOTE: LLDB’s C++&lt;-&gt;Python FFI expects a version of Python designated at the time LLDB was
+compiled. LLDB is careful to correspond this version to the minimum in typical Linux and macOS
+distributions, but on Windows there is no easy solution. If you receive an import error regarding
+<code>_lldb</code> not existing, a mismatched Python version is likely the cause.</p>
+<p>LLDB is considering solutions this issue. For updates, see
+<a href="https://discourse.llvm.org/t/a-minimal-python-install-for-lldb/88658">this discussion</a> and <a href="https://github.com/llvm/llvm-project/issues/167001">this github issue</a></p>
+</blockquote>
+<blockquote>
+<p>NOTE: As of <!-- date-check --> Nov 2025,
+LLDB’s minimum supported Python version is 3.8, with plans to update it to
+3.9 or 3.10, depending on several outside factors. Scripts should ideally be written with only the
+features available in the minimum supported Python version. Please see <a href="https://discourse.llvm.org/t/rfc-upgrading-llvm-s-minimum-required-python-version/88605/">this discussion</a> for
+more info.</p>
+</blockquote>
+<blockquote>
+<p>NOTE: The path to LLDB’s Python package can be located via the CLI command <code>lldb -P</code></p>
+</blockquote>
+<p>LLDB provides 3 mechanisms for customizing output:</p>
+<ul>
+<li>Formats</li>
+<li>Synthetic providers</li>
+<li>Summary providers</li>
+</ul>
+<h2 id="formats"><a class="header" href="#formats">Formats</a></h2>
+<p>The official documentation is <a href="https://lldb.llvm.org/use/variable.html#type-format">here</a>.
+In short,
+formats allow one to set the default print format for primitive types (e.g. print <code>25u8</code> as decimal
+<code>25</code>, hex <code>0x19</code>, or binary <code>00011001</code>).</p>
+<p>Rust will almost always need to override <code>unsigned char</code>, <code>signed char</code>, <code>char</code>, <code>u8</code>, and <code>i8</code>, to
+(unsigned) decimal format.</p>
+<h2 id="synthetic-providers"><a class="header" href="#synthetic-providers">Synthetic Providers</a></h2>
+<p>The official documentation is <a href="https://lldb.llvm.org/use/variable.html#synthetic-children">here</a>,
+but some information is vague, outdated, or entirely missing.</p>
+<p>Nearly all interaction the user has with variables will be through LLDB’s
+<a href="https://lldb.llvm.org/python_api/lldb.SBValue.html"><code>SBValue</code> objects</a> which are used both in the Python API, and internally via LLDB’s
+plugins and CLI.</p>
+<p>A Synthetic Provider is a Python class, written with a specific interface, that is associated with
+one or more Rust types.
+The Synthetic Provider wraps <code>SBValue</code> objects and LLDB will call our
+class’s functions when inspecting the variable.</p>
+<p>The wrapped value is still an <code>SBValue</code>, but when calling e.g. <code>SBValue.GetChildAtIndex</code>, it will
+internally call <code>SyntheticProvider.get_child_at_index</code>.
+You can check if a value has a synthetic
+provider via <code>SBValue.IsSynthetic()</code>, and which synthetic it is via <code>SBValue.GetTypeSynthetic()</code>.
+If you want to interact with the underlying non-synthetic value, you can call
+<code>SBValue.GetNonSyntheticValue()</code>.</p>
+<p>The expected interface is as follows:</p>
+<pre><code class="language-python">class SyntheticProvider:
+    def __init__(self, valobj: SBValue, _lldb_internal): ...
+
+    # optional
+    def update(self) -&gt; bool: ...
+
+    # optional
+    def has_children(self) -&gt; bool: ...
+
+    # optional
+    def num_children(self, max_children: int) -&gt; int: ...
+
+    def get_child_index(self, name: str) -&gt; int: ...
+
+    def get_child_at_index(self, index: int) -&gt; SBValue: ...
+
+    # optional
+    def get_type_name(self) -&gt; str: ...
+
+    # optional
+    def get_value(self) -&gt; SBValue: ...
+</code></pre>
+<p>Below are explanations of the methods, their quirks, and how they should generally be used.
+If a method overrides an <code>SBValue</code> method, that method will be listed.</p>
+<h3 id="__init__"><a class="header" href="#__init__"><code>__init__</code></a></h3>
+<p>This function is called once per object, and must store the <code>valobj</code> in the Python class so that it
+is accessible elsewhere.
+Very little else should be done here.</p>
+<h3 id="optional-update"><a class="header" href="#optional-update">(optional) <code>update</code></a></h3>
+<p>This function is called prior to LLDB interacting with a variable, but after <code>__init__</code>.
+LLDB tracks whether <code>update</code> has already been called.
+If it has been, and if it is not possible for the variable
+to have changed (e.g. inspecting the same variable a second time without stepping), it will omit the
+call to <code>update</code>.</p>
+<p>This function has 2 purposes:</p>
+<ul>
+<li>Store/update any information that may have changed since the last time <code>update</code> was run</li>
+<li>Inform LLDB if there were changes to the children such that it should flush the child cache.</li>
+</ul>
+<p>Typical operations include storing the heap pointer, length, capacity, and element type of a <code>Vec</code>,
+determining an enum variable’s variant, or checking which slots of a <code>HashMap</code> are occupied.</p>
+<p>The bool returned from this function is somewhat complicated, see:
+<a href="#update-caching"><code>update</code> caching</a> below for more info.
+When in doubt, return <code>False</code>/<code>None</code>.
+As of <!-- date-check --> Nov 2025,
+none of the visualizers return <code>True</code>, but that may change as the debug info
+test suite is improved.</p>
+<h4 id="update-caching"><a class="header" href="#update-caching"><code>update</code> caching</a></h4>
+<p>LLDB attempts to cache values when possible, including child values.
+This cache is effectively the
+number of child objects, and the addresses of the underlying debugee memory that the child object
+represents.
+By returning <code>True</code>, you indicate to LLDB that the number of children and the addresses
+of those children have not changed since the last time <code>update</code> was run, meaning it can reuse the
+cached children.</p>
+<p><strong>Returning <code>True</code> in the wrong circumstances will result in the debugger outputting incorrect
+information</strong>.</p>
+<p>Returning <code>False</code> indicates that there have been changes, the cache will be flushed, and the
+children will be fetched from scratch.
+It is the safer option if you are unsure.</p>
+<p>The only relationship that matters is parent-to-child.
+Grandchildren depend on the <code>update</code> function of their direct parent, not that of the grandparent.</p>
+<p>It is important to view the child cache as pointers-to-memory.
+For example, if a slice’s <code>data_ptr</code>
+value and <code>length</code> have not changed, returning <code>True</code> is appropriate.
+Even if the slice is mutable
+and elements of it are overwritten (e.g. <code>slice[0] = 15</code>), because the child cache consists of
+<em>pointers</em>, they will reflect the new data at that memory location.</p>
+<p>Conversely, if <code>data_ptr</code> has changed, that means it is pointing to a new location in memory, the
+child pointers are invalid, and the cache must be flushed.
+If the <code>length</code> has changed, we need to flush the cache to reflect the new number of children.
+If <code>length</code> has changed but <code>data_ptr</code> has
+not, it is possible to store the old children in the <code>SyntheticProvider</code> itself (e.g.
+<code>list[SBValue]</code>) and dole those out rather than generating them from scratch, only creating new
+children if they do not already exist in the <code>SyntheticProvider</code>’s list.</p>
+<p>For further clarification, see <a href="https://discourse.llvm.org/t/when-is-it-safe-to-cache-syntheticprovider-update/88608">this discussion</a></p>
+<blockquote>
+<p>NOTE: when testing the caching behavior, do not rely on LLDB’s heuristic to persist variables when
+stepping. Instead, store the variable in a Python object (e.g. <code>v = lldb.frame.var("var_name")</code>),
+step forward, and then inspect the stored variable.</p>
+</blockquote>
+<h3 id="optional-has_children"><a class="header" href="#optional-has_children">(optional) <code>has_children</code></a></h3>
+<blockquote>
+<p>Overrides <code>SBValue.MightHaveChildren</code></p>
+</blockquote>
+<p>This is a shortcut used by LLDB to check if the value has children <em>at all</em>, without doing
+potentially expensive computations to determine how many children there are (e.g. linked list).
+Often, this will be a one-liner of <code>return True</code>/<code>return False</code> or
+<code>return self.valobj.MightHaveChildren()</code>.</p>
+<h3 id="optional-num_children"><a class="header" href="#optional-num_children">(optional) <code>num_children</code></a></h3>
+<blockquote>
+<p>Overrides <code>SBValue.GetNumChildren</code></p>
+</blockquote>
+<p>Returns the total number of children that LLDB should try to access when printing the type.
+This number <strong>does not</strong> need to match to total number of synthetic children.</p>
+<p>The <code>max_children</code> argument can be returned if calculating the number of children can be expensive
+(e.g. linked list). If this is not a consideration, <code>max_children</code> can be omitted from the function
+signature.</p>
+<p>Additionally, fields can be intentionally “hidden” from LLDB while still being accessible to the
+user.
+For example, one might want a <code>vec![1, 2, 3]</code> to display only its elements, but still have the
+<code>len</code> and <code>capacity</code> values accessible on request.
+By returning <code>3</code> from <code>num_children</code>, one can
+restrict LLDB to only displaying <code>[1, 2, 3]</code>, while users can still directly access <code>v.len</code> and
+<code>v.capacity</code>.
+See: <a href="#example-provider-vect">Example Provider: Vec&lt;T&gt;</a> to see an implementation of this.</p>
+<h3 id="get_child_index"><a class="header" href="#get_child_index"><code>get_child_index</code></a></h3>
+<blockquote>
+<p>Overrides <code>SBValue.GetIndexOfChildWithName</code></p>
+<p>Affects <code>SBValue.GetChildMemberWithName</code></p>
+</blockquote>
+<p>Given a name, returns the index that the child should be accessed at.
+It is expected that the return value of this function is passed directly to <code>get_child_at_index</code>.
+As with <code>num_children</code>, the
+values returned here <em>can</em> be arbitrary, so long as they are properly coordinated with
+<code>get_child_at_index</code>.</p>
+<p>One special value is <code>$$dereference$$</code>.
+Accounting for this pseudo-field will allow LLDB to use the
+<code>SBValue</code> returned from <code>get_child_at_index</code> as the result of a dereference via LLDB’s expression
+parser (e.g. <code>*val</code> and <code>val-&gt;field</code>)</p>
+<h3 id="get_child_at_index"><a class="header" href="#get_child_at_index"><code>get_child_at_index</code></a></h3>
+<blockquote>
+<p>Overrides <code>SBValue.GetChildAtIndex</code></p>
+</blockquote>
+<p>Given an index, returns a child <code>SBValue</code>.
+Often these are generated via
+<code>SBValue.CreateValueFromAddress</code>, but less commonly <code>SBValue.CreateChildAtOffset</code>,
+<code>SBValue.CreateValueFromExpression</code>, and <code>SBValue.CreateValueFromData</code>.
+These functions can be a
+little finicky, so you may need to fiddle with them to get the output you want.</p>
+<p>In some cases, <code>SBValue.Clone</code> is appropriate.
+It creates a new child that is an exact copy of an existing child, but with a new name.
+This is useful for cases like tuples, which have field names of
+the style <code>__0</code>, <code>__1</code>, … when we would prefer they were named <code>0</code>, <code>1</code>, …</p>
+<p>Small alterations can be made to the resulting child before it is returned.
+This is useful for <code>&amp;str</code>/<code>String</code>, where we would prefer if the children were displayed as
+<code>lldb.eFormatBytesWithASCII</code> rather than just as a decimal value.</p>
+<h3 id="optional-get_type_name"><a class="header" href="#optional-get_type_name">(optional) <code>get_type_name</code></a></h3>
+<blockquote>
+<p>Overrides <code>SBValue.GetDisplayTypeName</code></p>
+</blockquote>
+<p>Overrides the displayed name of a type.
+For a synthetic <code>SBValue</code> whose type name is overridden, the
+original type name can still be retrieved via <code>SBValue.GetTypeName()</code> and
+<code>SBValue.GetType().GetName()</code></p>
+<p>This can be helpful in shortening the name of common standard library types (e.g.
+<code>std::collections::hash::map::HashMap&lt;K, V, std::hash::random::RandomState&gt;</code> -&gt; <code>HashMap&lt;K, V&gt;</code>), or
+in normalizing MSVC type names (e.g. <code>ref$&lt;str$&gt;</code> -&gt; <code>&amp;str</code>).</p>
+<p>The string manipulation can be a little tricky, especially on MSVC where we cannot conveniently
+access the generic parameters of the type.</p>
+<h3 id="optional-get_value"><a class="header" href="#optional-get_value">(optional) <code>get_value</code></a></h3>
+<blockquote>
+<p>Overrides <code>SBValue.GetValue()</code>, <code>SBValue.GetValueAsUnsigned()</code>, <code>SBValue.GetValueAsSigned()</code>,
+<code>SBValue.GetValueAsAddress()</code>,</p>
+</blockquote>
+<p>The <code>SBValue</code> returned is expected to be a primitive type or pointer, and is treated as the value of
+the variable in expressions.</p>
+<blockquote>
+<p>IMPORTANT: The <code>SBValue</code> returned <strong>must be stored in the <code>SyntheticProvider</code></strong>.
+As of <!-- date-check --> Nov 2025,
+there is a bug where if the <code>SBValue</code> is acquired within <code>get_value</code> and not stored
+anywhere, Python will segfault when LLDB attempts to access the value.</p>
+</blockquote>
+<h2 id="summary-providers"><a class="header" href="#summary-providers">Summary Providers</a></h2>
+<p>Summary providers are Python functions of the following form:</p>
+<pre><code class="language-python">def SummaryProvider(valobj: SBValue, _lldb_internal) -&gt; str: ...
+</code></pre>
+<p>Where the returned string is passed verbatim to the user.
+If the returned value isn’t a string, it
+is naively convered to a string (e.g. <code>return None</code> prints <code>"None"</code>, not an empty string).</p>
+<p>If the <code>SBValue</code> passed in is of a type that has a Synthetic Provider, <code>valobj.IsSynthetic()</code> will
+return <code>True</code>, and the synthetic’s corresponding functions will be used.
+If this is undesirable, the original value can be retrieved via <code>valobj.GetNonSyntheticValue()</code>.
+This can be helpful in cases
+like <code>String</code>, where individually calling <code>GetChildAtIndex</code> in a loop is much slower than accessing
+the heap pointer, reading the whole byte array directly from the debugee’s memory, and using
+Python’s <code>bytes.decode()</code>.</p>
+<h3 id="instance-summaries"><a class="header" href="#instance-summaries">Instance Summaries</a></h3>
+<p>Regular <code>SummaryProvider</code> functions take an opaque <code>SBValue</code>.
+That <code>SBValue</code> will reflect the type’s
+<code>SyntheticProvider</code> if one exists, but we cannot access the <code>SyntheticProvider</code> instance itself, or
+any of its internal implementation details.
+This is deterimental in cases where we need some of
+those internal details to help complete the summary.
+As of <!-- date-check --> Nov 2025, in the synthetic we just
+run the non-synthetic value through the synthetic provider
+(<code>synth = SyntheticProvider(valobj.GetNonSyntheticValue(), _dict)</code>), but this is obviously
+suboptimal and there are plans to use the method outlined below.</p>
+<p>Instead, we can leverage the Python module’s state to allow for instance summaries.
+Prior art for
+this technique exists in the <a href="https://github.com/vadimcn/codelldb/blob/cf9574977b80e29c6de2c44d12f1071a53a54caf/formatters/rust.py#L110">old CodeLLDB Rust visualizer scripts</a>.</p>
+<p>In short: every Synthetic Provider’s <code>__init__</code> function stores a unique ID and a weak reference to
+<code>self</code> in a global dictionary.
+The Synthetic Provider class also implements a <code>get_summary</code> function.
+The type’s <code>SummaryProvider</code> is a function that looks up the unique ID in this dictionary,
+then calls a <code>get_summary</code> on the instance it retrieves.</p>
+<pre><code class="language-python">import weakref
+
+SYNTH_BY_ID = weakref.WeakValueDictionary()
+
+class SyntheticProvider:
+    valobj: SBValue
+
+    # slots requires opting-in to __weakref__
+    __slots__ = ("valobj", "__weakref__")
+
+    def __init__(valobj: SBValue, _dict):
+        SYNTH_BY_ID[valobj.GetID()] = self
+        self.valobj = valobj
+
+    def get_summary(self) -&gt; str:
+        ...
+
+def InstanceSummaryProvider(valobj: SBValue, _dict) -&gt; str:
+    # GetNonSyntheticValue should never fail as InstanceSummaryProvider implies an instance of a
+    # `SyntheticProvider`. No non-synthetic types should ever have this summary assigned to them
+    # We use GetNonSyntheticValue because the synthetic vaobj has its own unique ID
+    return SYNTH_BY_ID[valobj.GetNonSyntheticValue().GetID()].get_summary()
+</code></pre>
+<p>For example, one might use this for the Enum synthetic provider.
+The summary would like to access
+the variant name, but there isn’t a convenient way to reflect this via the type name or child-values
+of the synthetic.
+By implementing an instance summary, we can retrieve the variant name via
+<code>self.variant.GetTypeName()</code> and some string manipulation.</p>
+<h1 id="writing-visualizer-scripts"><a class="header" href="#writing-visualizer-scripts">Writing Visualizer Scripts</a></h1>
+<blockquote>
+<p>IMPORTANT: Unlike GDB and CDB, LLDB can debug executables with either DWARF or PDB debug info.
+Visualizers must be written to account for both formats whenever possible. See:
+<a href="./rust-codegen.html#dwarf-vs-pdb">rust-codegen</a> for an overview of the differences</p>
+</blockquote>
+<p>Scripts are injected into LLDB via the CLI command <code>command script import &lt;path-to-script&gt;.py</code>.
+Once
+injected, classes and functions can be added to the synthetic/summary pool with <code>type synthetic add</code>
+and <code>type summary add</code> respectively.
+The summaries and synthetics can be associated with a
+“category”, which is typically named after the language the providers are intended for.
+The category we use will be called <code>Rust</code>.</p>
+<blockquote>
+<p>TIP: all LLDB commands can be prefixed with <code>help</code> (e.g. <code>help type synthetic add</code>) for a brief
+description, list of arguments, and examples.</p>
+</blockquote>
+<p>As of <!-- date-check --> Nov 2025,
+we use <code>command source ...</code>, which executes a series of CLI commands from the
+file <a href="https://github.com/rust-lang/rust/blob/main/src/etc/lldb_commands"><code>lldb_commands</code></a> to add
+providers.
+This file is somewhat unwieldy, and will soon be supplanted by the Python API equivalent
+outlined below.</p>
+<h2 id="__lldb_init_module"><a class="header" href="#__lldb_init_module"><code>__lldb_init_module</code></a></h2>
+<p>This is an optional function of the form:</p>
+<pre><code class="language-python">def __lldb_init_module(debugger: SBDebugger, _lldb_internal) -&gt; None: ...
+</code></pre>
+<p>This function is called at the end of <code>command script import ...</code>, but before control returns back
+to the CLI.
+It allows the script to initialize its own state.</p>
+<p>Crucially, it is passed a reference to the debugger itself.
+This allows us to create the <code>Rust</code> category and add providers to it.
+It can also allow us to conditionally change which providers we
+use depending on what version of LLDB the script detects.
+This is vital for backwards compatibility
+once we begin using recognizer functions, as recognizers were added in lldb 19.0.</p>
+<h2 id="visualizer-resolution"><a class="header" href="#visualizer-resolution">Visualizer Resolution</a></h2>
+<p>The order that visualizers resolve in is listed <a href="https://lldb.llvm.org/use/variable.html#finding-formatters-101">here</a>.
+In short:</p>
+<ul>
+<li>If there is an exact match (non-regex name, recognizer function, or type already matched to
+provider), use that</li>
+<li>If the object is a pointer/reference, try to use the dereferenced type’s formatter</li>
+<li>If the object is a typedef, check the underlying type for a formatter</li>
+<li>If none of the above work, iterate through the regex type matchers</li>
+</ul>
+<p>Within each of those steps, <strong>iteration is done backwards</strong> to allow new commands to “override” old
+commands.
+This is important for cases like <code>Box&lt;str&gt;</code> vs <code>Box&lt;T&gt;</code>, were we want a specialized
+synthetic for the former, but a more generalized synthetic for the latter.</p>
+<h2 id="minutiae"><a class="header" href="#minutiae">Minutiae</a></h2>
+<p>LLDB’s API is very powerful, but there are some “gotchas” and unintuitive behavior, some of which
+will be outlined below.
+The Python implementation can be viewed at the path returned by the CLI
+command <code>lldb -P</code> in <code>lldb\__init__.py</code>.
+In addition to the
+<a href="https://github.com/llvm/llvm-project/tree/main/lldb/examples/synthetic">examples in the lldb repo</a>, there are also <a href="https://github.com/llvm/llvm-project/tree/main/lldb/source/Plugins/Language/CPlusPlus">C++ visualizers</a> that can
+be used as a reference (e.g. <a href="https://github.com/llvm/llvm-project/blob/main/lldb/source/Plugins/Language/CPlusPlus/LibCxxVector.cpp">LibCxxVector, the equivalent to <code>Vec&lt;T&gt;</code></a>). While C++’s
+visualizers are written in C++ and have access to LLDB’s internals, the API and general practices
+are very similar.</p>
+<h3 id="sbvalue"><a class="header" href="#sbvalue"><code>SBValue</code></a></h3>
+<ul>
+<li>Pointer/reference <code>SBValue</code>s will effectively “auto-deref” in some cases, acting as if the
+children of the pointed-to-object are its own children.</li>
+<li>The non-function fields are typically <a href="https://docs.python.org/3/library/functions.html#property"><code>property()</code></a> fields that point directly to the
+function anyway (e.g. <code>SBValue.type = property(GetType, None)</code>). Accessing through these shorthands
+is a bit slower to access than just calling the function directly, so they should be avoided.
+Some
+of the properties return special objects with special properties (e.g. <code>SBValue.member</code> returns an
+object that acts like <code>dict[str, SBValue]</code> to access children).
+Internally, many of these special
+objects just allocate a new class instance and call the function on the <code>SBValue</code> anyway, resulting
+in additional performance loss (e.g. <code>SBValue.member</code> internally just implements <code>__getitem__</code> which
+is the one-liner <code>return self.valobj.GetChildMemberWithName(name)</code>)</li>
+<li><code>SBValue.GetID</code> returns a unique <code>int</code> for each value for the duration of the debug session.
+Synthetic <code>SBValue</code>’s have a different ID than their underlying <code>SBValue</code>.
+The underlying ID can be retrieved via <code>SBValue.GetNonSyntheticValue().GetID()</code>.</li>
+<li>When manually calculating an address, <code>SBValue.GetValueAsAddress</code> should be preferred over
+<code>SBValue.GetValueAsUnsigned</code> due to <a href="https://lldb.llvm.org/python_api/lldb.SBValue.html#lldb.SBValue.GetValueAsAddress">target-specific behavior</a></li>
+<li>Getting a string representation of an <code>SBValue</code> can be tricky because <code>GetSummary</code> requires a
+summary provider and <code>GetValue</code> requires the type be representable by a primitive.
+In almost all
+cases where neither of those conditions are met, the type is a user defined struct that can be
+passed through <code>StructSummaryProvider</code>.</li>
+</ul>
+<h3 id="sbtype"><a class="header" href="#sbtype"><code>SBType</code></a></h3>
+<ul>
+<li>“Aggregate type” means a non-primitive struct/class/union</li>
+<li>“Template” is equivalent to “Generic”</li>
+<li>Types can be looked up by their name via <code>SBTarget.FindFirstType(type_name)</code>.
+<code>SBTarget</code> can be acquired via <code>SBValue.GetTarget</code></li>
+<li><code>SBType.template_args</code> returns <code>None</code> instead of an empty list if the type has no generics</li>
+<li>It is sometimes necessary to transform a type into the type you want via functions like
+<code>SBType.GetArrayType</code> and <code>SBType.GetPointerType</code>.
+These functions cannot fail.
+They ask the underlying LLDB <code>TypeSystem</code> plugin for the type, bypassing the debug info completely.
+Even if the
+type does not exist in the debug info at all, these functions can create the appropriate type.</li>
+<li><code>SBType.GetCanonicalType</code> is effectively <code>SBType.GetTypedefedType</code> + <code>SBType.GetUnqualifiedType</code>.
+Unlike <code>SBType.GetTypedefedType</code>, it will always return a valid <code>SBType</code> regardless of whether or
+not the original <code>SBType</code> is a typedef.</li>
+<li><code>SBType.GetStaticFieldWithName</code> was added in LLDB 18. Unfortunately, backwards compatibility isn’t
+always possible since the static fields are otherwise completely inaccessible.</li>
+</ul>
+<h1 id="example-provider-vect"><a class="header" href="#example-provider-vect">Example Provider: <code>Vec&lt;T&gt;</code></a></h1>
+<h2 id="syntheticprovider"><a class="header" href="#syntheticprovider">SyntheticProvider</a></h2>
+<p>We start with the typical prelude, using <code>__slots__</code> since we have known fields.
+In addition to the
+object itself, we also need to store the type of the elements because <code>Vec</code>’s heap pointer is a
+<code>*mut u8</code>, not a <code>*mut T</code>.
+Rust is a statically typed language, so the type of <code>T</code> will never change.
+That means we can store it during initialization.
+The heap pointer, length, and capacity <em>can</em> change though, and thus are default initialized here.</p>
+<pre><code class="language-python">import lldb
+
+class VecSyntheticProvider:
+    valobj: SBValue
+    data_ptr: SBValue
+    len: int
+    cap: int
+    element_type: SBType
+
+    __slots__ = (
+        "valobj",
+        "data_ptr",
+        "len",
+        "cap",
+        "element_type",
+        "__weakref__",
+    )
+
+    def __init__(valobj: SBValue, _dict) -&gt; None:
+        self.valobj = valobj
+        # invalid type is a better default than `None`
+        self.element_type = SBType()
+
+        # special handling to account for DWARF/PDB differences
+        if (arg := valobj.GetType().GetTemplateArgumentType(0)):
+            self.element_type = arg
+        else:
+            arg_name = next(get_template_args(valobj.GetTypeName()))
+            self.element_type = resolve_msvc_template_arg(arg_name, valobj.GetTarget())
+</code></pre>
+<p>For the implementation of <code>get_template_args</code> and <code>resolve_msvc_template_arg</code>, please see:
+<a href="https://github.com/rust-lang/rust/blob/main/src/etc/lldb_providers.py#L136"><code>lldb_providers.py</code></a>.</p>
+<p>Next, the update function.
+We check if the pointer or length have changed.
+We can ommit checking the
+capacity, as the number of children will remain the same unless <code>len</code> changes.
+If changing the capacity resulted in a reallocation, <code>data_ptr</code>’s address would be different.</p>
+<p>If <code>data_ptr</code> and <code>length</code> haven’t changed, we can take advantage of LLDB’s caching and return
+early.
+If they have changed, we store the new values and tell LLDB to flush the cache.</p>
+<pre><code class="language-python">def update(self):
+    ptr = self.valobj.GetChildMemberWithName("data_ptr")
+    len = self.valobj.GetChildMemberWithName("length").GetValueAsUnsigned()
+
+    if (
+        self.data_ptr.GetValueAsAddress() == ptr.GetValueAsAddress()
+        and self.len == len
+    ):
+        # Our child address offsets and child count are still valid
+        # so we can reuse cached children
+        return True
+
+    self.data_ptr = ptr
+    self.len = len
+
+    return False
+</code></pre>
+<p><code>has_children</code> and <code>num_children</code> are both straightforward:</p>
+<pre><code class="language-python">def has_children(self) -&gt; bool:
+    return True
+
+def num_children(self) -&gt; int:
+    return self.len
+</code></pre>
+<p>When accessing elements, we expect values of the format <code>[0]</code>, <code>[1]</code>, etc. to mimic indexing.
+Additionally, we still want the user to be able to quickly access the length and capacity, as they
+can be very useful when debugging.
+We assign these values <code>u32::MAX - 1</code> and <code>u32::MAX - 2</code>
+respectively, as we can almost surely guarantee that they will not overlap with element values.
+Note that we can account for both the full and shorthand <code>capacity</code> name.</p>
+<pre><code class="language-python">    def get_child_index(self, name: str) -&gt; int:
+        index = name.lstrip("[").rstrip("]")
+        if index.isdigit():
+            return int(index)
+        if name == "len":
+            return lldb.UINT32_MAX - 1
+        if name == "cap" or name == "capacity":
+            return lldb.UINT32_MAX - 2
+
+        return -1
+</code></pre>
+<p>We now have to properly coordinate <code>get_child_at_index</code> so that the elements, length, and capacity
+are all accessible.</p>
+<pre><code class="language-python">def get_child_at_index(self, index: int) -&gt; SBValue:
+    if index == UINT32_MAX - 1:
+        return self.valobj.GetChildMemberWithName("len")
+    if index == UINT32_MAX - 2:
+        return (
+            self.valobj.GetChildMemberWithName("buf")
+            .GetChildMemberWithName("inner")
+            .GetChildMemberWithName("cap")
+            .GetChildAtIndex(0)
+            .Clone("capacity")
+        )
+    addr = self.data_ptr.GetValueAsAddress()
+    addr += index * self.element_type.GetByteSize()
+    return self.valobj.CreateValueFromAddress(f"[{index}]", addr, self.element_type)
+</code></pre>
+<p>For the type’s display name, we can strip the path qualifier.
+User defined types named <code>Vec</code> will end up fully qualified, so there shouldn’t be any ambiguity.
+We can also remove the allocator generic, as it’s very very rarely useful.
+We use <code>get_template_args</code> instead of <code>self.element_type.GetName()</code> for 3 reasons:</p>
+<ol>
+<li>If we fail to resolve the element type for any reason, <code>self.valobj</code>’s type name can still let
+the user know what the real type of the element is</li>
+<li>Type names are not subject to the limitations of DWARF and PDB nodes, so the template type in
+the name will reflect things like <code>*const</code>/<code>*mut</code> and <code>&amp;</code>/<code>&amp;mut</code>.</li>
+<li>As of <!-- date-check --> Nov 2025,
+we don’t normalize MSVC type names, but once we do, we will need to work with the
+string-names of types anyway.
+It’s also much easier to cache a string-to-string conversion compared
+to an <code>SBType</code>-to-string conversion.</li>
+</ol>
+<pre><code class="language-python">def get_type_name(self) -&gt; str:
+    return f"Vec&lt;{next(get_template_args(self.valobj))}&gt;"
+</code></pre>
+<p>There isn’t an appropriate primitive value with which to represent a <code>Vec</code>, so we simply ommit
+the <code>get_value</code> function.</p>
+<h2 id="summaryprovider"><a class="header" href="#summaryprovider">SummaryProvider</a></h2>
+<p>The summary provider is very simple thanks to our synthetic provider.
+The only real hiccup is that
+<code>GetSummary</code> only returns a value if the object’s type has a <code>SummaryProvider</code>.
+If it doesn’t, it will return an empty string which is not ideal.
+In a full set of visualizer scripts, we can ensure
+that every type that doesn’t have a <code>GetSummary()</code> or a <code>GetValue()</code> is a struct, and then delegate
+to a generic <code>StructSummaryProvider</code>.
+For this demonstration, I will gloss over that detail.</p>
+<pre><code class="language-python">def VecSummaryProvider(valobj: SBValue, _lldb_internal) -&gt; str:
+    children = []
+    for i in range(valobj.GetNumChildren()):
+        child = valobj.GetChildAtIndex(i)
+        summary = child.GetSummary()
+        if summary is None:
+            summary = child.GetValue()
+            if summary is None:
+                summary = "{...}"
+
+        children.append(summary)
+
+    return f"vec![{", ".join(children)}]"
+</code></pre>
+<h2 id="enabling-the-providers"><a class="header" href="#enabling-the-providers">Enabling the providers</a></h2>
+<p>Assume this synthetic is imported into <code>lldb_lookup.py</code></p>
+<p>With CLI commands:</p>
+<pre><code class="language-txt">type synthetic add -l lldb_lookup.synthetic_lookup -x "^(alloc::([a-z_]+::)+)Vec&lt;.+&gt;$" --category Rust
+type summary add -F lldb_lookup.summary_lookup -x "^(alloc::([a-z_]+::)+)Vec&lt;.+&gt;$" --category Rust
+</code></pre>
+<p>With <code>__lldb_init_module</code>:</p>
+<pre><code class="language-python">def __lldb_init_module(debugger: SBDebugger, _dict: LLDBOpaque):
+    # Ensure the category exists and is enabled
+    rust_cat = debugger.GetCategory("Rust")
+
+    if not rust_cat.IsValid():
+        rust_cat = debugger.CreateCategory("Rust")
+
+    rust_cat.SetEnabled(True)
+
+    # Register Vec providers
+    vec_regex = r"^(alloc::([a-z_]+::)+)Vec&lt;.+&gt;$"
+    sb_name = lldb.SBTypeNameSpecifier(vec_regex, is_regex=True)
+
+    sb_synth = lldb.SBTypeSynthetic.CreateWithClassName("lldb_lookup.VecSyntheticProvider")
+    sb_synth.SetOptions(lldb.eTypeOptionCascade)
+
+    sb_summary = lldb.SBTypeSummary.CreateWithFunctionName("lldb_lookup.VecSummaryProvider")
+    sb_summary.SetOptions(lldb.eTypeOptionCascade)
+
+    rust_cat.AddTypeSynthetic(sb_name, sb_synth)
+    rust_cat.AddSummary(sb_name, sb_summary)
+</code></pre>
+<h2 id="output"><a class="header" href="#output">Output</a></h2>
+<p>Without providers:</p>
+<pre><code class="language-text">(lldb) v vec_v
+(alloc::vec::Vec&lt;int, alloc::alloc::Global&gt;) vec_v = {
+  buf = {
+    inner = {
+      ptr = {
+        pointer = (pointer = "\n")
+        _marker = {}
+      }
+      cap = (__0 = 5)
+      alloc = {}
+    }
+    _marker = {}
+  }
+  len = 5
+}
+(lldb) v vec_v[0]
+error: &lt;user expression 0&gt;:1:6: subscripted value is not an array or pointer
+   1 | vec_v[0]
+     | ^
+</code></pre>
+<p>With providers (<code>v &lt;var_name&gt;</code> prints the summary and then a list of all children):</p>
+<pre><code class="language-text">(lldb) v vec_v
+(Vec&lt;int&gt;) vec_v = vec![10, 20, 30, 40, 50] {
+  [0] = 10
+  [1] = 20
+  [2] = 30
+  [3] = 40
+  [4] = 50
+}
+(lldb) v vec_v[0]
+(int) vec_v[0] = 10
+</code></pre>
+<p>We can also confirm that the “hidden” length and capacity are still accessible:</p>
+<pre><code class="language-text">(lldb) v vec_v.len
+(unsigned long long) vec_v.len = 5
+(lldb) v vec_v.capacity
+(unsigned long long) vec_v.capacity = 5
+(lldb) v vec_v.cap
+(unsigned long long) vec_v.cap = 5
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../debuginfo/debugger-visualizers.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../debuginfo/gdb-visualizers.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../debuginfo/debugger-visualizers.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../debuginfo/gdb-visualizers.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../mermaid-cc85ecea.min.js"></script>
+        <script src="../mermaid-init-4533fb11.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

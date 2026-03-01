@@ -1,0 +1,772 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Test directives - Rust Compiler Development Guide</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A guide to developing the Rust compiler (rustc)">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex-5b8627da.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-1a3501b2.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Compiler Development Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide/edit/main/src/tests/directives.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="compiletest-directives"><a class="header" href="#compiletest-directives">Compiletest directives</a></h1>
+<!--
+FIXME(jieyouxu) completely revise this chapter.
+-->
+<p>Directives are special comments that tell compiletest how to build and interpret a test.
+They may also appear in <code>rmake.rs</code> <a href="compiletest.html#run-make-tests">run-make tests</a>.</p>
+<p>They are normally put after the short comment that explains the point of this test.
+Compiletest test suites use <code>//@</code> to signal that a comment is a directive.
+For example, this test uses the <code>//@ compile-flags</code> command to specify a custom
+flag to give to rustc when the test is compiled:</p>
+<pre><code class="language-rust ignore">// Test the behavior of `0 - 1` when overflow checks are disabled.
+
+//@ compile-flags: -C overflow-checks=off
+
+fn main() {
+    let x = 0 - 1;
+    ...
+}</code></pre>
+<p>Directives can be standalone (like <code>//@ run-pass</code>) or take a value (like <code>//@ compile-flags: -C overflow-checks=off</code>).</p>
+<p>Directives are written one directive per line: you cannot write multiple
+directives on the same line.
+For example, if you write <code>//@ only-x86 only-windows</code>,
+then <code>only-windows</code> is interpreted as a comment, not a separate directive.</p>
+<h2 id="listing-of-compiletest-directives"><a class="header" href="#listing-of-compiletest-directives">Listing of compiletest directives</a></h2>
+<p>The following is a list of compiletest directives.
+Directives are linked to sections that describe the command in more detail if available.
+This list may not be exhaustive.
+Directives can generally be found by browsing the
+<code>TestProps</code> structure found in <a href="https://github.com/rust-lang/rust/tree/HEAD/src/tools/compiletest/src/directives.rs"><code>directives.rs</code></a> from the compiletest source.</p>
+<h3 id="assembly"><a class="header" href="#assembly">Assembly</a></h3>
+<!-- date-check: Oct 2024 -->
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Directive</th><th>Explanation</th><th>Supported test suites</th><th>Possible values</th></tr>
+</thead>
+<tbody>
+<tr><td><code>assembly-output</code></td><td>Assembly output kind to check</td><td><code>assembly</code></td><td><code>emit-asm</code>, <code>bpf-linker</code>, <code>ptx-linker</code></td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="auxiliary-builds"><a class="header" href="#auxiliary-builds">Auxiliary builds</a></h3>
+<p>See <a href="compiletest.html#building-auxiliary-crates">Building auxiliary crates</a></p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Directive</th><th>Explanation</th><th>Supported test suites</th><th>Possible values</th></tr>
+</thead>
+<tbody>
+<tr><td><code>aux-bin</code></td><td>Build a aux binary, made available in <code>auxiliary/bin</code> relative to test directory</td><td>All except <code>run-make</code>/<code>run-make-cargo</code></td><td>Path to auxiliary <code>.rs</code> file</td></tr>
+<tr><td><code>aux-build</code></td><td>Build a separate crate from the named source file</td><td>All except <code>run-make</code>/<code>run-make-cargo</code></td><td>Path to auxiliary <code>.rs</code> file</td></tr>
+<tr><td><code>aux-crate</code></td><td>Like <code>aux-build</code> but makes available as extern prelude</td><td>All except <code>run-make</code>/<code>run-make-cargo</code></td><td><code>[&lt;extern_modifiers&gt;:]&lt;extern_prelude_name&gt;=&lt;path/to/aux/file.rs&gt;</code></td></tr>
+<tr><td><code>aux-codegen-backend</code></td><td>Similar to <code>aux-build</code> but pass the compiled dylib to <code>-Zcodegen-backend</code> when building the main file</td><td><code>ui-fulldeps</code></td><td>Path to codegen backend file</td></tr>
+<tr><td><code>proc-macro</code></td><td>Similar to <code>aux-build</code>, but for aux forces host and don’t use <code>-Cprefer-dynamic</code><sup class="footnote-reference" id="fr-pm-1"><a href="#footnote-pm">1</a></sup>.</td><td>All except <code>run-make</code>/<code>run-make-cargo</code></td><td>Path to auxiliary proc-macro <code>.rs</code> file</td></tr>
+<tr><td><code>build-aux-docs</code></td><td>Build docs for auxiliaries as well.  Note that this only works with <code>aux-build</code>, not <code>aux-crate</code>.</td><td>All except <code>run-make</code>/<code>run-make-cargo</code></td><td>N/A</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="controlling-outcome-expectations"><a class="header" href="#controlling-outcome-expectations">Controlling outcome expectations</a></h3>
+<p>See <a href="ui.html#controlling-passfail-expectations">Controlling pass/fail expectations</a>.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Directive</th><th>Explanation</th><th>Supported test suites</th><th>Possible values</th></tr>
+</thead>
+<tbody>
+<tr><td><code>check-pass</code></td><td>Building (no codegen) should pass</td><td><code>ui</code>, <code>crashes</code>, <code>incremental</code></td><td>N/A</td></tr>
+<tr><td><code>check-fail</code></td><td>Building (no codegen) should fail</td><td><code>ui</code>, <code>crashes</code></td><td>N/A</td></tr>
+<tr><td><code>build-pass</code></td><td>Building should pass</td><td><code>ui</code>, <code>crashes</code>, <code>codegen</code>, <code>incremental</code></td><td>N/A</td></tr>
+<tr><td><code>build-fail</code></td><td>Building should fail</td><td><code>ui</code>, <code>crashes</code></td><td>N/A</td></tr>
+<tr><td><code>run-pass</code></td><td>Program must exit with code <code>0</code></td><td><code>ui</code>, <code>crashes</code>, <code>incremental</code></td><td>N/A</td></tr>
+<tr><td><code>run-fail</code></td><td>Program must exit with code <code>1..=127</code></td><td><code>ui</code>, <code>crashes</code></td><td>N/A</td></tr>
+<tr><td><code>run-crash</code></td><td>Program must crash</td><td><code>ui</code></td><td>N/A</td></tr>
+<tr><td><code>run-fail-or-crash</code></td><td>Program must <code>run-fail</code> or <code>run-crash</code></td><td><code>ui</code></td><td>N/A</td></tr>
+<tr><td><code>ignore-pass</code></td><td>Ignore <code>--pass</code> flag</td><td><code>ui</code>, <code>crashes</code>, <code>codegen</code>, <code>incremental</code></td><td>N/A</td></tr>
+<tr><td><code>dont-check-failure-status</code></td><td>Don’t check exact failure status (i.e. <code>1</code>)</td><td><code>ui</code>, <code>incremental</code></td><td>N/A</td></tr>
+<tr><td><code>failure-status</code></td><td>Check</td><td><code>ui</code>, <code>crashes</code></td><td>Any <code>u16</code></td></tr>
+<tr><td><code>should-ice</code></td><td>Check failure status is <code>101</code></td><td><code>coverage</code>, <code>incremental</code></td><td>N/A</td></tr>
+<tr><td><code>should-fail</code></td><td>Compiletest self-test</td><td>All</td><td>N/A</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="controlling-output-snapshots-and-normalizations"><a class="header" href="#controlling-output-snapshots-and-normalizations">Controlling output snapshots and normalizations</a></h3>
+<p>See <a href="ui.html#normalization">Normalization</a>, <a href="ui.html#output-comparison">Output
+comparison</a> and <a href="ui.html#rustfix-tests">Rustfix tests</a> for more details.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Directive</th><th>Explanation</th><th>Supported test suites</th><th>Possible values</th></tr>
+</thead>
+<tbody>
+<tr><td><code>check-run-results</code></td><td>Check run test binary <code>run-{pass,fail}</code> output snapshot</td><td><code>ui</code>, <code>crashes</code>, <code>incremental</code> if <code>run-pass</code></td><td>N/A</td></tr>
+<tr><td><code>error-pattern</code></td><td>Check that output contains a specific string</td><td><code>ui</code>, <code>crashes</code>, <code>incremental</code> if <code>run-pass</code></td><td>String</td></tr>
+<tr><td><code>regex-error-pattern</code></td><td>Check that output contains a regex pattern</td><td><code>ui</code>, <code>crashes</code>, <code>incremental</code> if <code>run-pass</code></td><td>Regex</td></tr>
+<tr><td><code>check-stdout</code></td><td>Check <code>stdout</code> against <code>error-pattern</code>s from running test binary<sup class="footnote-reference" id="fr-check_stdout-1"><a href="#footnote-check_stdout">2</a></sup></td><td><code>ui</code>, <code>crashes</code>, <code>incremental</code></td><td>N/A</td></tr>
+<tr><td><code>normalize-stderr-32bit</code></td><td>Normalize actual stderr (for 32-bit platforms) with a rule <code>"&lt;raw&gt;" -&gt; "&lt;normalized&gt;"</code> before comparing against snapshot</td><td><code>ui</code>, <code>incremental</code></td><td><code>"&lt;RAW&gt;" -&gt; "&lt;NORMALIZED&gt;"</code>, <code>&lt;RAW&gt;</code>/<code>&lt;NORMALIZED&gt;</code> is regex capture and replace syntax</td></tr>
+<tr><td><code>normalize-stderr-64bit</code></td><td>Normalize actual stderr (for 64-bit platforms) with a rule <code>"&lt;raw&gt;" -&gt; "&lt;normalized&gt;"</code> before comparing against snapshot</td><td><code>ui</code>, <code>incremental</code></td><td><code>"&lt;RAW&gt;" -&gt; "&lt;NORMALIZED&gt;"</code>, <code>&lt;RAW&gt;</code>/<code>&lt;NORMALIZED&gt;</code> is regex capture and replace syntax</td></tr>
+<tr><td><code>normalize-stderr</code></td><td>Normalize actual stderr with a rule <code>"&lt;raw&gt;" -&gt; "&lt;normalized&gt;"</code> before comparing against snapshot</td><td><code>ui</code>, <code>incremental</code></td><td><code>"&lt;RAW&gt;" -&gt; "&lt;NORMALIZED&gt;"</code>, <code>&lt;RAW&gt;</code>/<code>&lt;NORMALIZED&gt;</code> is regex capture and replace syntax</td></tr>
+<tr><td><code>normalize-stdout</code></td><td>Normalize actual stdout with a rule <code>"&lt;raw&gt;" -&gt; "&lt;normalized&gt;"</code> before comparing against snapshot</td><td><code>ui</code>, <code>incremental</code></td><td><code>"&lt;RAW&gt;" -&gt; "&lt;NORMALIZED&gt;"</code>, <code>&lt;RAW&gt;</code>/<code>&lt;NORMALIZED&gt;</code> is regex capture and replace syntax</td></tr>
+<tr><td><code>dont-check-compiler-stderr</code></td><td>Don’t check actual compiler stderr vs stderr snapshot</td><td><code>ui</code></td><td>N/A</td></tr>
+<tr><td><code>dont-check-compiler-stdout</code></td><td>Don’t check actual compiler stdout vs stdout snapshot</td><td><code>ui</code></td><td>N/A</td></tr>
+<tr><td><code>dont-require-annotations</code></td><td>Don’t require line annotations for the given diagnostic kind (<code>//~ KIND</code>) to be exhaustive</td><td><code>ui</code>, <code>incremental</code></td><td><code>ERROR</code>, <code>WARN</code>, <code>NOTE</code>, <code>HELP</code>, <code>SUGGESTION</code></td></tr>
+<tr><td><code>run-rustfix</code></td><td>Apply all suggestions via <code>rustfix</code>, snapshot fixed output, and check fixed output builds</td><td><code>ui</code></td><td>N/A</td></tr>
+<tr><td><code>rustfix-only-machine-applicable</code></td><td><code>run-rustfix</code> but only machine-applicable suggestions</td><td><code>ui</code></td><td>N/A</td></tr>
+<tr><td><code>exec-env</code></td><td>Env var to set when executing a test</td><td><code>ui</code>, <code>crashes</code></td><td><code>&lt;KEY&gt;=&lt;VALUE&gt;</code></td></tr>
+<tr><td><code>unset-exec-env</code></td><td>Env var to unset when executing a test</td><td><code>ui</code>, <code>crashes</code></td><td>Any env var name</td></tr>
+<tr><td><code>stderr-per-bitwidth</code></td><td>Generate a stderr snapshot for each bitwidth</td><td><code>ui</code></td><td>N/A</td></tr>
+<tr><td><code>forbid-output</code></td><td>A pattern which must not appear in stderr/<code>cfail</code> output</td><td><code>ui</code>, <code>incremental</code></td><td>Regex pattern</td></tr>
+<tr><td><code>run-flags</code></td><td>Flags passed to the test executable</td><td><code>ui</code></td><td>Arbitrary flags</td></tr>
+<tr><td><code>known-bug</code></td><td>No error annotation needed due to known bug</td><td><code>ui</code>, <code>crashes</code>, <code>incremental</code></td><td>Issue number <code>#123456</code></td></tr>
+<tr><td><code>compare-output-by-lines</code></td><td>Compare the output by lines, rather than as a single string</td><td>All</td><td>N/A</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="controlling-when-tests-are-run"><a class="header" href="#controlling-when-tests-are-run">Controlling when tests are run</a></h3>
+<p>These directives are used to ignore the test in some situations, which
+means the test won’t be compiled or run.</p>
+<ul>
+<li><code>ignore-X</code> where <code>X</code> is a target detail or other criteria on which to ignore the test (see below)</li>
+<li><code>only-X</code> is like <code>ignore-X</code>, but will <em>only</em> run the test on that target or stage</li>
+<li><code>ignore-auxiliary</code> is intended for files that <em>participate</em> in one or more other
+main test files but that <code>compiletest</code> should not try to build the file itself.
+Please backlink to which main test is actually using the auxiliary file.</li>
+<li><code>ignore-test</code> always ignores the test.
+This can be used to temporarily disable
+a test if it is currently not working, but you want to keep it in-tree to re-enable it later.</li>
+</ul>
+<p>Some examples of <code>X</code> in <code>ignore-X</code> or <code>only-X</code>:</p>
+<ul>
+<li>A full target triple: <code>aarch64-apple-ios</code></li>
+<li>Architecture: <code>aarch64</code>, <code>arm</code>, <code>mips</code>, <code>wasm32</code>, <code>x86_64</code>, <code>x86</code>,
+…</li>
+<li>OS: <code>android</code>, <code>emscripten</code>, <code>freebsd</code>, <code>ios</code>, <code>linux</code>, <code>macos</code>, <code>windows</code>,
+…</li>
+<li>Environment (fourth word of the target triple): <code>gnu</code>, <code>msvc</code>, <code>musl</code></li>
+<li>Pointer width: <code>32bit</code>, <code>64bit</code></li>
+<li>Endianness: <code>endian-big</code></li>
+<li>Stage: <code>stage1</code>, <code>stage2</code></li>
+<li>Binary format: <code>elf</code></li>
+<li>Channel: <code>stable</code>, <code>beta</code></li>
+<li>When cross compiling: <code>cross-compile</code></li>
+<li>When <a href="running.html#running-tests-on-a-remote-machine">remote testing</a> is used: <code>remote</code></li>
+<li>When particular debuggers are being tested: <code>cdb</code>, <code>gdb</code>, <code>lldb</code></li>
+<li>When particular debugger versions are matched: <code>ignore-gdb-version</code></li>
+<li>Specific <a href="ui.html#compare-modes">compare modes</a>: <code>compare-mode-polonius</code>, <code>compare-mode-chalk</code>,
+<code>compare-mode-split-dwarf</code>, <code>compare-mode-split-dwarf-single</code></li>
+<li>The two different test modes used by coverage tests:
+<code>ignore-coverage-map</code>, <code>ignore-coverage-run</code></li>
+<li>When testing a dist toolchain: <code>dist</code>
+<ul>
+<li>This needs to be enabled with <code>COMPILETEST_ENABLE_DIST_TESTS=1</code></li>
+</ul>
+</li>
+<li>The <code>rustc_abi</code> of the target: e.g. <code>rustc_abi-x86_64-sse2</code></li>
+</ul>
+<p>The following directives will check rustc build settings and target settings:</p>
+<ul>
+<li><code>needs-asm-support</code> — ignores if the <strong>host</strong> architecture doesn’t have
+stable support for <code>asm!</code>.
+For tests that cross-compile to explicit targets
+via <code>--target</code>, use <code>needs-llvm-components</code> instead to ensure the appropriate
+backend is available.</li>
+<li><code>needs-profiler-runtime</code> — ignores the test if the profiler runtime was not
+enabled for the target (<code>build.profiler = true</code> in <code>bootstrap.toml</code>)</li>
+<li><code>needs-sanitizer-support</code> — ignores if the sanitizer support was not enabled
+for the target (<code>build.sanitizers = true</code> in <code>bootstrap.toml</code>)</li>
+<li><code>needs-sanitizer-{address,hwaddress,leak,memory,thread}</code> — ignores if the
+corresponding sanitizer is not enabled for the target (AddressSanitizer,
+hardware-assisted AddressSanitizer, LeakSanitizer, MemorySanitizer or
+ThreadSanitizer respectively)</li>
+<li><code>needs-run-enabled</code> — ignores if it is a test that gets executed, and running
+has been disabled.
+Running tests can be disabled with the <code>x test --run=never</code> flag, or running on fuchsia.</li>
+<li><code>needs-unwind</code> — ignores if the target does not support unwinding</li>
+<li><code>needs-rust-lld</code> — ignores if the rust lld support is not enabled (<code>rust.lld = true</code> in <code>bootstrap.toml</code>)</li>
+<li><code>needs-threads</code> — ignores if the target does not have threading support</li>
+<li><code>needs-subprocess</code>  — ignores if the target does not have subprocess support</li>
+<li><code>needs-symlink</code> — ignores if the target does not support symlinks.
+This can be the case on Windows if the developer did not enable privileged symlink
+permissions.</li>
+<li><code>ignore-std-debug-assertions</code> — ignores if std was built with debug assertions.</li>
+<li><code>needs-std-debug-assertions</code> — ignores if std was not built with debug assertions.</li>
+<li><code>ignore-std-remap-debuginfo</code> — ignores if std was built with remapping of it’s sources.</li>
+<li><code>needs-std-remap-debugino</code> — ignores if std was not built with remapping of it’s sources.</li>
+<li><code>ignore-rustc-debug-assertions</code> — ignores if rustc was built with debug assertions.</li>
+<li><code>needs-rustc-debug-assertions</code> — ignores if rustc was not built with debug assertions.</li>
+<li><code>needs-target-has-atomic</code> — ignores if target does not have support for all
+specified atomic widths, e.g. the test with <code>//@ needs-target-has-atomic: 8, 16, ptr</code> will only run if it supports the comma-separated list of atomic widths.</li>
+<li><code>needs-dynamic-linking</code> — ignores if target does not support dynamic linking
+(which is orthogonal to it being unable to create <code>dylib</code> and <code>cdylib</code> crate types)</li>
+<li><code>needs-crate-type</code> — ignores if target platform does not support one or more
+of the comma-delimited list of specified crate types.
+For example,
+<code>//@ needs-crate-type: cdylib, proc-macro</code> will cause the test to be ignored
+on <code>wasm32-unknown-unknown</code> target because the target does not support the
+<code>proc-macro</code> crate type.</li>
+<li><code>needs-target-std</code> — ignores if target platform does not have std support.
+<ul>
+<li>See also <a href="./compiletest.html#codegen-tests"><code>#![no_std]</code>/<code>#![no_core]</code> and implied <code>needs-target-std</code> for
+codegen tests</a>.</li>
+</ul>
+</li>
+<li><code>ignore-backends</code> — ignores the listed backends, separated by whitespace characters.
+Please note
+that this directive can be overriden with the <code>--bypass-ignore-backends=[BACKEND]</code> command line
+flag.</li>
+<li><code>needs-backends</code> — only runs the test if current codegen backend is listed.</li>
+<li><code>needs-offload</code> — ignores if our LLVM backend was not built with offload support.</li>
+<li><code>needs-enzyme</code> — ignores if our Enzyme submodule was not built.</li>
+</ul>
+<p>The following directives will check LLVM support:</p>
+<ul>
+<li><code>exact-llvm-major-version: 19</code> — ignores if the llvm major version does not
+match the specified llvm major version.</li>
+<li><code>min-llvm-version: 13.0</code> — ignored if the LLVM version is less than the given value</li>
+<li><code>min-system-llvm-version: 12.0</code> — ignored if using a system LLVM and its
+version is less than the given value</li>
+<li><code>max-llvm-major-version: 19</code> — ignored if the LLVM major version is higher
+than the given major version</li>
+<li><code>ignore-llvm-version: 9.0</code> — ignores a specific LLVM version</li>
+<li><code>ignore-llvm-version: 7.0 - 9.9.9</code> — ignores LLVM versions in a range (inclusive)</li>
+<li><code>needs-llvm-components: powerpc</code> — ignores if the specific LLVM component was not built.
+Note: The test will fail on CI (when
+<code>COMPILETEST_REQUIRE_ALL_LLVM_COMPONENTS</code> is set) if the component does not exist.</li>
+<li><code>needs-forced-clang-based-tests</code> — test is ignored unless the environment
+variable <code>RUSTBUILD_FORCE_CLANG_BASED_TESTS</code> is set, which enables building clang alongside LLVM
+<ul>
+<li>This is only set in two CI jobs (<a href="https://github.com/rust-lang/rust/blob/ab3dba92db355b8d97db915a2dca161a117e959c/src/ci/docker/host-x86_64/x86_64-gnu-debug/Dockerfile#L32"><code>x86_64-gnu-debug</code></a> and
+<a href="https://github.com/rust-lang/rust/blob/20c909ff9cdd88d33768a4ddb8952927a675b0ad/src/ci/docker/host-aarch64/aarch64-gnu-debug/Dockerfile#L32"><code>aarch64-gnu-debug</code></a>), which only runs a subset of <code>run-make</code> tests.
+Other tests with this directive will not run at all, which is usually not what you want.</li>
+</ul>
+</li>
+</ul>
+<p>See also <a href="compiletest.html#debuginfo-tests">Debuginfo tests</a> for directives for ignoring debuggers.</p>
+<h3 id="affecting-how-tests-are-built"><a class="header" href="#affecting-how-tests-are-built">Affecting how tests are built</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Directive</th><th>Explanation</th><th>Supported test suites</th><th>Possible values</th></tr>
+</thead>
+<tbody>
+<tr><td><code>compile-flags</code></td><td>Flags passed to <code>rustc</code> when building the test or aux file</td><td>All except for <code>run-make</code>/<code>run-make-cargo</code></td><td>Any valid <code>rustc</code> flags, e.g. <code>-Awarnings -Dfoo</code>. Cannot be <code>-Cincremental</code> or <code>--edition</code></td></tr>
+<tr><td><code>edition</code></td><td>The edition used to build the test</td><td>All except for <code>run-make</code>/<code>run-make-cargo</code></td><td>Any valid <code>--edition</code> value</td></tr>
+<tr><td><code>rustc-env</code></td><td>Env var to set when running <code>rustc</code></td><td>All except for <code>run-make</code>/<code>run-make-cargo</code></td><td><code>&lt;KEY&gt;=&lt;VALUE&gt;</code></td></tr>
+<tr><td><code>unset-rustc-env</code></td><td>Env var to unset when running <code>rustc</code></td><td>All except for <code>run-make</code>/<code>run-make-cargo</code></td><td>Any env var name</td></tr>
+<tr><td><code>incremental</code></td><td>Proper incremental support for tests outside of incremental test suite</td><td><code>ui</code>, <code>crashes</code></td><td>N/A</td></tr>
+<tr><td><code>no-prefer-dynamic</code></td><td>Don’t use <code>-C prefer-dynamic</code>, don’t build as a dylib via a <code>--crate-type=dylib</code> preset flag</td><td><code>ui</code>, <code>crashes</code></td><td>N/A</td></tr>
+</tbody>
+</table>
+</div>
+<div class="warning">
+<p>Tests (outside of <code>run-make</code>/<code>run-make-cargo</code>) that want to use incremental tests not in the
+incremental test-suite must not pass <code>-C incremental</code> via <code>compile-flags</code>, and
+must instead use the <code>//@ incremental</code> directive.</p>
+<p>Consider writing the test as a proper incremental test instead.</p>
+</div>
+
+<h4 id="the-edition-directive"><a class="header" href="#the-edition-directive">The edition directive</a></h4>
+<p>The <code>//@ edition</code> directive can take an exact edition, a bounded range of editions,
+or a left-bounded half-open range of editions.
+This affects which edition is used by <code>./x test</code> to run the test.</p>
+<p>For example:</p>
+<ul>
+<li>A test with the <code>//@ edition: 2018</code> directive will only run under the 2018 edition.</li>
+<li>A test with the <code>//@ edition: 2015..2021</code> directive can be run under the 2015 and the 2018 edition,
+so the upper bound is exclusive just like in Rust
+(note that there’s no equivalent to Rust’s <code>..=</code> where the upper bound is inclusive).
+However, CI will only run the test with the lowest edition in the range (which is 2015 in this example).</li>
+<li>A test with the <code>//@ edition: 2018..</code> directive will run under 2018 edition or greater.
+However, CI will only run the test with the lowest edition in the range (which is 2018 in this example).</li>
+</ul>
+<p>You can also force <code>./x test</code> to use a specific edition by passing the <code>-- --edition=</code> argument.
+However, tests with the <code>//@ edition</code> directive will clamp the value passed to the argument.
+For example, if we run <code>./x test -- --edition=2015</code>:</p>
+<ul>
+<li>A test with the <code>//@ edition: 2018</code> will run with the 2018 edition.</li>
+<li>A test with the <code>//@ edition: 2015..2021</code> will be run with the 2015 edition.</li>
+<li>A test with the <code>//@ edition: 2018..</code> will run with the 2018 edition.</li>
+</ul>
+<h3 id="rustdoc"><a class="header" href="#rustdoc">Rustdoc</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Directive</th><th>Explanation</th><th>Supported test suites</th><th>Possible values</th></tr>
+</thead>
+<tbody>
+<tr><td><code>doc-flags</code></td><td>Flags passed to <code>rustdoc</code> when building the test or aux file</td><td><code>rustdoc</code>, <code>rustdoc-js</code>, <code>rustdoc-json</code></td><td>Any valid <code>rustdoc</code> flags</td></tr>
+</tbody>
+</table>
+</div>
+<!--
+**FIXME(rustdoc)**: what does `check-test-line-numbers-match` do?
+Asked in
+<https://rust-lang.zulipchat.com/#narrow/stream/266220-t-rustdoc/topic/What.20is.20the.20.60check-test-line-numbers-match.60.20directive.3F>.
+-->
+<h4 id="test-suite-specific-directives"><a class="header" href="#test-suite-specific-directives">Test-suite-specific directives</a></h4>
+<p>The test suites <a href="../rustdoc-internals/rustdoc-html-test-suite.html"><code>rustdoc-html</code></a>, <a href="../rustdoc-internals/search.html#testing-the-search-engine"><code>rustdoc-js</code>/<code>rustdoc-js-std</code></a>
+and <a href="../rustdoc-internals/rustdoc-json-test-suite.html"><code>rustdoc-json</code></a> each feature an additional set of directives whose basic
+syntax resembles the one of compiletest directives but which are ultimately read and checked by
+separate tools.
+For more information, please read their respective chapters as linked above.</p>
+<h3 id="pretty-printing"><a class="header" href="#pretty-printing">Pretty printing</a></h3>
+<p>See <a href="compiletest.html#pretty-printer-tests">Pretty-printer</a>.</p>
+<h4 id="misc-directives"><a class="header" href="#misc-directives">Misc directives</a></h4>
+<ul>
+<li><code>no-auto-check-cfg</code> — disable auto check-cfg (only for <code>--check-cfg</code> tests)</li>
+<li><a href="compiletest.html#revisions"><code>revisions</code></a> — compile multiple times
+-<a href="compiletest.html#incremental-tests"><code>forbid-output</code></a> — incremental cfail rejects
+output pattern</li>
+<li><a href="compiletest.html#incremental-tests"><code>should-ice</code></a> — incremental cfail should ICE</li>
+<li><a href="https://github.com/rust-lang/reference/blob/master/docs/authoring.md#test-rule-annotations"><code>reference</code></a> — an annotation linking to a rule in the reference</li>
+<li><code>disable-gdb-pretty-printers</code> — disable gdb pretty printers for debuginfo tests</li>
+</ul>
+<h3 id="tool-specific-directives"><a class="header" href="#tool-specific-directives">Tool-specific directives</a></h3>
+<p>The following directives affect how certain command-line tools are invoked, in
+test suites that use those tools:</p>
+<ul>
+<li><code>filecheck-flags</code> adds extra flags when running LLVM’s <code>FileCheck</code> tool.
+<ul>
+<li>Used by <a href="compiletest.html#codegen-tests">codegen tests</a>,
+<a href="compiletest.html#assembly-tests">assembly tests</a>, and
+<a href="compiletest.html#mir-opt-tests">MIR-opt tests</a>.</li>
+</ul>
+</li>
+<li><code>llvm-cov-flags</code> adds extra flags when running LLVM’s <code>llvm-cov</code> tool.
+<ul>
+<li>Used by <a href="compiletest.html#coverage-tests">coverage tests</a> in <code>coverage-run</code> mode.</li>
+</ul>
+</li>
+</ul>
+<h3 id="tidy-specific-directives"><a class="header" href="#tidy-specific-directives">Tidy specific directives</a></h3>
+<p>The following directives control how the <a href="../conventions.html#formatting">tidy script</a> verifies tests.</p>
+<ul>
+<li><code>ignore-tidy-target-specific-tests</code> disables checking that the appropriate
+LLVM component is required (via a <code>needs-llvm-components</code> directive) when a
+test is compiled for a specific target (via the <code>--target</code> flag in a <code>compile-flag</code> directive).</li>
+<li><a href="compiletest.html#ignoring-unused-revision-names"><code>unused-revision-names</code></a> -
+suppress tidy checks for mentioning unknown revision names.</li>
+</ul>
+<h2 id="substitutions"><a class="header" href="#substitutions">Substitutions</a></h2>
+<p>Directive values support substituting a few variables which will be replaced
+with their corresponding value.
+For example, if you need to pass a compiler flag
+with a path to a specific file, something like the following could work:</p>
+<pre><code class="language-rust ignore">//@ compile-flags: --remap-path-prefix={{src-base}}=/the/src</code></pre>
+<p>Where the sentinel <code>{{src-base}}</code> will be replaced with the appropriate path described below:</p>
+<ul>
+<li><code>{{cwd}}</code>: The directory where compiletest is run from.
+This may not be the root of the checkout, so you should avoid using it where possible.
+<ul>
+<li>Examples: <code>/path/to/rust</code>, <code>/path/to/build/root</code></li>
+</ul>
+</li>
+<li><code>{{src-base}}</code>: The directory where the test is defined.
+This is equivalent to <code>$DIR</code> for <a href="ui.html#normalization">output normalization</a>.
+<ul>
+<li>Example: <code>/path/to/rust/tests/ui/error-codes</code></li>
+</ul>
+</li>
+<li><code>{{build-base}}</code>: The base directory where the test’s output goes.
+This is equivalent to <code>$TEST_BUILD_DIR</code> for <a href="ui.html#normalization">output normalization</a>.
+<ul>
+<li>Example: <code>/path/to/rust/build/x86_64-unknown-linux-gnu/test/ui</code></li>
+</ul>
+</li>
+<li><code>{{rust-src-base}}</code>: The sysroot directory where libstd/libcore/… are located</li>
+<li><code>{{sysroot-base}}</code>: Path of the sysroot directory used to build the test.
+<ul>
+<li>Mainly intended for <code>ui-fulldeps</code> tests that run the compiler via API.</li>
+</ul>
+</li>
+<li><code>{{target-linker}}</code>: Linker that would be passed to <code>-Clinker</code> for this test,
+or blank if no linker override is active.
+<ul>
+<li>Mainly intended for <code>ui-fulldeps</code> tests that run the compiler via API.</li>
+</ul>
+</li>
+<li><code>{{target}}</code>: The target the test is compiling for
+<ul>
+<li>Example: <code>x86_64-unknown-linux-gnu</code></li>
+</ul>
+</li>
+</ul>
+<p>See
+<a href="https://github.com/rust-lang/rust/blob/HEAD/tests/ui/argfile/commandline-argfile.rs"><code>tests/ui/argfile/commandline-argfile.rs</code></a>
+for an example of a test that uses this substitution.</p>
+<h2 id="adding-a-directive"><a class="header" href="#adding-a-directive">Adding a directive</a></h2>
+<p>One would add a new directive if there is a need to define some test property or
+behavior on an individual, test-by-test basis.
+A directive property serves as
+the directive’s backing store (holds the command’s current value) at runtime.</p>
+<p>To add a new directive property:</p>
+<ol>
+<li>Look for the <code>pub struct TestProps</code> declaration in
+<a href="https://github.com/rust-lang/rust/tree/HEAD/src/tools/compiletest/src/directives.rs"><code>src/tools/compiletest/src/directives.rs</code></a> and add the new public property to
+the end of the declaration.</li>
+<li>Look for the <code>impl TestProps</code> implementation block immediately following the
+struct declaration and initialize the new property to its default value.</li>
+</ol>
+<h3 id="adding-a-new-directive-parser"><a class="header" href="#adding-a-new-directive-parser">Adding a new directive parser</a></h3>
+<p>When <code>compiletest</code> encounters a test file, it parses the file a line at a time
+by calling every parser defined in the <code>Config</code> struct’s implementation block,
+also in <a href="https://github.com/rust-lang/rust/tree/HEAD/src/tools/compiletest/src/directives.rs"><code>src/tools/compiletest/src/directives.rs</code></a> (note that the <code>Config</code> struct’s
+declaration block is found in <a href="https://github.com/rust-lang/rust/tree/HEAD/src/tools/compiletest/src/common.rs"><code>src/tools/compiletest/src/common.rs</code></a>).
+<code>TestProps</code>’s <code>load_from()</code> method will try passing the current line of text to
+each parser, which, in turn typically checks to see if the line begins with a
+particular commented (<code>//@</code>) directive such as <code>//@ must-compile-successfully</code>
+or <code>//@ failure-status</code>.
+Whitespace after the comment marker is optional.</p>
+<p>Parsers will override a given directive property’s default value merely by being
+specified in the test file as a directive or by having a parameter value
+specified in the test file, depending on the directive.</p>
+<p>Parsers defined in <code>impl Config</code> are typically named <code>parse_&lt;directive-name&gt;</code>
+(note kebab-case <code>&lt;directive-command&gt;</code> transformed to snake-case <code>&lt;directive_command&gt;</code>).
+<code>impl Config</code> also defines several ‘low-level’ parsers
+which make it simple to parse common patterns like simple presence or not
+(<code>parse_name_directive()</code>), <code>directive:parameter(s)</code>
+(<code>parse_name_value_directive()</code>), optional parsing only if a particular <code>cfg</code>
+attribute is defined (<code>has_cfg_prefix()</code>) and many more.
+The low-level parsers
+are found near the end of the <code>impl Config</code> block; be sure to look through them
+and their associated parsers immediately above to see how they are used to avoid
+writing additional parsing code unnecessarily.</p>
+<p>As a concrete example, here is the implementation for the
+<code>parse_failure_status()</code> parser, in <a href="https://github.com/rust-lang/rust/tree/HEAD/src/tools/compiletest/src/directives.rs"><code>src/tools/compiletest/src/directives.rs</code></a>:</p>
+<pre><code class="language-diff">@@ -232,6 +232,7 @@ pub struct TestProps {
+     // customized normalization rules
+     pub normalize_stdout: Vec&lt;(String, String)&gt;,
+     pub normalize_stderr: Vec&lt;(String, String)&gt;,
++    pub failure_status: i32,
+ }
+
+ impl TestProps {
+@@ -260,6 +261,7 @@ impl TestProps {
+             run_pass: false,
+             normalize_stdout: vec![],
+             normalize_stderr: vec![],
++            failure_status: 101,
+         }
+     }
+
+@@ -383,6 +385,10 @@ impl TestProps {
+             if let Some(rule) = config.parse_custom_normalization(ln, "normalize-stderr") {
+                 self.normalize_stderr.push(rule);
+             }
++
++            if let Some(code) = config.parse_failure_status(ln) {
++                self.failure_status = code;
++            }
+         });
+
+         for key in &amp;["RUST_TEST_NOCAPTURE", "RUST_TEST_THREADS"] {
+@@ -488,6 +494,13 @@ impl Config {
+         self.parse_name_directive(line, "pretty-compare-only")
+     }
+
++    fn parse_failure_status(&amp;self, line: &amp;str) -&gt; Option&lt;i32&gt; {
++        match self.parse_name_value_directive(line, "failure-status") {
++            Some(code) =&gt; code.trim().parse::&lt;i32&gt;().ok(),
++            _ =&gt; None,
++        }
++    }
+</code></pre>
+<h3 id="implementing-the-behavior-change"><a class="header" href="#implementing-the-behavior-change">Implementing the behavior change</a></h3>
+<p>When a test invokes a particular directive, it is expected that some behavior
+will change as a result.
+What behavior, obviously, will depend on the purpose of the directive.
+In the case of <code>failure-status</code>, the behavior that changes is
+that <code>compiletest</code> expects the failure code defined by the directive invoked in
+the test, rather than the default value.</p>
+<p>Although specific to <code>failure-status</code> (as every directive will have a different
+implementation in order to invoke behavior change) perhaps it is helpful to see
+the behavior change implementation of one case, simply as an example.
+To implement <code>failure-status</code>, the <code>check_correct_failure_status()</code> function found
+in the <code>TestCx</code> implementation block, located in
+<a href="https://github.com/rust-lang/rust/tree/HEAD/src/tools/compiletest/src/runtest.rs"><code>src/tools/compiletest/src/runtest.rs</code></a>, was modified as per below:</p>
+<pre><code class="language-diff">@@ -295,11 +295,14 @@ impl&lt;'test&gt; TestCx&lt;'test&gt; {
+     }
+
+     fn check_correct_failure_status(&amp;self, proc_res: &amp;ProcRes) {
+-        // The value the Rust runtime returns on failure
+-        const RUST_ERR: i32 = 101;
+-        if proc_res.status.code() != Some(RUST_ERR) {
++        let expected_status = Some(self.props.failure_status);
++        let received_status = proc_res.status.code();
++
++        if expected_status != received_status {
+             self.fatal_proc_rec(
+-                &amp;format!("failure produced the wrong error: {}", proc_res.status),
++                &amp;format!("Error: expected failure status ({:?}) but received status {:?}.",
++                         expected_status,
++                         received_status),
+                 proc_res,
+             );
+         }
+@@ -320,7 +323,6 @@ impl&lt;'test&gt; TestCx&lt;'test&gt; {
+         );
+
+         let proc_res = self.exec_compiled_test();
+-
+         if !proc_res.status.success() {
+             self.fatal_proc_rec("test run failed!", &amp;proc_res);
+         }
+@@ -499,7 +501,6 @@ impl&lt;'test&gt; TestCx&lt;'test&gt; {
+                 expected,
+                 actual
+             );
+-            panic!();
+         }
+     }
+</code></pre>
+<p>Note the use of <code>self.props.failure_status</code> to access the directive property.
+In tests which do not specify the failure status directive,
+<code>self.props.failure_status</code> will evaluate to the default value of 101 at the time of this writing.
+But for a test which specifies a directive of, for
+example, <code>//@ failure-status: 1</code>, <code>self.props.failure_status</code> will evaluate to
+1, as <code>parse_failure_status()</code> will have overridden the <code>TestProps</code> default
+value, for that test specifically.</p>
+<hr>
+<ol class="footnote-definition">
+<li id="footnote-pm">
+<p>please see the <a href="compiletest.html#auxiliary-proc-macro">Auxiliary proc-macro section</a> in the compiletest chapter for specifics. <a href="#fr-pm-1">↩</a></p>
+</li>
+<li id="footnote-check_stdout">
+<p>presently <!-- date-check: Oct 2024 --> this has a weird quirk
+where the test binary’s stdout and stderr gets concatenated and then
+<code>error-pattern</code>s are matched on this combined output, which is ???
+slightly questionable to say the least. <a href="#fr-check_stdout-1">↩</a></p>
+</li>
+</ol>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../tests/ui.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../tests/minicore.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../tests/ui.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../tests/minicore.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../mermaid-cc85ecea.min.js"></script>
+        <script src="../mermaid-init-4533fb11.js"></script>
+
+
+
+    </div>
+    </body>
+</html>
