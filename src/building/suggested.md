@@ -208,7 +208,7 @@ lspconfig.rust_analyzer.setup {
         if vim.uv.fs_stat(config) then
             -- load rust-lang/rust settings
             local file = io.open(config)
-            local json = vim.json.decode(file:read("*a"))
+            local json = vim.json.decode(file:read("*a"), { skip_comments = true })
             client.config.settings["rust-analyzer"] = expand_config_variables(json.lsp["rust-analyzer"].initialization_options)
             client.notify("workspace/didChangeConfiguration", { settings = client.config.settings })
         end
