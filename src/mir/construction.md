@@ -12,16 +12,16 @@ list of items:
     * Drop implementations of types without an explicit `Drop` implementation
 
 The lowering is triggered by calling the [`mir_built`] query.
-The MIR builder does
-not actually use the HIR but operates on the [THIR] instead, processing THIR
-expressions recursively.
+The MIR builder does not actually use the HIR,
+but operates on the [THIR] instead,
+processing THIR expressions recursively.
 
 The lowering creates local variables for every argument as specified in the signature.
 Next, it creates local variables for every binding specified (e.g. `(a, b): (i32, String)`)
 produces 3 bindings, one for the argument, and two for the bindings.
-Next, it generates
-field accesses that read the fields from the argument and writes the value to the binding
-variable.
+Next,
+it generates field accesses that read the fields from the argument,
+and writes the value to the binding variable.
 
 With this initialization out of the way, the lowering triggers a recursive call
 to a function that generates the MIR for the body (a `Block` expression) and
@@ -93,10 +93,9 @@ representations:
 We start out with lowering the function body to an `Rvalue` so we can create an
 assignment to `RETURN_PLACE`, This `Rvalue` lowering will in turn trigger lowering to
 `Operand` for its arguments (if any).
-`Operand` lowering either produces a `const`
-operand, or moves/copies out of a `Place`, thus triggering a `Place` lowering.
-An
-expression being lowered to a `Place` can in turn trigger a temporary to be created
+`Operand` lowering either produces a `const` operand,
+or moves/copies out of a `Place`, thus triggering a `Place` lowering.
+An expression being lowered to a `Place` can in turn trigger a temporary to be created
 if the expression being lowered contains operations.
 This is where the snake bites its
 own tail and we need to trigger an `Rvalue` lowering for the expression to be written
