@@ -27,9 +27,9 @@ But it has some other interesting features that distinguish it from the HIR:
   are made explicit, and method calls and overloaded operators are converted into
   plain function calls. Destruction scopes are also made explicit.
 
-- Statements, expressions, and match arms are stored separately. For example, statements in the
-  `stmts` array reference expressions by their index (represented as a [`ExprId`]) in the `exprs`
-  array.
+- Statements, expressions, match arms, blocks, and parameters are stored separately. For example,
+  statements in the `stmts` array reference expressions by their index (represented as a
+  [`ExprId`]) in the `exprs` array.
 
 [HIR]: ./hir.md
 [`ExprId`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/thir/struct.ExprId.html
