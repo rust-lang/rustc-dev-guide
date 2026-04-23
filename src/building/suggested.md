@@ -154,9 +154,10 @@ For Neovim users, there are a few options:
 #### neoconf.nvim
 
 [neoconf.nvim][neoconf.nvim] allows for project-local configuration
-files with the native LSP. The steps for how to use it are below. Note that they require
-rust-analyzer to already be configured with Neovim. Steps for this can be
-[found here][r-a nvim lsp].
+files with the native LSP.
+The steps for how to use it are below.
+Note that they require rust-analyzer to already be configured with Neovim.
+Steps for this can be [found here][r-a nvim lsp].
 
 1. First install the plugin.
    This can be done by following the steps in the README.
