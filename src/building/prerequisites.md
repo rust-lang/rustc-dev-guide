@@ -29,7 +29,7 @@ If your machine is not very powerful,
 a common strategy is to only use `./x check` on your local machine
 and let the CI build test your changes when you push to a PR branch.
 
-Building the compiler takes more than half an hour on my moderately powerful
+Building the compiler takes more than half an hour on a moderately powerful
 laptop.
 We suggest downloading LLVM from CI so you don't have to build it from source
 ([see here][config]).
