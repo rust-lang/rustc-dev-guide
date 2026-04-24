@@ -1,17 +1,20 @@
 # Installation
 
-In the near future, `std::autodiff` should become available for users via rustup. As a rustc/enzyme/autodiff contributor however, you will still need to build rustc from source.
+In the near future, `std::autodiff` should become available for users via rustup.
+As a rustc/enzyme/autodiff contributor however, you will still need to build rustc from source.
 For the meantime, you can download up-to-date builds to enable `std::autodiff` on your latest nightly toolchain, if you are using either of:
 **Linux**, with `x86_64-unknown-linux-gnu` or `aarch64-unknown-linux-gnu`
 **Windows**, with `x86_64-llvm-mingw` or `aarch64-llvm-mingw`
 
 You can also download slightly outdated builds for **Apple** (aarch64-apple), which should generally work for now.
 
-If you need any other platform, you can build rustc including autodiff from source. Please open an issue if you want to help enabling automatic builds for your prefered target.
+If you need any other platform, you can build rustc including autodiff from source.
+Please open an issue if you want to help enabling automatic builds for your prefered target.
 
 ## Installation guide
 
-If you want to use `std::autodiff` and don't plan to contribute PR's to the project, then we recommend to just use your existing nightly installation and download the missing component. In the future, rustup will be able to do it for you.
+If you want to use `std::autodiff` and don't plan to contribute PR's to the project, then we recommend to just use your existing nightly installation and download the missing component.
+In the future, rustup will be able to do it for you.
 For now, you'll have to manually download and copy it.
 
 1) On our github repository, find the last merged PR: [`Repo`]
@@ -20,11 +23,14 @@ For now, you'll have to manually download and copy it.
 4) Under the `CI artifacts` section, find the `enzyme-nightly` artifact, download, and unpack it.
 5) Copy the artifact (libEnzyme-22.so for linux, libEnzyme-22.dylib for apple, etc.), which should be in a folder named `enzyme-preview`, to your rust toolchain directory. E.g. for linux: `cp  ~/Downloads/enzyme-nightly-x86_64-unknown-linux-gnu/enzyme-preview/lib/rustlib/x86_64-unknown-linux-gnu/lib/libEnzyme-22.so ~/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/x86_64-unknown-linux-gnu/lib`
 
-Apple support was temporarily reverted, due to downstream breakages. If you want to download autodiff for apple, please look at the artifacts from this [`run`].
+Apple support was temporarily reverted, due to downstream breakages.
+If you want to download autodiff for apple, please look at the artifacts from this [`run`].
 
 ## Installation guide for Nix user.
 
-This setup was recommended by a nix and autodiff user. It uses [`Overlay`]. Please verify for yourself if you are comfortable using that repository.
+This setup was recommended by a nix and autodiff user.
+It uses [`Overlay`].
+Please verify for yourself if you are comfortable using that repository.
 In that case you might use the following nix configuration to get a rustc that supports `std::autodiff`.
 ```nix
 {
@@ -48,7 +54,8 @@ In that case you might use the following nix configuration to get a rustc that s
 
 ## Build instructions
 
-First you need to clone and configure the Rust repository. Based on your preferences, you might also want to `--enable-clang` or `--enable-lld`.
+First you need to clone and configure the Rust repository.
+Based on your preferences, you might also want to `--enable-clang` or `--enable-lld`.
 ```console
 git clone git@github.com:rust-lang/rust
 cd rust
@@ -81,7 +88,8 @@ and use `RUSTFLAGS="-Zautodiff=Enable" cargo +enzyme` instead of `cargo` or `car
 
 ## Compiler Explorer and dist builds
 
-Our compiler explorer instance can be updated to a newer rustc in a similar way. First, prepare a docker instance.
+Our compiler explorer instance can be updated to a newer rustc in a similar way.
+First, prepare a docker instance.
 ```console
 docker run -it ubuntu:22.04
 export CC=clang CXX=clang++
@@ -95,12 +103,15 @@ cd rust
 ./configure --release-channel=nightly --enable-llvm-enzyme --enable-llvm-link-shared --enable-llvm-assertions --enable-ninja --enable-option-checking --disable-docs --set llvm.download-ci-llvm=false
 ./x dist
 ```
-We then copy the tarball to our host. The dockerid is the newest entry under `docker ps -a`.
+We then copy the tarball to our host.
+The dockerid is the newest entry under `docker ps -a`.
 ```console
 docker cp <dockerid>:/rust/build/dist/rust-nightly-x86_64-unknown-linux-gnu.tar.gz rust-nightly-x86_64-unknown-linux-gnu.tar.gz
 ```
 Afterwards we can create a new (pre-release) tag on the EnzymeAD/rust repository and make a PR against the EnzymeAD/enzyme-explorer repository to update the tag.
-Remember to ping `tgymnich` on the PR to run his update script. Note: We should archive EnzymeAD/rust and update the instructions here. The explorer should soon
+Remember to ping `tgymnich` on the PR to run his update script.
+Note: We should archive EnzymeAD/rust and update the instructions here.
+The explorer should soon
 be able to get the rustc toolchain from the official rust servers.
 
 
@@ -129,7 +140,8 @@ cd build
 cmake .. -G Ninja -DLLVM_DIR=<YourLocalPath>/llvm-project/build/lib/cmake/llvm/ -DLLVM_EXTERNAL_LIT=<YourLocalPath>/llvm-project/llvm/utils/lit/lit.py -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=YES -DBUILD_SHARED_LIBS=ON
 ninja
 ```
-This will build Enzyme, and you can find it in `Enzyme/enzyme/build/lib/<LLD/Clang/LLVM/lib>Enzyme.so`. (Endings might differ based on your OS).
+This will build Enzyme, and you can find it in `Enzyme/enzyme/build/lib/<LLD/Clang/LLVM/lib>Enzyme.so`.
+(Endings might differ based on your OS).
 
 [`Repo`]: https://github.com/rust-lang/rust/
 [`run`]: https://github.com/rust-lang/rust/pull/153026#issuecomment-3950046599
