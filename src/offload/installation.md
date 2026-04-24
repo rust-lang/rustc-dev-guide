@@ -6,19 +6,19 @@ For now, everyone however still needs to build rustc from source to use all feat
 ## Build instructions
 
 First you need to clone and configure the Rust repository:
-```bash
+```console
 git clone git@github.com:rust-lang/rust
 cd rust
 ./configure --enable-llvm-link-shared --release-channel=nightly --enable-llvm-assertions --enable-llvm-offload --enable-llvm-enzyme --enable-clang --enable-lld --enable-option-checking --enable-ninja --disable-docs
 ```
 
 Afterwards you can build rustc using:
-```bash
+```console
 ./x build --stage 1 library
 ```
 
 Afterwards rustc toolchain link will allow you to use it through cargo:
-```
+```console
 rustup toolchain link offload build/host/stage1
 rustup toolchain install nightly # enables -Z unstable-options
 ```
@@ -26,7 +26,7 @@ rustup toolchain install nightly # enables -Z unstable-options
 
 
 ## Build instruction for LLVM itself
-```bash
+```console
 git clone git@github.com:llvm/llvm-project
 cd llvm-project
 mkdir build
@@ -40,6 +40,6 @@ This gives you a working LLVM build.
 
 ## Testing
 run
-```
+```console
 ./x test --stage 1 tests/codegen-llvm/gpu_offload
 ```
