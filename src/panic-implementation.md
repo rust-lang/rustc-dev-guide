@@ -9,7 +9,7 @@ or `std`.
 
 ### core definition of panic!
 
-The `core` `panic!` macro eventually makes the following call (in `library/core/src/panicking.rs`):
+The `core` `panic!` macro eventually makes the following call (in [`library/core/src/panicking.rs`]):
 
 ```rust
 // NOTE This function never crosses the FFI boundary; it's a Rust-to-Rust call
@@ -18,13 +18,18 @@ extern "Rust" {
     fn panic_impl(pi: &PanicInfo<'_>) -> !;
 }
 
-let pi = PanicInfo::internal_constructor(Some(&fmt), location);
+let pi = PanicInfo::new(
+    &fmt,
+    Location::caller(),
+    /* can_unwind */ true,
+    /* force_no_backtrace */ false,
+);
 unsafe { panic_impl(&pi) }
 ```
 
 Actually resolving this goes through several layers of indirection:
 
-1. In `compiler/rustc_middle/src/middle/weak_lang_items.rs`, `panic_impl` is
+1. In [`compiler/rustc_hir/src/weak_lang_items.rs`], `panic_impl` is
    declared as 'weak lang item', with the symbol `rust_begin_unwind`. This is
    used in `rustc_hir_analysis/src/collect.rs` to set the actual symbol name to
    `rust_begin_unwind`.
@@ -33,25 +38,24 @@ Actually resolving this goes through several layers of indirection:
    which means that core will attempt to call a foreign symbol called `rust_begin_unwind`
    (to be resolved at link time)
 
-2. In `library/std/src/panicking.rs`, we have this definition:
+2. In [`library/std/src/panicking.rs`], we have this definition:
 
 ```rust
-/// Entry point of panic from the core crate.
-#[cfg(not(test))]
+/// Entry point of panics from the core crate (`panic_impl` lang item).
+#[cfg(not(any(test, doctest)))]
 #[panic_handler]
-#[unwind(allowed)]
-pub fn begin_panic_handler(info: &PanicInfo<'_>) -> ! {
+pub fn panic_handler(info: &core::panic::PanicInfo<'_>) -> ! {
     ...
 }
 ```
 
-The special `panic_handler` attribute is resolved via `compiler/rustc_middle/src/middle/lang_items`.
-The `extract` function converts the `panic_handler` attribute to a `panic_impl` lang item.
+The special `panic_handler` attribute is resolved via [`compiler/rustc_passes/src/lang_items.rs`].
+The [`extract_ast`] function converts the `panic_handler` attribute to a `panic_impl` lang item.
 
 Now, we have a matching `panic_handler` lang item in the `std`. This function goes
 through the same process as the `extern { fn panic_impl }` definition in `core`, ending
 up with a symbol name of `rust_begin_unwind`. At link time, the symbol reference in `core`
-will be resolved to the definition of `std` (the function called `begin_panic_handler` in the
+will be resolved to the definition of `std` (the function called `panic_handler` in the
 Rust source).
 
 Thus, control flow will pass from core to std at runtime. This allows panics from `core`
@@ -59,8 +63,8 @@ to go through the same infrastructure that other panics use (panic hooks, unwind
 
 ### std implementation of panic!
 
-This is where the actual panic-related logic begins. In `library/std/src/panicking.rs`,
-control passes to `rust_panic_with_hook`. This method is responsible
+This is where the actual panic-related logic begins. In [`library/std/src/panicking.rs`],
+control passes to `panic_with_hook`. This method is responsible
 for invoking the global panic hook, and checking for double panics. Finally,
 we call `__rust_start_panic`, which is provided by the panic runtime.
 
@@ -111,3 +115,8 @@ the call to the user-provided `main` function is wrapped in `catch_unwind`.
 
 
 [runtime service]: https://github.com/rust-lang/rust/blob/HEAD/library/std/src/rt.rs
+[`library/core/src/panicking.rs`]: https://doc.rust-lang.org/core/panicking/index.html
+[`compiler/rustc_hir/src/weak_lang_items.rs`]: https://github.com/rust-lang/rust/blob/HEAD/compiler/rustc_hir/src/weak_lang_items.rs
+[`library/std/src/panicking.rs`]: https://github.com/rust-lang/rust/blob/HEAD/library/std/src/panicking.rs
+[`compiler/rustc_passes/src/lang_items.rs`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_passes/lang_items/index.html
+[`extract_ast`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_passes/lang_items/fn.extract_ast.html
