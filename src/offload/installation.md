@@ -1,6 +1,7 @@
 # Installation
 
-`std::offload` is partly available in nightly builds for users. For now, everyone however still needs to build rustc from source to use all features of it. 
+`std::offload` is partly available in nightly builds for users.
+For now, everyone however still needs to build rustc from source to use all features of it.
 
 ## Build instructions
 
