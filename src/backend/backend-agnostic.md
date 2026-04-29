@@ -162,7 +162,7 @@ used for high-level codegen-driving functions like `codegen_crate` in
 `base.rs`. For LLVM, it is the empty `LlvmCodegenBackend`.
 `ExtraBackendMethods` should be implemented by the same structure that
 implements the `CodegenBackend` defined in
-`rustc_codegen_utils/codegen_backend.rs`.
+`rustc_codegen_ssa/src/traits/backend.rs`.
 
 During the traitification process, certain functions have been converted from
 methods of a local structure to methods of `CodegenCx` or `Builder` and a
