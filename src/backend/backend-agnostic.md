@@ -1,15 +1,13 @@
 # Backend Agnostic Codegen
 
-[`rustc_codegen_ssa`]
-provides an abstract interface for all backends to implement,
+[`rustc_codegen_ssa`] provides an abstract interface for all backends to implement,
 namely LLVM, [Cranelift], and [GCC].
 
 [Cranelift]: https://github.com/rust-lang/rustc_codegen_cranelift
 [GCC]: https://github.com/rust-lang/rustc_codegen_gcc
 [`rustc_codegen_ssa`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_codegen_ssa/index.html
 
-Below is some background information on the refactoring that created this
-abstract interface.
+Below is some background information on the refactoring that created this abstract interface.
 
 ## Refactoring of `rustc_codegen_llvm`
 by Denis Merigoux, October 23rd 2018
@@ -22,12 +20,10 @@ Here is the breakdown of the most important elements:
 * the `back` folder (7,800 LOC) implements the mechanisms for creating the
   different object files and archive through LLVM, but also the communication
   mechanisms for parallel code generation;
-* the `debuginfo` (3,200 LOC) folder contains all code that passes debug
-  information down to LLVM;
+* the `debuginfo` (3,200 LOC) folder contains all code that passes debug information down to LLVM;
 * the `llvm` (2,200 LOC) folder defines the FFI necessary to communicate with
   LLVM using the C++ API;
-* the `mir` (4,300 LOC) folder implements the actual lowering from MIR to LLVM
-  IR;
+* the `mir` (4,300 LOC) folder implements the actual lowering from MIR to LLVM IR;
 * the `base.rs` (1,300 LOC) file contains some helper functions but also the
   high-level code that launches the code generation and distributes the work.
 * the `builder.rs` (1,200 LOC) file contains all the functions generating
@@ -53,19 +49,16 @@ have to be done at the same time for the resulting code to compile:
    will define the interface between backend-agnostic code and the backend
 
 While LLVM-specific code will be left in `rustc_codegen_llvm`, all the new
-traits and backend-agnostic code will be moved in `rustc_codegen_ssa` (name
-suggestion by @eddyb).
+traits and backend-agnostic code will be moved in `rustc_codegen_ssa` (name suggestion by @eddyb).
 
 ### Generic types and structures
 
 @irinagpopa started to parametrize the types of `rustc_codegen_llvm` by a
 generic `Value` type, implemented in LLVM by a reference `&'ll Value`.
-This
-work has been extended to all structures inside the `mir` folder and elsewhere,
+This work has been extended to all structures inside the `mir` folder and elsewhere,
 as well as for LLVM's `BasicBlock` and `Type` types.
 
-The two most important structures for the LLVM codegen are `CodegenCx` and
-`Builder`.
+The two most important structures for the LLVM codegen are `CodegenCx` and `Builder`.
 They are parametrized by multiple lifetime parameters and the type for `Value`.
 
 ```rust,ignore
@@ -86,10 +79,8 @@ The code in `rustc_codegen_llvm` has to deal with multiple explicit lifetime
 parameters, that correspond to the following:
 * `'tcx` is the longest lifetime, that corresponds to the original `TyCtxt`
   containing the program's information;
-* `'a` is a short-lived reference of a `CodegenCx` or another object inside a
-  struct;
-* `'ll` is the lifetime of references to LLVM objects such as `Value` or
-  `Type`.
+* `'a` is a short-lived reference of a `CodegenCx` or another object inside a struct;
+* `'ll` is the lifetime of references to LLVM objects such as `Value` or `Type`.
 
 Although there are already many lifetime parameters in the code, making it
 generic uncovered situations where the borrow-checker was passing only due to
@@ -108,8 +99,7 @@ However, the two most important structures,
 are not defined in the backend-agnostic code.
 Indeed, their content is highly specific to the backend,
 and it makes more sense to leave their definition to the backend
-implementor than to allow just a narrow spot via a generic field for the
-backend's context.
+implementor than to allow just a narrow spot via a generic field for the backend's context.
 
 ### Traits and interface
 
@@ -167,16 +157,13 @@ Finally, a master structure implementing the `ExtraBackendMethods` trait is
 used for high-level codegen-driving functions like `codegen_crate` in `base.rs`.
 For LLVM, it is the empty `LlvmCodegenBackend`.
 `ExtraBackendMethods` should be implemented by the same structure that
-implements the `CodegenBackend` defined in
-`rustc_codegen_ssa/src/traits/backend.rs`.
+implements the `CodegenBackend` defined in `rustc_codegen_ssa/src/traits/backend.rs`.
 
 During the traitification process, certain functions have been converted from
 methods of a local structure to methods of `CodegenCx` or `Builder` and a
 corresponding `self` parameter has been added.
-Indeed, LLVM stores information
-internally that it can access when called through its API.
-This information
-does not show up in a Rust data structure carried around when these methods are
+Indeed, LLVM stores information internally that it can access when called through its API.
+This information does not show up in a Rust data structure carried around when these methods are
 called.
 However, when implementing a Rust backend for `rustc`, these methods
 will need information from `CodegenCx`, hence the additional parameter (unused
@@ -200,15 +187,13 @@ most important elements:
 * `builder.rs`: 1,400 (BA) vs 0 (LLVM);
 * `common.rs`: 350 (BA) vs 350 (LLVM);
 
-The `debuginfo` folder has been left almost untouched by the splitting and is
-specific to LLVM.
+The `debuginfo` folder has been left almost untouched by the splitting and is specific to LLVM.
 Only its high-level features have been traitified.
 
 The new `traits` folder has 1500 LOC only for trait definitions.
 Overall,
 the 27,000 LOC-sized old `rustc_codegen_llvm` code has been split into the new
-18,500 LOC-sized new `rustc_codegen_llvm` and the 12,000 LOC-sized
-`rustc_codegen_ssa`.
+18,500 LOC-sized new `rustc_codegen_llvm` and the 12,000 LOC-sized `rustc_codegen_ssa`.
 We can say that this refactoring allowed the reuse of
 approximately 10,000 LOC that would otherwise have had to be duplicated between
 the multiple backends of `rustc`.
