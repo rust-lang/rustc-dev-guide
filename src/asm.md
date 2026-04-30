@@ -85,9 +85,9 @@ outputs are checked for conflicts (same register used for different operands).
 
 ## Type checking
 
-Each register class has a whitelist of types that it may be used with.
+Each register class has an allowlist of types that it may be used with.
 After the types of all operands have been determined,
-the `intrinsicck` pass will check that these types are in the whitelist.
+the `intrinsicck` pass will check that these types are in the allowlist.
 It also checks that split `inout` operands have compatible types and that `const`
 operands are integers or floats.
 Suggestions are emitted where needed if a template modifier should
