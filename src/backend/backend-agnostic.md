@@ -37,7 +37,7 @@ Here is the breakdown of the most important elements:
 * the `type_.rs` (300 LOC) defines most of the type translations to LLVM IR.
 
 The goal of this refactoring is to separate inside this crate code that is
-specific to the LLVM from code that can be reused for other rustc backends.
+specific to LLVM from code that can be reused for other rustc backends.
 For instance, the `mir` folder is almost entirely backend-specific but it relies
 heavily on other parts of the crate.
 The separation of the code must not affect
@@ -46,12 +46,12 @@ the logic of the code nor its performance.
 For these reasons, the separation process involves two transformations that
 have to be done at the same time for the resulting code to compile:
 
-1. replace all the LLVM-specific types by generics inside function signatures
+1. replace all LLVM-specific types by generics inside function signatures
    and structure definitions;
 2. encapsulate all functions calling the LLVM FFI inside a set of traits that
    will define the interface between backend-agnostic code and the backend.
 
-While the LLVM-specific code will be left in `rustc_codegen_llvm`, all the new
+While LLVM-specific code will be left in `rustc_codegen_llvm`, all the new
 traits and backend-agnostic code will be moved in `rustc_codegen_ssa` (name
 suggestion by @eddyb).
 
