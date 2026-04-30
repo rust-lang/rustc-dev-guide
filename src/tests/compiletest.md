@@ -349,8 +349,8 @@ If you need to work with `#![no_std]` cross-compiling tests, consult the
 #### Conditional assembly tests based on instruction support
 
 Tests that depend on specific assembly instructions being available can use the
-`//@ needs-asm-mnemonic: <MNEMONIC>` directive. This will skip the test if the
-target backend does not support the specified instruction mnemonic.
+`//@ needs-asm-mnemonic: <MNEMONIC>` directive.
+This will skip the test if the target backend does not support the specified instruction mnemonic.
 
 For example, a test that requires the `RET` instruction:
 ```rust,ignore
