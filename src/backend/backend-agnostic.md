@@ -38,10 +38,11 @@ Here is the breakdown of the most important elements:
 
 The goal of this refactoring is to separate inside this crate code that is
 specific to LLVM from code that can be reused for other rustc backends.
-For instance, the `mir` folder is almost entirely backend-specific but it relies
-heavily on other parts of the crate.
-The separation of the code must not affect
-the logic of the code nor its performance.
+For instance,
+the `mir` folder is almost entirely backend-specific,
+but it relies heavily on other parts of the crate.
+The separation of the code must not affect the logic of the code,
+nor its performance.
 
 For these reasons, the separation process involves two transformations that
 have to be done at the same time for the resulting code to compile:
@@ -102,10 +103,11 @@ struct LocalAnalyzer<'mir, 'a, 'tcx> {
 }
 ```
 
-However, the two most important structures `CodegenCx` and `Builder` are not
-defined in the backend-agnostic code.
-Indeed, their content is highly specific
-of the backend and it makes more sense to leave their definition to the backend
+However, the two most important structures,
+`CodegenCx` and `Builder`,
+are not defined in the backend-agnostic code.
+Indeed, their content is highly specific to the backend,
+and it makes more sense to leave their definition to the backend
 implementor than to allow just a narrow spot via a generic field for the
 backend's context.
 
@@ -129,9 +131,9 @@ pub fn codegen_instance<'a, 'tcx, Bx: BuilderMethods<'a, 'tcx>>(
 In this signature, we have the two lifetime parameters explained earlier and
 the master type `Bx` which satisfies the trait `BuilderMethods` corresponding
 to the interface satisfied by the `Builder` struct.
-The `BuilderMethods`
-defines an associated type `Bx::CodegenCx` that itself satisfies the
-`CodegenMethods` traits implemented by the struct `CodegenCx`.
+The `BuilderMethods` defines an associated type, `Bx::CodegenCx`,
+that itself satisfies the `CodegenMethods` traits implemented by the struct,
+`CodegenCx`.
 
 On the trait side, here is an example with part of the definition of
 `BuilderMethods` in `traits/builder.rs`:
@@ -183,10 +185,9 @@ in the LLVM implementation of the trait).
 ### State of the code after the refactoring
 
 The traits offer an API which is very similar to the API of LLVM.
-This is not
-the best solution since LLVM has a very special way of doing things: when
-adding another backend, the traits definition might be changed in order to
-offer more flexibility.
+This is not the best solution since LLVM has a very special way of doing things:
+when adding another backend,
+the traits definition might be changed in order to offer more flexibility.
 
 However, the current separation between backend-agnostic and LLVM-specific code
 has allowed the reuse of a significant part of the old `rustc_codegen_llvm`.
@@ -204,8 +205,8 @@ specific to LLVM.
 Only its high-level features have been traitified.
 
 The new `traits` folder has 1500 LOC only for trait definitions.
-Overall, the
-27,000 LOC-sized old `rustc_codegen_llvm` code has been split into the new
+Overall,
+the 27,000 LOC-sized old `rustc_codegen_llvm` code has been split into the new
 18,500 LOC-sized new `rustc_codegen_llvm` and the 12,000 LOC-sized
 `rustc_codegen_ssa`.
 We can say that this refactoring allowed the reuse of
