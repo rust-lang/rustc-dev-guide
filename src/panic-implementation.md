@@ -79,19 +79,19 @@ Let's break this type down:
 
 1. `PanicPayload` is an internal trait.
    It is implemented for `PanicPayload`
-(a wrapper around the user-supplied payload type), and has a method
-`fn take_box(&mut self) -> *mut (dyn Any + Send)`.
-This method takes the user-provided payload (`T: Any + Send`),
-boxes it, and converts the box to a raw pointer.
+  (a wrapper around the user-supplied payload type), and has a method
+  `fn take_box(&mut self) -> *mut (dyn Any + Send)`.
+  This method takes the user-provided payload (`T: Any + Send`),
+  boxes it, and converts the box to a raw pointer.
 
 2. When we call `__rust_start_panic`, we have an `&mut dyn PanicPayload`.
-However, this is a fat pointer (twice the size of a `usize`).
-To pass this to the panic runtime across an FFI boundary, we take a mutable
-reference *to this mutable reference* (`&mut &mut dyn PanicPayload`), and convert it to a raw
-pointer (`*mut &mut dyn PanicPayload`).
-The outer raw pointer is a thin pointer, since it points to a `Sized` type (a mutable reference).
-Therefore, we can convert this thin pointer into a `usize`,
-which is suitable for passing across an FFI boundary.
+  However, this is a fat pointer (twice the size of a `usize`).
+  To pass this to the panic runtime across an FFI boundary, we take a mutable
+  reference *to this mutable reference* (`&mut &mut dyn PanicPayload`), and convert it to a raw
+  pointer (`*mut &mut dyn PanicPayload`).
+  The outer raw pointer is a thin pointer, since it points to a `Sized` type (a mutable reference).
+  Therefore, we can convert this thin pointer into a `usize`,
+  which is suitable for passing across an FFI boundary.
 
 Finally, we call `__rust_start_panic` with this `usize`.
 We have now entered the panic runtime.
@@ -122,7 +122,6 @@ to the `catch_unwind` frame.
 Note that all panics either abort the process or get caught by some call to `catch_unwind`.
 In particular, in std's [runtime service],
 the call to the user-provided `main` function is wrapped in `catch_unwind`.
-
 
 [runtime service]: https://github.com/rust-lang/rust/blob/HEAD/library/std/src/rt.rs
 [`library/core/src/panicking.rs`]: https://doc.rust-lang.org/core/panicking/index.html
