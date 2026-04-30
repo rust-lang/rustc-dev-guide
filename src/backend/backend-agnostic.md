@@ -17,8 +17,8 @@ by Denis Merigoux, October 23rd 2018
 ### State of the code before the refactoring
 
 All the code related to the compilation of MIR into LLVM IR was contained
-inside the `rustc_codegen_llvm` crate. Here is the breakdown of the most
-important elements:
+inside the `rustc_codegen_llvm` crate.
+Here is the breakdown of the most important elements:
 * the `back` folder (7,800 LOC) implements the mechanisms for creating the
   different object files and archive through LLVM, but also the communication
   mechanisms for parallel code generation;
@@ -37,9 +37,10 @@ important elements:
 * the `type_.rs` (300 LOC) defines most of the type translations to LLVM IR.
 
 The goal of this refactoring is to separate inside this crate code that is
-specific to the LLVM from code that can be reused for other rustc backends. For
-instance, the `mir` folder is almost entirely backend-specific but it relies
-heavily on other parts of the crate. The separation of the code must not affect
+specific to the LLVM from code that can be reused for other rustc backends.
+For instance, the `mir` folder is almost entirely backend-specific but it relies
+heavily on other parts of the crate.
+The separation of the code must not affect
 the logic of the code nor its performance.
 
 For these reasons, the separation process involves two transformations that
@@ -57,13 +58,14 @@ suggestion by @eddyb).
 ### Generic types and structures
 
 @irinagpopa started to parametrize the types of `rustc_codegen_llvm` by a
-generic `Value` type, implemented in LLVM by a reference `&'ll Value`. This
+generic `Value` type, implemented in LLVM by a reference `&'ll Value`.
+This
 work has been extended to all structures inside the `mir` folder and elsewhere,
 as well as for LLVM's `BasicBlock` and `Type` types.
 
 The two most important structures for the LLVM codegen are `CodegenCx` and
-`Builder`. They are parametrized by multiple lifetime parameters and the type
-for `Value`.
+`Builder`.
+They are parametrized by multiple lifetime parameters and the type for `Value`.
 
 ```rust,ignore
 struct CodegenCx<'ll, 'tcx> {
@@ -101,7 +103,8 @@ struct LocalAnalyzer<'mir, 'a, 'tcx> {
 ```
 
 However, the two most important structures `CodegenCx` and `Builder` are not
-defined in the backend-agnostic code. Indeed, their content is highly specific
+defined in the backend-agnostic code.
+Indeed, their content is highly specific
 of the backend and it makes more sense to leave their definition to the backend
 implementor than to allow just a narrow spot via a generic field for the
 backend's context.
@@ -111,8 +114,8 @@ backend's context.
 Because they have to be defined by the backend, `CodegenCx` and `Builder` will
 be the structures implementing all the traits defining the backend's interface.
 These traits are defined in the folder `rustc_codegen_ssa/traits` and all the
-backend-agnostic code is parametrized by them. For instance, let us explain how
-a function in `base.rs` is parametrized:
+backend-agnostic code is parametrized by them.
+For instance, let us explain how a function in `base.rs` is parametrized:
 
 ```rust,ignore
 pub fn codegen_instance<'a, 'tcx, Bx: BuilderMethods<'a, 'tcx>>(
@@ -125,7 +128,8 @@ pub fn codegen_instance<'a, 'tcx, Bx: BuilderMethods<'a, 'tcx>>(
 
 In this signature, we have the two lifetime parameters explained earlier and
 the master type `Bx` which satisfies the trait `BuilderMethods` corresponding
-to the interface satisfied by the `Builder` struct. The `BuilderMethods`
+to the interface satisfied by the `Builder` struct.
+The `BuilderMethods`
 defines an associated type `Bx::CodegenCx` that itself satisfies the
 `CodegenMethods` traits implemented by the struct `CodegenCx`.
 
@@ -158,24 +162,28 @@ pub trait BuilderMethods<'a, 'tcx>:
 ```
 
 Finally, a master structure implementing the `ExtraBackendMethods` trait is
-used for high-level codegen-driving functions like `codegen_crate` in
-`base.rs`. For LLVM, it is the empty `LlvmCodegenBackend`.
+used for high-level codegen-driving functions like `codegen_crate` in `base.rs`.
+For LLVM, it is the empty `LlvmCodegenBackend`.
 `ExtraBackendMethods` should be implemented by the same structure that
 implements the `CodegenBackend` defined in
 `rustc_codegen_ssa/src/traits/backend.rs`.
 
 During the traitification process, certain functions have been converted from
 methods of a local structure to methods of `CodegenCx` or `Builder` and a
-corresponding `self` parameter has been added. Indeed, LLVM stores information
-internally that it can access when called through its API. This information
+corresponding `self` parameter has been added.
+Indeed, LLVM stores information
+internally that it can access when called through its API.
+This information
 does not show up in a Rust data structure carried around when these methods are
-called. However, when implementing a Rust backend for `rustc`, these methods
+called.
+However, when implementing a Rust backend for `rustc`, these methods
 will need information from `CodegenCx`, hence the additional parameter (unused
 in the LLVM implementation of the trait).
 
 ### State of the code after the refactoring
 
-The traits offer an API which is very similar to the API of LLVM. This is not
+The traits offer an API which is very similar to the API of LLVM.
+This is not
 the best solution since LLVM has a very special way of doing things: when
 adding another backend, the traits definition might be changed in order to
 offer more flexibility.
@@ -192,16 +200,18 @@ most important elements:
 * `common.rs`: 350 (BA) vs 350 (LLVM);
 
 The `debuginfo` folder has been left almost untouched by the splitting and is
-specific to LLVM. Only its high-level features have been traitified.
+specific to LLVM.
+Only its high-level features have been traitified.
 
-The new `traits` folder has 1500 LOC only for trait definitions. Overall, the
+The new `traits` folder has 1500 LOC only for trait definitions.
+Overall, the
 27,000 LOC-sized old `rustc_codegen_llvm` code has been split into the new
 18,500 LOC-sized new `rustc_codegen_llvm` and the 12,000 LOC-sized
-`rustc_codegen_ssa`. We can say that this refactoring allowed the reuse of
+`rustc_codegen_ssa`.
+We can say that this refactoring allowed the reuse of
 approximately 10,000 LOC that would otherwise have had to be duplicated between
 the multiple backends of `rustc`.
 
 The refactored version of `rustc`'s backend introduced no regression over the
 test suite nor in performance benchmark, which is in coherence with the nature
-of the refactoring that used only compile-time parametricity (no trait
-objects).
+of the refactoring that used only compile-time parametricity (no trait objects).
