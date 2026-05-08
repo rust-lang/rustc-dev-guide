@@ -10,8 +10,8 @@ The unsafety check is located in the [`check_unsafety`] module.
 It performs a walk over the [THIR] of a function and all of its closures and inline constants.
 It keeps track of the unsafe context: whether it has entered an `unsafe` block.
 If an unsafe operation is used outside of an `unsafe` block, then an error is reported.
-If an unsafe operation is used in an unsafe block then that block is
-marked as used for [the unused_unsafe lint](#the-unused_unsafe-lint).
+If an unsafe operation is used in an unsafe block,
+that block is marked as used for [the unused_unsafe lint](#the-unused_unsafe-lint).
 
 The unsafety check needs type information so could potentially be done on the
 HIR, making use of typeck results, THIR or MIR.
