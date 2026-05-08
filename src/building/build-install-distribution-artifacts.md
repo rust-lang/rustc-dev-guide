@@ -3,7 +3,7 @@
 You might want to build and package up the compiler for distribution.
 You’ll want to run this command to do it:
 
-```bash
+```console
 ./x dist
 ```
 
@@ -13,7 +13,7 @@ You might want to prefer installing Rust (and tools configured in your configura
 by building from source.
 If so, you want to run this command:
 
-```bash
+```console
 ./x install
 ```
 
