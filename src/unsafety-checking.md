@@ -13,13 +13,14 @@ If an unsafe operation is used outside of an `unsafe` block, then an error is re
 If an unsafe operation is used in an unsafe block,
 that block is marked as used for [the unused_unsafe lint](#the-unused_unsafe-lint).
 
-The unsafety check needs type information so could potentially be done on the
+The unsafety check needs type information, so could potentially be done on the
 HIR, making use of typeck results, THIR or MIR.
 THIR is chosen because there are
 fewer cases to consider than in HIR, for example unsafe function calls and
 unsafe method calls have the same representation in THIR.
-The check is not done on MIR because safety checks do not depend on control flow so MIR is not
-necessary to use and MIR doesn't have as precise spans for some expressions.
+The check is not done on MIR because safety checks do not depend on control flow,
+so MIR is not necessary to use,
+and MIR doesn't have as precise spans for some expressions.
 
 Most unsafe operations can be identified by checking the `ExprKind` in THIR and
 checking the type of the argument.
