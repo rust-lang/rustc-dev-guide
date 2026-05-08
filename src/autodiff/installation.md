@@ -23,7 +23,8 @@ For now, you'll have to manually download and copy it.
 4) Under the `CI artifacts` section, find the `enzyme-nightly` artifact, download, and unpack it.
 5) Copy the artifact (libEnzyme-22.so for linux, libEnzyme-22.dylib for apple, etc.), which should be in a folder named `enzyme-preview`, to your rust toolchain directory. E.g. for linux: `cp  ~/Downloads/enzyme-nightly-x86_64-unknown-linux-gnu/enzyme-preview/lib/rustlib/x86_64-unknown-linux-gnu/lib/libEnzyme-22.so ~/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/x86_64-unknown-linux-gnu/lib`
 
-Apple support was temporarily reverted, due to downstream breakages. Please (currently) build it from source.
+Apple support was temporarily reverted, due to downstream breakages.
+Please (currently) build it from source.
 
 ## Installation guide for Nix user.
 
@@ -110,8 +111,7 @@ docker cp <dockerid>:/rust/build/dist/rust-nightly-x86_64-unknown-linux-gnu.tar.
 Afterwards we can create a new (pre-release) tag on the EnzymeAD/rust repository and make a PR against the EnzymeAD/enzyme-explorer repository to update the tag.
 Remember to ping `tgymnich` on the PR to run his update script.
 Note: We should archive EnzymeAD/rust and update the instructions here.
-The explorer should soon
-be able to get the rustc toolchain from the official rust servers.
+The explorer should soon be able to get the rustc toolchain from the official rust servers.
 
 
 ## Build instruction for Enzyme itself
