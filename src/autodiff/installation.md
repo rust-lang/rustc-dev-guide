@@ -6,7 +6,7 @@ For the meantime, you can download up-to-date builds to enable `std::autodiff` o
 **Linux**, with `x86_64-unknown-linux-gnu` or `aarch64-unknown-linux-gnu`
 **Windows**, with `x86_64-llvm-mingw` or `aarch64-llvm-mingw`
 
-You can also download slightly outdated builds for **Apple** (aarch64-apple), which should generally work for now.
+In the past you could also download builds for **Apple** (aarch64-apple), however they are not usable at the moment.
 
 If you need any other platform, you can build rustc including autodiff from source.
 Please open an issue if you want to help enabling automatic builds for your prefered target.
@@ -23,8 +23,7 @@ For now, you'll have to manually download and copy it.
 4) Under the `CI artifacts` section, find the `enzyme-nightly` artifact, download, and unpack it.
 5) Copy the artifact (libEnzyme-22.so for linux, libEnzyme-22.dylib for apple, etc.), which should be in a folder named `enzyme-preview`, to your rust toolchain directory. E.g. for linux: `cp  ~/Downloads/enzyme-nightly-x86_64-unknown-linux-gnu/enzyme-preview/lib/rustlib/x86_64-unknown-linux-gnu/lib/libEnzyme-22.so ~/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/x86_64-unknown-linux-gnu/lib`
 
-Apple support was temporarily reverted, due to downstream breakages.
-If you want to download autodiff for apple, please look at the artifacts from this [`run`].
+Apple support was temporarily reverted, due to downstream breakages. Please (currently) build it from source.
 
 ## Installation guide for Nix user.
 
@@ -144,5 +143,4 @@ This will build Enzyme, and you can find it in `Enzyme/enzyme/build/lib/<LLD/Cla
 (Endings might differ based on your OS).
 
 [`Repo`]: https://github.com/rust-lang/rust/
-[`run`]: https://github.com/rust-lang/rust/pull/153026#issuecomment-3950046599
 [`Overlay`]: https://github.com/oxalica/rust-overlay
