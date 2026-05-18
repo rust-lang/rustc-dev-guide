@@ -93,65 +93,45 @@ which describe the publicly-documentable items in the target crate.
 ### Passes Anything But a Gas Station (or: [Hot Potato](https://www.youtube.com/watch?v=WNFBIt5HxdY))
 
 Before moving on to the next major step, a few important "passes" occur over
-the cleaned [`AST`][ast].
-Several of these passes are `lint`s and reports, but some of them mutate or generate new items.
+the cleaned [`AST`][ast]. Several of these passes are `lint`s and reports, but
+some of them mutate or generate new items. These are implemented in the
+[`librustdoc/passes`] directory, generally one module per pass. Unlike the
+previous set of [`AST`][ast] transformations, these passes are run on the
+cleaned crate.
 
-These are all implemented in the [`librustdoc/passes`] directory, one file per pass.
-By default, all of these passes are run on a crate, but the ones
-regarding dropping private/hidden items can be bypassed by passing
-`--document-private-items` to `rustdoc`.
-Note that, unlike the previous set of [`AST`][ast]
-transformations, the passes are run on the _cleaned_ crate.
+The source of truth for the available passes is `src/librustdoc/passes/mod.rs`.
+In normal documentation builds, `rustdoc` runs `DEFAULT_PASSES`. When
+`--show-coverage` is enabled, it instead runs `COVERAGE_PASSES`.
 
-Here is the list of passes as of <!-- date-check --> March 2023:
-
-- `calculate-doc-coverage` calculates information used for the `--show-coverage`
-  flag.
-
-- `check-doc-test-visibility` runs `doctest` visibility–related `lint`s.
-  This pass runs before `strip-private`,
-  which is why it needs to be separate from `run-lints`.
-
-- `collect-intra-doc-links` resolves [intra-doc links](https://doc.rust-lang.org/nightly/rustdoc/write-documentation/linking-to-items-by-name.html).
+In normal documentation builds, `rustdoc` runs:
 
 - `collect-trait-impls` collects `trait` `impl`s for each item in the crate.
-  For example, if we define a `struct` that implements a `trait`,
-  this pass will note that the `struct` implements that `trait`.
-
+  For example, if we define a `struct` that implements a `trait`, this pass
+  will note that the `struct` implements that `trait`.
+- `check_doc_test_visibility` runs `doctest` visibility-related `lint`s. This
+  pass runs before `strip-private`, which is why it needs to be separate from
+  `run-lints`.
+- `strip-aliased-non-local` strips all non-local private aliased items from the
+  output.
 - `propagate-doc-cfg` propagates `#[doc(cfg(...))]` to child items.
-
-- `run-lints` runs some of `rustdoc`'s `lint`s, defined in `passes/lint`.
-  This is the last pass to run.
-
-  - `bare_urls` detects links that are not linkified, e.g., in Markdown such as
-    `Go to https://example.com/.` It suggests wrapping the link with angle brackets:
-    `Go to <https://example.com/>.` to linkify it.
-    This is the code behind the <!-- date-check: may 2022 --> `rustdoc::bare_urls` `lint`.
-
-  - `check_code_block_syntax` validates syntax inside Rust code blocks
-    (<code>```rust</code>)
-
-  - `html_tags` detects invalid `HTML` (like an unclosed `<span>`)
-    in doc comments.
-
-- `strip-hidden` and `strip-private` strip all `doc(hidden)` and private items
-  from the output.
-  `strip-private` implies `strip-priv-imports`.
-  Basically, the goal is to remove items that are not relevant for public documentation.
-  This pass is skipped when `--document-hidden-items` is passed.
-
-- `strip-priv-imports` strips all private import statements (`use`, `extern
-  crate`) from a crate.
-  This is necessary because `rustdoc` will handle *public*
-  imports by either inlining the item's documentation to the module or creating
-  a "Reexports" section with the import in it.
-  The pass ensures that all of these imports are actually relevant to documentation.
-  It is technically only run when `--document-private-items` is passed, but `strip-private`
-  accomplishes the same thing.
-
+- `strip-hidden` strips all `doc(hidden)` items from the output. This pass is
+  skipped when `--document-hidden-items` is passed.
 - `strip-private` strips all private items from a crate which cannot be seen
-  externally.
-  This pass is skipped when `--document-private-items` is passed.
+  externally. This pass is skipped when `--document-private-items` is passed.
+- `strip-priv-imports` strips all private import statements (`use`, `extern
+  crate`) from a crate. This pass only runs when `--document-private-items` is
+  passed; otherwise `strip-private` covers that case.
+- `collect-intra-doc-links` resolves
+  [intra-doc links](https://doc.rust-lang.org/nightly/rustdoc/write-documentation/linking-to-items-by-name.html).
+- `propagate-stability` propagates stability information to child items.
+- `run-lints` runs some of `rustdoc`'s `lint`s, defined in `passes/lint`. This
+  is the last pass to run.
+
+When `--show-coverage` is enabled, `rustdoc` instead runs:
+
+- `strip-hidden`
+- `strip-private`
+- `calculate-doc-coverage`
 
 There is also a [`stripper`] module in `librustdoc/passes`, but it is a
 collection of utility functions for the `strip-*` passes and is not a pass itself.
