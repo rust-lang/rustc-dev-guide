@@ -1,4 +1,4 @@
-# Well-Formed Terms and Items
+# Well-Formedness of Terms and Items
 
 The area of the analysis pipeline that deals with questions like "does `T: Debug` hold true for some data structure that uses T?" or "is this const generic parameter `const B: bool` being handed a value of the right type?"
 
