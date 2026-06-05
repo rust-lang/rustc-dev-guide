@@ -19,7 +19,7 @@ Wfck doesn't check or validate lifetimes, this is handled in [MIR](../borrow-che
 
 The first step of wfck is generating the list of things for a subject of the wfck that need to be true for that subject to be well-formed. 
 
-These end up being referred to as Obligations, Requirements, or Constraints. Prefer to call them obligations for now, as this matches the suffix of the type and the names of relevant functions. In future, this may be superseded by the Polonius term "Goal"[^boxy].
+These end up being referred to as Obligations, Requirements, or Constraints. Prefer to call them obligations for now, as this matches the suffix of the type and the names of relevant functions. In future, this may be superseded by the new solver's term "Goal"[^boxy].
 
 The Term wfck module[^tlt-wf-module] contains an `obligations` function that takes type-level terms and returns `PredicateObligations`, a set of obligations that Term must satisfy in order to be well-formed. The satisfaction of those obligations is performed by the Trait Solver[^trait-solver][^boxy], and if they are satisfied then the term is Well-Formed.
 
