@@ -111,7 +111,40 @@ Well-formedness checking is not a coherent "stage" of type checking. It gets cal
 
 ### Trait Objects
 
-Trait objects of traits with where clauses / const generics do not undergo well-formedness checking until the type is coerced back into a concrete type.
+Trait objects of traits do not undergo well-formedness checking until the construction / coercion points of that trait object. That is, the following will compile because we don't have any point where we're constructing the trait object or coercing it back to a concrete type:
+
+```rust,ignore
+trait Trait
+where for<'a> [u8]: Sized {}
+    
+fn foo(_: &dyn Trait) {}
+---
+// This doesn't end up being generated, because it happens within a trait object.
+[u8]: Sized
+```
+
+The above should not compile because `[u8]: Sized`, but this won't be checked until actual use:
+
+```rust
+trait Trait
+where for<'a> [u8]: Sized {}
+    
+fn foo(_: &dyn Trait) {}
+
+// We still need to specify the bound here, otherwise `[u8]: Sized` _is_
+// checked as an obligation as a global bound. 
+impl Trait for u8 where for<'a> [u8]: Sized {}
+
+fn main() {
+    // But no matter what we do, this boundary between concrete type and trait
+    // object will produce the obligation `[u8]: Sized`, which will fail when
+    // handed over to the trait solver.
+    let object: Box<dyn Trait> = Box::new(42u8);
+    foo(&object);
+}
+```
+
+This also applies to Const Generic Arguments in trait objects:
 
 ```rust,ignore
 trait Trait<const N: usize> {}
@@ -126,7 +159,7 @@ N = B // Substitution
 const B: usize + bool 
 ```
 
-The above shouldn't compile, but it does. `foo`s const generic argument is a `bool`, while `Trait`'s is a `usize`. But because the wfck of trait objects doesn't happen until coercion into a concrete type, the above compiles just fine.
+The above shouldn't compile, but it does. `foo`s const generic argument is a `bool`, while `Trait`'s is a `usize`. But because the well-formedness check of trait objects doesn't happen until we hit the boundary of concrete types, the above compiles just fine.
 
 ### Higher-Ranked Bounds
 
@@ -147,7 +180,7 @@ Let's consider the following:
 for<'a, 'b> fn(&'a &'b ())
 ```
 
-TODO: Consider the above
+The above HRB implies `'b: 'a`, rather than two separate lifetimes. This is normal lifetime behavior, but we don't check it here.
 
 ### Free Type Aliases
 
