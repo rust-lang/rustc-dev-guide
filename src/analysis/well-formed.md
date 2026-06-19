@@ -39,7 +39,7 @@ This page shows the term/item and obligation split as:
 
 #### Determining Obligations
 
-In the compiler, obligations of terms are found through the `obligations` function in the well-formedness module[^tlt-wf-module].
+In the compiler, obligations of terms are found through the [`obligations`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_trait_selection/traits/wf/fn.obligations.html) function in the [term well-formedness module](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_trait_selection/traits/wf/index.html).
 
 #### Other Obligations
 
@@ -47,7 +47,7 @@ Obligations are more than just trait and const generic bounds, but we've only me
 
 ### When Type-Level Terms Are Well-Formed
 
-Type-Level Terms are considered Well-Formed when trait obligations within them are satisfied by the trait solver. As an example, the following is not well-formed:
+Type-Level Terms are considered Well-Formed when obligations within them are satisfied by the trait solver. As an example, the following is not well-formed:
 
 ```rust,ignore
 Vec<str>
@@ -80,7 +80,7 @@ The call site will provide us with the obligation `6: usize` during well-formedn
 
 ## Well-Formedness of Items
 
-Items[^items] are, generally speaking, "Things that get defined." Item-wfck[^item-wf-module] only happens at the signature level for types and functions, including the methods and implementations. This doesn't happen for Free Type Aliases other than Const Generic argument type checking.
+Items are, generally speaking, "Things that get defined." Item-wfck[^item-wf-module] only happens at the signature level for types and functions, including the methods and implementations. This doesn't happen for Free Type Aliases other than Const Generic argument type checking.
 
 Items are a major entry point for term well-formedness. Because Items contain Terms, item-wfck can invoke term well-formedness checking.
 
@@ -92,10 +92,10 @@ There are places where normalization of an Item happens before its Terms have go
 
 <!-- TODO later: Cut this into its own page -->
 
-Trait bounds are a common Obligation. Global and Trivial trait bounds are kinds of trait bounds where we already have enough information to determine if they are true or false.
+Trait bounds are a common Obligation. Global and Trivial trait bounds are kinds of trait bounds where we already have enough information to determine if they are true or false. Item-wfck is responsible for finding and checking these bounds.
 
-- **Global bounds** are post-normalization bounds that don't contain any generic parameters (like `<T>` or `'a`) or bound variables (like `for<'b>`).
-- **Trivial bounds** are bounds that do not need further normalization to determine if they're well-formed or not.
+- **Global bounds** are, in the old solver, post-normalization bounds that don't contain any generic parameters (like `<T>` or `'a`) or bound variables (like `for<'b>`).
+- **Trivial bounds** are bounds that do not need further normalization to determine if they're well-formed or not. <!-- TODO: check with lcnr if this is genuinely what a trivial bound is. -->
 
 Consider the following function definition:
 
@@ -166,22 +166,19 @@ fn main() {
 }
 ```
 
-This also applies to Const Generic Arguments in trait objects:
+This exception does not apply to Const Generic Arguments in trait objects:
 
 ```rust,ignore
 trait Trait<const N: usize> {}
 fn foo<const B: bool>(_: &dyn Trait<B>) {}
 ---
-// This doesn't end up being generated, because it happens within a trait object.
 const N: usize
 const B: bool
 N = B // Substitution
-// This fails once we coerce out of a trait object to a concrete type.
-// But because we don't coerce, it passes wfck.
 const B: usize + bool 
 ```
 
-The above shouldn't compile, but it does. The const generic argument of `foo` is a `bool`, while `Trait`'s is a `usize`. But because the well-formedness check of trait objects doesn't happen until we hit the boundary of concrete types, the above compiles just fine.
+The above doesn't compile, unlike the previous example we gave. We're doing _some_ well-formedness checking here when it comes to the const generic arguments.
 
 ### Higher-Ranked Bounds
 
@@ -206,7 +203,7 @@ The above HRB implies `'b: 'a` (a lifetime bound), rather than two completely se
 
 ### Free Type Aliases
 
-The right-hand side of Free Type Aliases[^fta] do not go through a full well-formedness check at the definition site, with the exception of shallowly[^shallow] "type checking" const generic parameters of the RHS.
+The right-hand side of Free Type Aliases[^fta] do not go through a full well-formedness check at the definition site, with the exception of "type checking" const generic arguments in the RHS.
 
 The following free type alias passes type checking, at time of writing:
 
@@ -214,10 +211,20 @@ The following free type alias passes type checking, at time of writing:
 type WorksButShouldNot = Vec<str>;
 ---
 // This should fail! But we skip the RHS of free type aliases
-str: Sized
+str: Sized // Not generated
 ```
 
 This shouldn't work, as both `T: Sized`, `str: Sized` are implied by `Vec<T>`. This "passes" item-wfck because the RHS of a free type alias doesn't go through well-formedness checking _until it's used_. Item-wfck is **deferred until use** for this specific case.
+
+```rust,ignore
+pub struct Consty<const A: bool>;
+type Alias = Consty<42>;
+---
+// This _is_ generated as an obligation, so this fails.
+42: bool // Is generated!
+```
+
+<!-- TODO: Link to something explaining the underlying "why" of the difference between const and trait well-formedness checking in FTAs, or eliminate that difference. Whatever comes first. -->
 
 ## "Well-Formed" or "Wellformed"?
 
@@ -229,7 +236,6 @@ Well-formedness checking is not "number of parameters" or "parameter type" check
 
 Well-formedness doesn't check or validate lifetimes, this is handled in [MIR](../borrow-check.md).
 
-[^shallow]: It does not look deeper than the first "level."
 [^horrible]: Instead, this bound is checked during "MIR borrowck" when the lifetimes are instantiated.
 [^fta]: Type aliases not associated with anything, i.e. a module-level `type Alias = Vec<u8>;`.
 [^items]: "Definition" style things in rust, See the [glossary](../appendix/glossary.md).
@@ -237,9 +243,5 @@ Well-formedness doesn't check or validate lifetimes, this is handled in [MIR](..
 [^terms-abbreviated]: Abbreviated as "Terms" on this page in some areas.
 [^kind-checking]: AKA "kind checking", as we might see in languages like Haskell.
 [^hir-ty-lower]: <https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_analysis/hir_ty_lowering/index.html>
-[^tlt-wf-module]: <https://doc.rust-lang.org/nightly/nightly-rustc/rustc_trait_selection/traits/wf/index.html>
 [^item-wf-module]: <https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_analysis/check/wfcheck/index.html>
-[^wf-ctx-construction]: <https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_analysis/check/wfcheck/fn.enter_wf_checking_ctxt.html>
-[^item-wf-ctx]: <https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_analysis/check/wfcheck/struct.WfCheckingCtxt.html>
-[^item-wf-global-bounds]: <https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_analysis/check/wfcheck/struct.WfCheckingCtxt.html#method.check_false_global_bounds>
 [^tyck-const-generics]: <https://rustc-dev-guide.rust-lang.org/const-generics.html#checking-types-of-const-arguments>
