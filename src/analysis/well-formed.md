@@ -250,7 +250,7 @@ Well-formedness checking is not "number of parameters" or "parameter type" check
 
 Well-formedness doesn't check or validate lifetimes, this is handled in [MIR](../borrow-check.md).
 
-Well-formedness in rust doesn't correspond to "correct syntax" as it does in logic. The term has a history of general use in a mathematical context of "follows a given set of rules."
+Well-formedness in the Rust compiler doesn't correspond to "correct syntax" as it does in logic. The term has a history of general use in a mathematical context of "follows a given set of rules." In Rust, our original usage was closer to "this thing is internally consistent" with respect to the bounds on a type in places such as the original [clarification on projections and well-formedness RFC](https://github.com/rust-lang/rfcs/blob/master/text/1214-projections-lifetimes-and-wf.md).
 
 [^wf-history]: In linguistics this is "grammatically correct," in logic it is "syntactically correct," and in mathematician general use it can be seen as a more general "follows the rules we set for this domain."
 [^horrible]: Instead, this bound is checked during "MIR borrowck" when the lifetimes are instantiated.
