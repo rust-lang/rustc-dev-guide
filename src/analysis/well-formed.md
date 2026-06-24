@@ -1,15 +1,19 @@
-# Well-Formedness of Items and Type-Level Terms
+# Well-Formedness
 
-"Well-formedness" is the area of analysis that produces questions like "does `T: Debug` hold true for some data structure that uses `T`?" or "is this const generic parameter `const B: bool` being handed a value of the right type?" These questions are then handed off to the trait solver to answer. 
+## What is Well-Formedness?
 
-Items and Type-Level Terms are "well formed" when they "follow rules" AKA "fulfill obligations" or "meet the necessary constraints." When we're performing well-formedness checks we're usually concerned about if Trait obligations are met, but this also includes making sure that the types of const generic parameters "type check."
+At a high level, "well-formed" just means "correctly built."[^wf-history] Something is _well-formed_ when its structure follows rules, and _ill-formed_ when those rules are broken.
 
-There are two different forms of well-formedness checking:
+## Well-Formedness in Rust
+
+Items and Type-Level Terms are "well-formed" when they "fulfill obligations" or "meet the necessary constraints." When we're performing well-formedness checks we're usually concerned about if Trait obligations are met, but this also includes making sure that the types of const generic parameters "type check."
+
+In the Rust compiler there are two different forms of well-formedness checking:
 
 - **Type-Level Term**[^terms][^terms-abbreviated] well-formedness check.
     - Primary subject of "Well-Formedness Checking."
     - Abbreviated here to "Term well-formedness" or "Term well-formedness checking." 
-    - Not a distinct analysis pass. 
+    - This isn't a distinct "analysis pass," this gets performed throughout the compiler. 
 - **Item**[^items] well-formedness check (item-wfck.) 
     - "Item-wfck" can call into "Term well-formedness checking" as Items contain Terms.
     - Inner "Terms" can get normalized first.
@@ -19,7 +23,7 @@ See: [What Well-Formedness Isn't](#what-well-formedness-isnt)
 
 ## Well-Formedness of Type-Level Terms
 
-Type-Level Terms are the fundamental subject of well-formedness checking. We are also concerned with [Items](#well-formedness-of-items), but as a downstream consumer of type-level term well-formedness.
+Well-formedness of type-level terms is the area of analysis that produces questions like "does `T: Debug` hold true?" or "is this const generic parameter `const B: bool` being handed a value of the right type?" These questions are then handed off to the trait solver to answer.
 
 ### Obligations for Well-Formedness
 
@@ -43,7 +47,7 @@ In the compiler, obligations of terms are found through the [`obligations`](http
 
 #### Other Obligations
 
-Obligations are more than just trait and const generic bounds, but we've only mentioned these specific obligations so far as they are what we care about when we do "well-formedness checking". For example, lifetime bounds (`'b: 'a` / `'b` outlives `'a`) can be part of the obligation output but _is not relevant to well-formedness_. This information is saved to part of the compiler's internal state for later use, rather than used during well-formedness checks. See: [`PredicateKind`](https://doc.rust-lang.org/beta/nightly-rustc/rustc_type_ir/predicate_kind/enum.PredicateKind.html) and [`ClauseKind`](https://doc.rust-lang.org/beta/nightly-rustc/rustc_type_ir/predicate_kind/enum.ClauseKind.html) for a full list of obligations.
+Obligations are more than just trait and const generic bounds, but we've only mentioned these specific obligations so far as they are what we care about when we do "well-formedness checking" of terms. For example, lifetime bounds (`'b: 'a` / `'b` outlives `'a`) can be part of the obligation output but _is not relevant to well-formedness of terms_. This information is saved to part of the compiler's internal state for later use, rather than used during well-formedness checks. See: [`PredicateKind`](https://doc.rust-lang.org/beta/nightly-rustc/rustc_type_ir/predicate_kind/enum.PredicateKind.html) and [`ClauseKind`](https://doc.rust-lang.org/beta/nightly-rustc/rustc_type_ir/predicate_kind/enum.ClauseKind.html) for a full list of obligations.
 
 ### When Type-Level Terms Are Well-Formed
 
@@ -62,6 +66,10 @@ We find the obligation for `Vec<T>` that `T: Sized`. For `Vec<str>` we find the 
 ### We Don't Need Normalization (Yet)
 
 [Normalization](../normalization.md) is the process of resolving [type aliases](../normalization.md#aliases) into their underlying type. A type alias is considered well-formed if its underlying type is well-formed. The underlying type undergoes well-formedness checking at most definition and instantiation sites, but there are exceptions.
+
+### We (Sometimes) Need Normalization
+
+There are places where normalization of an [Item](#well-formedness-of-items) happens before its Terms have gone through well-formedness checking. This is considered problematic as doing so allows some terms to [bypass term well-formedness checking entirely](https://github.com/rust-lang/rust/issues/100041).
 
 ### Const Generic Arguments
 
@@ -82,11 +90,11 @@ The call site will provide us with the obligation `6: usize` during well-formedn
 
 Items are, generally speaking, "Things that get defined." Item-wfck[^item-wf-module] only happens at the signature level for types and functions, including the methods and implementations. This doesn't happen for Free Type Aliases other than Const Generic argument type checking.
 
-Items are a major entry point for term well-formedness. Because Items contain Terms, item-wfck can invoke term well-formedness checking.
+Items are a major entry point for performing term well-formedness. Because Items contain Terms, item-wfck can invoke term well-formedness checking.
 
-### We (Sometimes) Need Normalization
+Item-wfck has more responsibilities than just collecting the obligations of its internal type-level terms and passing them to the trait solver. We do not talk about all of these here, but they can be found at the individual `check_*` functions in [the item-wfck module](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_analysis/check/wfcheck/index.html).
 
-There are places where normalization of an Item happens before its Terms have gone through well-formedness checking. This is considered problematic as doing so allows some terms to [bypass term well-formedness checking entirely](https://github.com/rust-lang/rust/issues/100041).
+<!-- FIXME: Expand more on item well-formedness that isn't const generic / trait bound obligation based. These are not special cases, but important points! -->
 
 ### Global and Trivial Bounds
 
@@ -122,6 +130,12 @@ Here we have a trivial bound that does not hold, because `String` is not `Copy`.
 #### Trivial Bounds Are Not Always Global
 
 Trivial Bounds are not a subset of Global Bounds. A trivial bound that isn't Global is `for<'a> String: Clone` (trivially true, has a bound variable) or `&'a str: Copy` (trivially false, has a generic parameter).
+
+#### Item-Wfck and Trivial/Global Bounds
+
+<!-- When cutting out the subsection on global/trivial bounds, keep this part on the well-formedness page. -->
+
+When checking items are well-formed we will check that there are no trivially false global bounds.
 
 ## When We Don't Fully Do Well-Formedness Checking
 
@@ -236,6 +250,9 @@ Well-formedness checking is not "number of parameters" or "parameter type" check
 
 Well-formedness doesn't check or validate lifetimes, this is handled in [MIR](../borrow-check.md).
 
+Well-formedness in rust doesn't correspond to "correct syntax" as it does in logic. The term has a history of general use in a mathematical context of "follows a given set of rules."
+
+[^wf-history]: In linguistics this is "grammatically correct," in logic it is "syntactically correct," and in mathematician general use it can be seen as a more general "follows the rules we set for this domain."
 [^horrible]: Instead, this bound is checked during "MIR borrowck" when the lifetimes are instantiated.
 [^fta]: Type aliases not associated with anything, i.e. a module-level `type Alias = Vec<u8>;`.
 [^items]: "Definition" style things in rust, See the [glossary](../appendix/glossary.md).
