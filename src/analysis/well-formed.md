@@ -15,8 +15,8 @@ In the Rust compiler there are two different forms of well-formedness checking:
     - Abbreviated here to "Term well-formedness" or "Term well-formedness checking." 
     - This isn't a distinct "analysis pass," this gets performed throughout the compiler. 
 - **Item**[^items] well-formedness check (item-wfck.) 
-    - "Item-wfck" can call into "Term well-formedness checking" as Items contain Terms.
-    - Inner "Terms" can get normalized first.
+    - "Item-wfck" will often wind up requiring Terms be well-formed.
+    - Inner "Terms" can (incorrectly) get normalized first.
     - Can be considered a more coherent "pass" in the compiler than "term well-formedness" (which is performed in many places.)
 
 See: [What Well-Formedness Isn't](#what-well-formedness-isnt)
@@ -90,7 +90,7 @@ The call site will provide us with the obligation `6: usize` during well-formedn
 
 Items are, generally speaking, "Things that get defined." Item-wfck[^item-wf-module] only happens at the signature level for types and functions, including the methods and implementations. This doesn't happen for Free Type Aliases other than Const Generic argument type checking.
 
-Items are a major entry point for performing term well-formedness. Because Items contain Terms, item-wfck can invoke term well-formedness checking.
+Items are a major source of checking well-formedness of terms. Because Items contain Terms, item-wfck must check that those terms are well formed.
 
 Item-wfck has more responsibilities than just collecting the obligations of its internal type-level terms and passing them to the trait solver. We do not talk about all of these here, but they can be found at the individual `check_*` functions in [the item-wfck module](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_analysis/check/wfcheck/index.html).
 
@@ -217,7 +217,7 @@ The above HRB implies `'b: 'a` (a lifetime bound), rather than two completely se
 
 ### Free Type Aliases
 
-The right-hand side of Free Type Aliases[^fta] do not go through a full well-formedness check at the definition site, with the exception of "type checking" const generic arguments in the RHS.
+The right-hand side of Free Type Aliases[^fta] is not fully checked to be well-formed at the definition site, only the types of const generic arguments in the RHS are checked.
 
 The following free type alias passes type checking, at time of writing:
 
