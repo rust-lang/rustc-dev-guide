@@ -2,34 +2,30 @@
 
 ## What is Well-Formedness?
 
-At a high level, "well-formed" just means "correctly built."[^wf-history] Something is _well-formed_ when its structure follows rules, and _ill-formed_ when those rules are broken.
+At a high level, "Well-formed" just means "correctly built."[^wf-history] Something is _well-formed_ when its structure follows rules.
 
 ## Well-Formedness in Rust
-
-Items and Type-Level Terms are "well-formed" when they "fulfill obligations" or "meet the necessary constraints." When we're performing well-formedness checks we're usually concerned about if Trait obligations are met, but this also includes making sure that the types of const generic parameters "type check."
 
 In the Rust compiler there are two different forms of well-formedness checking:
 
 - **Type-Level Term**[^terms][^terms-abbreviated] well-formedness check.
-    - Primary subject of "Well-Formedness Checking."
-    - Abbreviated here to "Term well-formedness" or "Term well-formedness checking." 
-    - This isn't a distinct "analysis pass," this gets performed throughout the compiler. 
-- **Item**[^items] well-formedness check (item-wfck.) 
-    - "Item-wfck" will often wind up requiring Terms be well-formed.
+    - Major subject of "Well-Formedness Checking."
+    - Also called "Term well-formedness" or "Term well-formedness checking."
+    - Not a distinct analysis stage, this gets performed throughout analysis. 
+- **Item**[^items] well-formedness check (item-wfck.)
+    - "Item-wfck" will often wind up requiring Terms be well-formed, but skips some areas.
     - Inner "Terms" can (incorrectly) get normalized first.
-    - Can be considered a more coherent "pass" in the compiler than "term well-formedness" (which is performed in many places.)
+    - More coherent as a stage in the compiler than "term well-formedness" (which is performed in many places.)
 
-See: [What Well-Formedness Isn't](#what-well-formedness-isnt)
+See: [What Well-Formedness Isn't](#what-well-formedness-isnt).
 
 ## Well-Formedness of Type-Level Terms
 
-Well-formedness of type-level terms is the area of analysis that produces questions like "does `T: Debug` hold true?" or "is this const generic parameter `const B: bool` being handed a value of the right type?" These questions are then handed off to the trait solver to answer.
+Determining Term well-formedness begins with building a list of things that need to be true for a term to be well-formed. We call these "Obligations"[^obligations].
+
+Type-Level Terms are considered Well-Formed when obligations within them are satisfied by the trait solver.
 
 ### Obligations for Well-Formedness
-
-Term well-formedness begins with generating a list of things that need to be true for a term to be well-formed. 
-
-These predicates are referred to as Obligations, Requirements, or Constraints. Preferred term is "obligations", as this matches the suffix of the type and the names of relevant functions. In future, this may be superseded by the new solver's term "Goal."
 
 Specific obligations might be things like `String: Clone`, `A: usize`, or `<T as Iterator>::Item: Debug`. 
 
@@ -41,6 +37,32 @@ This page shows the term/item and obligation split as:
 <obligations>
 ```
 
+Here is an example of a well-formed type-level term:
+
+```rust,ignore
+Vec<String>
+---
+// Obligations to fulfill
+Vec<T> where T: Sized
+// Trait solver says `String: Sized` is true, so this is well-formed.
+Vec<String> where String: Sized
+```
+
+When we run a search for obligations on `Vec<String>`, we'll find that `Vec<T>` generates the obligation `T: Sized`. We substitute `T` with `String` in `Vec<String>`, so we find the obligation `String: Sized`.
+
+The following **is not** well-formed:
+
+```rust,ignore
+Vec<str>
+---
+// Obligations to fulfill
+Vec<T> where T: Sized
+// Trait solver says `str: Sized` is not true, so this is not well-formed.
+Vec<str> where str: Sized
+```
+
+We find the obligation for `Vec<T>` that `T: Sized`. For `Vec<str>` we find the obligation `str: Sized`, which cannot be satisfied/is false.
+
 #### Determining Obligations
 
 In the compiler, obligations of terms are found through the [`obligations`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_trait_selection/traits/wf/fn.obligations.html) function in the [term well-formedness module](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_trait_selection/traits/wf/index.html).
@@ -49,27 +71,13 @@ In the compiler, obligations of terms are found through the [`obligations`](http
 
 Obligations are more than just trait and const generic bounds, but we've only mentioned these specific obligations so far as they are what we care about when we do "well-formedness checking" of terms. For example, lifetime bounds (`'b: 'a` / `'b` outlives `'a`) can be part of the obligation output but _is not relevant to well-formedness of terms_. This information is saved to part of the compiler's internal state for later use, rather than used during well-formedness checks. See: [`PredicateKind`](https://doc.rust-lang.org/beta/nightly-rustc/rustc_type_ir/predicate_kind/enum.PredicateKind.html) and [`ClauseKind`](https://doc.rust-lang.org/beta/nightly-rustc/rustc_type_ir/predicate_kind/enum.ClauseKind.html) for a full list of obligations.
 
-### When Type-Level Terms Are Well-Formed
-
-Type-Level Terms are considered Well-Formed when obligations within them are satisfied by the trait solver. As an example, the following is not well-formed:
-
-```rust,ignore
-Vec<str>
----
-// Obligations to fulfill
-Vec<T> where T: Sized
-Vec<str> where str: Sized // This is not true, therefore the term is not well-formed.
-```
-
-We find the obligation for `Vec<T>` that `T: Sized`. For `Vec<str>` we find the obligation `str: Sized`, which cannot be satisfied/is false.
-
 ### We Don't Need Normalization (Yet)
 
 [Normalization](../normalization.md) is the process of resolving [type aliases](../normalization.md#aliases) into their underlying type. A type alias is considered well-formed if its underlying type is well-formed. The underlying type undergoes well-formedness checking at most definition and instantiation sites, but there are exceptions.
 
 ### We (Sometimes) Need Normalization
 
-There are places where normalization of an [Item](#well-formedness-of-items) happens before its Terms have gone through well-formedness checking. This is considered problematic as doing so allows some terms to [bypass term well-formedness checking entirely](https://github.com/rust-lang/rust/issues/100041).
+There are places where normalization of an Item happens before its Terms have gone through well-formedness checking. This is considered problematic as doing so allows some terms to [bypass term well-formedness checking entirely](https://github.com/rust-lang/rust/issues/100041).
 
 ### Const Generic Arguments
 
@@ -139,11 +147,11 @@ When checking items are well-formed we will check that there are no trivially fa
 
 ## When We Don't Fully Do Well-Formedness Checking
 
-Well-formedness checking is not a coherent "stage" of type checking. It gets called from various contexts, and there are places where it gets skipped partially or entirely.
+Well-formedness checking is not a coherent "stage" of type checking. There are many areas where well-formedness checking is performed, and some areas where we skip over well-formedness checking due to limitations in what kinds of analysis we can currently perform. Ideally, we would never skip or defer well-formedness checking.
 
 ### Trait Objects
 
-Trait objects do not undergo well-formedness checking except at the boundaries of coercion into being a trait object or being downcast into a concrete type. 
+We do not require the where clauses of trait objects to be well-formed when determining if that trait object is well-formed. These where clauses still need to be well-formed when coercing into/out of a trait object, but this remains a hole in well-formedness checking.
 
 As an example, the following will compile because we don't have a point where we're constructing the trait object or coercing it back to a concrete type:
 
@@ -230,12 +238,16 @@ str: Sized // Not generated
 
 This shouldn't work, as both `T: Sized`, `str: Sized` are implied by `Vec<T>`. This "passes" item-wfck because the RHS of a free type alias doesn't go through well-formedness checking _until it's used_. Item-wfck is **deferred until use** for this specific case.
 
+For Const Generics we still do a small amount of well-formedness checking at the definition site of a free type alias. This is consistent with our current special-casing of const generic well-formedness checking when we skip over things like where bounds.
+
+This means that the following, despite being of a similar form to the above example, fails as it should:
+
 ```rust,ignore
 pub struct Consty<const A: bool>;
 type Alias = Consty<42>;
 ---
 // This _is_ generated as an obligation, so this fails.
-42: bool // Is generated!
+42: bool // This is generated!
 ```
 
 <!-- TODO: Link to something explaining the underlying "why" of the difference between const and trait well-formedness checking in FTAs, or eliminate that difference. Whatever comes first. -->
@@ -243,6 +255,10 @@ type Alias = Consty<42>;
 ## "Well-Formed" or "Wellformed"?
 
 Prefer "well-formed" over "wellformed," as this is consistent with logic literature. This also gets abbreviated to WF in other parts of the dev guide / docs.
+
+## Informal Usage
+
+In conversation, contributors may refer to something as "well-formed" and not necessarily mean what we cover here because "well-formedness" is a general phrase associated with the correctness of formal structures. This isn't necessarily in error, but it should be looked out for.
 
 ## What Well-Formedness Isn't
 
@@ -252,6 +268,7 @@ Well-formedness doesn't check or validate lifetimes, this is handled in [MIR](..
 
 Well-formedness in the Rust compiler doesn't correspond to "correct syntax" as it does in logic. The term has a history of general use in a mathematical context of "follows a given set of rules." In Rust, our original usage was closer to "this thing is internally consistent" with respect to the bounds on a type in places such as the original [clarification on projections and well-formedness RFC](https://github.com/rust-lang/rfcs/blob/master/text/1214-projections-lifetimes-and-wf.md).
 
+[^obligations]: These get referred to as Obligations, Requirements, or Constraints in the documentation. Preferred term is "obligations", as this matches the suffix of the type and the names of relevant functions. In future, this may be superseded by the new solver's term "Goal."
 [^wf-history]: In linguistics this is "grammatically correct," in logic it is "syntactically correct," and in mathematician general use it can be seen as a more general "follows the rules we set for this domain."
 [^horrible]: Instead, this bound is checked during "MIR borrowck" when the lifetimes are instantiated.
 [^fta]: Type aliases not associated with anything, i.e. a module-level `type Alias = Vec<u8>;`.
