@@ -24,7 +24,7 @@ See: [What Well-Formedness Isn't](#what-well-formedness-isnt).
 
 Term well-formedness checking begins with building a list of things that need to be true for a term to be well-formed. We call these "Obligations"[^obligations].
 
-Type-Level Terms are considered Well-Formed when obligations within them are satisfied by the trait solver.
+Type-Level Terms are considered Well-Formed when their associated obligations are satisfied by the trait solver.
 
 ### Obligations for Well-Formedness
 
@@ -49,7 +49,7 @@ Vec<T> where T: Sized
 Vec<String> where String: Sized
 ```
 
-When we run a search for obligations on `Vec<String>`, we'll find that `Vec<T>` generates the obligation `T: Sized`. We substitute `T` with `String` in `Vec<String>`, so we find the obligation `String: Sized`.
+When we compute the obligations for `Vec<String>`, we'll find that `Vec<T>` generates the obligation `T: Sized`. We substitute `T` with `String` in `Vec<String>`, so we find the obligation `String: Sized`.
 
 The following **is not** well-formed:
 
@@ -149,7 +149,7 @@ Well-formedness checking is not a coherent "stage" of type checking. There are m
 
 ### Trait Objects
 
-We do not require the where clauses of trait objects to be well-formed when determining if that trait object is well-formed. These where clauses still need to be well-formed when coercing into/out of a trait object, but this remains a hole in well-formedness checking.
+We do not require the where clauses of trait objects to be well-formed when determining if that trait object is well-formed. These where clauses are proven when coercing into/out of a trait object, but this remains a hole in well-formedness checking.
 
 As an example, the following will compile because we don't have a point where we're constructing the trait object or coercing it back to a concrete type:
 
