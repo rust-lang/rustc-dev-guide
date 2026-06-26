@@ -2,14 +2,15 @@
 
 ## What is Well-Formedness?
 
-At a high level, "Well-formed" just means "correctly built."[^wf-history] Something is _well-formed_ when its structure follows rules.
+"Well-formed" means "correctly built."[^wf-history] Something is _well-formed_ when its structure follows rules. When we use this term in the Rust compiler we are concerned with establishing some kind of _internal consistency_.
 
 ## Well-Formedness in Rust
+
+To check that something is well-formed is to perform a "Well-formedness check."
 
 In the Rust compiler there are two different forms of well-formedness checking:
 
 - **Type-Level Term**[^terms][^terms-abbreviated] well-formedness check.
-    - Major subject of "Well-Formedness Checking."
     - Also called "Term well-formedness" or "Term well-formedness checking."
     - Not a distinct analysis stage, this gets performed throughout analysis. 
 - **Item**[^items] well-formedness check (item-wfck.)
@@ -21,15 +22,15 @@ See: [What Well-Formedness Isn't](#what-well-formedness-isnt).
 
 ## Well-Formedness of Type-Level Terms
 
-Determining Term well-formedness begins with building a list of things that need to be true for a term to be well-formed. We call these "Obligations"[^obligations].
+Term well-formedness checking begins with building a list of things that need to be true for a term to be well-formed. We call these "Obligations"[^obligations].
 
 Type-Level Terms are considered Well-Formed when obligations within them are satisfied by the trait solver.
 
 ### Obligations for Well-Formedness
 
-Specific obligations might be things like `String: Clone`, `A: usize`, or `<T as Iterator>::Item: Debug`. 
+Specific obligations are things like `String: Clone`, `A: usize`, or `<T as Iterator>::Item: Debug`.
 
-This page shows the term/item and obligation split as:
+On this page we show the split between obligations and terms/items as:
 
 ```rust,ignore
 <terms or items>
@@ -96,11 +97,9 @@ The call site will provide us with the obligation `6: usize` during well-formedn
 
 ## Well-Formedness of Items
 
-Items are, generally speaking, "Things that get defined." Item-wfck[^item-wf-module] only happens at the signature level for types and functions, including the methods and implementations. This doesn't happen for Free Type Aliases other than Const Generic argument type checking.
+Items are, generally speaking, "Things that get defined." Item-wfck happens at the signature level for types and functions, methods, and definitions/implementations of traits.
 
-Items are a major source of checking well-formedness of terms. Because Items contain Terms, item-wfck must check that those terms are well formed.
-
-Item-wfck has more responsibilities than just collecting the obligations of its internal type-level terms and passing them to the trait solver. We do not talk about all of these here, but they can be found at the individual `check_*` functions in [the item-wfck module](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_analysis/check/wfcheck/index.html).
+Item-wfck has more responsibilities than only collecting the obligations of its internal type-level terms and passing them to the trait solver. We do not talk about all of these here, but they can be found at the individual `check_*` functions in [**the item-wfck module**](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_analysis/check/wfcheck/index.html).
 
 <!-- FIXME: Expand more on item well-formedness that isn't const generic / trait bound obligation based. These are not special cases, but important points! -->
 
@@ -119,8 +118,7 @@ Consider the following function definition:
 fn apartment_complex<T>(block: T, name: String) where String: Clone { /* ... */ }
 ---
 String: Clone // Trivial & Global bound! There's no aliases to resolve.
-// Maybe there's obligations on T but we don't care about them here.
-// ...
+// There could be bligations on T but we don't care about them here.
 ```
 
 This produces a trait bound obligation `String: Clone` that is _Global_ (no generic parameters) and _Trivial_ (didn't require normalization to be well-formedness checked). The trait solver doesn't need to be given any additional information for it to be able to make a judgment on the well-formedness of `String: Clone`.
@@ -180,7 +178,7 @@ fn foo(_: &dyn Trait) {}
 impl Trait for u8 where for<'a> [u8]: Sized {}
 
 fn main() {
-    // But no matter what we do, this boundary between concrete type and trait
+    // No matter what we do, this boundary between concrete type and trait
     // object will produce the obligation `[u8]: Sized`, which will fail when
     // handed over to the trait solver.
     let object: Box<dyn Trait> = Box::new(42u8);
@@ -246,7 +244,7 @@ This means that the following, despite being of a similar form to the above exam
 pub struct Consty<const A: bool>;
 type Alias = Consty<42>;
 ---
-// This _is_ generated as an obligation, so this fails.
+// This *is* generated as an obligation, so this (correctly) fails.
 42: bool // This is generated!
 ```
 
@@ -269,13 +267,12 @@ Well-formedness doesn't check or validate lifetimes, this is handled in [MIR](..
 Well-formedness in the Rust compiler doesn't correspond to "correct syntax" as it does in logic. The term has a history of general use in a mathematical context of "follows a given set of rules." In Rust, our original usage was closer to "this thing is internally consistent" with respect to the bounds on a type in places such as the original [clarification on projections and well-formedness RFC](https://github.com/rust-lang/rfcs/blob/master/text/1214-projections-lifetimes-and-wf.md).
 
 [^obligations]: These get referred to as Obligations, Requirements, or Constraints in the documentation. Preferred term is "obligations", as this matches the suffix of the type and the names of relevant functions. In future, this may be superseded by the new solver's term "Goal."
-[^wf-history]: In linguistics this is "grammatically correct," in logic it is "syntactically correct," and in mathematician general use it can be seen as a more general "follows the rules we set for this domain."
+[^wf-history]: In linguistics this is "grammatically correct," in logic it is "syntactically correct," and in casual mathematician use it can be read as a more general "follows the rules we set for this domain."
 [^horrible]: Instead, this bound is checked during "MIR borrowck" when the lifetimes are instantiated.
 [^fta]: Type aliases not associated with anything, i.e. a module-level `type Alias = Vec<u8>;`.
 [^items]: "Definition" style things in rust, See the [glossary](../appendix/glossary.md).
-[^terms]: AKA Type expressions and subexpressions, but not in the sense of referring to a specific struct or enum in the rust compiler. See the [glossary](../appendix/glossary.md).
+[^terms]: AKA Type expressions and subexpressions in the general sense, not a specific struct or enum in the rust compiler. See the [glossary](../appendix/glossary.md).
 [^terms-abbreviated]: Abbreviated as "Terms" on this page in some areas.
 [^kind-checking]: AKA "kind checking", as we might see in languages like Haskell.
 [^hir-ty-lower]: <https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_analysis/hir_ty_lowering/index.html>
-[^item-wf-module]: <https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_analysis/check/wfcheck/index.html>
 [^tyck-const-generics]: <https://rustc-dev-guide.rust-lang.org/const-generics.html#checking-types-of-const-arguments>
