@@ -49,7 +49,7 @@ Vec<T> where T: Sized
 Vec<String> where String: Sized
 ```
 
-When we compute the obligations for `Vec<String>`, we'll find that `Vec<T>` generates the obligation `T: Sized`. We substitute `T` with `String` in `Vec<String>`, so we find the obligation `String: Sized`.
+When we compute the obligations for `Vec<String>`, we'll find that `Vec<T>` generates the obligation `T: Sized`. We substitute `T` with `String` in `Vec<String>`, so we find the obligation `String: Sized` which the trait solver will determine to be satisfied.
 
 The following **is not** well-formed:
 
@@ -62,7 +62,7 @@ Vec<T> where T: Sized
 Vec<str> where str: Sized
 ```
 
-We find the obligation for `Vec<T>` that `T: Sized`. For `Vec<str>` we find the obligation `str: Sized`, which cannot be satisfied/is false.
+The above computes the obligation `T: Sized`, like before, but we substitute `T` for `str` in the instance of `Vec<str>` finding the obligation `str: sized`. This obligation will be determined by the trait solver to be _unsatisfied_.
 
 #### Determining Obligations
 
@@ -70,7 +70,7 @@ In the compiler, obligations of terms are found through the [`obligations`](http
 
 #### Other Obligations
 
-Obligations are more than just trait and const generic bounds, but we've only mentioned these specific obligations so far as they are what we care about when we do "well-formedness checking" of terms. For example, lifetime bounds (`'b: 'a` / `'b` outlives `'a`) can be part of the obligation output but _is not relevant to well-formedness of terms_. This information is saved to part of the compiler's internal state for later use, rather than used during well-formedness checks. See: [`PredicateKind`](https://doc.rust-lang.org/beta/nightly-rustc/rustc_type_ir/predicate_kind/enum.PredicateKind.html) and [`ClauseKind`](https://doc.rust-lang.org/beta/nightly-rustc/rustc_type_ir/predicate_kind/enum.ClauseKind.html) for a full list of obligations.
+Obligations are more than just trait and const generic bounds, but we've only mentioned these specific obligations so far as they are what we care about when we do "well-formedness checking" of terms. See: [`PredicateKind`](https://doc.rust-lang.org/beta/nightly-rustc/rustc_type_ir/predicate_kind/enum.PredicateKind.html) and [`ClauseKind`](https://doc.rust-lang.org/beta/nightly-rustc/rustc_type_ir/predicate_kind/enum.ClauseKind.html) for a full list of obligations.
 
 ### We Don't Need Normalization (Yet)
 
@@ -162,9 +162,9 @@ There are places where normalization of an Item happens before its Terms have go
 
 ### Trait Objects
 
-We do not require the where clauses of trait objects to be well-formed when determining if that trait object is well-formed. These where clauses are proven when coercing into/out of a trait object, but this remains a hole in well-formedness checking.
+We do not require the where clauses of trait objects to be well-formed when determining if that trait object is well-formed. These where clauses are proven when coercing into a trait object, but this remains a hole in well-formedness checking.
 
-As an example, the following will compile because we don't have a point where we're constructing the trait object or coercing it back to a concrete type:
+As an example, the following will compile because we don't have a point where we're constructing the trait object from a concrete type:
 
 ```rust,ignore
 trait Trait
@@ -213,9 +213,9 @@ const B: usize + bool
 
 The above doesn't compile, unlike the previous example we gave. We're doing _some_ well-formedness checking here when it comes to the const generic arguments.
 
-### Higher-Ranked Bounds
+### Binders / Higher-Ranked Types
 
-Higher-Ranked Bounds skip well-formedness checking, leaving well-formedness checking to when the bound is instantiated:
+Binders / Higher-Ranked Types reduce the amount well-formedness checking we do on a term, leaving well-formedness checking to when the bound is instantiated:
 
 ```rust,ignore
 let _: for<'a> fn(Vec<[&'a ()]>);
@@ -223,6 +223,8 @@ let _: for<'a> fn(Vec<[&'a ()]>);
 // This doesn't end up being generated, because it happens within a HRB
 [&'a ()]: Sized // slices aren't sized, this would fail!
 ```
+
+Specifically, obligations involving variables from binders (`for<'a>`) are only checked when the binder is instantiated. Some things are stilled checked under the `for<'a>`, but we still skip a lot of things.
 
 A lot of unsoundness surrounds this behavior. See: [#25860](https://github.com/rust-lang/rust/issues/25860), [#84591](https://github.com/rust-lang/rust/issues/84591). 
 
