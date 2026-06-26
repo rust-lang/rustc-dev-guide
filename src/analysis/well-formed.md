@@ -74,11 +74,9 @@ Obligations are more than just trait and const generic bounds, but we've only me
 
 ### We Don't Need Normalization (Yet)
 
-[Normalization](../normalization.md) is the process of resolving [type aliases](../normalization.md#aliases) into their underlying type. A type alias is considered well-formed if its underlying type is well-formed. The underlying type undergoes well-formedness checking at most definition and instantiation sites, but there are exceptions.
+[Normalization](../normalization.md) is the process of resolving [type aliases](../normalization.md#aliases) into their underlying type. 
 
-### We (Sometimes) Need Normalization
-
-There are places where normalization of an Item happens before its Terms have gone through well-formedness checking. This is considered problematic as doing so allows some terms to [bypass term well-formedness checking entirely](https://github.com/rust-lang/rust/issues/100041).
+A type alias is considered well-formed if its where clauses are satisfied. The underlying type undergoes well-formedness checking at most definition and instantiation sites, but there are exceptions.
 
 ### Const Generic Arguments
 
@@ -98,6 +96,17 @@ The call site will provide us with the obligation `6: usize` during well-formedn
 ## Well-Formedness of Items
 
 Items are, generally speaking, "Things that get defined." Item-wfck happens at the signature level for types and functions, methods, and definitions/implementations of traits.
+
+```rust,ignore
+// The `Vec<str>` is checked during item wfck
+fn foo(_: Vec<str>) {
+    // The `Vec<[u8]>` is not handled by item wfck as it's not in the signature
+    let _: Vec<[u8]>
+}
+---
+Vec<str>: Sized // Generated
+Vec<[u8]>: Sized // Not done at item-wfck. Done elsewhere.
+```
 
 Item-wfck has more responsibilities than only collecting the obligations of its internal type-level terms and passing them to the trait solver. We do not talk about all of these here, but they can be found at the individual `check_*` functions in [**the item-wfck module**](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_analysis/check/wfcheck/index.html).
 
@@ -146,6 +155,10 @@ When checking items are well-formed we will check that there are no trivially fa
 ## When We Don't Fully Do Well-Formedness Checking
 
 Well-formedness checking is not a coherent "stage" of type checking. There are many areas where well-formedness checking is performed, and some areas where we skip over well-formedness checking due to limitations in what kinds of analysis we can currently perform. Ideally, we would never skip or defer well-formedness checking.
+
+### We (Sometimes) Need Normalization
+
+There are places where normalization of an Item happens before its Terms have gone through well-formedness checking. This is considered problematic as doing so allows some terms to [bypass term well-formedness checking entirely](https://github.com/rust-lang/rust/issues/100041).
 
 ### Trait Objects
 
