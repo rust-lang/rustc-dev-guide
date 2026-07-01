@@ -1,0 +1,450 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Well-Formedness - Rust Compiler Development Guide</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A guide to developing the Rust compiler (rustc)">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="../favicon-8114d1fc.png">
+        <link rel="stylesheet" href="../css/variables-8adf115d.css">
+        <link rel="stylesheet" href="../css/general-2459343d.css">
+        <link rel="stylesheet" href="../css/chrome-ae938929.css">
+        <link rel="stylesheet" href="../css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="../highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="../tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="../ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../searchindex-836b2f11.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc-b0d9fb02.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Compiler Development Guide</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/rust-lang/rustc-dev-guide/edit/main/src/analysis/well-formed.md" title="Suggest an edit" aria-label="Suggest an edit" rel="edit">
+                            <span class=fa-svg id="git-edit-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M421.7 220.3l-11.3 11.3-22.6 22.6-205 205c-6.6 6.6-14.8 11.5-23.8 14.1L30.8 511c-8.4 2.5-17.5 .2-23.7-6.1S-1.5 489.7 1 481.2L38.7 353.1c2.6-9 7.5-17.2 14.1-23.8l205-205 22.6-22.6 11.3-11.3 33.9 33.9 62.1 62.1 33.9 33.9zM96 353.9l-9.3 9.3c-.9 .9-1.6 2.1-2 3.4l-25.3 86 86-25.3c1.3-.4 2.5-1.1 3.4-2l9.3-9.3H112c-8.8 0-16-7.2-16-16V353.9zM453.3 19.3l39.4 39.4c25 25 25 65.5 0 90.5l-14.5 14.5-22.6 22.6-11.3 11.3-33.9-33.9-62.1-62.1L314.3 67.7l11.3-11.3 22.6-22.6 14.5-14.5c25-25 65.5-25 90.5 0z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="well-formedness"><a class="header" href="#well-formedness">Well-Formedness</a></h1>
+<h2 id="what-is-well-formedness"><a class="header" href="#what-is-well-formedness">What is Well-Formedness?</a></h2>
+<p>“Well-formed” means “correctly built.”<sup class="footnote-reference" id="fr-wf-history-1"><a href="#footnote-wf-history">1</a></sup> Something is <em>well-formed</em> when its structure follows rules. When we use this term in the Rust compiler we are concerned with establishing some kind of <em>internal consistency</em>.</p>
+<h2 id="well-formedness-in-rust"><a class="header" href="#well-formedness-in-rust">Well-Formedness in Rust</a></h2>
+<p>To check that something is well-formed is to perform a “Well-formedness check.”</p>
+<p>In the Rust compiler there are two different forms of well-formedness checking:</p>
+<ul>
+<li><strong>Type-Level Term</strong><sup class="footnote-reference" id="fr-terms-1"><a href="#footnote-terms">2</a></sup> <sup class="footnote-reference" id="fr-terms-abbreviated-1"><a href="#footnote-terms-abbreviated">3</a></sup> well-formedness check.
+<ul>
+<li>Also called “Term well-formedness” or “Term well-formedness checking.”</li>
+<li>Not a distinct analysis stage, this gets performed throughout analysis.</li>
+</ul>
+</li>
+<li><strong>Item</strong><sup class="footnote-reference" id="fr-items-1"><a href="#footnote-items">4</a></sup> well-formedness check (item-wfck.)
+<ul>
+<li>“Item-wfck” will often wind up requiring Terms be well-formed, but skips some areas.</li>
+<li>Inner “Terms” can (incorrectly) get normalized first.</li>
+<li>More coherent as a stage in the compiler than “term well-formedness” (which is performed in many places.)</li>
+</ul>
+</li>
+</ul>
+<p>See: <a href="#what-well-formedness-isnt">What Well-Formedness Isn’t</a>.</p>
+<h2 id="well-formedness-of-type-level-terms"><a class="header" href="#well-formedness-of-type-level-terms">Well-Formedness of Type-Level Terms</a></h2>
+<p>Term well-formedness checking begins with building a list of things that need to be true for a term to be well-formed. We call these “Obligations”<sup class="footnote-reference" id="fr-obligations-1"><a href="#footnote-obligations">5</a></sup>.</p>
+<p>Type-Level Terms are considered Well-Formed when their associated obligations are satisfied by the trait solver.</p>
+<h3 id="obligations-for-well-formedness"><a class="header" href="#obligations-for-well-formedness">Obligations for Well-Formedness</a></h3>
+<p>Specific obligations are things like <code>String: Clone</code>, <code>A: usize</code>, or <code>&lt;T as Iterator&gt;::Item: Debug</code>.</p>
+<p>On this page we show the split between obligations and terms/items as:</p>
+<pre><code class="language-rust ignore">&lt;terms or items&gt;
+---
+&lt;obligations&gt;</code></pre>
+<p>Here is an example of a well-formed type-level term:</p>
+<pre><code class="language-rust ignore">Vec&lt;String&gt;
+---
+// Obligations to fulfill
+Vec&lt;T&gt; where T: Sized
+// Trait solver says `String: Sized` is true, so this is well-formed.
+Vec&lt;String&gt; where String: Sized</code></pre>
+<p>When we compute the obligations for <code>Vec&lt;String&gt;</code>, we’ll find that <code>Vec&lt;T&gt;</code> generates the obligation <code>T: Sized</code>. We substitute <code>T</code> with <code>String</code> in <code>Vec&lt;String&gt;</code>, so we find the obligation <code>String: Sized</code> which the trait solver will determine to be satisfied.</p>
+<p>The following <strong>is not</strong> well-formed:</p>
+<pre><code class="language-rust ignore">Vec&lt;str&gt;
+---
+// Obligations to fulfill
+Vec&lt;T&gt; where T: Sized
+// Trait solver says `str: Sized` is not true, so this is not well-formed.
+Vec&lt;str&gt; where str: Sized</code></pre>
+<p>The above computes the obligation <code>T: Sized</code>, like before, but we substitute <code>T</code> for <code>str</code> in the instance of <code>Vec&lt;str&gt;</code> finding the obligation <code>str: sized</code>. This obligation will be determined by the trait solver to be <em>unsatisfied</em>.</p>
+<h4 id="determining-obligations"><a class="header" href="#determining-obligations">Determining Obligations</a></h4>
+<p>In the compiler, obligations of terms are found through the <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_trait_selection/traits/wf/fn.obligations.html"><code>obligations</code></a> function in the <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_trait_selection/traits/wf/index.html">term well-formedness module</a>.</p>
+<h4 id="other-obligations"><a class="header" href="#other-obligations">Other Obligations</a></h4>
+<p>Obligations are more than just trait and const generic bounds, but we’ve only mentioned these specific obligations so far as they are what we care about when we do “well-formedness checking” of terms. See: <a href="https://doc.rust-lang.org/beta/nightly-rustc/rustc_type_ir/predicate_kind/enum.PredicateKind.html"><code>PredicateKind</code></a> and <a href="https://doc.rust-lang.org/beta/nightly-rustc/rustc_type_ir/predicate_kind/enum.ClauseKind.html"><code>ClauseKind</code></a> for a full list of obligations.</p>
+<h3 id="we-dont-need-normalization-yet"><a class="header" href="#we-dont-need-normalization-yet">We Don’t Need Normalization (Yet)</a></h3>
+<p><a href="../normalization.html">Normalization</a> is the process of resolving <a href="../normalization.html#aliases">type aliases</a> into their underlying type.</p>
+<p>A type alias is considered well-formed if its where clauses are satisfied. The underlying type undergoes well-formedness checking at most definition and instantiation sites, but there are exceptions.</p>
+<h3 id="const-generic-arguments"><a class="header" href="#const-generic-arguments">Const Generic Arguments</a></h3>
+<p>Term well-formedness is responsible for getting “type checking” obligations of const generic terms<sup class="footnote-reference" id="fr-tyck-const-generics-1"><a href="#footnote-tyck-const-generics">6</a></sup>. Let’s look at the following use of const generics:</p>
+<pre><code class="language-rust ignore">fn use_const_generics&lt;const U: usize&gt;() { /* ... */ }
+// call site
+use_const_generics::&lt;6&gt;();
+---
+// call site wfck obligations
+const 6: usize</code></pre>
+<p>The call site will provide us with the obligation <code>6: usize</code> during well-formedness checking. This obligation will be passed off to the trait solver just like any trait-style obligation, as the trait solver has more responsibilities than its name suggests.</p>
+<h2 id="well-formedness-of-items"><a class="header" href="#well-formedness-of-items">Well-Formedness of Items</a></h2>
+<p>Items are, generally speaking, “Things that get defined.” Item-wfck happens at the signature level for types and functions, methods, and definitions/implementations of traits.</p>
+<pre><code class="language-rust ignore">// The `Vec&lt;str&gt;` is checked during item wfck
+fn foo(_: Vec&lt;str&gt;) {
+    // The `Vec&lt;[u8]&gt;` is not handled by item wfck as it's not in the signature
+    let _: Vec&lt;[u8]&gt;
+}
+---
+Vec&lt;str&gt;: Sized // Generated
+Vec&lt;[u8]&gt;: Sized // Not done at item-wfck. Done elsewhere.</code></pre>
+<p>Item-wfck has more responsibilities than only collecting the obligations of its internal type-level terms and passing them to the trait solver. We do not talk about all of these here, but they can be found at the individual <code>check_*</code> functions in <a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_analysis/check/wfcheck/index.html"><strong>the item-wfck module</strong></a>.</p>
+<!-- FIXME: Expand more on item well-formedness that isn't const generic / trait bound obligation based. These are not special cases, but important points! -->
+<h3 id="global-and-trivial-bounds"><a class="header" href="#global-and-trivial-bounds">Global and Trivial Bounds</a></h3>
+<!-- TODO later: Cut this into its own page -->
+<p>Trait bounds are a common Obligation. Global and Trivial trait bounds are kinds of trait bounds where we already have enough information to determine if they are true or false. Item-wfck is responsible for finding and checking these bounds.</p>
+<ul>
+<li><strong>Global bounds</strong> are, in the old solver, post-normalization bounds that don’t contain any generic parameters (like <code>&lt;T&gt;</code> or <code>'a</code>) or bound variables (like <code>for&lt;'b&gt;</code>).</li>
+<li><strong>Trivial bounds</strong> are bounds that do not need further normalization to determine if they’re well-formed or not. <!-- TODO: check with lcnr if this is genuinely what a trivial bound is. --></li>
+</ul>
+<p>Consider the following function definition:</p>
+<pre><code class="language-rust ignore">fn apartment_complex&lt;T&gt;(block: T, name: String) where String: Clone { /* ... */ }
+---
+String: Clone // Trivial &amp; Global bound! There's no aliases to resolve.
+// There could be bligations on T but we don't care about them here.</code></pre>
+<p>This produces a trait bound obligation <code>String: Clone</code> that is <em>Global</em> (no generic parameters) and <em>Trivial</em> (didn’t require normalization to be well-formedness checked). The trait solver doesn’t need to be given any additional information for it to be able to make a judgment on the well-formedness of <code>String: Clone</code>.</p>
+<p>False trivial bounds are simply trivial bounds that do not hold. The following is a basic example:</p>
+<pre><code class="language-rust ignore">fn apartment_simple&lt;T&gt;(block: T, name: String) where String: Copy { /* ... */ }
+---
+String: Copy // Trivial bound again, but this one is false!</code></pre>
+<p>Here we have a trivial bound that does not hold, because <code>String</code> is not <code>Copy</code>.</p>
+<h4 id="trivial-bounds-are-not-always-global"><a class="header" href="#trivial-bounds-are-not-always-global">Trivial Bounds Are Not Always Global</a></h4>
+<p>Trivial Bounds are not a subset of Global Bounds. A trivial bound that isn’t Global is <code>for&lt;'a&gt; String: Clone</code> (trivially true, has a bound variable) or <code>&amp;'a str: Copy</code> (trivially false, has a generic parameter).</p>
+<h4 id="item-wfck-and-trivialglobal-bounds"><a class="header" href="#item-wfck-and-trivialglobal-bounds">Item-Wfck and Trivial/Global Bounds</a></h4>
+<!-- When cutting out the subsection on global/trivial bounds, keep this part on the well-formedness page. -->
+<p>When checking items are well-formed we will check that there are no trivially false global bounds.</p>
+<h2 id="when-we-dont-fully-do-well-formedness-checking"><a class="header" href="#when-we-dont-fully-do-well-formedness-checking">When We Don’t Fully Do Well-Formedness Checking</a></h2>
+<p>Well-formedness checking is not a coherent “stage” of type checking. There are many areas where well-formedness checking is performed, and some areas where we skip over well-formedness checking due to limitations in what kinds of analysis we can currently perform. Ideally, we would never skip or defer well-formedness checking.</p>
+<h3 id="we-sometimes-need-normalization"><a class="header" href="#we-sometimes-need-normalization">We (Sometimes) Need Normalization</a></h3>
+<p>There are places where normalization of an Item happens before its Terms have gone through well-formedness checking. This is considered problematic as doing so allows some terms to <a href="https://github.com/rust-lang/rust/issues/100041">bypass term well-formedness checking entirely</a>.</p>
+<h3 id="trait-objects"><a class="header" href="#trait-objects">Trait Objects</a></h3>
+<p>We do not require the where clauses of trait objects to be well-formed when determining if that trait object is well-formed. These where clauses are proven when coercing into a trait object, but this remains a hole in well-formedness checking.</p>
+<p>As an example, the following will compile because we don’t have a point where we’re constructing the trait object from a concrete type:</p>
+<pre><code class="language-rust ignore">trait Trait
+where 
+    for&lt;'a&gt; [u8]: Sized {}
+
+fn foo(_: &amp;dyn Trait) {}
+---
+// This doesn't end up being generated, because it happens within a trait object.
+[u8]: Sized</code></pre>
+<p>The above should not compile because <code>[u8]: Sized</code>, but this won’t be checked until actual use:</p>
+<pre class="playground"><code class="language-rust">trait Trait
+where 
+    for&lt;'a&gt; [u8]: Sized {}
+    
+fn foo(_: &amp;dyn Trait) {}
+
+// We still need to specify the bound here, otherwise `[u8]: Sized` _is_
+// checked as an obligation. 
+impl Trait for u8 where for&lt;'a&gt; [u8]: Sized {}
+
+fn main() {
+    // No matter what we do, this boundary between concrete type and trait
+    // object will produce the obligation `[u8]: Sized`, which will fail when
+    // handed over to the trait solver.
+    let object: Box&lt;dyn Trait&gt; = Box::new(42u8);
+    foo(&amp;object);
+}</code></pre>
+<p>This exception does not apply to Const Generic Arguments in trait objects:</p>
+<pre><code class="language-rust ignore">trait Trait&lt;const N: usize&gt; {}
+fn foo&lt;const B: bool&gt;(_: &amp;dyn Trait&lt;B&gt;) {}
+---
+const N: usize
+const B: bool
+N = B // Substitution
+const B: usize + bool </code></pre>
+<p>The above doesn’t compile, unlike the previous example we gave. We’re doing <em>some</em> well-formedness checking here when it comes to the const generic arguments.</p>
+<h3 id="binders--higher-ranked-types"><a class="header" href="#binders--higher-ranked-types">Binders / Higher-Ranked Types</a></h3>
+<p>Binders / Higher-Ranked Types reduce the amount well-formedness checking we do on a term, leaving well-formedness checking to when the bound is instantiated:</p>
+<pre><code class="language-rust ignore">let _: for&lt;'a&gt; fn(Vec&lt;[&amp;'a ()]&gt;);
+---
+// This doesn't end up being generated, because it happens within a HRB
+[&amp;'a ()]: Sized // slices aren't sized, this would fail!</code></pre>
+<p>Specifically, obligations involving variables from binders (<code>for&lt;'a&gt;</code>) are only checked when the binder is instantiated. Some things are stilled checked under the <code>for&lt;'a&gt;</code>, but we still skip a lot of things.</p>
+<p>A lot of unsoundness surrounds this behavior. See: <a href="https://github.com/rust-lang/rust/issues/25860">#25860</a>, <a href="https://github.com/rust-lang/rust/issues/84591">#84591</a>.</p>
+<p>Let’s consider the following:</p>
+<pre><code class="language-rust ignore">for&lt;'a, 'b&gt; fn(&amp;'a &amp;'b ())</code></pre>
+<p>The above HRB implies <code>'b: 'a</code> (a lifetime bound), rather than two completely separate lifetimes. This is normal lifetime behavior, but during well-formedness checking we cannot prove that this bound is generally true<sup class="footnote-reference" id="fr-horrible-1"><a href="#footnote-horrible">7</a></sup>, so we skip it.</p>
+<h3 id="free-type-aliases"><a class="header" href="#free-type-aliases">Free Type Aliases</a></h3>
+<p>The right-hand side of Free Type Aliases<sup class="footnote-reference" id="fr-fta-1"><a href="#footnote-fta">8</a></sup> is not fully checked to be well-formed at the definition site, only the types of const generic arguments in the RHS are checked.</p>
+<p>The following free type alias passes type checking, at time of writing:</p>
+<pre><code class="language-rust ignore">type WorksButShouldNot = Vec&lt;str&gt;;
+---
+// This should fail! But we skip the RHS of free type aliases
+str: Sized // Not generated</code></pre>
+<p>This shouldn’t work, as both <code>T: Sized</code>, <code>str: Sized</code> are implied by <code>Vec&lt;T&gt;</code>. This “passes” item-wfck because the RHS of a free type alias doesn’t go through well-formedness checking <em>until it’s used</em>. Item-wfck is <strong>deferred until use</strong> for this specific case.</p>
+<p>For Const Generics we still do a small amount of well-formedness checking at the definition site of a free type alias. This is consistent with our current special-casing of const generic well-formedness checking when we skip over things like where bounds.</p>
+<p>This means that the following, despite being of a similar form to the above example, fails as it should:</p>
+<pre><code class="language-rust ignore">pub struct Consty&lt;const A: bool&gt;;
+type Alias = Consty&lt;42&gt;;
+---
+// This *is* generated as an obligation, so this (correctly) fails.
+42: bool // This is generated!</code></pre>
+<!-- TODO: Link to something explaining the underlying "why" of the difference between const and trait well-formedness checking in FTAs, or eliminate that difference. Whatever comes first. -->
+<h2 id="well-formed-or-wellformed"><a class="header" href="#well-formed-or-wellformed">“Well-Formed” or “Wellformed”?</a></h2>
+<p>Prefer “well-formed” over “wellformed,” as this is consistent with logic literature. This also gets abbreviated to WF in other parts of the dev guide / docs.</p>
+<h2 id="informal-usage"><a class="header" href="#informal-usage">Informal Usage</a></h2>
+<p>In conversation, contributors may refer to something as “well-formed” and not necessarily mean what we cover here because “well-formedness” is a general phrase associated with the correctness of formal structures. This isn’t necessarily in error, but it should be looked out for.</p>
+<h2 id="what-well-formedness-isnt"><a class="header" href="#what-well-formedness-isnt">What Well-Formedness Isn’t</a></h2>
+<p>Well-formedness checking is not “number of parameters” or “parameter type” checking<sup class="footnote-reference" id="fr-kind-checking-1"><a href="#footnote-kind-checking">9</a></sup>. Neither term well-formedness checking nor item-wfck is concerned with if a type with 2 parameters has 1 or 3 types applied to it (assuming no defaults), or if a const generic parameter has a type applied to it. These kinds of problems will get handled during HIR-ty Lowering<sup class="footnote-reference" id="fr-hir-ty-lower-1"><a href="#footnote-hir-ty-lower">10</a></sup>, not wfck.</p>
+<p>Well-formedness doesn’t check or validate lifetimes, this is handled in <a href="../borrow-check.html">MIR</a>.</p>
+<p>Well-formedness in the Rust compiler doesn’t correspond to “correct syntax” as it does in logic. The term has a history of general use in a mathematical context of “follows a given set of rules.” In Rust, our original usage was closer to “this thing is internally consistent” with respect to the bounds on a type in places such as the original <a href="https://github.com/rust-lang/rfcs/blob/master/text/1214-projections-lifetimes-and-wf.md">clarification on projections and well-formedness RFC</a>.</p>
+<hr>
+<ol class="footnote-definition">
+<li id="footnote-wf-history">
+<p>In linguistics this is “grammatically correct,” in logic it is “syntactically correct,” and in casual mathematician use it can be read as a more general “follows the rules we set for this domain.” <a href="#fr-wf-history-1">↩</a></p>
+</li>
+<li id="footnote-terms">
+<p>AKA Type expressions and subexpressions in the general sense, not a specific struct or enum in the rust compiler. See the <a href="../appendix/glossary.html">glossary</a>. <a href="#fr-terms-1">↩</a></p>
+</li>
+<li id="footnote-terms-abbreviated">
+<p>Abbreviated as “Terms” on this page in some areas. <a href="#fr-terms-abbreviated-1">↩</a></p>
+</li>
+<li id="footnote-items">
+<p>“Definition” style things in rust, See the <a href="../appendix/glossary.html">glossary</a>. <a href="#fr-items-1">↩</a></p>
+</li>
+<li id="footnote-obligations">
+<p>These get referred to as Obligations, Requirements, or Constraints in the documentation. Preferred term is “obligations”, as this matches the suffix of the type and the names of relevant functions. In future, this may be superseded by the new solver’s term “Goal.” <a href="#fr-obligations-1">↩</a></p>
+</li>
+<li id="footnote-tyck-const-generics">
+<p><a href="https://rustc-dev-guide.rust-lang.org/const-generics.html#checking-types-of-const-arguments">https://rustc-dev-guide.rust-lang.org/const-generics.html#checking-types-of-const-arguments</a> <a href="#fr-tyck-const-generics-1">↩</a></p>
+</li>
+<li id="footnote-horrible">
+<p>Instead, this bound is checked during “MIR borrowck” when the lifetimes are instantiated. <a href="#fr-horrible-1">↩</a></p>
+</li>
+<li id="footnote-fta">
+<p>Type aliases not associated with anything, i.e. a module-level <code>type Alias = Vec&lt;u8&gt;;</code>. <a href="#fr-fta-1">↩</a></p>
+</li>
+<li id="footnote-kind-checking">
+<p>AKA “kind checking”, as we might see in languages like Haskell. <a href="#fr-kind-checking-1">↩</a></p>
+</li>
+<li id="footnote-hir-ty-lower">
+<p><a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_analysis/hir_ty_lowering/index.html">https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_analysis/hir_ty_lowering/index.html</a> <a href="#fr-hir-ty-lower-1">↩</a></p>
+</li>
+</ol>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../traits/separate-projection-bounds.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="../variance.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../traits/separate-projection-bounds.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="../variance.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr-ef4e11c1.min.js"></script>
+        <script src="../mark-09e88c2c.min.js"></script>
+        <script src="../searcher-c2a407aa.js"></script>
+
+        <script src="../clipboard-1626706a.min.js"></script>
+        <script src="../highlight-abc7f01d.js"></script>
+        <script src="../book-a0b12cfe.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../mermaid-cc85ecea.min.js"></script>
+        <script src="../mermaid-init-4533fb11.js"></script>
+
+
+
+    </div>
+    </body>
+</html>
