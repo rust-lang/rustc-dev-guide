@@ -13,7 +13,7 @@ debug info, but can be derived from invariants about the language and the type i
 example is allowing one to interact with the elements of a `Vec<T>` instead of just it's `*mut u8`
 heap pointer, length, and capacity.
 
-## `rust-lldb`, `rust-gdb`, and `rust-windbg.cmd`
+## `rust-lldb` and `rust-gdb`
 
 These support scripts are distributed with Rust toolchains. They locate the appropriate debugger and
 the toolchain's visualizer scripts, then launch the debugger with the appropriate arguments to load
