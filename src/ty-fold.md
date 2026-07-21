@@ -1,4 +1,4 @@
-<!-- date-check: may 2024 -->
+<!-- date-check: Jul 2026 -->
 # `TypeFoldable` and `TypeFolder`
 
 In [a previous chapter], we discussed instantiating binders.
@@ -88,7 +88,7 @@ One last thing to mention: often when folding over a `TypeFoldable`, we don’t 
 things. We only want to do something when we reach a type. That means there may be a lot of
 `TypeFoldable` types whose implementations basically just forward to their fields’ `TypeFoldable`
 implementations. Such implementations of `TypeFoldable` tend to be pretty tedious to write by hand.
-For this reason, there is a `derive` macro that allows you to `#![derive(TypeFoldable)]`. It is
+For this reason, there is a `derive` macro that allows you to `#[derive(TypeFoldable)]`. It is
 defined [here].
 
 **`subst`** In the case of substitutions the [actual folder]
@@ -105,6 +105,6 @@ and all that does is index into the list of substitutions with the index of the 
 [`fold_ty`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/trait.TypeFolder.html#method.fold_ty
 [`ArgFolder`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_type_ir/binder/struct.ArgFolder.html
 [here]: https://github.com/rust-lang/rust/blob/HEAD/compiler/rustc_macros/src/type_foldable.rs
-[actual folder]: https://github.com/rust-lang/rust/blob/75ff3110ac6d8a0259023b83fd20d7ab295f8dd6/src/librustc_middle/ty/subst.rs#L440-L451
-[fold_ty]: https://github.com/rust-lang/rust/blob/75ff3110ac6d8a0259023b83fd20d7ab295f8dd6/src/librustc_middle/ty/subst.rs#L512-L536
-[ty_for_param]: https://github.com/rust-lang/rust/blob/75ff3110ac6d8a0259023b83fd20d7ab295f8dd6/src/librustc_middle/ty/subst.rs#L552-L587
+[actual folder]: https://github.com/rust-lang/rust/blob/0e29c21d93abc9bdc330182be1fbd33cfd5fee68/compiler/rustc_type_ir/src/binder.rs#L674-L749
+[fold_ty]: https://github.com/rust-lang/rust/blob/0e29c21d93abc9bdc330182be1fbd33cfd5fee68/compiler/rustc_type_ir/src/binder.rs#L723-L732
+[ty_for_param]: https://github.com/rust-lang/rust/blob/0e29c21d93abc9bdc330182be1fbd33cfd5fee68/compiler/rustc_type_ir/src/binder.rs#L751-L762
