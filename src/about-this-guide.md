@@ -95,6 +95,15 @@ You might also find the following sites useful:
   For example, searching for `* -> vec` should find all functions that return a `Vec<T>`.
   _Hint:_ Find more tips and keyboard shortcuts by typing `?` on any Rustdoc page!
 
+## rustc-dev-guide reading club
+
+The rustc-dev-guide reading club discusses sections of this guide on Zulip.
+The main initiative thread is [Rustc dev guide reading club][reading-club].
+
+Individual meeting threads:
+
+- [2024-11-20: chapter 40 to 42][reading-club-2024-11-20]
+
 
 [rustc dev guide]: about-this-guide.md
 [gsearchdocs]: https://www.google.com/search?q=site:doc.rust-lang.org+your+query+here
@@ -115,3 +124,5 @@ You might also find the following sites useful:
 [std-dev-guide]: https://std-dev-guide.rust-lang.org/
 [rust-analyzer book]: https://rust-analyzer.github.io/book/
 [z]: https://rust-lang.zulipchat.com/#narrow/stream/131828-t-compiler
+[reading-club]: https://rust-lang.zulipchat.com/#narrow/channel/196385-t-compiler.2Fwg-rustc-dev-guide/topic/Rustc.20dev.20guide.20reading.20club
+[reading-club-2024-11-20]: https://rust-lang.zulipchat.com/#narrow/channel/196385-t-compiler.2Fwg-rustc-dev-guide/topic/.5Breading.20club.5D.202024.2E11.2E20.20chapter.2040.20to.2042
