@@ -1,6 +1,6 @@
 # Fuzzing
 
-<!-- date-check: Mar 2023 -->
+<!-- date-check: Jul 2026 -->
 
 For the purposes of this guide, *fuzzing* is any testing methodology that
 involves compiling a wide variety of programs in an attempt to uncover bugs in rustc.
