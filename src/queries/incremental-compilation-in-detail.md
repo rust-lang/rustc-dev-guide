@@ -485,6 +485,12 @@ respect to incremental compilation:
    be cached to disk for "local" keys, because values for external crates should
    be loadable from crate metadata instead.
 
+ - `feedable` - The query is not actually a function, but it's own arena type. This
+ is done to declare an arena, "feed" the information
+ to store at a later point in the compilation (for example, when we actually have a
+ `Crate` object available), and then retrieve it as any other crate. Thus, function
+ definitions for these queries do not exist.
+ 
 [mod]: ../query.html#adding-a-new-kind-of-query
 
 
@@ -554,3 +560,4 @@ See <https://github.com/rust-lang/rust/issues/47389> for more information.
 
 [query-model]: ./query-evaluation-model-in-detail.html
 [try_mark_green]: https://doc.rust-lang.org/nightly/nightly-rustc/src/rustc_middle/dep_graph/graph.rs.html
+[`crate_for_resolver`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.TyCtxtFeed.html#method.crate_for_resolver
