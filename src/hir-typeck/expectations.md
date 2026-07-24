@@ -4,7 +4,7 @@ In an ideal world, we would only perform type inference at one point in the comp
 
 In reality, we perform it (at least) twice: First, at eager evaluation points, and secondly "at the end" when those constraints have been collected.
 
-`Expectations` are a piece of type inference state we maintain for the cases where we need to eagerly infer the types of expressions rather than leave them to the end.
+`Expectations` are a piece of type inference state we maintain for the cases where we need to eagerly infer the types of expressions rather than leave them to the end. They allow us to "ask questions" of the form "hey, we're expecting this term to have this type, is this true?"
 
 ## Eager Type Inference
 
@@ -16,15 +16,15 @@ Eager evaluation is when we do type inference earlier than we otherwise would. T
 
 ### Closures and Higher-Ranked Variables
 
-Closures need to have type inference eagerly applied to them because they are functions that are rarely fully annotated. Top-level functions i.e. `fn <T, Y>(what_that_is: T, what_it_isnt: Y) -> bool {/* */}` have their input / output types fully defined (opaque types still being an explicit annotation) but closures tend to have most/all of their type annotations missing, like `|a, b| if a < b {vec![1, 2, 3]} else {vec![6, 7, 8]} `.
+Closures need to have type inference eagerly applied to them because they are functions that are rarely fully annotated. Top-level functions i.e. `fn is_even(number: i32) -> bool {number % 2 == 0}` have their input / output types fully defined (opaque types still being an explicit annotation) but closures tend to have most/all of their type annotations missing, like `|a, b| if a < b {vec![1, 2, 3]} else {vec![6, 7, 8]}`.
 
-Eager, Higher-Ranked type inference happens in closures because closures can introduce Higher-Ranked Lifetimes. `for<'a> T<'a>` is the only style of higher-ranked bound in Rust, and these can appear in the types of closures.
+If we didn't do eager type inference we would instead have closures whose types were filled with inference variables. This would be able to solve in some situations, but because we do not have Higher-Ranked Inference Variables[^higher-ranked-inference] this would make the higher-ranked bounds for lifetimes that rust can have unusable without more annotation.
 
 The above is only slightly true. Let's be wrong about it in more interesting ways.
 
-### Coercions
+### Coercions 
 
-? [Coercions](https://doc.rust-lang.org/reference/type-coercions.html) engage in eager type inference as we need to know the type of a coerced type as early as possible for some reason idk. Maybe this is fail-early stuff? Need to engage in investigation.
+[Coercions](./coercions.md) can happen in many places, and so we check for them and perform them when able. When we successfully find a coercion, we need to eagerly perform type inference/checking on it as future inference will require or benefit from this information to be known ahead of time.
 
 ### Method calls?
 
@@ -34,7 +34,9 @@ Maybe Not. Maybe just point to [method lookup](./method-lookup.md).
 
 ### Fields?
 
-? Fields engage in corcion and therefore need to engage in eager type inference.
+Field access is inherently typed, so when we are doing field access we want to be able to know what a type is as early as possible.
+
+? There might be something about deref here idk.
 
 ### Indexing
 
@@ -45,3 +47,5 @@ lcnr said so.
 Papers:
 - [Practical Type Inference for Arbitrary-Rank Types, Jones ](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/putting.pdf)
 - [Local type inference (referenced in PTIfART)]
+
+[^higher-ranked-inference]: 
