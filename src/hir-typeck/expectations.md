@@ -48,4 +48,4 @@ Papers:
 - [Practical Type Inference for Arbitrary-Rank Types, Jones ](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/putting.pdf)
 - [Local type inference (referenced in PTIfART)]
 
-[^higher-ranked-inference]: 
+[^higher-ranked-inference]: https://github.com/rust-lang/types-team/issues/131
