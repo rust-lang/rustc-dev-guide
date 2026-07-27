@@ -198,6 +198,7 @@
 - [Coherence checking](./coherence.md)
 - [HIR Type checking](./hir-typeck/summary.md)
     - [Coercions](./hir-typeck/coercions.md)
+    - [Eager Inference](./hir-typeck/eager-inference.md)
     - [Method lookup](./hir-typeck/method-lookup.md)
 - [Const Generics](./const-generics.md)
 - [Opaque types](./opaque-types-type-alias-impl-trait.md)
