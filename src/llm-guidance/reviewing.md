@@ -93,7 +93,7 @@ Please do not re-open it until you find a project member who has volunteered to 
 For more information, see [#llm-mentoring] on Zulip.
 
 [#llm-mentoring]: https://rust-lang.zulipchat.com/join/rlfvpemsaacs3pfi6kwqnqjb/
-[forge-page]: https://forge.rust-lang.org/policies/llm-usage.html
+[experiment guidelines]: https://forge.rust-lang.org/policies/llm-usage.html#experiment-llm-created-code-changes-intended-for-review
 ```
 
 #### Missing tests, low-quality, or not self-reviewed
