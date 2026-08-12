@@ -2,7 +2,9 @@
 
 There are places during compilation where we need to depend on the current state of inference. This means we need to establish the type of a {term, item, etc, figure out exact wording in review} earlier than we otherwise would.
 
-Eager evaluation of the type of a term (type inference) is required at some specific points to either make later type inference more consistent or (in the case of higher-ranked bounds / Higher Ranked Lifetime bounds) make it even possible.
+Depending on the current state of inference means _we pay attention to the set constraints we currently have_ even if we've not finished finding all constraints yet.
+
+Eager evaluation of the type of a term (type inference) is required at specific points either to make later type inference more consistent or (in the case of higher-ranked bounds / Higher Ranked Lifetime bounds) make it possible at all.
 
 Eager type inference is when we do type inference earlier than we otherwise would. To do this, we bring in Expectations as an additional piece of context.
 
@@ -24,9 +26,13 @@ _Closures_ need to have type inference eagerly applied to them because they are 
 let closure = |a, b| if a < b {vec![1, 2, 3]} else {vec![5, 6, 7]};
 ```
 
-If we didn't do eager type inference we would instead have closures whose types were filled with [inference variables](../appendix/glossary.md#inf-var). 
+If we didn't do eager type inference we would instead have closures whose types were filled with [inference variables](../appendix/glossary.md#inf-var).
 
 This would be able to be solved in some situations, but because we do not have Higher-Ranked Inference Variables[^higher-ranked-inference] this would make the higher-ranked bounds for lifetimes that rust can have unusable without more annotation.
+
+Another reason we infer eagerly for closures is that it's a good heuristic: We will need to know the types of the closure if it's used anywhere, so it is best to figure out what it is sooner.
+
+? TODO: higher-ranked inference, but more. Go over notes.
 
 ### Coercions 
 
@@ -34,7 +40,15 @@ This would be able to be solved in some situations, but because we do not have H
 
 When we successfully find a coercion, we need to eagerly perform type inference/checking on it as future inference will require or benefit from this information to be known ahead of time.
 
+? TODO: Coercions are found by eager inference, this is the other way round to what is currently written.
+
+### Trait Solving
+
+Trait solving happens in a 
+
 ### Method calls, Fields, and Indexes.
+
+? This bucket of stuff should be changed.
 
 These are areas which technically take expectations, but in practice use them for diagnostics only.
 
