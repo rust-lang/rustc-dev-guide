@@ -1,6 +1,6 @@
 # Eager Type Inference
 
-There are places during compilation where we need to depend on the current state of inference. This means we need to establish the type of a {term, item, etc, figure out exact wording in review} earlier than we otherwise would.
+There are places during type checking where we need to depend on the "current state of inference." This means we need to establish the type of a term earlier than we otherwise would, making it _eager_ inference.
 
 Depending on the Current State of Inference means _we pay attention to the set of constraints we currently have_ even if we've not finished finding all constraints yet. See: ["Current State of Inference"](#current-state-of-inference).
 
@@ -12,9 +12,11 @@ Eager type inference is when we do type inference earlier than we otherwise woul
 
 The "Current State of Inference" is a set of ongoing context state that may not yet be "complete." This is a set of information we care about while performing type inference and checking.
 
+In practical terms, accessing the current state of inference usually means accessing [`InferCtxtInner`][inferctxtinner]
+
 ### Inference Variables
 
-Knowledge about what inference variables are currently resolved to. When we first introduce a variable, we give it an inference variable.
+Knowledge about what inference variables are currently resolved to. When we first introduce a variable, we give it an inference variable. This is a number of fields of [`InferCtxtInner`][inferctxtinner], but in the general case it's [`InferCtxtInner::type_variable_storage`][inferctxtinner-tyvars].
 
 ```rust
 let x = ...;
@@ -28,11 +30,11 @@ x: ?a;
 ?a = Vec<String>;
 ```
 
-Each time we look up `?a` we are accessing this part of the current state of inference.
+Each time we look up what `?a` currently is we are accessing this part of the Current State of Inference.
 
 ### Expectations
 
-We _expect_ that a subject will have a given type, but we have not yet assigned this to its inference variables.
+[Expectations][expectation] are an additional piece of typing context that shows we _expect_ that a subject will have a given type, but we have not yet assigned applied this to the inference variables for that subject.
 
 We may have knowledge about what an expression's type _should_ be before we further constrain the inference variable associated with it. Consider the following:
 
@@ -47,6 +49,7 @@ let x = ...;
 // Introduces "x: u32" and "result: bool" as expectations.
 let result = north(x);
 ---
+// Regular inference variables
 x: ?a;
 result: ?b;
 // These have not yet been assigned to ?a ?b respectively. But we do know we
@@ -95,57 +98,33 @@ If we didn't do eager type inference we would instead have closures whose types 
 
 Eagerly inferring the type of `closure` here serves a couple of purposes. Firstly, it's a decent heuristic that if we define a closure we'll use it later and having its type be known will mean a less intense inference solve. Having eagerly inferred the type of a closure lets us establish [Expectations](#expectations) that don't have inference variables in them.
 
-Secondly, functions can introduce Higher-Ranked Bounds for lifetimes. Inferring the types for a closure that uses higher-ranked bounds **requires** us to do work earlier, as part of the bidirectional () type checking algorithm we use.
+Secondly, functions can introduce Higher-Ranked Bounds for lifetimes. Inferring the types for a closure that uses higher-ranked bounds **requires** us to do work earlier, as part of the bidirectional[^jonesetal2007] type checking algorithm we use.
 
 This would be able to be solved in some situations, but because we do not have Higher-Ranked Inference Variables[^higher-ranked-inference] this would make the higher-ranked bounds for lifetimes that rust can have unusable without more annotation.
+
+### Trait Solving
+
+Trait solving can be run on a [`TyKind`][tykind] at any point. Failure is recoverable, so we can repeat this operation, but if at the end of an Item we can't establish if a type implements a trait then we error.
 
 ### Coercions 
 
 [Coercions](./coercions.md) can happen in many places. We check to see if a coercion can happen, and if it can we perform the coercion. 
 
-When we successfully find a coercion, we need to eagerly perform type inference/checking on it as future inference will require or benefit from this information to be known ahead of time.
+TODO: Stub, relationship to eager inference is not well established.
 
-? TODO: Coercions are found by eager inference, this is the other way round to what is currently written.
+TODO: Following are stubs, need to determine if these are relevant to bring up.
 
-### Trait Solving
-
-Trait solving can be run on a [`TyKind`][tykind] during at any point. Failure is recoverable, so we can repeat this operation, but if at the end of an Item we can't establish if a type implements a trait then we error.
-
-### Method calls, Fields, and Indexes.
-
-? This bucket of stuff should be changed.
-
-These are areas which technically take expectations, but in practice use them for diagnostics only.
-
-#### Methods
-
-Maybe Not. Maybe just point to [method lookup](./method-lookup.md).
-
-? Method calls engage in Coercion and therefore need to engage in Eager Type Inference.
-
-#### Fields?
-
-Field access is inherently typed, so when we are doing field access we want to be able to know what a type is as early as possible.
-
-? There might be something about deref here idk.
-
-#### Indexing
-
-? Indexing engages in coercion and therefore needs to engage in eager type inference.
-
-lcnr said so.
-
-
-## Expectations
-
-`Expectations` are a piece of type inference state we maintain for the cases where we need to eagerly infer the types of expressions rather than leave them to the end. They allow us to "ask questions" of the form "hey, we're expecting this term to have this type, is this true?"
-
-Papers:
-- [Practical Type Inference for Arbitrary-Rank Types, Jones ](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/putting.pdf)
-- [Local type inference (referenced in PTIfART)]
-
+- **Methods**:
+    - See: [method lookup](./method-lookup.md)
+- **Fields**:
+    - Field access is inherently typed, so when we are doing field access we want to be able to know what a type is as early as possible.
+- **Indexes**:
+    Indexing engages in coercion and therefore needs to engage in eager type inference.
 ---
 
+[expectation]: https://doc.rust-lang.org/stable/nightly-rustc/rustc_hir_typeck/expectation/enum.Expectation.html
+[inferctxtinner]: https://doc.rust-lang.org/stable/nightly-rustc/rustc_infer/infer/struct.InferCtxtInner.html
+[inferctxtinner-tyvars]: https://doc.rust-lang.org/stable/nightly-rustc/rustc_infer/infer/struct.InferCtxtInner.html#structfield.type_variable_storage
 [tykind]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/sty/type.TyKind.html
 [^higher-ranked-inference]: https://github.com/rust-lang/types-team/issues/131
-[^practical]: [Practical Type Inference for Arbitrary-Rank Types, Jones et al 2007](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/putting.pdf)
+[^jonesetal2007]: [Practical Type Inference for Arbitrary-Rank Types, Jones et al 2007](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/putting.pdf)
