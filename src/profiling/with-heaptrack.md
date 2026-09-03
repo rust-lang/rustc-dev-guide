@@ -13,6 +13,28 @@ its [git repo](https://invent.kde.org/sdk/heaptrack/),
 your distro package maintainers applied the correct patches,
 or you deal with mangled symbol names.
 
+When you have the correct version, it looks for the `rustc_demangle.so` C-abi library using
+the system dynamic linker at runtime. To check that `rustc_demangle` is visible,
+you can use `ldconfig -p | grep rustc_demangle`.
+
+<details> <summary>`rustc_demangle` installation example</summary> 
+
+
+Note: This may not apply to all systems.
+```sh
+git clone https://github.com/rust-lang/rustc-demangle
+cd rustc-demangle
+cargo build --release --frozen --package rustc-demangle-capi
+# install built library files
+sudo install -Dm755 "target/release/librustc_demangle."{a,so} --target-directory "/usr/lib/"
+# optional, heaptrack doesn't need this
+sudo install -Dm644 "crates/capi/include/rustc_demangle.h" --target-directory "/usr/include/"
+# refresh linker cache
+sudo ldconfig
+```
+
+</details>
+
 ## Initial steps
 
 - Set the following settings in your `bootstrap.toml`:
@@ -104,4 +126,6 @@ You can open it multiple ways:
 - `heaptrack` will open the GUI prompt you to open a file, and optionally a second one to compare
 
 Note that comparing 2 large profiles can take a very long time to load or even hang.
+
+
 
