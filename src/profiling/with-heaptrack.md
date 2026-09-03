@@ -127,5 +127,12 @@ You can open it multiple ways:
 
 Note that comparing 2 large profiles can take a very long time to load or even hang.
 
+In the GUI you can see overall memory stats, multiple graph views,
+multiple tables of the data, and a memory allocation flamegraph.
 
-
+Tips:
+- In the flamegraph view, enabling the "Bottom-Up View" checkbox is often more helpful
+  for identifying which small allocations add up.
+- You can select an interesting time span on any of the graphs over time
+  (Consumed, Allocations, Temporary Allocations tabs), right click, and filter
+  all views to that time span.
