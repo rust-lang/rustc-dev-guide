@@ -17,7 +17,7 @@ Examples of such structures include but are not limited to
 
 The implementation of AST lowering is in the [`rustc_ast_lowering`] crate.
 The entry point is [`lower_to_hir`], which retrieves the post-expansion AST
-and resolver data from [`TyCtxt`] and builds the [`hir::Crate`] for the whole crate.
+and resolver data from [`TyCtxt`] and builds the [HIR](../hir.md) for the whole crate.
 
 Lowering is organized around HIR owners.
 [`lower_to_hir`] first indexes the
@@ -59,7 +59,6 @@ sanity checks in [`compiler/rustc_passes/src/hir_id_validator.rs`][hir_id_valida
 [`rustc_ast_lowering`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_ast_lowering/index.html
 [`lower_to_hir`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_ast_lowering/fn.lower_to_hir.html
 [`TyCtxt`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.TyCtxt.html
-[`hir::Crate`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/hir/struct.Crate.html
 [`ItemLowerer::lower_node`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_ast_lowering/item/struct.ItemLowerer.html
 [`LoweringContext`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_ast_lowering/struct.LoweringContext.html
 [`with_hir_id_owner`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_ast_lowering/struct.LoweringContext.html#method.with_hir_id_owner
