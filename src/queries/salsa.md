@@ -19,8 +19,8 @@ Depth](https://www.youtube.com/watch?v=i_IhACacPRY), also by Niko Matsakis.
 ## What is Salsa?
 
 Salsa is a library for incremental recomputation.
-This means it allows reusing
-computations that were already done in the past to increase the efficiency of future computations.
+This means it allows reusing computations that were already done in the past
+to increase the efficiency of future computations.
 
 The objectives of Salsa are:
  * Provide that functionality in an automatic way, so reusing old computations
@@ -30,11 +30,11 @@ The objectives of Salsa are:
 
 Salsa's actual model is much richer, allowing many kinds of inputs and many different outputs.
 For example, integrating Salsa with an IDE could mean that
-the inputs could be manifests (`Cargo.toml`, `rust-toolchain.toml`), entire
-source files (`foo.rs`), snippets and so on.
+the inputs could be manifests (`Cargo.toml`, `rust-toolchain.toml`),
+entire source files (`foo.rs`), snippets, and so on.
 The outputs of such an integration could range from a binary executable,
-to lints, types (for example, if a user
-selects a certain variable and wishes to see its type), completions, etc.
+to lints, types (for example, if a user selects a certain variable and wishes to see its type),
+completions, etc.
 
 ## How does it work?
 
@@ -46,8 +46,8 @@ something that the library produces, but, for each derived value there's a
 "pure" function that computes the derived value.
 
 For example, there might be a function `ast(x: Path) -> AST`.
-The produced Abstract Syntax Tree (`AST`) isn't a final value, it's an intermediate value
-that the library would use for the computation.
+The produced Abstract Syntax Tree (`AST`) isn't a final value;
+it's an intermediate value that the library would use for the computation.
 
 This means that when you try to compute with the library, Salsa is going to
 compute various derived values, and eventually read the input and produce the
@@ -76,7 +76,7 @@ J <- B <--+
 When an input `I` changes, the derived value `A` could change.
 The derived value `B`, which does not depend on `I`, `A`, or any value derived from `A` or
 `I`, is not subject to change.
- Therefore, Salsa can reuse the computation done for `B` in the past,
+Therefore, Salsa can reuse the computation done for `B` in the past,
 without having to compute it again.
 
 The computation could also terminate early.
@@ -93,9 +93,9 @@ haven't changed.
 ### Query
 
 A query is some value that Salsa can access in the course of computation.
- Each query can have a number of keys (from 0 to many), and all queries have a
+Each query can have a number of keys (from 0 to many), and all queries have a
 result, akin to functions.
- `0-key` queries are called "input" queries.
+`0-key` queries are called "input" queries.
 
 ### Database
 
@@ -165,8 +165,8 @@ pub trait Parser: Inputs {
 }
 ```
 
-When creating a derived query the implementation of said query must be defined outside the trait.
- The definition must take a database parameter as an `impl Trait` (or `dyn Trait`),
+When creating a derived query, the implementation of said query must be defined outside the trait.
+The definition must take a database parameter as an `impl Trait` (or `dyn Trait`),
 where trait is the query group that the definition
 belongs to, in addition to the other keys.
 

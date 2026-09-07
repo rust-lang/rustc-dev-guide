@@ -334,7 +334,21 @@ fn should_pass() {
 }
 
 #[test]
-fn split_on_comma() {
+#[ignore]
+fn split_on_comma_of_current_line() {
+    let original = "
+Each derived value has a dependency on other values, which could themselves be either base or
+derived.
+";
+    let expected = "
+Each derived value has a dependency on other values,
+which could themselves be either base or derived.
+";
+    assert_eq!(expected, lengthen_lines(original, 100))
+}
+
+#[test]
+fn split_on_comma_of_next_line() {
     let original = "
 Because of canonicalization of regions and
 inference variables, encountering a cycle doesn't mean that we would get an infinite proof tree.
