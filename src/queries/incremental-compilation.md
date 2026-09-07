@@ -19,17 +19,17 @@ because queries cannot depend on themselves, this results in a DAG and not a gen
 [DAG]: https://en.wikipedia.org/wiki/Directed_acyclic_graph
 
 > **NOTE**: You might think of a query as simply the definition of a query.
-> A thing that you can invoke, a bit like a function, 
+> A thing that you can invoke, a bit like a function,
 > and which either returns a cached result or actually executes the code.
-> 
+>
 > If that's the way you think about queries,
-> it's good to know that in the following text, queries will be said to have colours. 
-> Keep in mind though, that here the word query also refers to a certain invocation of 
-> the query for a certain input. As you will read later, queries are fingerprinted based 
-> on their arguments. The result of a query might change when we give it one argument 
+> it's good to know that in the following text, queries will be said to have colours.
+> Keep in mind though, that here the word query also refers to a certain invocation of
+> the query for a certain input. As you will read later, queries are fingerprinted based
+> on their arguments. The result of a query might change when we give it one argument
 > and be coloured red, while it stays the same for another argument and is thus green.
-> 
-> In short, the word query is here not just used to mean the definition of a query, 
+>
+> In short, the word query is here not just used to mean the definition of a query,
 > but also for a specific instance of that query with given arguments.
 
 On the next run of the compiler, then, we can sometimes reuse these
@@ -80,8 +80,8 @@ Try-mark-green works as follows:
       - We re-execute Q and compare the hash of its result to the hash of the
         result from the previous compilation.
       - If the hash has not changed, we can mark Q as **green** and return.
-    - Otherwise, **all** of the nodes in `reads(Q)` must be **green**. In that       case,
-we can color Q as **green** and return.
+    - Otherwise, **all** of the nodes in `reads(Q)` must be **green**.
+      In that case, we can color Q as **green** and return.
 
 <a id="dag"></a>
 
@@ -91,9 +91,9 @@ The query DAG code is stored in [`compiler/rustc_middle/src/dep_graph`][dep_grap
 Construction of the DAG is done by instrumenting the query execution.
 
 One key point is that the query DAG also tracks ordering; that is, for each query Q,
-we not only track the queries that Q reads, we track the
-**order** in which they were read.
- This allows try-mark-green to walk those queries back in the same order.
+we not only track the queries that Q reads;
+we also track the **order** in which they were read.
+This allows try-mark-green to walk those queries back in the same order.
 This is important because once a subquery comes back as red,
 we can no longer be sure that Q will continue
 along the same path as before.
@@ -127,12 +127,10 @@ This can lead to ICEs and other problems in the compiler.
 
 In the description of the basic algorithm, we said that at the end of
 compilation we would save the results of all the queries that were performed.
- In practice, this can be quite wasteful – many of those results are very cheap to recompute,
-and serializing and deserializing
-them is not a particular win.
+In practice, this can be quite wasteful – many of those results are very cheap to recompute,
+and serializing and deserializing them is not a particular win.
 In practice, what we would do is to save **the hashes** of all the subqueries that we performed.
-Then, in select cases,
-we **also** save the results.
+Then, in select cases, we **also** save the results.
 
 This is why the incremental algorithm separates computing the **color** of a node,
 which often does not require its value, from

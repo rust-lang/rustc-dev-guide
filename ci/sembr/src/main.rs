@@ -359,3 +359,11 @@ encountering a cycle doesn't mean that we would get an infinite proof tree.
 ";
     assert_eq!(expected, lengthen_lines(original, 100))
 }
+
+#[test]
+#[ignore]
+fn should_split() {
+    let original = "the queries that we do, as well as the **query DAG**. The";
+    let expected = "the queries that we do, as well as the **query DAG**.\nThe\n";
+    assert_eq!(expected, comply(original));
+}
