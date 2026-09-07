@@ -2,8 +2,8 @@
 
 This chapter provides a deeper dive into the abstract model queries are built on.
 It does not go into implementation details but tries to explain the underlying logic.
-The examples here, therefore, have been stripped down and
-simplified and don't directly reflect the compilers internal APIs.
+The examples here, therefore, have been stripped down and simplified,
+and don't directly reflect compiler internal APIs.
 
 ## What is a query?
 
@@ -57,7 +57,7 @@ the same query key again, will return the result from the cache instead of
 running the provider again.
 
 This caching is crucial for making the query engine efficient.
-Without memoization the system would still be sound (that is, it would yield the same
+Without memoization, the system would still be sound (that is, it would yield the same
 results) but the same computations would be done over and over again.
 
 Memoization is one of the main reasons why query providers have to be pure functions.
@@ -71,8 +71,8 @@ not memoize the result.
 
 When the query context is created, it is still empty: No queries have been executed,
 no results are cached.
-But the context already provides access to
-"input" data, i.e. pieces of immutable data that were computed before the
+But the context already provides access to "input" data,
+i.e. pieces of immutable data that were computed before the
 context was created and that queries can access to do their computations.
 
 As of <!-- date-check --> January 2021, this input data consists mainly of
@@ -175,11 +175,12 @@ A query like this would not be very useful either.
 However, sometimes certain kinds of invalid user input
 can result in queries being called in a cyclic way.
 The query engine includes a check for cyclic invocations of queries with the same input arguments.
-And, because cycles are an irrecoverable error, will abort execution with a 
+And, because cycles are an irrecoverable error, will abort execution with a
 "cycle error" message that tries to be human readable.
 
-At some point the compiler had a notion of "cycle recovery", that is, one could
-"try" to execute a query and if it ended up causing a cycle, proceed in some other fashion.
+At some point the compiler had a notion of "cycle recovery".
+That is, one could "try" to execute a query,
+and if it ended up causing a cycle, proceed in some other fashion.
 However, this was later removed because it is not entirely
 clear what the theoretical consequences of this are, especially regarding incremental compilation.
 
