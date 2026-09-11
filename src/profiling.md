@@ -24,6 +24,7 @@ Depending on what you're trying to measure, there are several different approach
 - If you want to profile memory usage, you can use various tools depending on what operating system
   you are using.
   - For Windows, read our [WPA guide](profiling/wpa-profiling.md).
+  - For linux, [heaptrack](profiling/with-heaptrack.md) is one of the many options.
 
 ## Optimizing rustc's bootstrap times with `cargo-llvm-lines`
 
