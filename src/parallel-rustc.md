@@ -1,25 +1,26 @@
 # Parallel compilation
 
 <div class="warning">
-As of <!-- date-check --> November 2024,
-the parallel front-end is undergoing significant changes,
-so this page contains quite a bit of outdated information.
+As of <!-- date-check --> August 2026, the parallel front-end remains under
+active development, so implementation details on this page may change.
 
 Tracking issue: <https://github.com/rust-lang/rust/issues/113349>
 </div>
 
-As of <!-- date-check --> November 2024, most of the rust compiler is now
-parallelized.
+As of <!-- date-check --> August 2026, `rustc` is always built with support for
+parallel front-end work. The front-end covers compilation from lexing through
+the generation of backend IR. It uses one job by default; `-j`/`--jobs` or
+`--jobs-frontend` can be used to request more. See the
+[compiler job options][compiler-job-options] for details.
 
-- The codegen part is executed concurrently by default.
-  You can use the `-C
-  codegen-units=n` option to control the number of concurrent tasks.
-- The parts after HIR lowering to codegen such as type checking, borrowing
-  checking, and mir optimization are parallelized in the nightly version.
-  Currently, they are executed in serial by default, and parallelization is
-  manually enabled by the user using the `-Z threads = n` option.
-- Other parts, such as lexical parsing, HIR lowering, and macro expansion, are
-  still executed in serial mode.
+- Within the front-end, query evaluation and several intra-query loops can run
+  concurrently. Individual stages that have not been parallelized still run
+  serially.
+- Code generation is executed concurrently by default. The `-C
+  codegen-units=n` option controls how many codegen units a crate is split into,
+  while `--jobs-backend` limits concurrent backend work.
+- The linker has a separate `--jobs-linker` limit when the selected linker
+  supports configuring its parallelism.
 
 <div class="warning">
 The following sections are kept for now but are quite outdated.
@@ -44,90 +45,62 @@ This process occurs in the [`rustc_codegen_ssa::base`] module.
 
 The underlying thread-safe data-structures used in the parallel compiler
 can be found in the [`rustc_data_structures::sync`] module.
-These data structures
-are implemented differently depending on whether `parallel-compiler` is true.
 
-| data structure                   | parallel                                            | non-parallel |
-| -------------------------------- | --------------------------------------------------- | ------------ |
-| Lock\<T> | (parking_lot::Mutex\<T>) | (std::cell::RefCell) |
-| RwLock\<T> | (parking_lot::RwLock\<T>) | (std::cell::RefCell) |
-| ReadGuard | parking_lot::RwLockReadGuard | std::cell::Ref |
-| MappedReadGuard | parking_lot::MappedRwLockReadGuard | std::cell::Ref |
-| WriteGuard | parking_lot::RwLockWriteGuard | std::cell::RefMut |
-| MappedWriteGuard | parking_lot::MappedRwLockWriteGuard | std::cell::RefMut |
-| LockGuard | parking_lot::MutexGuard | std::cell::RefMut |
+The compiler no longer has separate `parallel-compiler` and non-parallel build
+configurations. Instead, `Lock<T>` selects its synchronization mode at runtime.
+When front-end parallelism has not been requested, it uses an unsynchronized
+cell-based guard. Otherwise, it uses a `parking_lot` raw mutex. `RwLock<T>`
+always wraps `parking_lot::RwLock<T>`. This keeps one API while avoiding mutex
+overhead in the usual single-job front-end.
 
-- These thread-safe data structures are interspersed during compilation which
-  can cause lock contention resulting in degraded performance as the number of
-  threads increases beyond 4. So we audit the use of these data structures
-  which leads to either a refactoring so as to reduce the use of shared state,
-  or the authoring of persistent documentation covering the specific of the
-  invariants, the atomicity, and the lock orderings.
-
-- On the other hand, we still need to figure out what other invariants
-  during compilation might not hold in parallel compilation.
+Thread-safe data structures can introduce contention as the number of jobs
+increases. Uses of shared state are therefore audited and may be refactored to
+reduce sharing or documented with their invariants, atomicity, and lock order.
 
 [`rustc_data_structures::sync`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_data_structures/sync/index.html
 
 ### WorkerLocal
 
 [`WorkerLocal`] is a special data structure implemented for parallel compilers.
-It holds worker-locals values for each thread in a thread pool.
-You can only
-access the worker local value through the `Deref` `impl` on the thread pool it
-was constructed on.
-It panics otherwise.
+It holds one value for each possible thread in the current front-end worker
+registry. The `Deref` implementation selects the value for the registered
+current thread and panics when called from a thread outside that registry.
 
-`WorkerLocal` is used to implement the `Arena` allocator in the parallel
-environment, which is critical in parallel queries.
-Its implementation is
-located in the [`rustc_data_structures::sync::worker_local`] module.
-However,
-in the non-parallel compiler, it is implemented as `(OneThread<T>)`, whose `T`
-can be accessed directly through `Deref::deref`.
+`WorkerLocal` is used for the compiler arenas and for per-worker query and
+dependency-graph state. Its implementation is located in the
+[`rustc_data_structures::sync::worker_local`] module.
 
 [`rustc_data_structures::sync::worker_local`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_data_structures/sync/worker_local/index.html
 [`WorkerLocal`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_data_structures/sync/worker_local/struct.WorkerLocal.html
 
-## Parallel iterator
+## Parallel helpers
 
-The parallel iterators provided by the [`rayon`] crate are easy ways to
-implement parallelism.
-In the current implementation of the parallel compiler,
-we use [a custom fork of `rayon`][rustc-rayon] to run tasks in parallel.
+The compiler contains an in-tree [`rustc_thread_pool`], a fork of Rayon core.
+Helpers in [`rustc_data_structures::sync`] use that pool when front-end
+parallelism is enabled and preserve serial behavior otherwise.
 
-Some iterator functions are implemented to run loops in parallel
-when `parallel-compiler` is true.
+Some of the main helpers are:
 
-| Function(Omit `Send` and `Sync`)                             | Introduction                                                 | Owning Module              |
-| ------------------------------------------------------------ | ------------------------------------------------------------ | -------------------------- |
-| **par_iter**<T: IntoParallelIterator>(t: T) -> T::Iter       | generate a parallel iterator                                 | rustc_data_structure::sync |
-| **par_for_each_in**<T: IntoParallelIterator>(t: T, for_each: impl Fn(T::Item)) | generate a parallel iterator and run `for_each` on each element | rustc_data_structure::sync |
-| **Map::par_body_owners**(self, f: impl Fn(LocalDefId))       | run `f` on all hir owners in the crate                       | rustc_middle::hir::map     |
-| **Map::par_for_each_module**(self, f: impl Fn(LocalDefId))   | run `f` on all modules and sub modules in the crate          | rustc_middle::hir::map     |
-| **ModuleItems::par_items**(&self, f: impl Fn(ItemId))        | run `f` on all items in the module                           | rustc_middle::hir          |
-| **ModuleItems::par_trait_items**(&self, f: impl Fn(TraitItemId)) | run `f` on all trait items in the module                     | rustc_middle::hir          |
-| **ModuleItems::par_impl_items**(&self, f: impl Fn(ImplItemId)) | run `f` on all impl items in the module                      | rustc_middle::hir          |
-| **ModuleItems::par_foreign_items**(&self, f: impl Fn(ForeignItemId)) | run `f` on all foreign items in the module                   | rustc_middle::hir          |
+| Helper (simplified) | Purpose | Owning module |
+| ------------------- | ------- | ------------- |
+| `par_fns(&mut [f])` | Run a fixed set of functions concurrently | `rustc_data_structures::sync` |
+| `par_join(a, b)` | Run two functions concurrently | `rustc_data_structures::sync` |
+| `par_for_each_in(iter, f)` | Run `f` for each item | `rustc_data_structures::sync` |
+| `TyCtxt::par_hir_body_owners(f)` | Run `f` for every HIR body owner | `rustc_middle::hir::map` |
+| `TyCtxt::par_hir_for_each_module(f)` | Run `f` for every HIR module | `rustc_middle::hir::map` |
+| `ModuleItems::par_*` | Visit item, trait item, impl item, foreign item, nested body, or opaque collections | `rustc_middle::hir` |
 
 There are a lot of loops in the compiler which can possibly be parallelized
-using these functions. As of <!-- date-check--> August 2022, scenarios where
-the parallel iterator function has been used are as follows:
+using these functions. As of <!-- date-check --> August 2026, examples include:
 
 | caller                                                  | scenario                                                     | callee                   |
 | ------------------------------------------------------- | ------------------------------------------------------------ | ------------------------ |
-| rustc_metadata::rmeta::encoder::prefetch_mir            | Prefetch queries which will be needed later by metadata encoding | par_iter                 |
+| rustc_metadata::rmeta::encoder::prefetch_mir            | Prefetch queries which will be needed later by metadata encoding | par_for_each_in          |
 | rustc_monomorphize::collector::collect_crate_mono_items | Collect monomorphized items reachable from non-generic items | par_for_each_in          |
-| rustc_interface::passes::analysis                       | Check the validity of the match statements                   | Map::par_body_owners     |
-| rustc_interface::passes::analysis                       | MIR borrow check                                             | Map::par_body_owners     |
-| rustc_typeck::check::typeck_item_bodies                 | Type check                                                   | Map::par_body_owners     |
-| rustc_interface::passes::hir_id_validator::check_crate  | Check the validity of hir                                    | Map::par_for_each_module |
-| rustc_interface::passes::analysis                       | Check the validity of loops body, attributes, naked functions, unstable abi, const bodys | Map::par_for_each_module |
-| rustc_interface::passes::analysis                       | Liveness and intrinsic checking of MIR                       | Map::par_for_each_module |
-| rustc_interface::passes::analysis                       | Deathness checking                                           | Map::par_for_each_module |
-| rustc_interface::passes::analysis                       | Privacy checking                                             | Map::par_for_each_module |
-| rustc_lint::late::check_crate                           | Run per-module lints                                         | Map::par_for_each_module |
-| rustc_typeck::check_crate                               | Well-formedness checking                                         | Map::par_for_each_module |
+| rustc_interface::passes::run_required_analyses          | MIR borrow checking and related analyses                     | TyCtxt::par_hir_body_owners |
+| rustc_passes::hir_id_validator::check_crate             | Check the validity of HIR IDs                                | TyCtxt::par_hir_for_each_module |
+| rustc_lint::late::check_crate                           | Run per-module lints                                         | TyCtxt::par_hir_for_each_module |
+| rustc_hir_analysis::check::wfcheck::check_type_wf       | Run well-formedness checks over HIR item collections         | ModuleItems::par_*       |
 
 There are still many loops that have the potential to use parallel iterators.
 
@@ -158,15 +131,16 @@ When a query `foo` is evaluated, the cache table for `foo` is locked.
   the compiler uses an extra thread *(named deadlock handler)* to detect, remove and
   report the cycle error.
 
-The parallel query feature still has implementation to do, most of which is
-related to the previous `Data Structures` and `Parallel Iterators`.
-See [this open feature tracking issue][tracking].
+The original [query-parallelization tracking issue][query-tracking] is closed
+as completed. Remaining parallel front-end work is tracked in the current
+[parallel front-end tracking issue][tracking].
 
 ## Rustdoc
 
-As of <!-- date-check--> November 2022, there are still a number of steps to
-complete before `rustdoc` rendering can be made parallel (see a open discussion
-of [parallel `rustdoc`][parallel-rustdoc]).
+As of <!-- date-check --> August 2026, `rustdoc` HTML rendering remains serial.
+The [parallel `rustdoc` tracking issue][parallel-rustdoc] is still open; several
+fields in the rendering `SharedContext` still use `RefCell`, and module items
+are rendered sequentially.
 
 ## Resources
 
@@ -176,11 +150,12 @@ Here are some resources that can be used to learn more:
 - [This IRLO thread by Zoxc, one of the pioneers of the effort][irlo0]
 - [This list of interior mutability in the compiler by nikomatsakis][imlist]
 
-[`rayon`]: https://crates.io/crates/rayon
+[compiler-job-options]: https://doc.rust-lang.org/rustc/command-line-arguments.html#option-jobs
 [imlist]: https://github.com/nikomatsakis/rustc-parallelization/blob/master/interior-mutability-list.md
 [irlo0]: https://internals.rust-lang.org/t/parallelizing-rustc-using-rayon/6606
 [irlo1]: https://internals.rust-lang.org/t/help-test-parallel-rustc/11503
 [monomorphization]: backend/monomorph.md
 [parallel-rustdoc]: https://github.com/rust-lang/rust/issues/82741
-[rustc-rayon]: https://github.com/rust-lang/rustc-rayon
-[tracking]: https://github.com/rust-lang/rust/issues/48685
+[query-tracking]: https://github.com/rust-lang/rust/issues/48685
+[`rustc_thread_pool`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_thread_pool/index.html
+[tracking]: https://github.com/rust-lang/rust/issues/113349
