@@ -21,7 +21,7 @@ If you want to modify what gets executed on CI, see [Modifying CI jobs](#modifyi
 
 ## CI workflow
 
-<!-- date-check: Oct 2024 -->
+<!-- date-check: September 2026 -->
 
 Our CI is primarily executed on [GitHub Actions], with a single workflow defined
 in [`.github/workflows/ci.yml`], which contains a bunch of steps that are
