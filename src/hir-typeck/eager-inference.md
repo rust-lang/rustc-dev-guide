@@ -1,18 +1,16 @@
 # Eager Type Inference
 
-There are places during type checking where we need to depend on the "current state of inference." This means we need to establish the type of a term earlier than we otherwise would, making it _eager_ inference.
+There are places during type checking where we need to depend on a "Current State of Inference" to establish the type of a term earlier than we otherwise would, this where we _Eagerly_ infer a type of a subject.
 
-Depending on the Current State of Inference means _we pay attention to the set of constraints we currently have_ even if we've not finished finding all constraints yet. See: ["Current State of Inference"](#current-state-of-inference).
+Depending on the Current State of Inference means we pay attention to the set of constraints we currently have, even if we've not finished finding all constraints yet. See: ["Current State of Inference"](#current-state-of-inference) and [`InferCtxtInner`][inferctxtinner].
 
-Eager evaluation of the type of a term (type inference) is required at specific points either to make later type inference more consistent or (in the case of higher-ranked bounds / Higher Ranked Lifetime bounds) make it possible at all.
-
-Eager type inference is when we do type inference earlier than we otherwise would. To do this, we bring in Expectations as an additional piece of context.
+Eager type inference is required at specific points either to make later type inference more consistent or — in the case of higher-ranked bounds / Higher Ranked Lifetime bounds — make it possible at all.
 
 ## Current State of Inference
 
-The "Current State of Inference" is a set of ongoing context state that may not yet be "complete." This is a set of information we care about while performing type inference and checking.
+The Current State of Inference is a set of ongoing context state that may not yet be "complete." This is a set of information we care about while performing type inference and checking.
 
-In practical terms, accessing the current state of inference usually means accessing [`InferCtxtInner`][inferctxtinner]
+In practical terms, accessing the current state of inference usually means accessing [`InferCtxtInner`][inferctxtinner].
 
 ### Inference Variables
 
@@ -34,9 +32,9 @@ Each time we look up what `?a` currently is we are accessing this part of the Cu
 
 ### Expectations
 
-[Expectations][expectation] are an additional piece of typing context that shows we _expect_ that a subject will have a given type, but we have not yet assigned applied this to the inference variables for that subject.
+[Expectations][expectation] are an additional piece of typing context that represents an _expectation_ that a subject will have a given type, but without having committed this to the inference variables for that subject.
 
-We may have knowledge about what an expression's type _should_ be before we further constrain the inference variable associated with it. Consider the following:
+We may have knowledge about what a subject's type _should_ be before we further constrain the inference variable associated with it. Consider the following:
 
 ```rust
 // fn(u32) -> bool
@@ -56,22 +54,21 @@ result: ?b;
 // will need to reconcile these with ?a and ?b in the short term.
 expect x: u32;
 expect result: bool;
-// Then we type check and infer
 ```
 
 These pieces of information have not yet been canonized as "things an inference variable _is_" the same way we might be able to look up what `?x` currently maps to in the current state of inference.
 
-### Constraints
+### Obligations
 
-This is the set of constraints that need to be solved. We collect these constraints as we move through the codebase being type checked.
+Sometimes we look at the set of obligations/goals/predicates the trait solver is required to prove. The relevant data structure here is [ObligationCtxt][obligation]. See: [Trait Solving](#trait-solving).
 
 ## Places Where Eager Inference Happens
 
 Eager inference is very common.
 
-### Closures and Higher-Ranked Variables
+### Closures
 
-Top-level functions, such as the following, have their types fully annotated at their definition site:
+Top-level functions have their types fully annotated at their definition site:
 
 ```rust
 fn is_even(number: i32) -> bool {
@@ -94,11 +91,13 @@ let closure = |a, b| if a < b {vec![1, 2, 3]} else {vec![5, 6, 7]};
 closure: fn(?x, ?y) -> ?z
 ```
 
-If we didn't do eager type inference we would instead have closures whose types were filled with [inference variables](../appendix/glossary.md#inf-var) (like the `?x, ?y, ?z` variables above).
-
-Eagerly inferring the type of `closure` here serves a couple of purposes. Firstly, it's a decent heuristic that if we define a closure we'll use it later and having its type be known will mean a less intense inference solve. Having eagerly inferred the type of a closure lets us establish [Expectations](#expectations) that don't have inference variables in them.
+Eagerly inferring the type of a closure serves a couple of purposes. Firstly, it's a decent heuristic that if we define a closure we'll use it later and having its type be known will mean a less intense inference solve. Having eagerly inferred the type of a closure lets us establish [Expectations](#expectations) that don't have inference variables in them.
 
 Secondly, functions can introduce Higher-Ranked Bounds for lifetimes. Inferring the types for a closure that uses higher-ranked bounds **requires** us to do work earlier, as part of the bidirectional[^jonesetal2007] type checking algorithm we use.
+
+If we didn't do eager type inference we would instead have closures whose types were filled with [inference variables](../appendix/glossary.md#inf-var) (like the `?x, ?y, ?z` variables above).
+
+### Higher-Ranked Variables
 
 This would be able to be solved in some situations, but because we do not have Higher-Ranked Inference Variables[^higher-ranked-inference] this would make the higher-ranked bounds for lifetimes that rust can have unusable without more annotation.
 
@@ -122,9 +121,10 @@ TODO: Following are stubs, need to determine if these are relevant to bring up.
     Indexing engages in coercion and therefore needs to engage in eager type inference.
 ---
 
-[expectation]: https://doc.rust-lang.org/stable/nightly-rustc/rustc_hir_typeck/expectation/enum.Expectation.html
-[inferctxtinner]: https://doc.rust-lang.org/stable/nightly-rustc/rustc_infer/infer/struct.InferCtxtInner.html
-[inferctxtinner-tyvars]: https://doc.rust-lang.org/stable/nightly-rustc/rustc_infer/infer/struct.InferCtxtInner.html#structfield.type_variable_storage
+[obligation]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_trait_selection/traits/struct.ObligationCtxt.html
+[expectation]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir_typeck/expectation/enum.Expectation.html
+[inferctxtinner]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_infer/infer/struct.InferCtxtInner.html
+[inferctxtinner-tyvars]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_infer/infer/struct.InferCtxtInner.html#structfield.type_variable_storage
 [tykind]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/sty/type.TyKind.html
 [^higher-ranked-inference]: https://github.com/rust-lang/types-team/issues/131
 [^jonesetal2007]: [Practical Type Inference for Arbitrary-Rank Types, Jones et al 2007](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/putting.pdf)
