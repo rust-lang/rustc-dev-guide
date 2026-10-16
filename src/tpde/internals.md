@@ -4,8 +4,8 @@ TPDE-LLVM is an alternative LLVM codegen backend which aims to compile code sign
 
 # Supported `RUSTFLAGS`
 
-To control the usage of TPDE-LLVM as the codegen backend, use the `-Z tpde` rustc flag (which can be passed to cargo via `RUSTFLAGS`). The valid options are:
+To control the usage of TPDE-LLVM as the codegen backend, use the `-Z llvm-tpde` rustc flag (which can be passed to cargo via `RUSTFLAGS`). The valid options are:
 
 - `<not set>`: use LLVM normally as the codegen backend. TPDE is not used
-- `-Ztpde`, `-Ztpde=try`: attempt to compile with TPDE-LLVM, but fall back to LLVM if unsupported IR is encountered
-- `-Ztpde=only`: attempt to compile with TPDE-LLVM, and bail if unsupported IR is encountered
+- `-Zllvm-tpde`, `-Zllvm-tpde=try`: attempt to compile with TPDE-LLVM, but fall back to LLVM if unsupported IR is encountered
+- `-Zllvm-tpde=only`: attempt to compile with TPDE-LLVM, and bail if unsupported IR is encountered
