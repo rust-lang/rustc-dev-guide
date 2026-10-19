@@ -57,6 +57,25 @@ following example.
 ENABLE_LINKCHECK=1 mdbook serve
 ```
 
+`ci/linkcheck.sh` decides which pages get checked based on where it runs:
+
+- The scheduled run checks the whole book.
+- A pull request checks only the pages the PR changes, with `--no-cache`.
+- A local run checks only the files changed in `main...`, i.e. the changes on
+  your branch, committed or not. It uses the cache in `book/linkcheck/cache.json`,
+  so a URL that was checked recently is not checked again until `cache-timeout`
+  in `book.toml` (90000 seconds) has passed.
+
+A page that a pull request does not touch is therefore only checked by the
+scheduled run, which is how a link can rot on `main` without any PR failing.
+
+Note that with the `-f` option, `mdbook-linkcheck2` can emit a false
+`wasn't included in SUMMARY.md` warning for a link that points at a page which
+*is* in `SUMMARY.md`, because it only sees the filtered list of files. This is
+[mdbook-linkcheck#86].
+
+[mdbook-linkcheck#86]: https://github.com/Michael-F-Bryan/mdbook-linkcheck/issues/86
+
 ## Editing the guide
 
 ### Where to start
