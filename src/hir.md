@@ -28,17 +28,18 @@ that is closer to the original source code expression:
 cargo rustc -- -Z unpretty=hir
 ```
 
-## Out-of-band storage and the `Crate` type
+## Out-of-band storage and the `ModuleItems` type
 
-The top-level data-structure in the HIR is the [`Crate`], which stores
-the contents of the crate currently being compiled (we only ever
-construct HIR for the current crate).
-Whereas in the AST the crate
-data structure basically just contains the root module, the HIR
-`Crate` structure contains a number of maps and other things that
-serve to organize the content of the crate for easier access.
+The HIR has no single crate-wide data structure: it is stored per HIR owner, and
+the items of a module are collected into a [`ModuleItems`].
+`tcx.hir_crate_items(())` builds the `ModuleItems` for the crate currently being
+compiled (we only ever construct HIR for the current crate), and
+`tcx.hir_module_items(module)` builds the one for a single module.
+Where the AST contains a module's items inline, `ModuleItems` keeps them in
+separate lists, grouped by kind, which serves to organize the content of the
+crate for easier access.
 
-[`Crate`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/hir/struct.Crate.html
+[`ModuleItems`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/hir/struct.ModuleItems.html
 
 For example, the contents of individual items (e.g. modules,
 functions, traits, impls, etc) in the HIR are not immediately
@@ -53,15 +54,16 @@ mod foo {
 
 then in the HIR the representation of module `foo` (the [`Mod`]
 struct) would only have the **`ItemId`** `I` of `bar()`.
-To get the details of the function `bar()`, we would lookup `I` in the
-`items` map.
+To get the details of the function `bar()`, we would look `I` up in the
+[`OwnerNodes`] of the owner that contains it.
 
 [`Mod`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/hir/struct.Mod.html
+[`OwnerNodes`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/hir/struct.OwnerNodes.html
 
 One nice result from this representation is that one can iterate
-over all items in the crate by iterating over the key-value pairs
-in these maps (without the need to trawl through the whole HIR).
-There are similar maps for things like trait items and impl items,
+over all items in the crate by iterating over the lists in the
+`ModuleItems` of the crate (without the need to trawl through the whole HIR).
+There are separate lists for things like trait items and impl items,
 as well as "bodies" (explained below).
 
 The other reason to set up the representation this way is for better
