@@ -154,9 +154,15 @@ The built-in macros are implemented in [`rustc_builtin_macros`], along with some
 early code generation facilities like injection of standard library imports or
 generation of test harness.
 There are some additional helpers for building AST fragments in [`rustc_expand::build`][reb].
-Eager-expansion generally performs a subset of the things that lazy (normal) expansion does.
-It is done by invoking [`fully_expand_fragment`][fef] on only part of a crate (as opposed
-to the whole crate, like we normally do).
+Eager-expansion does not have a separate implementation of expansion: it runs the same
+machinery as lazy (normal) expansion, by calling the same [`fully_expand_fragment`][fef]
+function.
+What differs is the fragment that gets expanded: a normal expansion pass expands the whole
+crate (`AstFragment::Crate`), while eager-expansion expands only the fragment it is given,
+such as a single expression (`AstFragment::Expr`).
+Built-in macros such as `asm!` and the `format_args!` family take this path when reading
+their arguments (see `expr_to_spanned_string` in `rustc_builtin_macros`), so that an argument
+like `concat!("foo", "bar")` is expanded into a literal that the macro can interpret.
 
 ### Other Data Structures
 
