@@ -416,6 +416,65 @@ deal with all of the above but so far that seemed like more trouble than it woul
 
 
 
+## Forcing dep nodes and recovering query keys
+
+In the pseudocode above, `try_mark_green` re-runs a dependency by calling
+`tcx.run_query_for(dependency)` when it cannot mark that dependency green.
+Re-running a query from its dep node like this is called _forcing_ the node,
+and the real entry point is `TyCtxt::try_force_from_dep_node`.
+
+Forcing cannot always work.
+A `DepNode` is a `DepKind` plus a _key fingerprint_, which is a stable hash of the
+query's key, and a hash cannot be turned back into the value it was computed from.
+Since the dep graph that survives between compilation sessions stores dep nodes but
+not the keys they were built from, there are nodes for which the compiler simply
+cannot tell which query to re-run.
+
+The system is built to accept that.
+When forcing fails, `try_mark_green` returns `None` for that node, and the root
+query is re-evaluated instead of being marked green, so the work that could have
+been reused is done again.
+Nothing is miscompiled; incremental compilation is just less effective than it
+could be.
+
+For forcing to be useful at all, some key types have to promise that their
+fingerprint is not an opaque hash.
+That promise is [`DepNodeKey::key_fingerprint_style`], which returns one of these
+[`KeyFingerprintStyle`] values:
+
+| `KeyFingerprintStyle` | Meaning |
+| --- | --- |
+| `DefPathHash` | The fingerprint is a `DefPathHash`. |
+| `HirId` | The fingerprint is a `HirId`, encoded as a local `DefPathHash` hash and an `ItemLocalId`. |
+| `Unit` | The key was `()` or equivalent, so the fingerprint is zero. |
+| `Opaque` | The fingerprint is an opaque hash and the key cannot be recovered from it. |
+
+`DefPathHash` is the case that makes forcing worth having.
+The compiler maintains a table that maps every `DefPathHash` in the current crate to
+its `DefId`, so recovering a `DefId` from a `DefPathHash` is a lookup rather than an
+inversion of the hash.
+[`DepNodeKey::try_recover_key`] performs that lookup, and the key it returns is what
+the query system executes.
+
+The key types that can be recovered this way are the ones that are a `DefPathHash` in
+disguise: `DefId`, `LocalDefId`, `OwnerId`, `CrateNum`, `ModId` and `LocalModId`.
+`HirId` is recoverable too, by splitting its fingerprint back into a `DefPathHash`
+local hash and an `ItemLocalId` and looking up the former.
+Everything else falls back to the blanket implementation, whose style is `Opaque` and
+whose `try_recover_key` returns `None`.
+A key that contains more than one `DefId`, such as `(DefId, DefId)`, is `Opaque` as
+well.
+
+Returning `None` is always allowed, even from a key type whose style is recoverable,
+and the only consequence is that incremental compilation treats the query as having
+changed rather than forcing it.
+A query can also opt out of being forced at all; see [`no_force`](#query-modifiers)
+below.
+
+[`DepNodeKey::key_fingerprint_style`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/dep_graph/dep_node_key/trait.DepNodeKey.html#tymethod.key_fingerprint_style
+[`DepNodeKey::try_recover_key`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/dep_graph/dep_node_key/trait.DepNodeKey.html#tymethod.try_recover_key
+[`KeyFingerprintStyle`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/dep_graph/enum.KeyFingerprintStyle.html
+
 ## Query modifiers
 
 > FIXME: Make [`rustc_middle::query::modifiers`] the home for query modifier documentation,
@@ -446,6 +505,10 @@ respect to incremental compilation:
 
  - `no_force` - Never "force" the dep nodes for this query, even if the query's
    key type is recoverable.
+   Forcing a query means re-running it from its dep node alone; see
+   [Forcing dep nodes and recovering query keys](#forcing-dep-nodes-and-recovering-query-keys).
+   Marking a query `no_force` gives up on that, so a dep node of this kind that
+   cannot be marked green causes its dependents to be re-evaluated instead.
 
  - `no_hash` - Applying `no_hash` to a query tells the system to not compute
    the fingerprint of the query's result.
