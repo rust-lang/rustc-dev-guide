@@ -6,6 +6,18 @@ We'll start by describing
 a slightly simplified variant of the real thing – the "basic algorithm" –
 and then describe some possible improvements.
 
+> **NOTE**: The rest of this chapter assumes that the *same compiler* is used
+> for the previous and the current compilation. The red-green algorithm relies
+> on a query producing the same result whenever it is given the same inputs, and
+> that only holds while the code implementing the queries does not change. A
+> compiler whose queries changed would invalidate the reasoning behind the saved
+> query DAG, so rather than trying to cope with a changed compiler, `rustc`
+> throws the cache away: every incremental cache file starts with a header
+> containing the compiler's version string, which encodes the git commit hash of
+> the compiler that wrote it, and a file whose header does not match is treated
+> as out of date. The session directory is invalidated and the compilation
+> starts from scratch.
+
 ## The basic algorithm
 
 The basic algorithm is called the **red-green** algorithm[^salsa].
