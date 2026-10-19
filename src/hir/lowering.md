@@ -76,7 +76,21 @@ generate a new `NodeId` in all those places because you'd also get a new
 `DefId` then.
 With a `NodeId` from the `AST`, this is not an issue.
 
-Having the `NodeId` also allows the `DefCollector` to generate the `DefId`s
+Having the `NodeId` also allows the [`DefCollector`] to generate the `DefId`s
 instead of lowering having to do it on the fly.
 Centralizing the `DefId`
 generation in one place makes it easier to refactor and reason about.
+
+The `DefCollector` lives in [`rustc_resolve`], not in the lowering crate, and
+its job is exactly the one its doc comment describes: to create a `DefId` for
+every node in the `AST` that needs one.
+`collect_definitions` runs it over an `AstFragment` as soon as that fragment has
+been expanded and has had its `NodeId`s assigned, so definitions introduced by a
+macro invocation get their `DefId`s in the same pass as the ones written by
+hand.
+Creating a definition is also what puts its name into the module it belongs to
+from the resolver's point of view, so the `DefCollector` is what makes
+`rustc_resolve` able to see the items a macro produced.
+
+[`DefCollector`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_resolve/def_collector/struct.DefCollector.html
+[`rustc_resolve`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_resolve/index.html
