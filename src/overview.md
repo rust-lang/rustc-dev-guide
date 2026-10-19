@@ -346,9 +346,12 @@ on [`ty::Ty`][ty], but for now, we just want to mention that it exists and is th
 `rustc` represents types!
 
 Also note that the [`rustc_middle::ty`] module defines the [`TyCtxt`] struct we mentioned before.
+`rustc_middle` is the crate that defines these central data structures;
+[the next chapter][compiler-src] covers it, and the rest of the compiler's crates, in more detail.
 
 [ty]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.Ty.html
 [`rustc_middle::ty`]: https://doc.rust-lang.org/beta/nightly-rustc/rustc_middle/ty/index.html
+[compiler-src]: compiler-src.md
 
 ### Parallelism
 
