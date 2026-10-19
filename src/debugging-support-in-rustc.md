@@ -106,6 +106,22 @@ implements the gdb @ extension.
 > @tromey do you think we should mention this part in the GDB-Rust document rather than this
 document so there is no duplication etc.?
 
+#### macOS on Apple Silicon
+
+GDB does not support the `aarch64-apple-darwin` target, so it cannot debug
+native arm64 executables on macOS.
+For example, the Homebrew build is configured with `--target=x86_64-apple-darwin20`,
+and starting a native program fails with:
+
+```text
+(gdb) run
+Starting program: /path/to/your/program
+Don't know how to run.  Try "help target".
+```
+
+On Apple Silicon, use LLDB instead: it is the debugger that ships with Xcode,
+and it supports native arm64 debugging.
+
 ### LLDB
 
 #### Rust expression parser
