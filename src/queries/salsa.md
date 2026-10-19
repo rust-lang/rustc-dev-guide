@@ -16,6 +16,25 @@ Depth](https://www.youtube.com/watch?v=i_IhACacPRY), also by Niko Matsakis.
 [`rust-analyzer`]: https://rust-analyzer.github.io/
 [chalk]: https://rust-lang.github.io/chalk/book/what_is_chalk.html
 
+## Why this chapter is here, and what "Salsa" refers to
+
+The algorithm this chapter describes is the same kind of on-demand, incremental
+recomputation that rustc's own [query system] performs, and Salsa is the most
+accessible exposition of it, which is why the chapter is part of this guide
+even though rustc does not use the library.
+
+The shared name is easy to trip over. The [incremental compilation] chapter calls
+rustc's algorithm *red-green* and notes that it was almost renamed *the Salsa
+algorithm*; that name refers to the algorithm itself, which rustc implements in
+its query system. Salsa, the library this chapter is about, is a separate
+implementation of the same kind of recomputation, and it credits rustc's query
+system as one of its inspirations. So "the Salsa algorithm" and "Salsa the
+library" are two different things that happen to share a name, and neither
+implies that rustc links against the library.
+
+[query system]: ../query.md
+[incremental compilation]: incremental-compilation.md
+
 ## What is Salsa?
 
 Salsa is a library for incremental recomputation.

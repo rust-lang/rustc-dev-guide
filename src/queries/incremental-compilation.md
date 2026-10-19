@@ -148,6 +148,8 @@ on the memoization details, provides more high-level overview and motivation for
 # Footnotes
 
 [^salsa]: I have long wanted to rename it to the Salsa algorithm, but it never caught on. -@nikomatsakis
+    This is the algorithm, not the [Salsa library](salsa.md), which is a separate
+    implementation of the same kind of recomputation.
 
 [edge]: https://en.wikipedia.org/wiki/Glossary_of_graph_theory_terms#edge
 [initial-design]: https://github.com/nikomatsakis/rustc-on-demand-incremental-design-doc/blob/master/0000-rustc-on-demand-and-incremental.md
