@@ -399,6 +399,19 @@ In this hierarchy [`ExpnData::call_site`][callsite] is the `child -> parent` lin
 
 [callsite]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_span/hygiene/struct.ExpnData.html#structfield.call_site
 
+Unlike the two hierarchies above, this one does not record how a piece of code
+was *produced*, but where it was *written*. Each expansion stores the
+[`SyntaxContext`][sc] in which its invocation appeared, so following
+`call_site` outwards from a token leads back to the source. A chain such as
+`ROOT -> id(m)` therefore means "invocation `m` was written at the top level",
+while `ROOT -> id(m) -> id(n)` means "invocation `n` was written inside the
+expansion of `m`".
+
+The hierarchy belongs to every token, not only to macro invocations: since
+every token carries a [`SyntaxContext`][sc], a plain identifier such as `baz`
+has one too. The token named at the end of the notation is simply the token
+whose hierarchy is being described.
+
 Here is an example:
 
 ```rust,ignore
@@ -410,6 +423,26 @@ foo!(bar!(baz));
 
 For the `baz` AST node in the final output, the expansion-order hierarchy is
 `ROOT -> id(foo) -> id(bar) -> baz`, while the call-site hierarchy is `ROOT -> baz`.
+
+The call-site hierarchy of `baz` is trivial here because `bar!(baz)` was not
+produced by `foo!`; it is the *argument* passed to `foo!`, and so is written
+directly in the source. Both invocations therefore have the root context as
+their call site, and the argument `baz` keeps that context.
+
+The hierarchy only becomes non-trivial when an invocation is written inside
+another macro's *definition*, since then the invocation really is produced by
+an expansion:
+
+```rust,ignore
+macro bar($i: ident) { $i }
+macro foo() { bar!(baz) }
+
+foo!();
+```
+
+Here `bar!` appears in the body of `foo`, so it is part of `foo`'s expansion.
+The call site of `bar` is the context created by `id(foo)`, and the call-site
+hierarchy of `baz` is `ROOT -> id(foo) -> baz`.
 
 ### Macro Backtraces
 
