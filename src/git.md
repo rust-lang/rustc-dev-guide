@@ -419,6 +419,29 @@ For example,
 
 [bors]: https://github.com/rust-lang/bors
 
+### Absorbing fixups automatically
+
+Addressing review comments usually means small edits scattered across the commits
+of your branch, and `git commit --fixup` plus `git rebase --autosquash` means
+matching each edit to the commit it belongs to by hand.
+
+[`git absorb`][git-absorb] does that matching for you: it looks at the lines you
+have staged, finds the commits that last touched those lines, and writes a
+`fixup!` commit for each one. It only touches commits that are safe to rewrite,
+and leaves anything it cannot place where it is.
+
+```console
+git add <the files you fixed>
+git absorb          # review the fixup! commits it created
+git log
+git rebase --interactive --autosquash main
+```
+
+`git absorb --and-rebase` skips the review step and folds the fixups in
+immediately.
+
+[git-absorb]: https://github.com/tummychow/git-absorb
+
 ### `git range-diff`
 
 After completing a rebase, and before pushing up your changes, you may want to

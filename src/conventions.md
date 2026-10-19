@@ -170,6 +170,12 @@ Look for relevant tests that exercise the edge cases.
 Work in small, independently testable steps.
 Run the relevant tests after every meaningful change, so you know where you first went wrong.
 
+When a later change belongs to an earlier step, [`git absorb`][git-absorb] can
+move it there for you instead of leaving it in a separate "fixes" commit.
+See [Advanced Rebasing](./git.md#absorbing-fixups-automatically).
+
+[git-absorb]: https://github.com/tummychow/git-absorb
+
 <a id="cio"></a>
 
 ## Using crates from crates.io
