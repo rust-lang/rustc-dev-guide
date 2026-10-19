@@ -44,6 +44,7 @@
     - [Using the tracing/logging instrumentation](./tracing.md)
 - [Profiling the compiler](./profiling.md)
     - [with the linux perf tool](./profiling/with-perf.md)
+    - [with Valgrind](./profiling/with-valgrind.md)
     - [with Windows Performance Analyzer](./profiling/wpa-profiling.md)
     - [with the Rust benchmark suite](./profiling/with-rustc-perf.md)
 - [crates.io dependencies](./crates-io.md)

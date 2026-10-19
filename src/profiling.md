@@ -13,6 +13,8 @@ Depending on what you're trying to measure, there are several different approach
 
 - If you want function level performance data or even just more details than the above approaches:
   - Consider using a native code profiler such as [perf](profiling/with-perf.md)
+  - or [Valgrind](profiling/with-valgrind.md), whose Callgrind and Cachegrind tools count instructions exactly
+    rather than sampling, at the cost of a much slower run
   - or [tracy](https://github.com/nagisa/rust_tracy_client) for a nanosecond-precision,
     full-featured graphical interface.
 
