@@ -70,7 +70,7 @@ stack backtrace:
    4: std::panicking::rust_panic_with_hook
    5: std::panicking::begin_panic
    (~~~~ LINES REMOVED BY ME FOR BREVITY ~~~~)
-  32: rustc_typeck::check_crate
+  32: rustc_hir_analysis::check_crate
   33: <std::thread::local::LocalKey<T>>::with
   34: <std::thread::local::LocalKey<T>>::with
   35: rustc::ty::context::TyCtxt::create_and_enter
@@ -84,11 +84,11 @@ Then the backtrace will look like this:
 ```text
 stack backtrace:
    (~~~~ LINES REMOVED BY ME FOR BREVITY ~~~~)
-             at /home/user/rust/compiler/rustc_typeck/src/check/cast.rs:110
-   7: rustc_typeck::check::cast::CastCheck::check
-             at /home/user/rust/compiler/rustc_typeck/src/check/cast.rs:572
-             at /home/user/rust/compiler/rustc_typeck/src/check/cast.rs:460
-             at /home/user/rust/compiler/rustc_typeck/src/check/cast.rs:370
+             at /home/user/rust/compiler/rustc_hir_typeck/src/cast.rs:110
+   7: rustc_hir_typeck::cast::CastCheck::check
+             at /home/user/rust/compiler/rustc_hir_typeck/src/cast.rs:572
+             at /home/user/rust/compiler/rustc_hir_typeck/src/cast.rs:460
+             at /home/user/rust/compiler/rustc_hir_typeck/src/cast.rs:370
    (~~~~ LINES REMOVED BY ME FOR BREVITY ~~~~)
   33: rustc_driver::driver::compile_input
              at /home/user/rust/compiler/rustc_driver/src/driver.rs:1010
@@ -177,8 +177,8 @@ stack backtrace:
              ::report_fulfillment_errors
              at /home/user/rust/compiler/rustc_middle/src/traits/error_reporting.rs:160
              at /home/user/rust/compiler/rustc_middle/src/traits/error_reporting.rs:112
-   9: rustc_typeck::check::FnCtxt::select_obligations_where_possible
-             at /home/user/rust/compiler/rustc_typeck/src/check/mod.rs:2192
+   9: rustc_hir_typeck::fn_ctxt::FnCtxt::select_obligations_where_possible
+             at /home/user/rust/compiler/rustc_hir_typeck/src/fn_ctxt/_impl.rs:2192
   (~~~ IRRELEVANT PART OF BACKTRACE REMOVED BY ME ~~~)
   36: rustc_driver::compiler_entrypoint
              at /home/user/rust/compiler/rustc_driver/src/lib.rs:253
