@@ -349,4 +349,4 @@ See the const-eval WG's [docs on promotion](https://github.com/rust-lang/const-e
 [`Rvalue`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/enum.Rvalue.html
 [`Operand`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/enum.Operand.html
 [`mir::Constant`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/mir/enum.Const.html
-[`ty::Const`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.Const.html
+[`ty::Const`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_type_ir/sty/struct.Const.html

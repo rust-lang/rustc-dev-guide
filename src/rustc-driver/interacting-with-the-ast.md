@@ -9,6 +9,6 @@ To get the type of an expression, use the [`after_analysis`] callback to get a [
 ```rust
 {{#include ../../examples/rustc-driver-interacting-with-the-ast.rs}}
 ```
-[`after_analysis`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_driver/trait.Callbacks.html#method.after_analysis
+[`after_analysis`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_driver_impl/trait.Callbacks.html#method.after_analysis
 [`rustc_driver`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_driver
 [`TyCtxt`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/context/struct.TyCtxt.html

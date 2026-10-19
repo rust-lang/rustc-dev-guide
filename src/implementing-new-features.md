@@ -252,7 +252,7 @@ The below steps needs to be followed in order to implement a new unstable featur
 
 [`GatedSpans`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/parse/struct.GatedSpans.html
 [#81015]: https://github.com/rust-lang/rust/pull/81015
-[`rustc_session::errors::feature_err`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/errors/fn.feature_err.html
+[`rustc_session::errors::feature_err`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/diagnostics/fn.feature_err.html
 [`rustc_ast_passes::feature_gate::check_crate`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_ast_passes/feature_gate/fn.check_crate.html
 [value the stability of Rust]: https://github.com/rust-lang/rfcs/blob/master/text/1122-language-semver.md
 [stability in code]: #stability-in-code

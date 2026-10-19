@@ -101,7 +101,7 @@ the corresponding trait method.
 #### Synthesizing new associated types
 
 We use query feeding
-([`TyCtxtAt::create_def`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/query/plumbing/struct.TyCtxtAt.html#method.create_def))
+([`TyCtxtAt::create_def`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/query/struct.TyCtxtAt.html#method.create_def))
 to synthesize a new def-id for the synthetic GATs for each RPITIT.
 
 Locally, most of rustc's queries match on the HIR of an item to compute their values.

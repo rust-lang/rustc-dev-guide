@@ -82,7 +82,7 @@ something like this:
 [`rustc_middle`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/index.html
 [`rustc_span`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_span/index.html
 [`Span`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_span/struct.Span.html
-[main]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_driver/fn.main.html
+[main]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_driver_impl/fn.main.html
 
 You can see the exact dependencies by running `cargo tree`,
 just like you would for any other Rust package:

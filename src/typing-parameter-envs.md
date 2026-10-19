@@ -233,4 +233,4 @@ The documentation on the `TypingMode` enum is quite good so instead of repeating
 
 [penv]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.ParamEnv.html
 [tenv]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.TypingEnv.html
-[tmode]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/type.TypingMode.html
+[tmode]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/sty/type.TypingMode.html

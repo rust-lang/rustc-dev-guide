@@ -42,7 +42,7 @@ but unfortunately there is not a straightforward solution.
 Using the `reference` DI nodes of the respective formats has pitfalls.
 There is a semantic difference between C++ references and Rust references that is unreconcilable.
 
->From [cppreference](https://en.cppreference.com/w/cpp/language/reference.html):
+>From [cppreference](https://en.cppreference.com/w/cpp/language/reference):
 >
 >References are not objects; **they do not necessarily occupy storage**, although the compiler may
 >allocate storage if it is necessary to implement the desired semantics (e.g. a non-static data

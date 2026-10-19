@@ -160,4 +160,4 @@ $ rustc my_mod.rs -Z unpretty=hir
 [Symbol]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_span/symbol/struct.Symbol.html
 [test]: https://doc.rust-lang.org/test/index.html
 [tdaf]: https://doc.rust-lang.org/test/struct.TestDescAndFn.html
-[`test_main_env_args`]: https://doc.rust-lang.org/test/fn.test_main_env_args.html
+[`test_main_env_args`]: https://doc.rust-lang.org/nightly/test/fn.test_main_env_args.html

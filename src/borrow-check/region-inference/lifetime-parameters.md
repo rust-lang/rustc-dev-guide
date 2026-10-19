@@ -86,7 +86,7 @@ liveness constraint (i.e., `'a` must extend until the end of
 itself). In the code, these liveness constraints are setup in
 [`init_free_and_bound_regions`].
 
-[`init_free_and_bound_regions`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_borrowck/region_infer/struct.RegionInferenceContext.html#method.init_free_and_bound_regions
+[`init_free_and_bound_regions`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_borrowck/region_infer/region_context/struct.RegionInferenceContext.html#method.init_free_and_bound_regions
 
 ## Propagating outlives constraints for universal regions
 
@@ -122,4 +122,4 @@ not, as in our example, that is an error. This check is done in the
 universal regions, inspects their final value, and tests against the
 declared [`UniversalRegionRelations`].
 
-[`check_universal_regions`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_borrowck/region_infer/struct.RegionInferenceContext.html#method.check_universal_regions
+[`check_universal_regions`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_borrowck/region_infer/region_context/struct.RegionInferenceContext.html#method.check_universal_regions

@@ -34,8 +34,8 @@ specifically [`rustc_driver_impl::compiler_entrypoint`][rdi_ce]
 [`Compiler`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/struct.Compiler.html
 [`rustc_driver`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_driver/
 [`rustc_interface`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/index.html
-[`Callbacks`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_driver/trait.Callbacks.html
+[`Callbacks`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_driver_impl/trait.Callbacks.html
 [example]: https://github.com/rust-lang/rustc-dev-guide/blob/main/examples/rustc-interface-example.rs
 [i_rc]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_interface/interface/fn.run_compiler.html
-[rd_ce]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_driver/fn.compiler_entrypoint.html
+[rd_ce]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_driver_impl/fn.compiler_entrypoint.html
 [rdi_ce]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_driver_impl/fn.compiler_entrypoint.html

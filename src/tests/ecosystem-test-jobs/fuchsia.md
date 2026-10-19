@@ -168,7 +168,7 @@ see the Fuchsia chapter in [the rustc book][platform-support].
 [Ninja]: https://ninja-build.org/
 [`public_configs`]: https://gn.googlesource.com/gn/+/main/docs/reference.md#var_public_configs
 [`//build/config:compiler`]: https://cs.opensource.google/fuchsia/fuchsia/+/main:build/config/BUILD.gn;l=121;drc=c26c473bef93b33117ae417893118907a026fec7
-[build system]: https://fuchsia.dev/fuchsia-src/development/build/build_system
+[build system]: https://fuchsia.dev/fuchsia-src/get-started/learn/build
 [fuchsia-ping]: ../../notification-groups/fuchsia.md
 
 [^loc]: As of June 2024, Fuchsia had about 2 million lines of first-party Rust
