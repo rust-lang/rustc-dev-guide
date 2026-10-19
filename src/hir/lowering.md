@@ -9,10 +9,10 @@ Examples of such structures include but are not limited to
     * Removed without replacement, the tree structure makes order explicit
 * `for` loops
     * Converted to `match` + `loop` + `match`
-* Universal `impl Trait`
+* [Universal `impl Trait`](../appendix/glossary.md#universal-impl-trait)
     * Converted to generic arguments
       (but with some flags, to know that the user didn't write them)
-* Existential `impl Trait`
+* [Existential `impl Trait`](../appendix/glossary.md#existential-impl-trait)
     * Converted to a virtual `existential type` declaration
 
 The implementation of AST lowering is in the [`rustc_ast_lowering`] crate.
