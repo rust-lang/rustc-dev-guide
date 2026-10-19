@@ -323,13 +323,30 @@ Clang always embeds an MD5 checksum, though this does not appear in documentatio
 
 ## Future work
 
-#### Name mangling changes
+#### Name mangling and demanglers
 
-* New demangler in `libiberty` (gcc source tree).
-* New demangler in LLVM or LLDB.
+As of <!-- date-check --> Oct 2026, the v0 mangling scheme ([RFC 2603]) is the
+default, and `rustc` implements it in [`rustc_symbol_mangling`].
+Debuggers cannot reuse that implementation, so each of them needs a demangler of
+its own for Rust symbols:
 
-**TODO**: Check the location of the demangler source.
-[#1157](https://github.com/rust-lang/rustc-dev-guide/issues/1157)
+* GDB, and the rest of binutils, use [`libiberty/rust-demangle.c`], a C port of
+  the [`rustc-demangle`] crate.
+* LLDB and LLVM use [`llvm/lib/Demangle/RustDemangle.cpp`].
+* [`rustc-demangle`] is the original implementation in Rust, and `rustc` and
+  `std` use it. [`rust-demangle.c`] is the standalone release of the C port, for
+  projects that cannot reuse the `libiberty` code for licensing reasons.
+
+Keeping these ports in step with the mangling scheme is ongoing work: a
+demangler that is behind can fail to demangle symbols that a newer `rustc`
+emits.
+
+[RFC 2603]: https://rust-lang.github.io/rfcs/2603-rust-symbol-name-mangling-v0.html
+[`rustc_symbol_mangling`]: https://github.com/rust-lang/rust/tree/HEAD/compiler/rustc_symbol_mangling
+[`libiberty/rust-demangle.c`]: https://sourceware.org/git/?p=binutils-gdb.git;a=blob;f=libiberty/rust-demangle.c;hb=HEAD
+[`llvm/lib/Demangle/RustDemangle.cpp`]: https://github.com/llvm/llvm-project/blob/main/llvm/lib/Demangle/RustDemangle.cpp
+[`rustc-demangle`]: https://github.com/rust-lang/rustc-demangle
+[`rust-demangle.c`]: https://github.com/LykenSol/rust-demangle.c
 
 #### Reuse Rust compiler for expressions
 
