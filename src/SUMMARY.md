@@ -212,6 +212,7 @@
 - [Opaque types](./opaque-types-type-alias-impl-trait.md)
     - [Inference details](./opaque-types-impl-trait-inference.md)
     - [Return Position Impl Trait In Trait](./return-position-impl-trait-in-trait.md)
+    - [Precise capturing with `use<..>`](./opaque-types-precise-capturing.md)
     - [Region inference restrictions](./borrow-check/opaque-types-region-inference-restrictions.md)
 - [Const traits and const condition checking](./effects.md)
 - [Pattern and exhaustiveness checking](./pat-exhaustive-checking.md)
