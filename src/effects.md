@@ -2,7 +2,7 @@
 
 ## The `HostEffect` predicate
 
-[`HostEffectPredicate`]s are a kind of predicate from `[const] Tr` or `const Tr` bounds.
+[`HostEffectClause`]s are a kind of predicate from `[const] Tr` or `const Tr` bounds.
 It has a trait reference,
 and a `constness` which could be `Maybe` or `Const`, depending on the bound.
 Because `[const] Tr`, or rather `Maybe` bounds
@@ -12,13 +12,13 @@ Where normal trait bounds on a function such as
 `T: Tr` are collected within the [`clauses_of`] query to be proven when a
 function is called and to be assumed within the function,
 bounds such as `T: [const] Tr` will behave as a normal trait bound and add `T: Tr` to the result
-from `clauses_of`, but also adds a `HostEffectPredicate` to the [`const_conditions`] query.
+from `clauses_of`, but also adds a `HostEffectClause` to the [`const_conditions`] query.
 
 On the other hand, `T: const Tr` bounds do not change meaning across contexts,
 therefore they will result in `HostEffect(T: Tr, const)` being added to `clauses_of`,
 and not `const_conditions`.
 
-[`HostEffectPredicate`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_type_ir/predicate/struct.HostEffectPredicate.html
+[`HostEffectClause`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_type_ir/predicate/struct.HostEffectClause.html
 [`clauses_of`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.TyCtxt.html#method.clauses_of
 [`const_conditions`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.TyCtxt.html#method.const_conditions
 
@@ -142,9 +142,9 @@ These bounds are checked in [`compare_impl_item::check_type_bounds`] for HIR typ
 [`evaluate_host_effect_from_item_bounds`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_trait_selection/traits/effects/fn.evaluate_host_effect_from_item_bounds.html
 [`consider_additional_alias_assumptions`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_next_trait_solver/solve/assembly/trait.GoalKind.html#tymethod.consider_additional_alias_assumptions
 
-## Proving `HostEffectPredicate`s
+## Proving `HostEffectClause`s
 
-`HostEffectPredicate`s are implemented both in the [old solver] and the [new trait solver].
+`HostEffectClause`s are implemented both in the [old solver] and the [new trait solver].
 In general, we can prove a `HostEffect` predicate when either of these conditions are met:
 
 * The predicate can be assumed from caller bounds;

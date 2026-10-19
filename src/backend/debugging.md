@@ -50,7 +50,7 @@ These tools include:
 
 [`llc`]: https://llvm.org/docs/CommandGuide/llc.html
 [`opt`]: https://llvm.org/docs/CommandGuide/opt.html
-[`bugpoint`]: https://llvm.org/docs/Bugpoint.html
+[`bugpoint`]: https://releases.llvm.org/21.1.0/docs/CommandGuide/bugpoint.html
 
 By default, the Rust build system does not check for changes to the LLVM source code or
 its build configuration settings.

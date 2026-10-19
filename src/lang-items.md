@@ -60,9 +60,9 @@ You can either:
 ## List of all language items
 
 You can find language items in the following places:
-- An exhaustive reference in the compiler documentation: [`rustc_hir::LangItem`]
+- An exhaustive reference in the compiler documentation: [`rustc_attr_ir::lang_items::LangItem`]
 - An auto-generated list with source locations by using ripgrep: `rg '#\[.*lang =' library/`
 
 Note that language items are explicitly unstable and may change in any new release.
 
-[`rustc_hir::LangItem`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_hir/lang_items/enum.LangItem.html
+[`rustc_attr_ir::lang_items::LangItem`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_attr_ir/lang_items/enum.LangItem.html
