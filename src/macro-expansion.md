@@ -105,6 +105,39 @@ If we can't make progress in an iteration, this represents a compile error.
 [inv]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_expand/expand/struct.Invocation.html
 [tt]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_ast/tokenstream/enum.TokenTree.html
 
+### Why Some Steps Are Repeated
+
+Steps 2.1 and 2.2 are inside the loop rather than done once up front, because
+macro expansion can change the answer to both of them.
+
+**Resolving imports (step 2.1).** Import resolution is what makes most macro
+paths resolvable in the first place: a `use` declaration can bring a macro into
+scope, and a macro can be invoked by path, which requires the import graph to be
+resolved first. The loop therefore resolves imports as early as it can. The
+comment above the `resolve_imports` call in [`fully_expand_fragment`][fef]
+describes this as an optimization that lets it "immediately resolve most of
+imported macros", and it calls `resolve_imports` again whenever the queue drains.
+
+Expansion can also *produce* new imports, since a macro is free to expand to
+`use` items. Those can bring further macros into scope, so import resolution has
+to run again after expansions have been integrated.
+
+**Collecting invocations (step 2.2).** The first collection only sees the
+invocations already present in the fragment. Expanding a macro produces new
+AST, and that AST can contain invocations that did not exist before, so the
+fragment has to be searched again. A macro can even define another macro, in
+which case an invocation of the new macro cannot be resolved until the expansion
+that creates it has run.
+
+This is also the difference between a *macro invocation* and an *unresolved
+macro*. An invocation is any syntactic `name!(..)`, `#[name]` or
+`#[derive(name)]` in the fragment; it is unresolved while the macro it names has
+not been found, either because its path cannot be resolved yet or because its
+definition is produced by an expansion that has not happened yet. Being
+unresolved is not immediately an error: the invocation goes back into the queue
+and is retried, and only when a whole iteration makes no progress is it reported
+as a compile error.
+
 ### Error Recovery
 
 If we make no progress in an iteration we have reached a compilation error
