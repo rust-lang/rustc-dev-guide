@@ -12,6 +12,23 @@ As a general rule:
   changes
 - Use submodules for tools that are independent of the compiler
 
+## Where should a change go?
+
+Some of the tools that ship with Rust live in their own repositories and are
+only copied into `rust-lang/rust`; they are listed below. For those, a change
+usually does not belong in a `rust-lang/rust` pull request:
+
+- **An enhancement or bug fix for one of these tools** should normally be sent
+  to the tool's own repository, even though the code is also present in
+  `rust-lang/rust`.
+- **A change that needs both a compiler change and a tool change** should be
+  made as a single `rust-lang/rust` pull request, so that the two land together.
+- **A fix for a tool that your compiler change breaks** should be included in
+  that same `rust-lang/rust` pull request.
+
+The rest of this chapter describes the mechanisms used to keep the copies in
+sync, which is mostly relevant when you are the one doing the synchronizing.
+
 ## External dependencies (subtrees)
 
 The following external projects are managed using some form of a `subtree`:

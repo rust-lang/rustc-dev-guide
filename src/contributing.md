@@ -71,7 +71,7 @@ Other contribution procedures are documented with the parts of the guide that ow
 
 <a id="external-dependencies"></a>
 
-- For external dependencies, see [Using external repositories](external-repos.md).
+- For code that is copied into `rust-lang/rust` from another repository (clippy, miri, rustfmt, cargo, the books), see [Using external repositories](external-repos.md).
 
 <a id="helpful-links-and-information"></a>
 
