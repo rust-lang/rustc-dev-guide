@@ -254,6 +254,53 @@ Selecting `zed` in `./x setup editor` will prompt you to create a `.zed/settings
 file which will configure Zed with the recommended configuration.
 The recommended `rust-analyzer` settings live at [`src/etc/rust_analyzer_zed.json`].
 
+## Configuring RustRover for `rustc`
+
+As of <!-- date-check --> Oct 2026, RustRover does not drive the build through
+bootstrap, so it does not see the environment bootstrap sets up, and
+`./x setup editor` does not configure it
+(the editors it supports are Emacs, Helix, Vim, VS Code and Zed).
+It can still open the compiler as a Cargo project, which gives you navigation,
+search and completion.
+Building and checking still have to go through `./x` on the command line.
+
+Create these two project-local files and add both to `.git/info/exclude`, so
+they are not committed.
+
+`rust-toolchain.toml`, because the IDE builds proc-macro crates with its own
+toolchain rather than bootstrap's, and `rustc_macros` needs a nightly toolchain
+to compile:
+
+```toml
+[toolchain]
+channel = "nightly"
+```
+
+`.cargo/config.toml`, providing the environment variables bootstrap would
+otherwise set.
+Take the version from [`src/version`] rather than the one below:
+
+```toml
+[env]
+RUSTC_BOOTSTRAP = "1"
+CFG_RELEASE = "1.101.0"
+CFG_RELEASE_CHANNEL = "dev"
+CFG_VERSION = "1.101.0-dev"
+```
+
+Then enable the `check_only` feature of the `rustc` package
+(`compiler/rustc/Cargo.toml`), and of `genmc-sys`
+(`src/tools/miri/genmc-sys/Cargo.toml`) if you have the Miri submodule checked
+out.
+`check_only` is what lets the compiler be checked without linking LLVM.
+
+Finally, do not attach the standard library crates to the project: the IDE will
+report errors that do not exist, such as `PointeeSized` not being implemented
+for `str`.
+In the Cargo tool window, select the crate and click the minus sign to detach it.
+
+[`src/version`]: https://github.com/rust-lang/rust/blob/HEAD/src/version
+
 ## Check, check, and check again
 
 When doing simple refactoring, it can be useful to run `./x check` continuously.
