@@ -14,7 +14,7 @@ Term                                           | Meaning
 <span id="body">body</span>                    |  The definition of a function or constant that contains "executable code".
 <span id="body-id">`BodyId`</span>             |  An identifier that refers to a specific [body](#body) in the crate. See [the HIR chapter for more](../hir.md#identifiers-in-the-hir).
 <span id="bound-var">bound variable</span>     |  A _bound variable_ is one that is declared within an expression or term (in the general sense). For example, the variable `a` is bound within the closure expression `\|a\| a * 2` and lifetime variable `'a` is bound within the type expression `for<'a> fn(&'a str) -> bool`. See [the background chapter for more](./background.md#free-vs-bound)
-<span id="codegen">codegen</span>              |  Short for _code generation_. The code to translate MIR into LLVM IR.
+<span id="codegen">codegen</span>              |  Short for _code generation_, the part of the compiler that actually generates an executable binary, which rustc delegates to LLVM or to one of the other backends. Many parts of the backend carry `codegen` in their names, so the boundary is not sharp. ([see more](../backend/codegen.md))
 <span id="codegen-unit">codegen unit</span>    |  When we produce LLVM IR, we group the Rust code into a number of codegen units (sometimes abbreviated as CGUs). Each of these units is processed by LLVM independently from one another, enabling parallelism. They are also the unit of incremental re-use. ([see more](../backend/codegen.md))
 <span id="completeness">completeness</span>    |  A technical term in type theory, it means that every type-safe program also type-checks. Having both soundness and completeness is very hard, and usually soundness is more important. (see "soundness").
 <span id="cfg">control-flow graph, CFG</span>  |  A representation of the control-flow of a program; see [the background chapter for more](./background.md#cfg)
@@ -101,7 +101,7 @@ Term                                           | Meaning
 <span id="token">token</span>                  |  The smallest unit of parsing. Tokens are produced after lexing ([see more](../the-parser.md)).
 <span id="tls">[TLS]</span>                    |  _Thread-local storage_. Variables may be defined so that each thread has its own copy (rather than all threads sharing the variable). This has some interactions with LLVM. Not all platforms support TLS.
 <span id="trait-ref">trait reference, trait ref </span> |  The name of a trait along with a suitable list of generic arguments. ([see more](../traits/goals-and-clauses.md#trait-ref))
-<span id="trans">trans 👎</span>                  |  Short for _translation_, the code to translate MIR into LLVM IR. **Renamed to** [codegen](#codegen).
+<span id="trans">trans 👎</span>                  |  Short for _translation_. **Renamed to [codegen](#codegen)**.
 <span id="ty">`Ty`</span>                      |  The internal representation of a type. ([see more](../ty.md))
 <span id="tyctxt">`TyCtxt`</span>              |  The data structure often referred to as [`tcx`](#tcx) in code which provides access to session data and the query system.
 <span id="type-level-term">Type-Level Term</span> | An expression at the type level, such as a Type or Const Generic.
