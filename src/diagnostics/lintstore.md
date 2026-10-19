@@ -105,6 +105,78 @@ Ideally, we'd not have to do this, since it adds to the complexity of understand
 However, with the current type-erased lint store
 approach, it is beneficial to do so for performance reasons.
 
+## Deciding whether a lint is emitted
+
+A lint pass decides *that* a lint applies; whether the user actually sees it is a
+separate step, and it is where lint levels come in.
+
+### Where the levels are recorded
+
+[`LintLevelsBuilder`] walks the HIR and builds, for each HIR owner, a
+[`ShallowLintLevelMap`]: a map from a node to the lint levels written *directly*
+on that node with an attribute such as `#[allow(...)]`, `#[warn(...)]`,
+`#[deny(...)]`, `#[forbid(...)]` or `#[expect(...)]`.
+It is "shallow" because it records only what that node says, not what it
+inherits.
+
+The levels given on the command line (`-A`, `-W`, `-D`, `-F`, in the order they
+appeared) go into the `COMMAND_LINE` entry of [`LintLevelSets`] instead.
+[`get_cmd_lint_options`] sorts them by their position on the command line, so a
+later flag wins over an earlier one.
+
+### Resolving the level for a node
+
+When a lint is about to be reported at some node, the level is resolved in two
+steps.
+
+[`ShallowLintLevelMap::lint_level_spec_at_node`] walks *up* the HIR parent chain
+from that node and returns the first explicit setting it finds, so the innermost
+attribute wins.
+If nothing in the chain mentions the lint, `raw_lint_level_spec` falls back to
+the command-line level, and if there is none either, the lint's own
+[`default_level`] applies.
+The result is a [`LevelSpec`], which is a level plus where it came from
+(a [`LintLevelSource`]: `Default`, `Node` with the attribute's name and span, or
+`CommandLine`).
+That source is what lets rustc explain a lint with `#[allow]` versus `-A` in
+later diagnostics.
+
+### Applying the caps
+
+The level is then finalized by [`reveal_actual_level_spec`], which applies three
+things:
+
+1. If the level is `warn`, and the `warnings` group has been configured in
+   scope, the group's level takes over. This is what makes `-Awarnings` suppress
+   warnings generally, and it is why some warnings cannot be denied through the
+   group, only individually.
+2. `--cap-lints` is applied by taking the *minimum* of the resolved level and
+   the cap: `level = min(level, lint_cap.unwrap_or(Level::Forbid))`. [`Level`]
+   is ordered `Allow < Expect < Warn < ForceWarn < Deny < Forbid`, so capping at
+   `allow` turns every lint off, which is what Cargo passes when building
+   dependencies. The default cap is `Forbid`, i.e. no cap at all. A
+   `--force-warn` from the command line is exempt, since forcing a warning is
+   meant to be the one thing that cannot be suppressed.
+3. `Session::driver_lint_caps` is applied the same way, which lets a driver such
+   as clippy cap lints without touching the command line.
+
+Finally, the pass compares the resolved level: `Allow` and `Expect` do not
+produce a message (an `Expect` instead records that the lint was expected, so
+that `unfulfilled_lint_expectations` can fire if it never showed up), while
+`Warn`, `ForceWarn`, `Deny` and `Forbid` emit one, with `Deny` and `Forbid`
+additionally failing the compilation.
+
+[`LintLevelsBuilder`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/levels/struct.LintLevelsBuilder.html
+[`ShallowLintLevelMap`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/lint/struct.ShallowLintLevelMap.html
+[`ShallowLintLevelMap::lint_level_spec_at_node`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/lint/struct.ShallowLintLevelMap.html#method.lint_level_spec_at_node
+[`LintLevelSets`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/levels/struct.LintLevelSets.html
+[`LevelSpec`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/lint/struct.LevelSpec.html
+[`LintLevelSource`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/lint/enum.LintLevelSource.html
+[`Level`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint_defs/enum.Level.html
+[`default_level`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint_defs/struct.Lint.html#method.default_level
+[`get_cmd_lint_options`]: https://github.com/rust-lang/rust/blob/HEAD/compiler/rustc_session/src/config.rs
+[`reveal_actual_level_spec`]: https://github.com/rust-lang/rust/blob/HEAD/compiler/rustc_middle/src/lint.rs
+
 [`LintStore`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/struct.LintStore.html
 [`LintStore::register_lint`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/struct.LintStore.html#method.register_lints
 [`rustc_lint::register_builtins`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_lint/fn.register_builtins.html
