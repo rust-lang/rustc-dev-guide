@@ -16,13 +16,15 @@ Examples of such structures include but are not limited to
     * Converted to a virtual `existential type` declaration
 
 The implementation of AST lowering is in the [`rustc_ast_lowering`] crate.
-The entry point is [`lower_to_hir`], which retrieves the post-expansion AST
-and resolver data from [`TyCtxt`] and builds the [`hir::Crate`] for the whole crate.
+The entry point is the [`lower_to_hir`] query, which retrieves the post-expansion
+AST and resolver data from [`TyCtxt`] and lowers one HIR owner.
 
-Lowering is organized around HIR owners.
-[`lower_to_hir`] first indexes the
-crate and then [`ItemLowerer::lower_node`] lowers each crate, item, associated
-item, and foreign item.
+Lowering is organized around HIR owners: each owner is lowered on demand.
+The query looks the definition up in the AST index that `tcx.index_ast` builds
+and lowers it with a [`LoweringContext`].
+Definitions that are not in the AST index, such as items that were created while
+lowering another owner, are taken from the lowered HIR of their parent owner
+instead.
 
 Most of the lowering logic lives on [`LoweringContext`].
 The implementation is
@@ -59,8 +61,6 @@ sanity checks in [`compiler/rustc_passes/src/hir_id_validator.rs`][hir_id_valida
 [`rustc_ast_lowering`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_ast_lowering/index.html
 [`lower_to_hir`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_ast_lowering/fn.lower_to_hir.html
 [`TyCtxt`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/struct.TyCtxt.html
-[`hir::Crate`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/hir/struct.Crate.html
-[`ItemLowerer::lower_node`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_ast_lowering/item/struct.ItemLowerer.html
 [`LoweringContext`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_ast_lowering/struct.LoweringContext.html
 [`with_hir_id_owner`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_ast_lowering/struct.LoweringContext.html#method.with_hir_id_owner
 [hir_id_validator]: https://github.com/rust-lang/rust/blob/HEAD/compiler/rustc_passes/src/hir_id_validator.rs
