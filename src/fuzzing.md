@@ -18,6 +18,7 @@ project, please read this guide before reporting fuzzer-generated bugs!
 
 *Please do:*
 
+- Write the report yourself. See the [LLM policy].
 - Ensure the bug is still present on the latest nightly rustc
 - Include a reasonably minimal, standalone example along with any bug report
 - Include all of the information requested in the bug report template
@@ -27,6 +28,7 @@ project, please read this guide before reporting fuzzer-generated bugs!
 
 *Please don't:*
 
+- Do not lightly edit LLM output as a bug report.
 - Don't report lots of bugs that use internal features, including but not
   limited to `custom_mir`, `lang_items`, `no_core`, and `rustc_attrs`.
 - Don't seed your fuzzer with inputs that are known to crash rustc (details below).
@@ -120,6 +122,23 @@ Generally,
 [halfempty]: https://github.com/googleprojectzero/halfempty
 [picireny]: https://github.com/renatahodovan/picireny
 [treereduce]: https://github.com/langston-barrett/treereduce
+
+## LLM-assisted fuzzing
+
+Generally we don't care exactly how you found a bug. If it's a real bug in Rust, we want to see it,
+whether you used an LLM in your fuzzing harness or more traditional fuzzing techniques.
+However, the [LLM policy] for rust-lang/rust prohibits sending LLM-generated output as issues,
+amongst other restrictions.
+
+While asking an LLM for a bug report and rewording every sentence may skirt the policy's edges,
+LLM-generated bug reports often have undesirable features like unverified speculation on causes.
+Rewording text with structural flaws still leaves a rambling report propped up by filler.
+Please do what you can to make your issues easy to triage, not just avoid moderation action.
+If you do ask a machine for text to get past "blank page syndrome", demand that it be concise,
+and delete space-hogging tables and lists that can be replaced by simple sentences or ranges.
+A good subject line, a sentence on "what actually happened", and reproducer code can be enough.
+
+[LLM policy]: https://forge.rust-lang.org/policies/llm-usage.html
 
 ## Effective fuzzing
 
