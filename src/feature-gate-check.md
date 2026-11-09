@@ -8,7 +8,7 @@ nightly-only `#![feature(...)]` opt-in.
 This chapter documents the implementation
 of feature gating: where gates are defined, how they are enabled, and how usage is verified.
 
-<!-- date-check: Feb 2026 -->
+<!-- date-check: Oct 2026 -->
 
 ## Feature Definitions
 
@@ -19,7 +19,7 @@ All feature gate definitions are located in the `rustc_feature` crate:
   This associates features with issue numbers and tracking metadata.
 - **Accepted features** (stabilized) are listed in [`rustc_feature/src/accepted.rs`].
 - **Removed features** (explicitly disallowed) are listed in [`rustc_feature/src/removed.rs`].
-- **Gated built-in attributes and cfgs** are declared in [`rustc_feature/src/builtin_attrs.rs`].
+- **Gated cfgs** are declared in [`rustc_feature/src/builtin_attrs.rs`].
 
 The [`rustc_feature::Features`] type represents the **active feature set** for a crate.
 Helpers like `enabled`, `incomplete`, and `internal` are used during compilation to check status.
@@ -67,8 +67,10 @@ in `check_crate` and its AST visitor.
 - `maybe_stage_features`: Rejects `#![feature]` on stable/beta.
 - `check_incompatible_features`: Ensures incompatible feature combinations
   (declared in `rustc_feature::INCOMPATIBLE_FEATURES`) are not used together.
-- `check_new_solver_banned_features`: Bans features incompatible with
-  compiler mode for the next trait solver.
+- `check_dependent_features`: Errors if a feature is enabled without the features it depends on
+  (declared in `rustc_feature::DEPENDENT_FEATURES`).
+- `warn_next_solver_and_gce` / `warn_next_solver_and_higher_ranked_assumptions`: Warns
+  when `-Znext-solver=globally` falls back to coherence mode due to incompatible features.
 - `check_features_requiring_new_solver`: Requires the new trait solver for
   features incompatible with the old solver.
 - **Parser-gated spans**: Processes the `GatedSpans` recorded during parsing
@@ -80,8 +82,8 @@ in `check_crate` and its AST visitor.
 
 - The `gate_all!` macro emits diagnostics for each gated span if the feature is not enabled.
 - Some gates have extra logic (e.g., `yield` can be allowed by `coroutines` or
-  `gen_blocks`).
-- Legacy gates (e.g., `box_patterns`, `try_blocks`) may use a separate path that
+  `gen_blocks` or `yield_expr`).
+- Legacy gates (e.g., `auto_traits`, `try_blocks`) may use a separate path that
   emits future-incompatibility warnings instead of hard errors.
 
 ### AST Visitor
@@ -100,9 +102,10 @@ Beyond syntax, rustc also gates attributes and `cfg` options.
 
 ### Built-in attributes
 
-- [`rustc_ast_passes::check_attribute`] inspects attributes against `BUILTIN_ATTRIBUTE_SET`.
-- If the attribute is `AttributeGate::Gated` and the feature isn’t enabled,
-  `feature_err` is emitted.
+- Built-in attributes declare an `AttributeStability` in `rustc_attr_parsing`
+  (stable or unstable behind a feature gate).
+- [`check_attribute_stability`] checks it during parsing and emits `feature_err` if the
+  gate is disabled (unless allowed via `allows_unstable`).
 
 ### `cfg` options
 
@@ -114,7 +117,7 @@ Beyond syntax, rustc also gates attributes and `cfg` options.
 
 ## Diagnostics
 
-Diagnostic helpers are located in [`rustc_session/src/parse.rs`].
+Diagnostic helpers are located in [`rustc_session/src/diagnostics.rs`].
 
 - `feature_err` and `feature_warn` emit standardized diagnostics, attaching the
   tracking issue number where possible.
@@ -131,11 +134,12 @@ Diagnostic helpers are located in [`rustc_session/src/parse.rs`].
 [`rustc_expand/src/config.rs`]: https://github.com/rust-lang/rust/blob/HEAD/compiler/rustc_expand/src/config.rs
 [`features`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_expand/config/fn.features.html
 [`RUSTC_BOOTSTRAP`]: https://doc.rust-lang.org/beta/unstable-book/compiler-environment-variables/RUSTC_BOOTSTRAP.html
+[`rustc_session/src/diagnostics.rs`]: https://github.com/rust-lang/rust/blob/HEAD/compiler/rustc_session/src/diagnostics.rs
 [`rustc_session/src/parse.rs`]: https://github.com/rust-lang/rust/blob/HEAD/compiler/rustc_session/src/parse.rs
 [`GatedSpans`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_session/parse/struct.GatedSpans.html
 [`rustc_ast_passes/src/feature_gate.rs`]: https://github.com/rust-lang/rust/blob/HEAD/compiler/rustc_ast_passes/src/feature_gate.rs
 [`rustc_parse/src/parser/*`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_parse/parser/index.html
-[`rustc_ast_passes::check_attribute`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_ast_passes/feature_gate/fn.check_attribute.html
+[`check_attribute_stability`]: https://github.com/rust-lang/rust/blob/HEAD/compiler/rustc_attr_parsing/src/stability.rs
 [`rustc_attr_parsing/src/attributes/cfg.rs`]: https://github.com/rust-lang/rust/blob/HEAD/compiler/rustc_attr_parsing/src/attributes/cfg.rs
 [`rustc_feature::find_gated_cfg`]: https://doc.rust-lang.org/nightly/nightly-rustc/rustc_feature/fn.find_gated_cfg.html
 [`rustc_span/src/lib.rs`]: https://github.com/rust-lang/rust/blob/HEAD/compiler/rustc_span/src/lib.rs
