@@ -138,6 +138,11 @@ If you do ask a machine for text to get past "blank page syndrome", demand that 
 and delete space-hogging tables and lists that can be replaced by simple sentences or ranges.
 A good subject line, a sentence on "what actually happened", and reproducer code can be enough.
 
+One goal of the LLM policy is to mitigate a distributed denial of service (DDOS) attack on
+Rust's maintainers. If you generate a hive of a thousand bugs, often many are very similar.
+Consider reporting a pattern of problem instead of filing the umpteenth bug in the same hour.
+Apply your own judgement regarding this.
+
 [LLM policy]: https://forge.rust-lang.org/policies/llm-usage.html
 
 ## Effective fuzzing
