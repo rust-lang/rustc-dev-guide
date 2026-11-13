@@ -55,7 +55,7 @@ This is the step that actually crawls the
     directory trees
   * inlining public `use` exports of private items, or showing a "Reexport"
     line in the module page
-  * ⁠showing re-exports of ⁠#[doc(hidden)] ⁠ items when the re-export has ⁠#[doc(inline)] ⁠
+  * showing re-exports of `#[doc(hidden)]` items when the re-export has `#[doc(inline)]`
   * showing `#[macro_export]`-ed macros at the crate root, regardless of whether
     they're defined as a reexport or not
 
