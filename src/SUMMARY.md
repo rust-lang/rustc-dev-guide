@@ -46,6 +46,7 @@
     - [with the linux perf tool](./profiling/with-perf.md)
     - [with Windows Performance Analyzer](./profiling/wpa-profiling.md)
     - [with the Rust benchmark suite](./profiling/with-rustc-perf.md)
+    - [with the Heaptrack memory profiler](./profiling/with-heaptrack.md)
 - [crates.io dependencies](./crates-io.md)
 
 # Contributing to Rust
