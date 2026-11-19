@@ -89,7 +89,8 @@ This is *very* helpful for your reviewer, since it helps them understand what th
 Please do your best to write a complete description for the test.
 
 Run your test.
-[rust#161442] named its test `tests/ui/recursion/infinite-dereference-recursion-issue-67064.rs`,
+
+[rust#165729](https://github.com/rust-lang/rust/issues/165729) named its test `tests/ui/recursion/infinite-dereference-recursion-issue-67064.rs`,
 so you could run:
 
 ```
