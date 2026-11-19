@@ -1,18 +1,18 @@
 # Walkthrough: adding a new test
 
 This chapter gives an example of a small change that you could make as your first contribution to Rust,
-using [rust#59333] and [rust#161442] as an example.
+using [rust#67064] and [rust#165729] as an example.
 
-[rust#59333]: https://github.com/rust-lang/rust/issues/59333
-[rust#161442]: https://github.com/rust-lang/rust/issues/161442
+[rust#67064]: https://github.com/rust-lang/rust/issues/67064
+[rust#165729]: https://github.com/rust-lang/rust/issues/165729
 
 ## Find an `E-needs-test` issue to work on
 
 See ["What should I work on?"](../getting-started.md#What-should-I-work-on) for a list of possible tasks you could try out.
 Here, we've chosen an `E-needs-test` issue: 
-[rust#59333](https://github.com/rust-lang/rust/issues/59333).
+[rust#67064](https://github.com/rust-lang/rust/issues/67064).
 This is an especially good fit because it has an example
-[directly in the issue](https://github.com/rust-lang/rust/issues/59333#issuecomment-555973113),
+[directly in the issue](https://github.com/rust-lang/rust/issues/67064#issue-533535274),
 without needing additional work from you to minimize the bug.
 Of course, it's always very helpful for you to take `E-needs-test` that *doesn't* have a minimal example and create one.
 
@@ -55,60 +55,143 @@ See [Compiletest](../tests/compiletest.md) for more information.
 In our case, our test is fairly simple:
 
 ```rust
-// Save this file to `tests/ui/lint/dead-code/type-alias-used-in-impl-59333.rs`.
+// Save this file to `tests/ui/recursion/infinite-dereference-recursion-issue-67064.rs`.
 
-//@ check-pass
-//! Regression test for <https://github.com/rust-lang/rust/issues/59333>.
-//! A type alias used only as (part of) the self type of an impl was
-//! incorrectly flagged as dead code.
+//@ compile-flags: -Zwrite-long-types-to-disk=yes
 
-#![deny(dead_code)]
+// Regression test for: https://github.com/rust-lang/rust/issues/67064
+// This used to take a long time to compile because dereferencing led to
+// recursive expansion of the type of the struct.
 
-struct Runner;
+struct S<T>(T);
 
-type RuntimeImpl = Runner;
-
-trait Runtime {
-    fn run(&mut self);
+impl<T> std::ops::Deref for S<T> {
+    type Target = S<(T, T)>;
+    fn deref(&self) -> &Self::Target {
+        self.thing()
+    }
 }
 
-impl Runtime for &mut RuntimeImpl {
-    fn run(&mut self) {}
-}
-
-struct Walker;
-
-type WalkerImpl = Walker;
-
-trait Walk {
-    fn walk(&self) {}
-}
-
-impl Walk for WalkerImpl {}
-
-fn main() {
-    let mut runner = Runner;
-    (&mut runner).run();
-    Walker.walk();
-}
+fn main() {}
 ```
 
-Most of the details here don't matter too much, but note the `//@ check-pass` and `#![deny(dead_code)]` at the top.
-Together, those ensure that the compiler doesn't emit a `dead_code` lint when compiling this file.
+Most of the details here don't matter too much, but note the 
+`//@ compile-flags: -Zwrite-long-types-to-disk=yes` at the top. It is used for
+adding the respective compiler flag when compiling the test.
+
+There exist other common compiletest directives such as `//@ check-pass`,
+`//@ check-fail` and `#![deny(dead_code)]` which ensure that the compiler
+compiles the file successfully, fails with some errors, doesn't emit a
+`dead_code` lint when compiling this file, respectively.
 
 Also note the "Regression test for ..." comment.
 This is *very* helpful for your reviewer, since it helps them understand what the test is doing and whether there's a simpler way to test the behavior.
 Please do your best to write a complete description for the test.
 
 Run your test.
-[rust#161442] named its test `tests/ui/lint/dead-code/type-alias-used-in-impl-59333.rs`,
+[rust#161442] named its test `tests/ui/recursion/infinite-dereference-recursion-issue-67064.rs`,
 so you could run:
 
 ```
-./x test tests/ui/lint/dead-code/type-alias-used-in-impl-59333.rs
+./x test tests/ui/recursion/infinite-dereference-recursion-issue-67064.rs
 ```
 
 If that passes, your test is ready.
+
+## The `stderr` file and `--bless` flag
+
+In case your test failed with some errors, it expects a `.stderr` file which is
+needed to match the output of your test to verify if the test behaves as
+expected.
+
+The `.stderr` file is something that can automatically be generated. In
+this example you simply need to run
+`./x test tests/ui/recursion/infinite-dereference-recursion-issue-67064.rs --bless `.
+
+Which generates the file `infinite-dereference-recursion-issue-67064.stderr`,
+present in the same directory as the original test.
+
+In our example the `infinite-dereference-recursion-issue-67064.stderr` file will look like
+
+```rust
+error[E0055]: reached the recursion limit while auto-dereferencing `S<(((((((((((((_, _), _), _), _), _), _), _), _), _), _), _), _), _)>`
+  --> $DIR/test.rs:14:14
+   |
+LL |         self.thing()
+   |              ^^^^^ deref recursion limit reached
+   |
+   = help: consider increasing the recursion limit by adding a `#![recursion_limit = "256"]` attribute to your crate (`test`)
+   = note: the full name for the type has been written to '$TEST_BUILD_DIR/test.long-type-$LONG_TYPE_HASH.txt'
+   = note: consider using `--verbose` to print the full type name to the console
+
+error[E0599]: no method named `thing` found for reference `&S<T>` in the current scope
+  --> $DIR/test.rs:14:14
+   |
+LL |         self.thing()
+   |              ^^^^^ method not found in `&S<T>`
+
+error: aborting due to 2 previous errors
+
+Some errors have detailed explanations: E0055, E0599.
+For more information about an error, try `rustc --explain E0055`.
+```
+
+Take a moment to look at this file and you will see some diagnostic hints given
+by the compiler about the errors and the location where they occurred. You will
+need to copy these diagnostics and add them to your original test file at the
+same sites where the errors occurred in the `.stderr` file.
+
+Here you can see two errors were generated by the test file. After adding them
+to the test file it should look something like this
+
+```rust
+// Save this file to `tests/ui/recursion/infinite-dereference-recursion-issue-67064.rs`.
+
+//@ compile-flags: -Zwrite-long-types-to-disk=yes
+
+// Regression test for: https://github.com/rust-lang/rust/issues/67064
+// This used to take a long time to compile because dereferencing led to
+// recursive expansion of the type of the struct.
+
+struct S<T>(T);
+
+impl<T> std::ops::Deref for S<T> {
+    type Target = S<(T, T)>;
+    fn deref(&self) -> &Self::Target {
+        self.thing()
+        //~^ ERROR: reached the recursion limit while auto-dereferencing
+        //~| ERROR: no method named `thing` found for reference
+    }
+}
+
+fn main() {}
+```
+
+Run the test again using `./x test tests/ui/recursion/infinite-dereference-recursion-issue-67064.rs`.
+Now it should pass cleanly.
+
+A general workflow would be:
+- Run your test with the `--bless` flag.
+- Check the errors written in the `.stderr` file.
+- Copy paste the errors at the error sites in the original test file.
+- Run the test again to check if it passes.
+
+The `--bless` flag is responsible for helping to generate the `.stderr` files.
+This writes the emitted lint suggestions and fixes to the `.stderr` file, with
+the reason for the lint, suggested fixes, line numbers, etc.
+When you commit your test, you need to commit the generated `.stderr` files too.
+
+In the future if you work on a rustfix test the `--bless` flag will instead
+generate a `.fixed` file. In general if you are running your test for the first
+time consider using the `--bless` flag to generate the required files.
+
+> [!NOTE]
+> If you change anything in your test file (even comments) it will
+> result in your `.stderr` file becoming stale and would require you to generate
+> it again before committing your changes.
+>
+> If the generated `.stderr`, and/or `.fixed` files are empty,
+> they should be removed.
 
 ## Open a PR
 
@@ -123,11 +206,11 @@ First, run the pre-push check if you didn't set it up earlier:
 Then, [open the PR](https://guides.github.com/activities/forking/#making-a-pull-request):
 
 ```
-git switch --create issue-59333-test
-git add tests/ui/lint/dead-code/type-alias-used-in-impl-59333.rs
+git switch --create tests/infinite-comp
+git add tests/ui/recursion/infinite-dereference-recursion-issue-67064.rs
 git commit
 git remote add personal https://github.com/YOUR_USERNAME_HERE/rust.git
-git push --set-upstream personal issue-59333-test
+git push --set-upstream personal tests/infinite-comp
 ```
 
 ## Review and feedback
