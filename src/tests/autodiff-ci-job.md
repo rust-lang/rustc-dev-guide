@@ -27,7 +27,7 @@ To run the job in a try build, comment on a pull request:
 To run the job locally, run this command from a Rust checkout:
 
 ```console
-$ cargo run --manifest-path src/ci/citool/Cargo.toml run-local optional-x86_64-gnu-autodiff
+$ cargo run --manifest-path src/ci/citool/Cargo.toml run-local optional-test-x86_64-gnu-autodiff
 ```
 
 See [Testing with Docker](./docker.md) for more information about running CI jobs locally.
